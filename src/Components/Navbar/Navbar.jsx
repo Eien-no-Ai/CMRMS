@@ -19,9 +19,9 @@ function Navbar() {
         <a href="/patients-profile" className="hover:underline">test</a>
 
         <div className="relative">
-          <span onClick={toggleDropdown} className="flex items-center cursor-pointer">
+          <button onClick={toggleDropdown} className="flex items-center cursor-pointer">
             <VscAccount size={24} />
-          </span>
+          </button>
           
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg py-2 z-10">
