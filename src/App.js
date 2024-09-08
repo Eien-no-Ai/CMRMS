@@ -5,6 +5,7 @@ import SignUp from "./Components/SignUp/SignUp";
 import HomePage from "./Components/HomePage/HomePage";
 import Patients from "./Components/Patients/Patients";
 import PatientsProfile from "./Components/Patients/PatientsProfile";
+import Profile from "./Components/Profile/Profile";
 
 
 
@@ -18,6 +19,7 @@ function App() {
           <Route path="/home" element={<HomePage/>} />
           <Route path="/patients" element={<Patients/>} />
           <Route path="/patients-profile" element={<PatientsProfile/>} />
+          <Route path="/profile" element={<Profile/>} />
 
         </Routes>
       </BrowserRouter>

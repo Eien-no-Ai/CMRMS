@@ -6,6 +6,9 @@ function SignUp() {
     <div className="w-full h-screen flex flex-col md:flex-row items-start">
       
       <div className="w-full md:w-1/2 h-full bg-[#f5f5f5] flex flex-col p-8 md:p-20 justify-between">
+        <div>
+          
+        </div>
         <div className="w-full flex flex-col">
           <div className="w-full flex flex-col mb-2">
             <h3 className="text-2xl md:text-3xl font-semibold mb-2">
@@ -27,15 +30,7 @@ function SignUp() {
               placeholder="Last Name"
               className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
             />
-            <select
-              className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
-            >
-              <option value="" disabled selected>Select Role</option>
-              <option value="clinicStaff">Clinic Staff</option>
-              <option value="labPersonnel">Lab Personnel</option>
-              <option value="xrayPersonnel">X-ray Personnel</option>
-              <option value="doctor">Doctor</option>
-            </select>
+
             <input
               type="email"
               placeholder="Email"
