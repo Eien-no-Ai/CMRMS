@@ -1,7 +1,25 @@
 import React from "react";
 import cover_image from "../assets/cover.jpg";
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axios.post('http://localhost:3001/login', {email: email, password: password})
+    .then(result => {console.log(result)
+      if(result.data.message === 'Login Successful'){
+        navigate('/home');
+      }
+    })
+    .catch (err => console.log(err));
+    
+  }
   return (
     <div className="w-full h-screen flex flex-col md:flex-row items-start">
       
@@ -34,17 +52,19 @@ function Login() {
               Welcome! Please enter your details.
             </p>
           </div>
-
+          <form onSubmit={handleSubmit}>
           <div className="w-full flex flex-col">
             <input
               type="email"
               placeholder="Email"
               className="w-full text-custom-red py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+              onChange={(e) => setEmail(e.target.value)}
               />
             <input
               type="password"
               placeholder="Password"
               className="w-full text-custom-red py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+              onChange={(e) => setPassword(e.target.value)}
               />
           </div>
 
@@ -56,6 +76,8 @@ function Login() {
             Login
           </button>
         </div>
+        </form>
+
         </div>
 
         <div className="w-full flex items-center justify-center">

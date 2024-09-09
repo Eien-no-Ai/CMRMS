@@ -7,14 +7,13 @@ import Patients from "./Components/Patients/Patients";
 import PatientsProfile from "./Components/Patients/PatientsProfile";
 import Profile from "./Components/Profile/Profile";
 
-
-
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
           <Route index element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/sign-up" element={<SignUp/>} />
           <Route path="/home" element={<HomePage/>} />
           <Route path="/patients" element={<Patients/>} />

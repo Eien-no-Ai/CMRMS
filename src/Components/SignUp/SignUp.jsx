@@ -1,7 +1,30 @@
 import React from 'react';
 import cover_image from '../assets/cover.jpg';
+import { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function SignUp() {
+  const [firstname, setFirstName] = useState("");
+  const [lastname, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
+  
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axios.post('http://localhost:3001/register', {firstname: firstname, lastname: lastname, email: email, password: password, confirmPassword: confirmPassword})
+    .then(result => {console.log(result)
+      navigate('/login');
+    })
+    .catch (err => console.log(err));
+    
+  }
+
+
+
   return (
     <div className="w-full h-screen flex flex-col md:flex-row items-start">
       
@@ -9,7 +32,9 @@ function SignUp() {
         <div>
           
         </div>
+        
         <div className="w-full flex flex-col">
+        
           <div className="w-full flex flex-col mb-2">
             <h3 className="text-2xl md:text-3xl font-semibold mb-2">
               Sign Up
@@ -18,33 +43,38 @@ function SignUp() {
               Please enter your details to create an account!
             </p>
           </div>
-
+          <form onSubmit={handleSubmit}>
           <div className="w-full flex flex-col">
             <input
               type="text"
               placeholder="First Name"
               className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+              onChange={(e) => setFirstName(e.target.value)}
             />
             <input
               type="text"
               placeholder="Last Name"
               className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+              onChange={(e) => setLastName(e.target.value)}
             />
 
             <input
               type="email"
               placeholder="Email"
               className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+              onChange={(e) => setEmail(e.target.value)}
             />
             <input
               type="password"
               placeholder="Password"
               className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+              onChange={(e) => setPassword(e.target.value)}
             />
             <input
               type="password"
               placeholder="Confirm Password"
               className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
           <div className="w-full flex flex-col my-4">
@@ -52,14 +82,16 @@ function SignUp() {
             Sign Up
           </button>
         </div>
+        </form>
         </div>
+     
 
         
         <div className="w-full flex items-center justify-center">
           <p className="text-sm font-normal text-[#060606]">
             Already have an account?{" "}
             <a
-              href="/"
+              href="/login"
               className="font-semibold underline underline-offset-2 cursor-pointer text-[#C3151C]"
             >
               Login!
