@@ -9,14 +9,13 @@ import Profile from "./Components/Profile/Profile";
 import AdminHomePage from "./Components/Admin/AdminHomePage";
 import AdminSignUp from "./Components/Admin/AdminSignUp";
 
-
-
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
           <Route index element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/sign-up" element={<SignUp/>} />
           <Route path="/home" element={<HomePage/>} />
           <Route path="/patients" element={<Patients/>} />
