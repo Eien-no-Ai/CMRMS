@@ -6,6 +6,8 @@ import HomePage from "./Components/HomePage/HomePage";
 import Patients from "./Components/Patients/Patients";
 import PatientsProfile from "./Components/Patients/PatientsProfile";
 import Profile from "./Components/Profile/Profile";
+import AdminHomePage from "./Components/Admin/AdminHomePage";
+import AdminSignUp from "./Components/Admin/AdminSignUp";
 
 
 
@@ -20,6 +22,9 @@ function App() {
           <Route path="/patients" element={<Patients/>} />
           <Route path="/patients-profile" element={<PatientsProfile/>} />
           <Route path="/profile" element={<Profile/>} />
+          <Route path="/admin" element={<AdminHomePage/>} />
+          <Route path="/admin-sign-up" element={<AdminSignUp/>} />
+
 
         </Routes>
       </BrowserRouter>
