@@ -11,10 +11,16 @@ app.use(express.json());
 mongoose.connect('mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee');
 
 app.post('/register', (req, res) => {
-    EmployeeModel.create(req.body)
+    const { firstname, lastname, email, password, confirmPassword } = req.body;
+
+    // Set default role as 'user'
+    const role = 'user';
+
+    EmployeeModel.create({ firstname, lastname, email, password, confirmPassword, role })
     .then(employee => res.json(employee))
-    .catch(err => res.json(err))
-})
+    .catch(err => res.json(err));
+});
+
 
 app.post('/login', (req, res) => {
     const {email, password} = req.body;
