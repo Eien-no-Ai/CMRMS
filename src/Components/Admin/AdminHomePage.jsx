@@ -298,6 +298,7 @@ function AdminHomePage() {
                           <option value="Doctor">Doctor</option>
                           <option value="Clinic Staff">Clinic Staff</option>
                           <option value="Laboratory Staff">Laboratory Staff</option>
+                          <option value="Xray Staff">X-Ray Staff</option>
                           <option value="admin">Admin</option>
                         </select>
                       </td>
@@ -432,8 +433,9 @@ function AdminHomePage() {
                       >
                         <option value="User" disabled>User</option>
                         <option>Doctor</option>
-                        <option>Lab Technician</option>
-                        <option>Nurse</option>
+                        <option>Laboratory Staff</option>
+                        <option>Clinic Staff</option>
+                        <option>Xray Staff</option>
                         <option>Admin</option>
                       </select>
                     </div>
