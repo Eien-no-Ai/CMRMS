@@ -1,12 +1,21 @@
 import { VscAccount } from "react-icons/vsc";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [role, setRole] = useState(null);
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
+
+  useEffect(() => {
+    // Retrieve the role from localStorage
+    const storedRole = localStorage.getItem('role');
+    if (storedRole) {
+      setRole(storedRole);
+    }
+  }, []);
 
   return (
     <div className="fixed top-0 left-0 right-0 bg-red-700 text-white p-3 flex items-center justify-between z-50">
@@ -14,9 +23,14 @@ function Navbar() {
         <span className="mr-8 ml-8 text-xl">CMRMS</span>
       </div>
       <div className="flex items-center space-x-20 mr-8">
-        <a href="/home" className="hover:underline">Home</a>
-        <a href="/patients" className="hover:underline">Patients</a>
-        <a href="/patients-profile" className="hover:underline">test</a>
+        {/* Conditionally render links based on role */}
+        {role !== 'admin' && (
+          <>
+            <a href="/home" className="hover:underline">Home</a>
+            <a href="/patients" className="hover:underline">Patients</a>
+            <a href="/patients-profile" className="hover:underline">test</a>
+          </>
+        )}
 
         <div className="relative">
           <button onClick={toggleDropdown} className="flex items-center cursor-pointer">

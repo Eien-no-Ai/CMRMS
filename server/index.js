@@ -22,16 +22,21 @@ app.post('/login', (req, res) => {
     .then(user => {
         if(user){
             if(user.password === password){
-                res.json({message: 'Login Successful'})
+                res.json({
+                    message: 'Login Successful',
+                    role: user.role // Include user role in the response
+                });
+            } else {
+                res.json({message: 'Password Incorrect'});
             }
-            else{
-                res.json({message: 'Password Incorrect'})
-            }
-        }else{
-            res.json({message: 'User not registered'})
+        } else {
+            res.json({message: 'User not registered'});
         }
     })
-})
+    .catch(err => res.json(err));
+});
+
+
 
 // app.post('/role', (req, res) => {
 //     const {email,firstName,role} = req.body;
