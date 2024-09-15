@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { BiSearch } from "react-icons/bi";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
@@ -12,9 +12,19 @@ function AdminHomePage() {
   const [showFullList, setShowFullList] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [dropdownIndex, setDropdownIndex] = useState(null);
+  const [message, setMessage] = useState(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [accountToDelete, setAccountToDelete] = useState(null);
+  const [newAccount, setNewAccount] = useState({
+    firstname: "",
+    lastname: "",
+    email: "",
+    role: "User",
+  });
+
+  const dropdownRefs = useRef([]);
 
   useEffect(() => {
-    // Fetch accounts from the backend
     axios
       .get("http://localhost:3001/accounts")
       .then((response) => {
@@ -25,12 +35,40 @@ function AdminHomePage() {
       });
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownIndex !== null &&
+        dropdownRefs.current[dropdownIndex] &&
+        !dropdownRefs.current[dropdownIndex].contains(event.target)
+      ) {
+        setDropdownIndex(null);
+      }
+    };
+
+    if (dropdownIndex !== null) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownIndex]);
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
   const indexOfLastAccount = currentPage * accountsPerPage;
   const indexOfFirstAccount = indexOfLastAccount - accountsPerPage;
-  const currentAccounts = accounts.slice(
-    indexOfFirstAccount,
-    indexOfLastAccount
-  );
+  const currentAccounts = accounts.slice(indexOfFirstAccount, indexOfLastAccount);
 
   const totalPages = Math.ceil(accounts.length / accountsPerPage);
 
@@ -56,59 +94,120 @@ function AdminHomePage() {
 
   const handleModalClose = () => {
     setIsModalOpen(false);
+    setNewAccount({ firstname: "", lastname: "", email: "", role: "User" });
   };
 
   const handleDropdownToggle = (index) => {
     setDropdownIndex(dropdownIndex === index ? null : index);
   };
 
-  // const handleRoleAdd = async (index) => {
-  //   const email = accounts[index].email;
-  //   const firstName = accounts[index].firstName;
-  //   const role = prompt("Enter the role for this account:");
-
-  //   if (role) {
-  //     try {
-  //       const response = await axios.post("http://localhost:3001/role", {
-  //         email,
-  //         firstName,
-  //         role,
-  //       });
-  //       console.log(response.data);
-  //     } catch (error) {
-  //       console.error("Error adding role:", error);
-  //     }
-  //   }
-  // };
-
-  const handleRoleAdd = async (index) => {
-    const email = accounts[index].email;
-    const role = prompt("Enter the role for this account:");
-
-    if (role) {
-      try {
-        const response = await axios.post("http://localhost:3001/role", {
-          email,
-          role,
-        });
-        console.log(response.data);
-        // Refresh the page
-        window.location.reload();
-      } catch (error) {
-        console.error("Error adding role:", error);
+  const handleAddAccount = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await axios.post("http://localhost:3001/add-account", newAccount);
+      if (response.data.message === "Account Created Successfully") {
+        setAccounts([...accounts, response.data.account]);
+        setMessage("Account successfully added. Password set to last name.");
+        handleModalClose();
+      } else {
+        setMessage(response.data.message);
       }
+    } catch (error) {
+      console.error("Error adding account:", error);
+      setMessage("Error adding account.");
     }
   };
 
-
-  const handleResetPassword = (index) => {
-    // Logic to reset password
-    console.log("Reset password for account", index);
+  const handleInputChange = (e) => {
+    setNewAccount({
+      ...newAccount,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  const handleDeleteAccount = (index) => {
-    // Logic to delete account
-    console.log("Delete account", index);
+  const handleRoleChange = async (localIndex, newRole) => {
+    const fullIndex = (currentPage - 1) * accountsPerPage + localIndex;
+    const email = accounts[fullIndex].email;
+
+    try {
+      const response = await axios.post("http://localhost:3001/role", {
+        email: email,
+        role: newRole,
+      });
+
+      if (response.data.message === "Role Updated") {
+        setAccounts((prevAccounts) => {
+          const updatedAccounts = [...prevAccounts];
+          updatedAccounts[fullIndex].role = newRole;
+          return updatedAccounts;
+        });
+        setMessage("Role successfully updated.");
+      } else {
+        setMessage(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error updating role:", error);
+      setMessage("Error updating role.");
+    }
+  };
+
+  const handleResetPassword = async (index) => {
+    const fullIndex = (currentPage - 1) * accountsPerPage + index;
+    const email = accounts[fullIndex].email;
+    const lastname = accounts[fullIndex].lastname;
+
+    try {
+      const response = await axios.post("http://localhost:3001/reset-password", {
+        email: email,
+        lastname: lastname,
+      });
+
+      if (response.data.message === "Password Reset Successfully") {
+        setMessage("Password successfully reset to the user's last name.");
+        setDropdownIndex(null);
+      } else {
+        setMessage(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      setMessage("Error resetting password.");
+    }
+  };
+
+  const handleDeleteClick = (index) => {
+    setAccountToDelete(index);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleDeleteAccount = async () => {
+    const fullIndex = (currentPage - 1) * accountsPerPage + accountToDelete;
+    const email = accounts[fullIndex].email;
+
+    try {
+      const response = await axios.post("http://localhost:3001/delete-account", {
+        email: email,
+      });
+
+      if (response.data.message === "Account Deleted Successfully") {
+        setAccounts((prevAccounts) => {
+          const updatedAccounts = [...prevAccounts];
+          updatedAccounts.splice(fullIndex, 1);
+          return updatedAccounts;
+        });
+        setMessage("Account successfully deleted.");
+      } else {
+        setMessage(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      setMessage("Error deleting account.");
+    } finally {
+      setIsConfirmModalOpen(false);
+    }
+  };
+
+  const closeConfirmModal = () => {
+    setIsConfirmModalOpen(false);
   };
 
   return (
@@ -119,12 +218,15 @@ function AdminHomePage() {
           <h1 className="text-3xl font-semibold">Account List</h1>
         </div>
 
+        {message && (
+          <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+            {message}
+          </div>
+        )}
+
         <div className="flex justify-between items-center mb-6">
           <p className="text-gray-600">
-            <span className="font-bold text-4xl text-custom-red">
-              {accounts.length}
-            </span>{" "}
-            accounts
+            <span className="font-bold text-4xl text-custom-red">{accounts.length}</span> accounts
           </p>
 
           <div className="flex items-center space-x-4">
@@ -134,10 +236,7 @@ function AdminHomePage() {
                 placeholder="Search"
                 className="px-4 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none w-72"
               />
-              <BiSearch
-                className="absolute right-2 top-2 text-gray-400"
-                size={24}
-              />
+              <BiSearch className="absolute right-2 top-2 text-gray-400" size={24} />
             </div>
             <button
               onClick={handleModalOpen}
@@ -152,8 +251,7 @@ function AdminHomePage() {
           <div>
             <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 flex justify-center">
               <p className="text-gray-700 flex items-center">
-                <span className="mr-2">&#9432;</span> Whole account list is not
-                shown to save initial load time.
+                <span className="mr-2">&#9432;</span> Whole account list is not shown to save initial load time.
               </p>
             </div>
             <div className="flex justify-center mt-4">
@@ -186,16 +284,27 @@ function AdminHomePage() {
                             <p className="font-semibold">
                               {account.lastname}, {account.firstname}
                             </p>
-                            <p className="text-sm text-gray-500">
-                              ID: {account._id}
-                            </p>
+                            <p className="text-sm text-gray-500">ID: {account._id}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="py-4">{account.role || "N/A"}</td>
+                      <td className="py-4">
+                        <select
+                          value={account.role || "User"}
+                          onChange={(e) => handleRoleChange(index, e.target.value)}
+                          className="px-4 py-2 border rounded w-1/2"
+                        >
+                          <option value="User" disabled>User</option>
+                          <option value="Doctor">Doctor</option>
+                          <option value="Clinic Staff">Clinic Staff</option>
+                          <option value="Laboratory Staff">Laboratory Staff</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </td>
+
                       <td className="py-4">{account.email}</td>
                       <td className="py-4">
-                        <div className="relative">
+                        <div className="relative" ref={(el) => (dropdownRefs.current[index] = el)}>
                           <button
                             onClick={() => handleDropdownToggle(index)}
                             className="text-gray-500 hover:text-gray-700"
@@ -205,19 +314,13 @@ function AdminHomePage() {
                           {dropdownIndex === index && (
                             <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg border z-50">
                               <button
-                                onClick={() => handleRoleAdd(index)}
-                                className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
-                              >
-                                <AiOutlineEdit className="mr-2" /> Add Role
-                              </button>
-                              <button
                                 onClick={() => handleResetPassword(index)}
                                 className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
                               >
                                 <AiOutlineEdit className="mr-2" /> Reset Password
                               </button>
                               <button
-                                onClick={() => handleDeleteAccount(index)}
+                                onClick={() => handleDeleteClick(index)}
                                 className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
                               >
                                 <AiOutlineDelete className="mr-2" /> Delete Account
@@ -234,8 +337,7 @@ function AdminHomePage() {
 
             <div className="flex justify-between items-center mt-4">
               <div>
-                Page <span className="text-custom-red">{currentPage} </span> of{" "}
-                {totalPages}
+                Page <span className="text-custom-red">{currentPage} </span> of {totalPages}
               </div>
               <div>
                 <button
@@ -265,58 +367,83 @@ function AdminHomePage() {
           </>
         )}
 
-        {/* Modal */}
+        {/* Confirmation Modal */}
+        {isConfirmModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-4 rounded-lg shadow-lg w-1/3">
+              <h2 className="text-xl font-semibold mb-4">Confirm Delete</h2>
+              <p>Are you sure you want to delete this account?</p>
+              <div className="mt-4 flex justify-end">
+                <button onClick={closeConfirmModal} className="px-4 py-2 bg-gray-500 text-white rounded-lg mr-2">
+                  Cancel
+                </button>
+                <button onClick={handleDeleteAccount} className="px-4 py-2 bg-red-600 text-white rounded-lg">
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal for Adding Account */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white p-4 px-8 rounded-lg shadow-lg w-1/2">
               <h2 className="text-xl font-semibold mb-4">Add Account</h2>
 
-              {/* Account Form */}
-              <form>
+              <form onSubmit={handleAddAccount}>
                 <div className="grid grid-cols-3 gap-4">
-                  {/* Full Name */}
                   <div className="col-span-3">
                     <label className="block mb-2">Full Name</label>
                     <div className="grid grid-cols-3 gap-4">
                       <input
                         type="text"
+                        name="firstname"
+                        value={newAccount.firstname}
+                        onChange={handleInputChange}
                         placeholder="First Name"
                         className="px-4 py-2 border rounded w-full"
                       />
                       <input
                         type="text"
+                        name="middlename"
                         placeholder="Middle Name"
                         className="px-4 py-2 border rounded w-full"
                       />
                       <input
                         type="text"
+                        name="lastname"
+                        value={newAccount.lastname}
+                        onChange={handleInputChange}
                         placeholder="Last Name"
                         className="px-4 py-2 border rounded w-full"
                       />
                     </div>
                   </div>
 
-                  {/* Role */}
                   <div className="col-span-3 grid grid-cols-2 gap-4">
                     <div className="col-span-1">
                       <label className="block mb-2">Role</label>
                       <select
-                        defaultValue="default"
+                        name="role"
+                        value={newAccount.role}
+                        onChange={handleInputChange}
                         className="px-4 py-2 border rounded w-full"
                       >
-                        <option value="default" disabled>
-                          Select Role
-                        </option>
+                        <option value="User" disabled>User</option>
                         <option>Doctor</option>
                         <option>Lab Technician</option>
                         <option>Nurse</option>
-                        <option>Other</option>
+                        <option>Admin</option>
                       </select>
                     </div>
                     <div>
                       <label className="block mb-2">E-mail Address</label>
                       <input
                         type="email"
+                        name="email"
+                        value={newAccount.email}
+                        onChange={handleInputChange}
                         placeholder="example@example.com"
                         className="px-4 py-2 border rounded w-full"
                       />
@@ -324,19 +451,11 @@ function AdminHomePage() {
                   </div>
                 </div>
 
-                {/* Submit/Cancel Buttons */}
                 <div className="flex justify-end mt-4">
-                  <button
-                    onClick={handleModalClose}
-                    type="button"
-                    className="px-4 py-2 bg-gray-500 text-white rounded-lg mr-2"
-                  >
+                  <button onClick={handleModalClose} type="button" className="px-4 py-2 bg-gray-500 text-white rounded-lg mr-2">
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-custom-red text-white rounded-lg"
-                  >
+                  <button type="submit" className="px-4 py-2 bg-custom-red text-white rounded-lg">
                     Add Account
                   </button>
                 </div>

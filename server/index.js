@@ -55,17 +55,56 @@ app.post('/login', (req, res) => {
 // )
 
 app.post('/role', (req, res) => {
-    const {email, role} = req.body;
-    EmployeeModel.findOneAndUpdate({email: email}, {role: role})
+    const { email, role } = req.body;
+    EmployeeModel.findOneAndUpdate({ email: email }, { role: role }, { new: true })
     .then(user => {
-        if(user){
-            res.json({message: 'Role Updated'})
-        }else{
-            res.json({message: 'User not registered'})
+        if (user) {
+            res.json({ message: 'Role Updated', updatedRole: user.role });
+        } else {
+            res.json({ message: 'User not registered' });
         }
     })
-}
-)
+    .catch(err => res.status(500).json({ message: 'Error updating role', error: err }));
+});
+
+app.post('/reset-password', (req, res) => {
+    const { email, lastname } = req.body;
+    // Update the password to be the user's last name
+    EmployeeModel.findOneAndUpdate({ email: email }, { password: lastname }, { new: true })
+    .then(user => {
+        if (user) {
+            res.json({ message: 'Password Reset Successfully' });
+        } else {
+            res.json({ message: 'User not found' });
+        }
+    })
+    .catch(err => res.status(500).json({ message: 'Error resetting password', error: err }));
+});
+
+app.post('/add-account', (req, res) => {
+    const { firstname, lastname, email, role } = req.body;
+    // Set the default password to the user's last name
+    const password = lastname;
+    EmployeeModel.create({ firstname, lastname, email, role, password })
+      .then(newAccount => res.json({ message: 'Account Created Successfully', account: newAccount }))
+      .catch(err => res.status(500).json({ message: 'Error creating account', error: err }));
+  });
+  
+
+app.post('/delete-account', (req, res) => {
+    const { email } = req.body;
+
+    // Find the employee by email and delete it
+    EmployeeModel.findOneAndDelete({ email: email })
+    .then((deletedEmployee) => {
+        if (deletedEmployee) {
+            res.json({ message: 'Account Deleted Successfully' });
+        } else {
+            res.status(404).json({ message: 'Account not found' });
+        }
+    })
+    .catch(err => res.status(500).json({ message: 'Error deleting account', error: err }));
+});
 
 app.get('/accounts', (req, res) => {
     EmployeeModel.find()
