@@ -286,11 +286,11 @@ function AdminHomePage() {
                           onChange={(e) => handleRoleChange(index, e.target.value)}
                           className="px-4 py-2 border rounded w-1/2"
                         >
-                          <option value="User" disabled>User</option>
-                          <option value="Doctor">Doctor</option>
-                          <option value="Clinic Staff">Clinic Staff</option>
-                          <option value="Laboratory Staff">Laboratory Staff</option>
-                          <option value="Xray Staff">X-Ray Staff</option>
+                          <option value="user" disabled>User</option>
+                          <option value="doctor">Doctor</option>
+                          <option value="clinic staff">Clinic Staff</option>
+                          <option value="laboratory staff">Laboratory Staff</option>
+                          <option value="xray staff">X-Ray Staff</option>
                           <option value="admin">Admin</option>
                         </select>
                       </td>

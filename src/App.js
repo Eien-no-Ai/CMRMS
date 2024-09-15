@@ -8,23 +8,91 @@ import PatientsProfile from "./Components/Patients/PatientsProfile";
 import Profile from "./Components/Profile/Profile";
 import AdminHomePage from "./Components/Admin/AdminHomePage";
 import AdminSignUp from "./Components/Admin/AdminSignUp";
+import PrivateRoute from "./Components/PrivateRoute";
+import PublicRoute from "./Components/PublicRoute"; // Import PublicRoute
 
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route index element={<Login />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/sign-up" element={<SignUp/>} />
-          <Route path="/home" element={<HomePage/>} />
-          <Route path="/patients" element={<Patients/>} />
-          <Route path="/patients-profile" element={<PatientsProfile/>} />
-          <Route path="/profile" element={<Profile/>} />
-          <Route path="/admin" element={<AdminHomePage/>} />
-          <Route path="/admin-sign-up" element={<AdminSignUp/>} />
+          {/* Public routes that redirect logged-in users */}
+          <Route
+            path="/"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/sign-up"
+            element={
+              <PublicRoute>
+                <SignUp />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/admin-sign-up"
+            element={
+              <PublicRoute>
+                <AdminSignUp />
+              </PublicRoute>
+            }
+          />
 
+          {/* Private routes that require login */}
+          <Route
+            path="/home"
+            element={
+              <PrivateRoute allowedRoles={['user', 'doctor', 'clinic staff', 'laboratory staff', 'xray staff']}>
+                <HomePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/patients"
+            element={
+              <PrivateRoute allowedRoles={['user', 'doctor', 'clinic staff', 'laboratory staff', 'xray staff']}>
+                <Patients />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/patients-profile"
+            element={
+              <PrivateRoute allowedRoles={['user', 'doctor', 'clinic staff', 'laboratory staff', 'xray staff']}>
+                <PatientsProfile />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute allowedRoles={['user', 'doctor', 'clinic staff', 'laboratory staff', 'xray staff', 'admin']}>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
 
+          {/* Admin Routes */}
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute allowedRoles={['admin']}>
+                <AdminHomePage />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </div>
