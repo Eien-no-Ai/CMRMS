@@ -12,25 +12,27 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await axios.post('http://localhost:3001/login', { email, password });
-      if (result.data.message === 'Login Successful') {
-        // Store the role in localStorage
-        localStorage.setItem('role', result.data.role);
+        const result = await axios.post('http://localhost:3001/login', { email, password });
+        if (result.data.message === 'Login Successful') {
+            // Store the role and userId in localStorage
+            localStorage.setItem('role', result.data.role);
+            localStorage.setItem('userId', result.data.userId); // Store user ID
 
-        // Navigate to the appropriate page
-        if (result.data.role === 'admin') {
-          navigate('/admin'); // Redirect to /admin if the role is admin
+            // Navigate to the appropriate page
+            if (result.data.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/home');
+            }
         } else {
-          navigate('/home'); // Redirect to /home for other roles
+            setError(result.data.message);
         }
-      } else {
-        setError(result.data.message); // Display error message if login fails
-      }
     } catch (err) {
-      console.error(err);
-      setError('An error occurred. Please try again.'); // General error handling
+        console.error(err);
+        setError('An error occurred. Please try again.');
     }
-  };
+};
+
 
   return (
     <div className="w-full h-screen flex flex-col md:flex-row items-start">

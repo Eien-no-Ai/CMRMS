@@ -10,6 +10,7 @@ app.use(express.json());
 
 mongoose.connect('mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee');
 
+// account registration
 app.post('/register', (req, res) => {
     const { firstname, lastname, email, password, confirmPassword } = req.body;
 
@@ -30,7 +31,9 @@ app.post('/login', (req, res) => {
             if(user.password === password){
                 res.json({
                     message: 'Login Successful',
-                    role: user.role // Include user role in the response
+                    role: user.role, // Include user role in the response
+                    userId: user._id, // Return user ID
+
                 });
             } else {
                 res.json({message: 'Password Incorrect'});
@@ -43,6 +46,35 @@ app.post('/login', (req, res) => {
 });
 
 
+app.get('/user/:id', (req, res) => {
+    const { id } = req.params;
+    EmployeeModel.findById(id)
+        .then(user => {
+            if (user) {
+                res.json(user);
+            } else {
+                res.status(404).json({ message: 'User not found' });
+            }
+        })
+        .catch(err => res.status(500).json({ message: 'Error fetching user data', error: err }));
+});
+
+app.put('/user/:id/update-password', (req, res) => {
+    const { id } = req.params;
+    const { password } = req.body;
+  
+    // Update the user's password
+    EmployeeModel.findByIdAndUpdate(id, { password }, { new: true })
+      .then(user => {
+        if (user) {
+          res.json({ message: 'Password updated successfully' });
+        } else {
+          res.status(404).json({ message: 'User not found' });
+        }
+      })
+      .catch(err => res.status(500).json({ message: 'Error updating password', error: err }));
+  });
+  
 
 // app.post('/role', (req, res) => {
 //     const {email,firstName,role} = req.body;
@@ -59,6 +91,9 @@ app.post('/login', (req, res) => {
 //     })
 // }
 // )
+
+
+// admin functions
 
 app.post('/role', (req, res) => {
     const { email, role } = req.body;
@@ -138,6 +173,10 @@ app.get('/search', (req, res) => {
 });
 
 
+
+
+
+//console log
 app.listen(3001, () => {
     console.log('Server is running on port 3001');
     });
