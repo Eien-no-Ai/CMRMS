@@ -21,7 +21,7 @@ function AdminHomePage() {
     email: "",
     role: "User",
   });
-
+  const [searchQuery, setSearchQuery] = useState("");
   const dropdownRefs = useRef([]);
 
   useEffect(() => {
@@ -68,9 +68,15 @@ function AdminHomePage() {
 
   const indexOfLastAccount = currentPage * accountsPerPage;
   const indexOfFirstAccount = indexOfLastAccount - accountsPerPage;
-  const currentAccounts = accounts.slice(indexOfFirstAccount, indexOfLastAccount);
+  const filteredAccounts = accounts.filter((account) =>
+    `${account.firstname} ${account.lastname} ${account.email}`
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
 
-  const totalPages = Math.ceil(accounts.length / accountsPerPage);
+  // Show filtered accounts based on search query or partial accounts if no search
+  const accountsToDisplay = searchQuery ? filteredAccounts : (!showFullList ? [] : accounts.slice(indexOfFirstAccount, indexOfLastAccount));
+  const totalPages = Math.ceil(filteredAccounts.length / accountsPerPage);
 
   const paginateNext = () => {
     if (currentPage < totalPages) {
@@ -235,6 +241,8 @@ function AdminHomePage() {
                 type="text"
                 placeholder="Search"
                 className="px-4 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none w-72"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
               <BiSearch className="absolute right-2 top-2 text-gray-400" size={24} />
             </div>
@@ -247,24 +255,8 @@ function AdminHomePage() {
           </div>
         </div>
 
-        {!showFullList ? (
+        {searchQuery || showFullList ? (
           <div>
-            <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 flex justify-center">
-              <p className="text-gray-700 flex items-center">
-                <span className="mr-2">&#9432;</span> Whole account list is not shown to save initial load time.
-              </p>
-            </div>
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={toggleListVisibility}
-                className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-              >
-                Load All Accounts
-              </button>
-            </div>
-          </div>
-        ) : (
-          <>
             <div className="bg-white p-6 py-1 rounded-lg shadow-md">
               <table className="min-w-full">
                 <thead>
@@ -276,7 +268,7 @@ function AdminHomePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentAccounts.map((account, index) => (
+                  {accountsToDisplay.map((account, index) => (
                     <tr key={index} className="border-b relative">
                       <td className="py-4">
                         <div className="flex items-center space-x-4">
@@ -335,37 +327,54 @@ function AdminHomePage() {
                 </tbody>
               </table>
             </div>
-
-            <div className="flex justify-between items-center mt-4">
-              <div>
-                Page <span className="text-custom-red">{currentPage} </span> of {totalPages}
+            {totalPages > 1 && (
+              <div className="flex justify-between items-center mt-4">
+                <div>
+                  Page <span className="text-custom-red">{currentPage} </span> of {totalPages}
+                </div>
+                <div>
+                  <button
+                    onClick={paginatePrev}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 mr-2 rounded-lg border ${
+                      currentPage === 1
+                        ? "bg-gray-300"
+                        : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                    }`}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={paginateNext}
+                    disabled={currentPage === totalPages}
+                    className={`px-4 py-2 rounded-lg border ${
+                      currentPage === totalPages
+                        ? "bg-gray-300"
+                        : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                    }`}
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
-              <div>
-                <button
-                  onClick={paginatePrev}
-                  disabled={currentPage === 1}
-                  className={`px-4 py-2 mr-2 rounded-lg border ${
-                    currentPage === 1
-                      ? "bg-gray-300"
-                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                  }`}
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={paginateNext}
-                  disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg border ${
-                    currentPage === totalPages
-                      ? "bg-gray-300"
-                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                  }`}
-                >
-                  Next
-                </button>
-              </div>
+            )}
+          </div>
+        ) : (
+          <div>
+            <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 flex justify-center">
+              <p className="text-gray-700 flex items-center">
+                <span className="mr-2">&#9432;</span> Whole account list is not shown to save initial load time.
+              </p>
             </div>
-          </>
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={toggleListVisibility}
+                className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+              >
+                Load All Accounts
+              </button>
+            </div>
+          </div>
         )}
 
         {/* Confirmation Modal */}

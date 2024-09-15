@@ -113,6 +113,24 @@ app.get('/accounts', (req, res) => {
 }
 )
 
+app.get('/search', (req, res) => {
+    const { query } = req.query;
+    
+    // Use a regular expression for a case-insensitive search
+    const searchQuery = new RegExp(query, 'i');
+    
+    EmployeeModel.find({
+        $or: [
+            { firstname: { $regex: searchQuery } },
+            { lastname: { $regex: searchQuery } },
+            { email: { $regex: searchQuery } },
+            { role: { $regex: searchQuery } }
+        ]
+    })
+    .then(employees => res.json(employees))
+    .catch(err => res.status(500).json({ message: 'Error searching accounts', error: err }));
+});
+
 
 app.listen(3001, () => {
     console.log('Server is running on port 3001');
