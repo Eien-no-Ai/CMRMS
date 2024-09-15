@@ -1,60 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { BiSearch } from "react-icons/bi";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { BsThreeDots } from "react-icons/bs";
 import Navbar from "../Navbar/Navbar";
 
 function AdminHomePage() {
-  const accounts = [
-    {
-      lastname: "Abejar",
-      firstname: "Juan Ambilan",
-      email: "19951245@s.ubaguio.edu",
-      role: "Doctor",
-      idnumber: "19951245",
-    },
-    {
-      lastname: "Villalon",
-      firstname: "Anthony",
-      email: "20214098@s.ubaguio.edu",
-      role: "Lab Technician",
-      idnumber: "20214098",
-    },
-    {
-      lastname: "Delos Santos",
-      firstname: "Jayson",
-      email: "20214556@s.ubaguio.edu",
-      role: "Nurse",
-      idnumber: "20214556",
-    },
-    {
-      lastname: "Abejar",
-      firstname: "Juan Ambilan",
-      email: "19951245@s.ubaguio.edu",
-      role: "Doctor",
-      idnumber: "19951245",
-    },
-    {
-      lastname: "Villalon",
-      firstname: "Anthony",
-      email: "20214098@s.ubaguio.edu",
-      role: "Lab Technician",
-      idnumber: "20214098",
-    },
-    {
-      lastname: "Delos Santos",
-      firstname: "Jayson",
-      email: "20214556@s.ubaguio.edu",
-      role: "Nurse",
-      idnumber: "20214556",
-    },
-  ];
-
+  const [accounts, setAccounts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const accountsPerPage = 4;
   const [showFullList, setShowFullList] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [dropdownIndex, setDropdownIndex] = useState(null);
+
+  useEffect(() => {
+    // Fetch accounts from the backend
+    axios
+      .get("http://localhost:3001/accounts")
+      .then((response) => {
+        setAccounts(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching accounts:", error);
+      });
+  }, []);
 
   const indexOfLastAccount = currentPage * accountsPerPage;
   const indexOfFirstAccount = indexOfLastAccount - accountsPerPage;
@@ -93,10 +62,44 @@ function AdminHomePage() {
     setDropdownIndex(dropdownIndex === index ? null : index);
   };
 
-  const handleRoleAdd = (index) => {
-    // Logic to add role
-    console.log("Add role for account", index);
+  // const handleRoleAdd = async (index) => {
+  //   const email = accounts[index].email;
+  //   const firstName = accounts[index].firstName;
+  //   const role = prompt("Enter the role for this account:");
+
+  //   if (role) {
+  //     try {
+  //       const response = await axios.post("http://localhost:3001/role", {
+  //         email,
+  //         firstName,
+  //         role,
+  //       });
+  //       console.log(response.data);
+  //     } catch (error) {
+  //       console.error("Error adding role:", error);
+  //     }
+  //   }
+  // };
+
+  const handleRoleAdd = async (index) => {
+    const email = accounts[index].email;
+    const role = prompt("Enter the role for this account:");
+
+    if (role) {
+      try {
+        const response = await axios.post("http://localhost:3001/role", {
+          email,
+          role,
+        });
+        console.log(response.data);
+        // Refresh the page
+        window.location.reload();
+      } catch (error) {
+        console.error("Error adding role:", error);
+      }
+    }
   };
+
 
   const handleResetPassword = (index) => {
     // Logic to reset password
@@ -118,7 +121,9 @@ function AdminHomePage() {
 
         <div className="flex justify-between items-center mb-6">
           <p className="text-gray-600">
-            <span className="font-bold text-4xl text-custom-red">76</span>{" "}
+            <span className="font-bold text-4xl text-custom-red">
+              {accounts.length}
+            </span>{" "}
             accounts
           </p>
 
@@ -168,7 +173,7 @@ function AdminHomePage() {
                   <tr className="text-left text-gray-600">
                     <th className="py-3">Basic Info</th>
                     <th className="py-3">Role</th>
-                    <th className="py-3">ID Number</th>
+                    <th className="py-3">Email</th>
                     <th className="py-3"></th>
                   </tr>
                 </thead>
@@ -182,13 +187,13 @@ function AdminHomePage() {
                               {account.lastname}, {account.firstname}
                             </p>
                             <p className="text-sm text-gray-500">
-                              {account.email}
+                              ID: {account._id}
                             </p>
                           </div>
                         </div>
                       </td>
-                      <td className="py-4">{account.role}</td>
-                      <td className="py-4">{account.idnumber}</td>
+                      <td className="py-4">{account.role || "N/A"}</td>
+                      <td className="py-4">{account.email}</td>
                       <td className="py-4">
                         <div className="relative">
                           <button
@@ -209,15 +214,13 @@ function AdminHomePage() {
                                 onClick={() => handleResetPassword(index)}
                                 className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
                               >
-                                <AiOutlineEdit className="mr-2" /> Reset
-                                Password
+                                <AiOutlineEdit className="mr-2" /> Reset Password
                               </button>
                               <button
                                 onClick={() => handleDeleteAccount(index)}
                                 className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
                               >
-                                <AiOutlineDelete className="mr-2" /> Delete
-                                Account
+                                <AiOutlineDelete className="mr-2" /> Delete Account
                               </button>
                             </div>
                           )}
