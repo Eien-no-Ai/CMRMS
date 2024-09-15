@@ -9,13 +9,19 @@ import Profile from "./Components/Profile/Profile";
 import AdminHomePage from "./Components/Admin/AdminHomePage";
 import AdminSignUp from "./Components/Admin/AdminSignUp";
 import PrivateRoute from "./Components/PrivateRoute";
-import PublicRoute from "./Components/PublicRoute"; // Import PublicRoute
+import PublicRoute from "./Components/PublicRoute"; 
+import NotFound from "./Components/NotFound/NotFound";
 
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
+          
+          {/* random url */}
+
+        <Route path="*" element={<NotFound />} />
+
           {/* Public routes that redirect logged-in users */}
           <Route
             path="/"

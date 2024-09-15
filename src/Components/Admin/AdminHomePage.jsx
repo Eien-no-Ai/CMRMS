@@ -19,7 +19,7 @@ function AdminHomePage() {
     firstname: "",
     lastname: "",
     email: "",
-    role: "User",
+    role: "user",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRefs = useRef([]);
@@ -248,7 +248,7 @@ function AdminHomePage() {
             </div>
             <button
               onClick={handleModalOpen}
-              className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+              className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
             >
               Add Account
             </button>
@@ -440,12 +440,12 @@ function AdminHomePage() {
                         onChange={handleInputChange}
                         className="px-4 py-2 border rounded w-full"
                       >
-                        <option value="User" disabled>User</option>
-                        <option>Doctor</option>
-                        <option>Laboratory Staff</option>
-                        <option>Clinic Staff</option>
-                        <option>Xray Staff</option>
-                        <option>Admin</option>
+                        <option value="user" disabled>user</option>
+                        <option>doctor</option>
+                        <option>laboratory staff</option>
+                        <option>clinic staff</option>
+                        <option>xray staff</option>
+                        <option>admin</option>
                       </select>
                     </div>
                     <div>
