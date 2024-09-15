@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaHtml5, FaAndroid } from "react-icons/fa";
 import { BiSearch } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
 
 const Dashboard = () => {
-  const patients = [
+  const [userRole, setUserRole] = useState(null);
+  const [patients, setPatients] = useState([
     {
       lastname: "Abejar",
       firstname: "Juan Ambilan",
@@ -26,9 +27,8 @@ const Dashboard = () => {
       birthplace: "Baguio City",
       idnumber: "20214556",
     },
-  ];
-
-  const updates = [
+  ]);
+  const [updates, setUpdates] = useState([
     {
       name: "Andrew Thomas",
       action: "has ordered Apple smart watch 2500mh battery.",
@@ -47,7 +47,60 @@ const Dashboard = () => {
       time: "2 hours ago",
       image: "https://via.placeholder.com/50",
     },
-  ];
+  ]);
+
+  const [records, setRecords] = useState([]);
+
+  useEffect(() => {
+    // Fetch the user data when the component is mounted
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      fetch(`http://localhost:3001/user/${userId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          setUserRole(data.role);
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        });
+    }
+  }, []);
+
+  useEffect(() => {
+    // Retrieve the role from localStorage
+    const storedRole = localStorage.getItem("role");
+    if (storedRole) {
+      setUserRole(storedRole);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Example data fetching for patients and updates
+    fetch("http://localhost:3001/patients")
+      .then((response) => response.json())
+      .then((data) => setPatients(data))
+      .catch((error) => console.error("Error fetching patients:", error));
+
+    fetch("http://localhost:3001/updates")
+      .then((response) => response.json())
+      .then((data) => setUpdates(data))
+      .catch((error) => console.error("Error fetching updates:", error));
+  }, []);
+
+  // Prepare records based on user role
+  useEffect(() => {
+    const userRecords = [];
+    if (userRole === "clinic staff" || userRole === "doctor") {
+      userRecords.push("Clinical Records");
+    }
+    if (userRole === "laboratory staff" || userRole === "doctor") {
+      userRecords.push("Laboratory Records");
+    }
+    if (userRole === "xray staff" || userRole === "doctor") {
+      userRecords.push("X-Ray Records");
+    }
+    setRecords(userRecords);
+  }, [userRole]);
 
   return (
     <div>
@@ -59,22 +112,74 @@ const Dashboard = () => {
 
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-2">
-            <div className="grid grid-cols-2 gap-6 mb-8">
-              <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end">
-                <FaHtml5 size={40} className="text-gray-500 mb-2" />
-                <span className="font-semibold text-custom-red">CLINICAL RECORDS</span>
-              </div>
-              <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end">
-                <FaAndroid size={40} className="text-gray-500 mb-2" />
-                <span className="font-semibold text-custom-red">LABORATORY RECORDS</span>
-              </div>
+            <div
+              className={`${
+                records.length === 1 ? "grid-cols-4" : "grid-cols-3"
+              } grid gap-6`}
+            >
+              {records.length === 1 ? (
+                <div className="col-span-4">
+                  {records.includes("Clinical Records") && (
+                    <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
+                      <FaHtml5 size={40} className="text-gray-500 mb-2" />
+                      <span className="font-semibold text-custom-red">
+                        CLINICAL RECORDS
+                      </span>
+                    </div>
+                  )}
+                  {records.includes("Laboratory Records") && (
+                    <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
+                      <FaAndroid size={40} className="text-gray-500 mb-2" />
+                      <span className="font-semibold text-custom-red">
+                        LABORATORY RECORDS
+                      </span>
+                    </div>
+                  )}
+                  {records.includes("X-Ray Records") && (
+                    <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
+                      <FaAndroid size={40} className="text-gray-500 mb-2" />
+                      <span className="font-semibold text-custom-red">
+                        X-RAY RECORDS
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                records.map((record, index) => (
+                  <div key={index} className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
+                    {record === "Clinical Records" && (
+                      <>
+                        <FaHtml5 size={40} className="text-gray-500 mb-2" />
+                        <span className="font-semibold text-custom-red">
+                          CLINICAL RECORDS
+                        </span>
+                      </>
+                    )}
+                    {record === "Laboratory Records" && (
+                      <>
+                        <FaAndroid size={40} className="text-gray-500 mb-2" />
+                        <span className="font-semibold text-custom-red">
+                          LABORATORY RECORDS
+                        </span>
+                      </>
+                    )}
+                    {record === "X-Ray Records" && (
+                      <>
+                        <FaAndroid size={40} className="text-gray-500 mb-2" />
+                        <span className="font-semibold text-custom-red">
+                          X-RAY RECORDS
+                        </span>
+                      </>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white p-6 rounded-lg shadow-md mt-6">
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-xl font-semibold mb-4">Recent Patients</h2>
                 <div className="relative w-72">
-                  {" "}
                   <input
                     type="text"
                     placeholder="Full Name"
