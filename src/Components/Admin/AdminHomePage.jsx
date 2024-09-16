@@ -261,10 +261,10 @@ function AdminHomePage() {
               <table className="min-w-full">
                 <thead>
                   <tr className="text-left text-gray-600">
-                    <th className="py-3">Basic Info</th>
-                    <th className="py-3">Role</th>
-                    <th className="py-3">Email</th>
-                    <th className="py-3"></th>
+                    <th className="py-3 w-1/3">Basic Info</th>
+                    <th className="py-3 w-1/3">Role</th>
+                    <th className="py-3 w-1/3">Email</th>
+                    <th className="py-3 w-1/3"></th>
                   </tr>
                 </thead>
                 <tbody>

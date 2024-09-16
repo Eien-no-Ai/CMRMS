@@ -173,8 +173,53 @@ app.get('/search', (req, res) => {
 });
 
 
+// P A T I E N T
 
+const PatientModel = require('./models/Patient');
 
+app.post('/add-patient', (req, res) => {
+    const { firstname, middlename, lastname, birthdate, birthplace, idnumber, address, city, state, postalcode, phonenumber, email, course, sex } = req.body;
+
+    const newPatient = new PatientModel({
+        firstname,
+        middlename,
+        lastname,
+        birthdate,
+        birthplace,
+        idnumber,
+        address,
+        city,
+        state,
+        postalcode,
+        phonenumber,
+        email,
+        course,
+        sex
+    });
+
+    newPatient.save()
+        .then(patient => res.json({ message: 'Patient added successfully', patient }))
+        .catch(err => res.status(500).json({ message: 'Error adding patient', error: err }));
+});
+
+app.get('/patients', (req, res) => {
+    PatientModel.find()
+        .then(patients => res.json(patients))
+        .catch(err => res.status(500).json({ message: 'Error retrieving patients', error: err }));
+});
+
+app.delete('/patients/:id', (req, res) => {
+    const { id } = req.params;
+    PatientModel.findByIdAndDelete(id)
+        .then(patient => {
+            if (patient) {
+                res.json({ message: 'Patient deleted successfully' });
+            } else {
+                res.status(404).json({ message: 'Patient not found' });
+            }
+        })
+        .catch(err => res.status(500).json({ message: 'Error deleting patient', error: err }));
+});
 
 //console log
 app.listen(3001, () => {

@@ -1,65 +1,85 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BiSearch } from "react-icons/bi";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { BsThreeDots } from "react-icons/bs";
 import Navbar from "../Navbar/Navbar";
+import axios from "axios";
 
 function Patients() {
-  const patients = [
-    {
-      lastname: "Abejar",
-      firstname: "Juan Ambilan",
-      email: "19951245@s.ubaguio.edu",
-      birthdate: "02/15/1984",
-      birthplace: "Baguio City",
-      idnumber: "19951245",
-    },
-    {
-      lastname: "Villalon",
-      firstname: "Anthony",
-      email: "20214098@s.ubaguio.edu",
-      birthdate: "03/09/2003",
-      birthplace: "Baguio City",
-      idnumber: "20214098",
-    },
-    {
-      lastname: "Delos Santos",
-      firstname: "Jayson",
-      email: "20214556@s.ubaguio.edu",
-      birthdate: "07/15/2002",
-      birthplace: "Baguio City",
-      idnumber: "20214556",
-    },
-    {
-      lastname: "Abejar",
-      firstname: "Juan Ambilan",
-      email: "19951245@s.ubaguio.edu",
-      birthdate: "02/15/1984",
-      birthplace: "Baguio City",
-      idnumber: "19951245",
-    },
-    {
-      lastname: "Villalon",
-      firstname: "Anthony",
-      email: "20214098@s.ubaguio.edu",
-      birthdate: "03/09/2003",
-      birthplace: "Baguio City",
-      idnumber: "20214098",
-    },
-    {
-      lastname: "Delos Santos",
-      firstname: "Jayson",
-      email: "20214556@s.ubaguio.edu",
-      birthdate: "07/15/2002",
-      birthplace: "Baguio City",
-      idnumber: "20214556",
-    },
-  ];
-
+  const [patients, setPatients] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const patientsPerPage = 4;
   const [showFullList, setShowFullList] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [firstname, setFirstName] = useState("");
+  const [middlename, setMiddleName] = useState("");
+  const [lastname, setLastName] = useState("");
+  const [birthdate, setBirthDate] = useState("");
+  const [idnumber, setIdNumber] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [postalcode, setPostalCode] = useState("");
+  const [phonenumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [course, setCourse] = useState("");
+  const [sex, setSex] = useState("");
+
+  useEffect(() => {
+    fetchPatients();
+  }, []);
+
+  const fetchPatients = () => {
+    axios
+      .get("http://localhost:3001/patients")
+      .then((response) => {
+        setPatients(response.data);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the patients!", error);
+      });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axios
+      .post("http://localhost:3001/add-patient", {
+        firstname,
+        middlename,
+        lastname,
+        birthdate,
+        idnumber,
+        address,
+        city,
+        state,
+        postalcode,
+        phonenumber,
+        email,
+        course,
+        sex,
+      })
+      .then((result) => {
+        console.log(result);
+        fetchPatients(); // Refresh the patient list
+        handleModalClose(); // Close the modal
+        setFirstName("");
+        setMiddleName("");
+        setLastName("");
+        setBirthDate("");
+        setIdNumber("");
+        setAddress("");
+        setCity("");
+        setState("");
+        setPostalCode("");
+        setPhoneNumber("");
+        setEmail("");
+        setCourse("");
+        setSex("");
+      })
+      .catch((err) => console.log(err));
+  };
+  
 
   const indexOfLastPatient = currentPage * patientsPerPage;
   const indexOfFirstPatient = indexOfLastPatient - patientsPerPage;
@@ -104,7 +124,9 @@ function Patients() {
 
         <div className="flex justify-between items-center mb-6">
           <p className="text-gray-600">
-            <span className="font-bold text-4xl text-custom-red">76</span>{" "}
+            <span className="font-bold text-4xl text-custom-red">
+              {patients.length}
+            </span>{" "}
             patients
           </p>
 
@@ -123,7 +145,7 @@ function Patients() {
             <button
               onClick={handleModalOpen}
               className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
-              >
+            >
               Add Patient
             </button>
           </div>
@@ -133,7 +155,7 @@ function Patients() {
           <div>
             <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 flex justify-center">
               <p className="text-gray-700 flex items-center">
-                <span className="mr-2">&#9432;</span> Whole patient list are not
+                <span className="mr-2">&#9432;</span> Whole patient list is not
                 shown to save initial load time.
               </p>
             </div>
@@ -152,16 +174,17 @@ function Patients() {
               <table className="min-w-full">
                 <thead>
                   <tr className="text-left text-gray-600">
-                    <th className="py-3">Basic Info</th>
-                    <th className="py-3">Birthday</th>
-                    <th className="py-3">Birth Place</th>
-                    <th className="py-3">ID Number</th>
-                    <th className="py-3"></th>
+                  <th className="py-3 w-1/4">Basic Info</th>
+<th className="py-3 w-1/4">Birthday</th>
+<th className="py-3 w-1/4">ID Number</th>
+<th className="py-3 w-1/4">Course/ Yr</th>
+<th className="py-3 w-1/12"></th>
+
                   </tr>
                 </thead>
                 <tbody>
-                  {currentPatients.map((patient, index) => (
-                    <tr key={index} className="border-b">
+                  {currentPatients.map((patient) => (
+                    <tr key={patient._id} className="border-b">
                       <td className="py-4">
                         <div className="flex items-center space-x-4">
                           <div>
@@ -174,11 +197,14 @@ function Patients() {
                           </div>
                         </div>
                       </td>
-                      <td className="py-4">{patient.birthdate}</td>
-                      <td className="py-4">{patient.birthplace}</td>
-                      <td className="py-4">{patient.idnumber}</td>
                       <td className="py-4">
-                        <div className="relative">
+                        {new Date(patient.birthdate).toLocaleDateString()}
+                      </td>
+                      <td className="py-4">{patient.idnumber}</td>
+                      <td className="py-4">{patient.course}</td>
+
+                      <td className="py-4">
+                        <div className="relative group">
                           <button className="text-gray-500 hover:text-gray-700">
                             <BsThreeDots size={20} />
                           </button>
@@ -187,8 +213,7 @@ function Patients() {
                               <AiOutlineEdit className="mr-2" /> Edit Patient
                             </button>
                             <button className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full">
-                              <AiOutlineDelete className="mr-2" /> Delete
-                              Patient
+                              <AiOutlineDelete className="mr-2" /> Delete Patient
                             </button>
                           </div>
                         </div>
@@ -231,160 +256,190 @@ function Patients() {
             </div>
           </>
         )}
-
-        {/* Modal */}
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-4 px-8 rounded-lg shadow-lg w-1/2">
-              <h2 className="text-xl font-semibold mb-4">Add Patient</h2>
-
-              {/* Medical Report Form */}
-              <form>
-                <div className="grid grid-cols-3 gap-4">
-                  {/* Full Name */}
-                  <div className="col-span-3">
-                    <label className="block mb-2">Full Name</label>
-                    <div className="grid grid-cols-3 gap-4">
-                      <input
-                        type="text"
-                        placeholder="First Name"
-                        className="px-4 py-2 border rounded w-full"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Middle Name"
-                        className="px-4 py-2 border rounded w-full"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Last Name"
-                        className="px-4 py-2 border rounded w-full"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Date of Birth and Sex */}
-                  <div className="col-span-2">
-                    <label className="block mb-2">Date of Birth</label>
-                    <input
-                      type="date"
-                      className="px-4 py-2 border rounded w-full"
-                    />
-                  </div>
-                  <div className="col-span-1">
-                    <label className="block mb-2">Sex</label>
-                    <select
-                      defaultValue="default"
-                      className="px-4 py-2 border rounded w-full"
-                    >
-                      <option value="default" disabled>
-                        Select Sex
-                      </option>
-                      <option>Male</option>
-                      <option>Female</option>
-                      <option>Other</option>
-                    </select>
-                  </div>
-
-                  <div className="col-span-3 grid grid-cols-2 gap-4">
-                    {/* ID Number */}
-                    <div>
-                      <label className="block mb-2">ID Number</label>
-                      <input
-                        type="text"
-                        placeholder="Enter ID Number"
-                        className="px-4 py-2 border rounded w-full"
-                      />
-                    </div>
-
-                    {/* Course and Year */}
-                    <div>
-                      <label className="block mb-2">Course and Year</label>
-                      <input
-                        type="text"
-                        placeholder="Enter Course"
-                        className="px-4 py-2 border rounded w-full"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Address */}
-                  <div className="col-span-3">
-                    <label className="block mb-2">Address</label>
-                    <input
-                      type="text"
-                      placeholder="Street Address"
-                      className="px-4 py-2 border rounded w-full"
-                    />
-                  </div>
-
-                  {/* City, State/Province */}
-                  <div className="col-span-1">
-                    <input
-                      type="text"
-                      placeholder="City"
-                      className="px-4 py-2 border rounded w-full"
-                    />
-                  </div>
-
-                  <div className="col-span-1">
-                    <input
-                      type="text"
-                      placeholder="State/Province"
-                      className="px-4 py-2 border rounded w-full"
-                    />
-                  </div>
-
-                  <div className="col-span-1">
-                    <input
-                      type="text"
-                      placeholder="Postal/Zip Code"
-                      className="px-4 py-2 border rounded w-full"
-                    />
-                  </div>
-
-                  <div className="col-span-3 grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block mb-2">Phone Number</label>
-                      <input
-                        type="text"
-                        placeholder="(000) 000-0000"
-                        className="px-4 py-2 border rounded w-full"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block mb-2">E-mail Address</label>
-                      <input
-                        type="email"
-                        placeholder="example@example.com"
-                        className="px-4 py-2 border rounded w-full"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Submit/Cancel Buttons */}
-                <div className="flex justify-end mt-4">
-                  <button
-                    onClick={handleModalClose}
-                    type="button"
-                    className="px-4 py-2 bg-gray-500 text-white rounded-lg mr-2"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-custom-red text-white rounded-lg"
-                  >
-                    Add Patient
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Modal for adding a new patient */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-4 px-8 rounded-lg shadow-lg w-1/2">
+            <h2 className="text-xl font-semibold mb-4">Add Patient</h2>
+
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-3 gap-4">
+                {/* Full Name */}
+                <div className="col-span-3">
+                  <label className="block mb-2">Full Name</label>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <input
+                      type="text"
+                      value={firstname}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="First Name"
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    />
+                    <input
+                      type="text"
+                      value={middlename}
+                      onChange={(e) => setMiddleName(e.target.value)}
+                      placeholder="Middle Name"
+                      className="px-4 py-2 border rounded w-full"
+                    />
+                    <input
+                      type="text"
+                      value={lastname}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Last Name"
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block mb-2">Date of Birth</label>
+                  <input
+                    type="date"
+                    value={birthdate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    className="px-4 py-2 border rounded w-full"
+                    required
+                  />
+                </div>
+
+                <div className="col-span-1">
+                  <label className="block mb-2">Sex</label>
+                  <select
+                    value={sex}
+                    onChange={(e) => setSex(e.target.value)}
+                    className="px-4 py-2 border rounded w-full"
+                    required
+                  >
+                    <option value="">Select Sex</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+
+                <div className="col-span-3 grid grid-cols-2 gap-4">
+                  {/* ID Number */}
+                  <div>
+                    <label className="block mb-2">ID Number</label>
+                    <input
+                      type="text"
+                      placeholder="Enter ID Number"
+                      value={idnumber}
+                      onChange={(e) => setIdNumber(e.target.value)}
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    />
+                  </div>
+
+                  {/* Course and Year */}
+                  <div>
+                    <label className="block mb-2">Course and Year</label>
+                    <input
+                      type="text"
+                      value={course}
+                      onChange={(e) => setCourse(e.target.value)}
+                      placeholder="Enter Course"
+                      className="px-4 py-2 border rounded w-full"
+                    />
+                  </div>
+                </div>
+
+                {/* Address */}
+                <div className="col-span-3">
+                  <label className="block mb-2">Address</label>
+                  <input
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Street Address"
+                    className="px-4 py-2 border rounded w-full"
+                  />
+                </div>
+
+                {/* City, State/Province */}
+                <div className="col-span-1">
+                  <input
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="City"
+                    className="px-4 py-2 border rounded w-full"
+                  />
+                </div>
+
+                <div className="col-span-1">
+                  <input
+                    type="text"
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                    placeholder="State/Province"
+                    className="px-4 py-2 border rounded w-full"
+                  />
+                </div>
+
+                <div className="col-span-1">
+                  <input
+                    type="text"
+                    value={postalcode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                    placeholder="Postal/Zip Code"
+                    className="px-4 py-2 border rounded w-full"
+                  />
+                </div>
+
+                <div className="col-span-3 grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block mb-2">Phone Number</label>
+                    <input
+                      type="text"
+                      value={phonenumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      placeholder="(000) 000-0000"
+                      className="px-4 py-2 border rounded w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-2">E-mail Address</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="example@example.com"
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    />
+                  </div>
+                </div>
+
+             
+              </div>
+
+              {/* Submit/Cancel Buttons */}
+              <div className="flex justify-end mt-4">
+                <button
+                  onClick={handleModalClose}
+                  type="button"
+                  className="px-4 py-2 bg-gray-500 text-white rounded-lg mr-2"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-custom-red text-white rounded-lg"
+                >
+                  Add Patient
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
