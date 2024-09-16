@@ -35,15 +35,37 @@ const laboratoryRecords = [
   },
 ];
 
+const xrayRecords = [
+  {
+    date: "10 Jan '23",
+    xrayType: "Chest X-ray",
+    result: "Normal",
+  },
+  {
+    date: "15 Mar '23",
+    xrayType: "Dental X-ray",
+    result: "Cavity detected",
+  },
+];
+
 function PatientsProfile() {
   const [selectedTab, setSelectedTab] = useState("clinical");
+  const [showRequestOptions, setShowRequestOptions] = useState(false); // State for showing request options
 
   const handleTabChange = (tab) => {
     setSelectedTab(tab);
   };
 
+  const handleMakeRequest = () => {
+    setShowRequestOptions(!showRequestOptions); // Toggle the request options when the button is clicked
+  };
+
   const displayedRecords =
-    selectedTab === "clinical" ? clinicalrecords : laboratoryRecords;
+    selectedTab === "clinical"
+      ? clinicalrecords
+      : selectedTab === "laboratory"
+      ? laboratoryRecords
+      : xrayRecords;
 
   return (
     <div>
@@ -79,13 +101,35 @@ function PatientsProfile() {
                   </div>
                 </div>
 
-                <div className="flex space-x-4">
-                  <button className="mt-4 flex-1 bg-custom-red text-white p-2 rounded-lg">
+                <div className="grid grid-cols-2 gap-4">
+                  <button className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full">
                     New Record
                   </button>
-                  <button className="mt-4 flex-1 bg-custom-red text-white p-2 rounded-lg">
-                    Lab Request
-                  </button>
+                  <div className="relative">
+                    <button
+                      className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
+                      onClick={handleMakeRequest}
+                    >
+                      Make a Request
+                    </button>
+                    {/* Request options */}
+                    {showRequestOptions && (
+                      <div className="absolute mt-2 bg-white border rounded-lg shadow-lg">
+                        <button
+                          className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                          onClick={() => alert("Laboratory request made")}
+                        >
+                          Laboratory
+                        </button>
+                        <button
+                          className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                          onClick={() => alert("X-ray request made")}
+                        >
+                          X-ray
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -165,6 +209,16 @@ function PatientsProfile() {
                 >
                   Laboratory Records
                 </button>
+                <button
+                  className={`${
+                    selectedTab === "xray"
+                      ? "text-custom-red font-semibold"
+                      : ""
+                  }`}
+                  onClick={() => handleTabChange("xray")}
+                >
+                  X-ray Records
+                </button>
               </div>
             </div>
             <div className="mt-4">
@@ -195,6 +249,20 @@ function PatientsProfile() {
                         <p className="font-semibold">{records.test}</p>
                       </div>
                       <div className="text-gray-500">{records.status}</div>
+                      <button className="text-custom-red">Edit</button>
+                    </li>
+                  ))}
+                {selectedTab === "xray" &&
+                  displayedRecords.map((records, index) => (
+                    <li
+                      key={index}
+                      className="flex justify-between items-center p-4 bg-gray-100 rounded-lg"
+                    >
+                      <div>
+                        <p className="text-gray-500 text-sm">{records.date}</p>
+                        <p className="font-semibold">{records.xrayType}</p>
+                      </div>
+                      <div className="text-gray-500">{records.result}</div>
                       <button className="text-custom-red">Edit</button>
                     </li>
                   ))}
