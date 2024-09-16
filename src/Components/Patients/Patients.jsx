@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useRef } from "react";
 import { BiSearch } from "react-icons/bi";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { BsThreeDots } from "react-icons/bs";
@@ -11,7 +11,7 @@ function Patients() {
   const patientsPerPage = 4;
   const [showFullList, setShowFullList] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  
   const [firstname, setFirstName] = useState("");
   const [middlename, setMiddleName] = useState("");
   const [lastname, setLastName] = useState("");
@@ -25,11 +25,28 @@ function Patients() {
   const [email, setEmail] = useState("");
   const [course, setCourse] = useState("");
   const [sex, setSex] = useState("");
-
+  const [accountToDelete, setAccountToDelete] = useState(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [dropdownIndex, setDropdownIndex] = useState(null);
+  const dropdownRefs = useRef([]);
+  
   useEffect(() => {
     fetchPatients();
   }, []);
-
+  
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRefs.current.every(ref => ref && !ref.contains(event.target))) {
+        setDropdownIndex(null);
+      }
+    };
+  
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  
   const fetchPatients = () => {
     axios
       .get("http://localhost:3001/patients")
@@ -40,7 +57,7 @@ function Patients() {
         console.error("There was an error fetching the patients!", error);
       });
   };
-
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     axios
@@ -80,39 +97,72 @@ function Patients() {
       .catch((err) => console.log(err));
   };
   
-
   const indexOfLastPatient = currentPage * patientsPerPage;
   const indexOfFirstPatient = indexOfLastPatient - patientsPerPage;
-  const currentPatients = patients.slice(
-    indexOfFirstPatient,
-    indexOfLastPatient
-  );
-
+  const currentPatients = patients.slice(indexOfFirstPatient, indexOfLastPatient);
+  
   const totalPages = Math.ceil(patients.length / patientsPerPage);
-
+  
   const paginateNext = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
-
+  
   const paginatePrev = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
-
+  
   const toggleListVisibility = () => {
     setShowFullList(!showFullList);
   };
-
+  
   const handleModalOpen = () => {
     setIsModalOpen(true);
   };
-
+  
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
+  
+  const toggleDropdown = (index) => {
+    setDropdownIndex(dropdownIndex === index ? null : index);
+  };
+ 
+  const handleEditPatient = (index) => {
+    console.log("Edit patient:", patients[index]);
+  };
+  
+  
+  const handleDeletePatient = async () => {
+    try {
+      const fullIndex = (currentPage - 1) * patientsPerPage + accountToDelete;
+      const patientId = patients[fullIndex]._id;
+  
+      // Send delete request to backend with the patient ID in the URL
+      const result = await axios.delete(`http://localhost:3001/patients/${patientId}`);
+      
+      console.log(result);
+      fetchPatients(); // Refresh the patient list after deletion
+      setIsConfirmModalOpen(false); // Close the modal
+    } catch (err) {
+      console.error('Error deleting patient:', err);
+    }
+  };
+  
+
+  const handleDeleteClick = (index) => {
+    setAccountToDelete(index);
+    setIsConfirmModalOpen(true);
+  };
+
+  const closeConfirmModal = () => {
+    setIsConfirmModalOpen(false);
+  };
+
+
 
   return (
     <div>
@@ -175,16 +225,16 @@ function Patients() {
                 <thead>
                   <tr className="text-left text-gray-600">
                   <th className="py-3 w-1/4">Basic Info</th>
-<th className="py-3 w-1/4">Birthday</th>
-<th className="py-3 w-1/4">ID Number</th>
-<th className="py-3 w-1/4">Course/ Yr</th>
-<th className="py-3 w-1/12"></th>
+                    <th className="py-3 w-1/4">Birthday</th>
+                    <th className="py-3 w-1/4">ID Number</th>
+                    <th className="py-3 w-1/4">Course/ Yr</th>
+                    <th className="py-3 w-1/12"></th>
 
                   </tr>
                 </thead>
                 <tbody>
-                  {currentPatients.map((patient) => (
-                    <tr key={patient._id} className="border-b">
+                  {currentPatients.map((patient,index) => (
+                    <tr key={(patient._id,index)} className="border-b">
                       <td className="py-4">
                         <div className="flex items-center space-x-4">
                           <div>
@@ -204,20 +254,32 @@ function Patients() {
                       <td className="py-4">{patient.course}</td>
 
                       <td className="py-4">
-                        <div className="relative group">
-                          <button className="text-gray-500 hover:text-gray-700">
-                            <BsThreeDots size={20} />
-                          </button>
-                          <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg border hidden group-hover:block">
-                            <button className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full">
-                              <AiOutlineEdit className="mr-2" /> Edit Patient
-                            </button>
-                            <button className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full">
-                              <AiOutlineDelete className="mr-2" /> Delete Patient
-                            </button>
-                          </div>
-                        </div>
-                      </td>
+              <div className="relative" ref={(el) => (dropdownRefs.current[index] = el)}>
+                <button
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={() => toggleDropdown(index)}
+                >
+                  <BsThreeDots size={20} />
+                </button>
+                {dropdownIndex === index && (
+                  <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg border">
+                    <button
+                      className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
+                      onClick={() => handleEditPatient(index)}
+                    >
+                      <AiOutlineEdit className="mr-2" /> Edit Patient
+                    </button>
+                    <button
+                      className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
+                      onClick={() => handleDeleteClick(index)}
+                    >
+                      <AiOutlineDelete className="mr-2" /> Delete Patient
+                    </button>
+                  </div>
+                )}
+              </div>
+            </td>
+
                     </tr>
                   ))}
                 </tbody>
@@ -258,6 +320,25 @@ function Patients() {
         )}
       </div>
 
+     {/* Confirmation Modal */}
+     {isConfirmModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-4 rounded-lg shadow-lg w-1/3">
+              <h2 className="text-xl font-semibold mb-4">Confirm Delete</h2>
+              <p>Are you sure you want to delete this account?</p>
+              <div className="mt-4 flex justify-end">
+                <button onClick={closeConfirmModal} className="px-4 py-2 bg-gray-500 text-white rounded-lg mr-2">
+                  Cancel
+                </button>
+                <button onClick={handleDeletePatient} className="px-4 py-2 bg-red-600 text-white rounded-lg">
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+      
       {/* Modal for adding a new patient */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -417,10 +498,11 @@ function Patients() {
                   </div>
                 </div>
 
-             
+
               </div>
 
-              {/* Submit/Cancel Buttons */}
+              
+             {/* Submit/Cancel Buttons */}
               <div className="flex justify-end mt-4">
                 <button
                   onClick={handleModalClose}
