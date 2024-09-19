@@ -5,29 +5,7 @@ import Navbar from "../Navbar/Navbar";
 
 const Dashboard = () => {
   const [userRole, setUserRole] = useState(null);
-  const [patients, setPatients] = useState([
-    {
-      lastname: "Abejar",
-      firstname: "Juan Ambilan",
-      birthdate: "02/15/1984",
-      birthplace: "Baguio City",
-      idnumber: "19951245",
-    },
-    {
-      lastname: "Villalon",
-      firstname: "Anthony",
-      birthdate: "03/09/2003",
-      birthplace: "Baguio City",
-      idnumber: "20214098",
-    },
-    {
-      lastname: "Delos Santos",
-      firstname: "Jayson",
-      birthdate: "07/15/2002",
-      birthplace: "Baguio City",
-      idnumber: "20214556",
-    },
-  ]);
+  const [patients, setPatients] = useState([]);
   const [updates, setUpdates] = useState([
     {
       name: "Andrew Thomas",
@@ -128,25 +106,44 @@ const Dashboard = () => {
                     </div>
                   )}
                   {records.includes("Laboratory Records") && (
-                    <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
-                      <FaAndroid size={40} className="text-gray-500 mb-2" />
-                      <span className="font-semibold text-custom-red">
-                        LABORATORY RECORDS
-                      </span>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
+                        <FaAndroid size={40} className="text-gray-500 mb-2" />
+                        <span className="font-semibold text-custom-red">
+                          LABORATORY RECORDS
+                        </span>
+                      </div>
+                      <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
+                        <FaAndroid size={40} className="text-gray-500 mb-2" />
+                        <span className="font-semibold text-custom-red">
+                          LABORATORY REQUESTS
+                        </span>
+                      </div>
                     </div>
                   )}
                   {records.includes("X-Ray Records") && (
-                    <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
-                      <FaAndroid size={40} className="text-gray-500 mb-2" />
-                      <span className="font-semibold text-custom-red">
-                        X-RAY RECORDS
-                      </span>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
+                        <FaAndroid size={40} className="text-gray-500 mb-2" />
+                        <span className="font-semibold text-custom-red">
+                          X-RAY RECORDS
+                        </span>
+                      </div>
+                      <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
+                        <FaAndroid size={40} className="text-gray-500 mb-2" />
+                        <span className="font-semibold text-custom-red">
+                          X-RAY REQUESTS
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
               ) : (
                 records.map((record, index) => (
-                  <div key={index} className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
+                  <div
+                    key={index}
+                    className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1"
+                  >
                     {record === "Clinical Records" && (
                       <>
                         <FaHtml5 size={40} className="text-gray-500 mb-2" />
@@ -217,7 +214,7 @@ const Dashboard = () => {
                           {patient.lastname}, {patient.firstname}
                         </span>
                       </div>
-                      <span className="w-1/5">{patient.birthdate}</span>
+                      <span className="w-1/5">{new Date(patient.birthdate).toLocaleDateString()}</span>
                       <span className="w-1/5">{patient.birthplace}</span>
                       <span className="w-1/5">{patient.idnumber}</span>
                     </div>

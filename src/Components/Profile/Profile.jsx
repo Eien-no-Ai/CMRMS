@@ -99,7 +99,7 @@ function Profile() {
             <br />
 
             {/* Form for updating user information */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* First Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -114,19 +114,6 @@ function Profile() {
                 />
               </div>
 
-              {/* Middle Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Middle Name
-                </label>
-                <input
-                  type="text"
-                  value={userData.middlename || ''}
-                  placeholder="Middle Name"
-                  className="w-full p-2 border border-gray-300 rounded-lg"
-                  readOnly
-                />
-              </div>
 
               {/* Last Name */}
               <div>
@@ -141,6 +128,8 @@ function Profile() {
                   readOnly
                 />
               </div>
+
+              
             </div>
 
             {/* Email */}

@@ -78,8 +78,8 @@ function Patients() {
       })
       .then((result) => {
         console.log(result);
-        fetchPatients(); // Refresh the patient list
-        handleModalClose(); // Close the modal
+        fetchPatients(); 
+        handleModalClose(); 
         setFirstName("");
         setMiddleName("");
         setLastName("");
@@ -254,31 +254,32 @@ function Patients() {
                       <td className="py-4">{patient.course}</td>
 
                       <td className="py-4">
-              <div className="relative" ref={(el) => (dropdownRefs.current[index] = el)}>
-                <button
-                  className="text-gray-500 hover:text-gray-700"
-                  onClick={() => toggleDropdown(index)}
-                >
-                  <BsThreeDots size={20} />
-                </button>
-                {dropdownIndex === index && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg border">
-                    <button
-                      className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
-                      onClick={() => handleEditPatient(index)}
-                    >
-                      <AiOutlineEdit className="mr-2" /> Edit Patient
-                    </button>
-                    <button
-                      className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
-                      onClick={() => handleDeleteClick(index)}
-                    >
-                      <AiOutlineDelete className="mr-2" /> Delete Patient
-                    </button>
-                  </div>
-                )}
-              </div>
-            </td>
+  <div className="relative" ref={(el) => (dropdownRefs.current[index] = el)}>
+    <button
+      className="text-gray-500 hover:text-gray-700"
+      onClick={() => toggleDropdown(index)}
+    >
+      <BsThreeDots size={20} />
+    </button>
+    {dropdownIndex === index && (
+      <div className="absolute right-0 w-40 bg-white rounded-md shadow-lg border z-10">
+        <button
+          className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
+          onClick={() => handleEditPatient(index)}
+        >
+          <AiOutlineEdit className="mr-2" /> Edit Patient
+        </button>
+        <button
+          className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
+          onClick={() => handleDeleteClick(index)}
+        >
+          <AiOutlineDelete className="mr-2" /> Delete Patient
+        </button>
+      </div>
+    )}
+  </div>
+</td>
+
 
                     </tr>
                   ))}

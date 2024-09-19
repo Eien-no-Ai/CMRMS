@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import cover_image from '../assets/cover.jpg';
-import axios from 'axios';  // Make sure to install axios using `npm install axios`
+import React, { useState } from "react";
+import cover_image from "../assets/cover.jpg";
+import axios from "axios"; 
 
 function AdminSignUp() {
   const [formData, setFormData] = useState({
-    firstname: '',
-    lastname: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    firstname: "",
+    lastname: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
   const handleChange = (e) => {
@@ -20,24 +20,24 @@ function AdminSignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      alert("Passwords do not match");
       return;
     }
 
     try {
-      const response = await axios.post('http://localhost:3001/register', {
+      await axios.post("http://localhost:3001/register", {
         firstname: formData.firstname,
         lastname: formData.lastname,
         email: formData.email,
         password: formData.password,
-        role: 'admin',  // Setting the role as 'admin'
+        role: "admin",
       });
-      alert('Registration Successful');
+      alert("Registration Successful");
     } catch (error) {
-      console.error('Error registering admin:', error);
-      alert('Registration Failed');
+      console.error("Error registering admin:", error);
+      alert("Registration Failed");
     }
   };
 
@@ -52,9 +52,7 @@ function AdminSignUp() {
         </div>
         <div className="w-full flex flex-col">
           <div className="w-full flex flex-col mb-2">
-            <h3 className="text-2xl md:text-3xl font-semibold mb-2">
-              Sign Up
-            </h3>
+            <h3 className="text-2xl md:text-3xl font-semibold mb-2">Sign Up</h3>
             <p className="text-sm md:text-base mb-2">
               Please enter your details to create an admin account!
             </p>
