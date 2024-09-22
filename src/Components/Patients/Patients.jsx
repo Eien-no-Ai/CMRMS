@@ -87,25 +87,32 @@ function Patients() {
         sex,
       })
       .then((result) => {
-        console.log(result);
+        console.log("Patient added:", result);
         fetchPatients();
-        handleModalClose();
-        setFirstName("");
-        setMiddleName("");
-        setLastName("");
-        setBirthDate("");
-        setIdNumber("");
-        setAddress("");
-        setCity("");
-        setState("");
-        setPostalCode("");
-        setPhoneNumber("");
-        setEmail("");
-        setCourse("");
-        setSex("");
+        handleModalClose(); // Close modal after submission
+        resetForm(); // Reset form fields
       })
-      .catch((err) => console.log(err));
-  };
+      .catch((err) => {
+        console.log("Error adding patient:", err);
+      });
+};
+
+const resetForm = () => {
+    setFirstName("");
+    setMiddleName("");
+    setLastName("");
+    setBirthDate("");
+    setIdNumber("");
+    setAddress("");
+    setCity("");
+    setState("");
+    setPostalCode("");
+    setPhoneNumber("");
+    setEmail("");
+    setCourse("");
+    setSex("");
+};
+
 
   const indexOfLastPatient = currentPage * patientsPerPage;
   const indexOfFirstPatient = indexOfLastPatient - patientsPerPage;
@@ -147,6 +154,7 @@ function Patients() {
 
   const handleModalClose = () => {
     setIsModalOpen(false);
+    resetForm();
   };
 
   const toggleDropdown = (index) => {
