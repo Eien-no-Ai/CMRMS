@@ -71,7 +71,6 @@ function Navbar() {
           <>
             <a href="/home" className="hover:underline">Home</a>
             <a href="/patients" className="hover:underline">Patients</a>
-            <a href="/patients-profile" className="hover:underline">test</a>
           </>
         )}
         {role === 'admin' && (

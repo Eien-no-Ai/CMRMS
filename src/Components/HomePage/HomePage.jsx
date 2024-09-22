@@ -189,10 +189,10 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto h-96">
                 <div className="min-w-full">
-                  <div className="flex justify-between items-center py-2 border-b font-semibold text-gray-700">
-                    <div className="w-1/5 flex items-center">
+                <div className="flex justify-between items-center py-2 border-b font-semibold text-gray-700 sticky top-0 bg-white z-10">
+                  <div className="w-1/5 flex items-center">
                       <span>Patient Name</span>
                     </div>
                     <span className="w-1/5">Birthdate</span>

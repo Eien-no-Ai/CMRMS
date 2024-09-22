@@ -11,7 +11,8 @@ function Patients() {
   const patientsPerPage = 4;
   const [showFullList, setShowFullList] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); // New search query state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [message, setMessage] = useState("");
 
   const [firstname, setFirstName] = useState("");
   const [middlename, setMiddleName] = useState("");
@@ -89,11 +90,15 @@ function Patients() {
       .then((result) => {
         console.log("Patient added:", result);
         fetchPatients();
-        handleModalClose(); // Close modal after submission
-        resetForm(); // Reset form fields
+        handleModalClose();
+        resetForm();
+        setMessage("Patient added successfully!");
+        setTimeout(() => setMessage(""), 3000);
       })
       .catch((err) => {
         console.log("Error adding patient:", err);
+        setMessage("Error adding patient.");
+        setTimeout(() => setMessage(""), 3000);
       });
   };
 
@@ -164,28 +169,27 @@ function Patients() {
 
   const handleDeletePatient = async () => {
     try {
-      // Get the ID of the patient directly from the filteredPatients array
       const patientId = filteredPatients[accountToDelete]._id;
-  
-      // Send delete request to backend with the patient ID in the URL
+      console.log("Deleting patient with ID:", patientId);
       const result = await axios.delete(
         `http://localhost:3001/patients/${patientId}`
       );
-  
       console.log(result);
-      fetchPatients(); // Refresh the patient list after deletion
-      setIsConfirmModalOpen(false); // Close the modal
+      fetchPatients();
+      setIsConfirmModalOpen(false);
+      setMessage("Patient deleted successfully!");
+      setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error("Error deleting patient:", err);
+      setMessage("Error deleting patient.");
+      setTimeout(() => setMessage(""), 3000);
     }
   };
-  
+
   const handleDeleteClick = (index) => {
-    // Set the accountToDelete to the index of the filteredPatients
     setAccountToDelete(index);
     setIsConfirmModalOpen(true);
   };
-  
 
   const closeConfirmModal = () => {
     setIsConfirmModalOpen(false);
@@ -194,7 +198,13 @@ function Patients() {
   return (
     <div>
       <Navbar />
+
       <div className="p-6 pt-20 bg-gray-100 min-h-screen">
+        {message && (
+          <div className="bg-green-500 text-white p-4 rounded-lg mb-4">
+            {message}
+          </div>
+        )}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-semibold">Patient List</h1>
         </div>
@@ -214,8 +224,8 @@ function Patients() {
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => {
-                  setSearchQuery(e.target.value); // Update search query
-                  setCurrentPage(1); // Reset to the first page
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
                 }}
                 className="px-4 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none w-72"
               />
@@ -258,7 +268,13 @@ function Patients() {
                     </tr>
                   ) : (
                     currentPatients.map((patient, index) => (
-                      <tr key={patient._id} className="border-b">
+                      <tr
+                        key={patient._id}
+                        className="border-b cursor-pointer"
+                        onClick={() =>
+                          (window.location.href = `/patients/${patient._id}`)
+                        }
+                      >
                         <td className="py-4">
                           <div className="flex items-center space-x-4">
                             <div>
@@ -283,7 +299,10 @@ function Patients() {
                           >
                             <button
                               className="text-gray-500 hover:text-gray-700"
-                              onClick={() => toggleDropdown(index)}
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent the row click event from firing
+                                toggleDropdown(index);
+                              }}
                             >
                               <BsThreeDots size={20} />
                             </button>
@@ -291,14 +310,20 @@ function Patients() {
                               <div className="absolute right-0 w-40 bg-white rounded-md shadow-lg border z-10">
                                 <button
                                   className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
-                                  onClick={() => handleEditPatient(index)}
+                                  onClick={(e) => {
+                                    e.stopPropagation(); // Prevent row click event
+                                    handleEditPatient(index);
+                                  }}
                                 >
                                   <AiOutlineEdit className="mr-2" /> Edit
                                   Patient
                                 </button>
                                 <button
                                   className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
-                                  onClick={() => handleDeleteClick(index)}
+                                  onClick={(e) => {
+                                    e.stopPropagation(); // Prevent row click event
+                                    handleDeleteClick(index);
+                                  }}
                                 >
                                   <AiOutlineDelete className="mr-2" /> Delete
                                   Patient
