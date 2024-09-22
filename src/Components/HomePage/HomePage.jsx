@@ -196,7 +196,7 @@ const Dashboard = () => {
                       <span>Patient Name</span>
                     </div>
                     <span className="w-1/5">Birthdate</span>
-                    <span className="w-1/5">Birthplace</span>
+                    <span className="w-1/5">Address</span>
                     <span className="w-1/5">ID Number</span>
                   </div>
                   {patients.map((patient, index) => (
@@ -215,7 +215,7 @@ const Dashboard = () => {
                         </span>
                       </div>
                       <span className="w-1/5">{new Date(patient.birthdate).toLocaleDateString()}</span>
-                      <span className="w-1/5">{patient.birthplace}</span>
+                      <span className="w-1/5">{patient.address}, {patient.city}</span>
                       <span className="w-1/5">{patient.idnumber}</span>
                     </div>
                   ))}
