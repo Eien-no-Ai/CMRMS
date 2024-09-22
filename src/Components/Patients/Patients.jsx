@@ -95,9 +95,9 @@ function Patients() {
       .catch((err) => {
         console.log("Error adding patient:", err);
       });
-};
+  };
 
-const resetForm = () => {
+  const resetForm = () => {
     setFirstName("");
     setMiddleName("");
     setLastName("");
@@ -111,17 +111,14 @@ const resetForm = () => {
     setEmail("");
     setCourse("");
     setSex("");
-};
-
+  };
 
   const indexOfLastPatient = currentPage * patientsPerPage;
   const indexOfFirstPatient = indexOfLastPatient - patientsPerPage;
-  // New filtered patients based on search query
   const filteredPatients = patients.filter(
     (patient) =>
       patient.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
       patient.lastname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       patient.idnumber.includes(searchQuery)
   );
 
@@ -167,14 +164,14 @@ const resetForm = () => {
 
   const handleDeletePatient = async () => {
     try {
-      const fullIndex = (currentPage - 1) * patientsPerPage + accountToDelete;
-      const patientId = patients[fullIndex]._id;
-
+      // Get the ID of the patient directly from the filteredPatients array
+      const patientId = filteredPatients[accountToDelete]._id;
+  
       // Send delete request to backend with the patient ID in the URL
       const result = await axios.delete(
         `http://localhost:3001/patients/${patientId}`
       );
-
+  
       console.log(result);
       fetchPatients(); // Refresh the patient list after deletion
       setIsConfirmModalOpen(false); // Close the modal
@@ -182,17 +179,17 @@ const resetForm = () => {
       console.error("Error deleting patient:", err);
     }
   };
-
+  
   const handleDeleteClick = (index) => {
+    // Set the accountToDelete to the index of the filteredPatients
     setAccountToDelete(index);
     setIsConfirmModalOpen(true);
   };
+  
 
   const closeConfirmModal = () => {
     setIsConfirmModalOpen(false);
   };
-
-  
 
   return (
     <div>
@@ -236,25 +233,8 @@ const resetForm = () => {
           </div>
         </div>
 
-        {!showFullList ? (
+        {searchQuery || showFullList ? (
           <div>
-            <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 flex justify-center">
-              <p className="text-gray-700 flex items-center">
-                <span className="mr-2">&#9432;</span> Whole patient list is not
-                shown to save initial load time.
-              </p>
-            </div>
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={toggleListVisibility}
-                className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-              >
-                Load All Patients
-              </button>
-            </div>
-          </div>
-        ) : (
-          <>
             <div className="bg-white p-6 py-1 rounded-lg shadow-md">
               <table className="min-w-full">
                 <thead>
@@ -267,65 +247,68 @@ const resetForm = () => {
                   </tr>
                 </thead>
                 <tbody>
-                {currentPatients.length === 0 ? (
-            <tr>
-              <td colSpan="5" className="py-4 text-center text-gray-500">
-                No accounts found.
-              </td>
-            </tr>
-          ) : (
-            currentPatients.map((patient, index) => (
-                    <tr key={(patient._id, index)} className="border-b">
-                      <td className="py-4">
-                        <div className="flex items-center space-x-4">
-                          <div>
-                            <p className="font-semibold">
-                              {patient.lastname}, {patient.firstname}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {patient.email}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4">
-                        {new Date(patient.birthdate).toLocaleDateString()}
-                      </td>
-                      <td className="py-4">{patient.idnumber}</td>
-                      <td className="py-4">{patient.course}</td>
-
-                      <td className="py-4">
-                        <div
-                          className="relative"
-                          ref={(el) => (dropdownRefs.current[index] = el)}
-                        >
-                          <button
-                            className="text-gray-500 hover:text-gray-700"
-                            onClick={() => toggleDropdown(index)}
-                          >
-                            <BsThreeDots size={20} />
-                          </button>
-                          {dropdownIndex === index && (
-                            <div className="absolute right-0 w-40 bg-white rounded-md shadow-lg border z-10">
-                              <button
-                                className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
-                                onClick={() => handleEditPatient(index)}
-                              >
-                                <AiOutlineEdit className="mr-2" /> Edit Patient
-                              </button>
-                              <button
-                                className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
-                                onClick={() => handleDeleteClick(index)}
-                              >
-                                <AiOutlineDelete className="mr-2" /> Delete
-                                Patient
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                  {currentPatients.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan="5"
+                        className="py-4 text-center text-gray-500"
+                      >
+                        No accounts found.
                       </td>
                     </tr>
-                  ))
+                  ) : (
+                    currentPatients.map((patient, index) => (
+                      <tr key={patient._id} className="border-b">
+                        <td className="py-4">
+                          <div className="flex items-center space-x-4">
+                            <div>
+                              <p className="font-semibold">
+                                {patient.lastname}, {patient.firstname}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {patient.email}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4">
+                          {new Date(patient.birthdate).toLocaleDateString()}
+                        </td>
+                        <td className="py-4">{patient.idnumber}</td>
+                        <td className="py-4">{patient.course}</td>
+                        <td className="py-4">
+                          <div
+                            className="relative"
+                            ref={(el) => (dropdownRefs.current[index] = el)}
+                          >
+                            <button
+                              className="text-gray-500 hover:text-gray-700"
+                              onClick={() => toggleDropdown(index)}
+                            >
+                              <BsThreeDots size={20} />
+                            </button>
+                            {dropdownIndex === index && (
+                              <div className="absolute right-0 w-40 bg-white rounded-md shadow-lg border z-10">
+                                <button
+                                  className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
+                                  onClick={() => handleEditPatient(index)}
+                                >
+                                  <AiOutlineEdit className="mr-2" /> Edit
+                                  Patient
+                                </button>
+                                <button
+                                  className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
+                                  onClick={() => handleDeleteClick(index)}
+                                >
+                                  <AiOutlineDelete className="mr-2" /> Delete
+                                  Patient
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
                   )}
                 </tbody>
               </table>
@@ -333,7 +316,7 @@ const resetForm = () => {
 
             <div className="flex justify-between items-center mt-4">
               <div>
-                Page <span className="text-custom-red">{currentPage} </span> of{" "}
+                Page <span className="text-custom-red">{currentPage}</span> of{" "}
                 {totalPages}
               </div>
               <div>
@@ -361,7 +344,24 @@ const resetForm = () => {
                 </button>
               </div>
             </div>
-          </>
+          </div>
+        ) : (
+          <div>
+            <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 flex justify-center">
+              <p className="text-gray-700 flex items-center">
+                <span className="mr-2">&#9432;</span> Whole patient list is not
+                shown to save initial load time.
+              </p>
+            </div>
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={toggleListVisibility}
+                className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+              >
+                Load All Patients
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
