@@ -13,6 +13,7 @@ function Patients() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [message, setMessage] = useState("");
+  const [patientToEdit, setPatientToEdit] = useState(null); // Tracks patient being edited
 
   const [firstname, setFirstName] = useState("");
   const [middlename, setMiddleName] = useState("");
@@ -71,35 +72,58 @@ function Patients() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios
-      .post("http://localhost:3001/add-patient", {
-        firstname,
-        middlename,
-        lastname,
-        birthdate,
-        idnumber,
-        address,
-        city,
-        state,
-        postalcode,
-        phonenumber,
-        email,
-        course,
-        sex,
-      })
-      .then((result) => {
-        console.log("Patient added:", result);
-        fetchPatients();
-        handleModalClose();
-        resetForm();
-        setMessage("Patient added successfully!");
-        setTimeout(() => setMessage(""), 3000);
-      })
-      .catch((err) => {
-        console.log("Error adding patient:", err);
-        setMessage("Error adding patient.");
-        setTimeout(() => setMessage(""), 3000);
-      });
+
+    const patientData = {
+      firstname,
+      middlename,
+      lastname,
+      birthdate,
+      idnumber,
+      address,
+      city,
+      state,
+      postalcode,
+      phonenumber,
+      email,
+      course,
+      sex,
+    };
+
+    // Check if editing an existing patient or adding a new one
+    if (patientToEdit) {
+      // Update existing patient (Edit)
+      axios
+        .put(`http://localhost:3001/patients/${patientToEdit._id}`, patientData)
+        .then((result) => {
+          console.log("Patient updated:", result);
+          fetchPatients(); // Refresh the patient list after update
+          handleModalClose(); // Close the modal after successful update
+          setMessage("Patient updated successfully!");
+          setTimeout(() => setMessage(""), 3000); // Clear the message after a timeout
+        })
+        .catch((err) => {
+          console.log("Error updating patient:", err);
+          setMessage("Error updating patient.");
+          setTimeout(() => setMessage(""), 3000); // Clear error message after a timeout
+        });
+    } else {
+      // Add new patient
+      axios
+        .post("http://localhost:3001/add-patient", patientData)
+        .then((result) => {
+          console.log("Patient added:", result);
+          fetchPatients(); // Refresh the patient list after adding a new patient
+          handleModalClose(); // Close the modal after successful addition
+          resetForm(); // Clear the form fields after submission
+          setMessage("Patient added successfully!");
+          setTimeout(() => setMessage(""), 3000); // Clear success message after a timeout
+        })
+        .catch((err) => {
+          console.log("Error adding patient:", err);
+          setMessage("Error adding patient.");
+          setTimeout(() => setMessage(""), 3000); // Clear error message after a timeout
+        });
+    }
   };
 
   const resetForm = () => {
@@ -157,14 +181,34 @@ function Patients() {
   const handleModalClose = () => {
     setIsModalOpen(false);
     resetForm();
+    setPatientToEdit(null); // Clear the editing state
   };
 
   const toggleDropdown = (index) => {
     setDropdownIndex(dropdownIndex === index ? null : index);
   };
 
-  const handleEditPatient = (index) => {
-    console.log("Edit patient:", patients[index]);
+  const handleEditPatient = (patientId) => {
+    const patient = patients.find((p) => p._id === patientId); // Find the correct patient by ID
+
+    if (patient) {
+      // Preload the form with the patient's data
+      setPatientToEdit(patient);
+      setFirstName(patient.firstname);
+      setMiddleName(patient.middlename);
+      setLastName(patient.lastname);
+      setBirthDate(patient.birthdate);
+      setIdNumber(patient.idnumber);
+      setAddress(patient.address);
+      setCity(patient.city);
+      setState(patient.state);
+      setPostalCode(patient.postalcode);
+      setPhoneNumber(patient.phonenumber);
+      setEmail(patient.email);
+      setCourse(patient.course);
+      setSex(patient.sex);
+      setIsModalOpen(true);
+    }
   };
 
   const handleDeletePatient = async () => {
@@ -312,7 +356,7 @@ function Patients() {
                                   className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
                                   onClick={(e) => {
                                     e.stopPropagation(); // Prevent row click event
-                                    handleEditPatient(index);
+                                    handleEditPatient(patient._id); // Pass the patient ID to the edit handler
                                   }}
                                 >
                                   <AiOutlineEdit className="mr-2" /> Edit
@@ -418,7 +462,10 @@ function Patients() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-4 px-8 rounded-lg shadow-lg w-1/2">
-            <h2 className="text-xl font-semibold mb-4">Add Patient</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              {" "}
+              {patientToEdit ? "Edit Patient" : "Add Patient"}
+            </h2>
 
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-3 gap-4">
@@ -587,7 +634,7 @@ function Patients() {
                   type="submit"
                   className="px-4 py-2 bg-custom-red text-white rounded-lg"
                 >
-                  Add Patient
+                  {patientToEdit ? "Update Patient" : "Add Patient"}
                 </button>
               </div>
             </form>
