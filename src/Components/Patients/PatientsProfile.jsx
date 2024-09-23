@@ -81,9 +81,9 @@ function PatientsProfile() {
       ? laboratoryRecords
       : xrayRecords;
 
-      const [formData, setFormData] = useState({
+      const initialFormData = {
         bloodChemistry: {
-          bloodSugar: "", // Stores string values instead of booleans
+          bloodSugar: "",
           bloodUreaNitrogen: "",
           bloodUricAcid: "",
           creatinine: "",
@@ -120,7 +120,9 @@ function PatientsProfile() {
           gramsStain: "",
           KOH: "",
         },
-      });
+      };
+      
+      const [formData, setFormData] = useState(initialFormData);
     
       const handleInputChange = (section, field) => {
         setFormData((prevData) => ({
@@ -142,7 +144,8 @@ function PatientsProfile() {
           // Check for successful form submission
           if (result.data.message === "Laboratory request created successfully") {
             console.log('Form submitted successfully:', result.data);
-    
+            // Reset form data to initial state
+            setFormData(initialFormData);
             // Perform any additional actions, such as closing the modal
             handleModalClose(); // Close the modal after successful submission
           } else {
