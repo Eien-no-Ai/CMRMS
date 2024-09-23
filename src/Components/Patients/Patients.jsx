@@ -213,27 +213,27 @@ function Patients() {
 
   const handleDeletePatient = async () => {
     try {
-      const patientId = filteredPatients[accountToDelete]._id;
-      console.log("Deleting patient with ID:", patientId);
-      const result = await axios.delete(
-        `http://localhost:3001/patients/${patientId}`
-      );
-      console.log(result);
-      fetchPatients();
-      setIsConfirmModalOpen(false);
-      setMessage("Patient deleted successfully!");
-      setTimeout(() => setMessage(""), 3000);
+        const patientId = accountToDelete; // Use the stored patient ID
+        console.log("Deleting patient with ID:", patientId);
+        const result = await axios.delete(`http://localhost:3001/patients/${patientId}`);
+        console.log(result);
+        fetchPatients();
+        setIsConfirmModalOpen(false);
+        setMessage("Patient deleted successfully!");
+        setTimeout(() => setMessage(""), 3000);
     } catch (err) {
-      console.error("Error deleting patient:", err);
-      setMessage("Error deleting patient.");
-      setTimeout(() => setMessage(""), 3000);
+        console.error("Error deleting patient:", err);
+        setMessage("Error deleting patient.");
+        setTimeout(() => setMessage(""), 3000);
     }
-  };
+};
 
-  const handleDeleteClick = (index) => {
-    setAccountToDelete(index);
+
+  const handleDeleteClick = (patientId) => {
+    setAccountToDelete(patientId); // Set patient ID to delete
     setIsConfirmModalOpen(true);
-  };
+};
+
 
   const closeConfirmModal = () => {
     setIsConfirmModalOpen(false);
@@ -366,7 +366,7 @@ function Patients() {
                                   className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
                                   onClick={(e) => {
                                     e.stopPropagation(); // Prevent row click event
-                                    handleDeleteClick(index);
+                                    handleDeleteClick(patient._id);
                                   }}
                                 >
                                   <AiOutlineDelete className="mr-2" /> Delete
