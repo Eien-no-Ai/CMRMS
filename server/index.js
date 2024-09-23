@@ -235,6 +235,22 @@ app.get('/patients/:id', (req, res) => {
       .catch(err => res.status(500).json({ message: 'Error retrieving patient', error: err }));
   });
 
+  app.put('/patients/:id', (req, res) => {
+    const { id } = req.params;
+    const updatedData = req.body;
+  
+    PatientModel.findByIdAndUpdate(id, updatedData, { new: true })
+      .then(patient => {
+        if (patient) {
+          res.json({ message: 'Patient updated successfully', patient });
+        } else {
+          res.status(404).json({ message: 'Patient not found' });
+        }
+      })
+      .catch(err => res.status(500).json({ message: 'Error updating patient', error: err }));
+  });
+  
+
 // POST endpoint to save a lab request
 app.post('/api/laboratory', async (req, res) => {
     const labData = req.body;  // Expecting the form data in the request body
