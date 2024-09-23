@@ -176,6 +176,7 @@ app.get('/search', (req, res) => {
 // P A T I E N T
 
 const PatientModel = require('./models/Patient');
+const LaboratoryModel = require('./models/Laboratory');
 
 app.post('/add-patient', (req, res) => {
     const { firstname, middlename, lastname, birthdate, birthplace, idnumber, address, city, state, postalcode, phonenumber, email, course, sex } = req.body;
@@ -233,6 +234,16 @@ app.get('/patients/:id', (req, res) => {
       })
       .catch(err => res.status(500).json({ message: 'Error retrieving patient', error: err }));
   });
+
+// POST endpoint to save a lab request
+app.post('/api/laboratory', async (req, res) => {
+    const labData = req.body;  // Expecting the form data in the request body
+    LaboratoryModel.create(labData)
+        .then(labRequest => res.json({ message: 'Laboratory request created successfully', labRequest }))
+        .catch(err => res.status(500).json({ message: 'Error creating laboratory request', error: err }));
+}
+);
+
 //console log
 app.listen(3001, () => {
     console.log('Server is running on port 3001');
