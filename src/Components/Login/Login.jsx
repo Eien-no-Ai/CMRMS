@@ -7,32 +7,36 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const result = await axios.post('http://localhost:3001/login', { email, password });
-        if (result.data.message === 'Login Successful') {
-            // Store the role and userId in localStorage
-            localStorage.setItem('role', result.data.role);
-            localStorage.setItem('userId', result.data.userId); // Store user ID
-
-            // Navigate to the appropriate page
-            if (result.data.role === 'admin') {
-                navigate('/admin');
-            } else {
-                navigate('/home');
-            }
+      const result = await axios.post("http://localhost:3001/login", {
+        email,
+        password,
+      });
+      if (result.data.message === "Login Successful") {
+        localStorage.setItem("role", result.data.role);
+        localStorage.setItem("userId", result.data.userId);
+        if (result.data.role === "admin") {
+          navigate("/admin");
         } else {
-            setError(result.data.message);
+          navigate("/home");
         }
+      } else {
+        setError(result.data.message);
+      }
     } catch (err) {
-        console.error(err);
-        setError('An error occurred. Please try again.');
+      console.error(err);
+      setError("An error occurred. Please try again.");
     }
-};
+  };
 
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
 
   return (
     <div className="w-full h-screen flex flex-col md:flex-row items-start">
@@ -80,11 +84,12 @@ function Login() {
               />
             </div>
 
-            {error && (
-              <p className="text-red-500 text-sm mt-2">{error}</p>
-            )}
+            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
-            <p className="flex justify-end text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer underline underline-offset-2">
+            <p
+              onClick={toggleModal}
+              className="flex justify-end text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer underline underline-offset-2"
+            >
               Forgot Password?
             </p>
 
@@ -111,6 +116,28 @@ function Login() {
           </p>
         </div>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3 transition-transform transform scale-95 hover:scale-100">
+            <h2 className="text-lg font-semibold mb-4 text-left">
+              Forgot Password?
+            </h2>
+            <p className="text-sm text-gray-700 text-left">
+              Proceed to Management Information Systems (MIS) to reset your
+              password.
+            </p>
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={toggleModal}
+                className="px-6 py-2 bg-[#C3151C] text-white font-semibold rounded-lg shadow-md hover:bg-[#A30E16] transition duration-200"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

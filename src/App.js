@@ -74,7 +74,7 @@ function App() {
             }
           />
           <Route
-            path="/patients-profile"
+            path="/patients/:id"
             element={
               <PrivateRoute allowedRoles={['user', 'doctor', 'clinic staff', 'laboratory staff', 'xray staff']}>
                 <PatientsProfile />

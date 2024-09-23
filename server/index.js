@@ -221,6 +221,18 @@ app.delete('/patients/:id', (req, res) => {
         .catch(err => res.status(500).json({ message: 'Error deleting patient', error: err }));
 });
 
+app.get('/patients/:id', (req, res) => {
+    const { id } = req.params;
+    PatientModel.findById(id)
+      .then(patient => {
+        if (patient) {
+          res.json(patient);
+        } else {
+          res.status(404).json({ message: 'Patient not found' });
+        }
+      })
+      .catch(err => res.status(500).json({ message: 'Error retrieving patient', error: err }));
+  });
 //console log
 app.listen(3001, () => {
     console.log('Server is running on port 3001');

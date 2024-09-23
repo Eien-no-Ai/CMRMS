@@ -189,14 +189,14 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto h-96">
                 <div className="min-w-full">
-                  <div className="flex justify-between items-center py-2 border-b font-semibold text-gray-700">
-                    <div className="w-1/5 flex items-center">
+                <div className="flex justify-between items-center py-2 border-b font-semibold text-gray-700 sticky top-0 bg-white z-10">
+                  <div className="w-1/5 flex items-center">
                       <span>Patient Name</span>
                     </div>
                     <span className="w-1/5">Birthdate</span>
-                    <span className="w-1/5">Birthplace</span>
+                    <span className="w-1/5">Address</span>
                     <span className="w-1/5">ID Number</span>
                   </div>
                   {patients.map((patient, index) => (
@@ -215,7 +215,7 @@ const Dashboard = () => {
                         </span>
                       </div>
                       <span className="w-1/5">{new Date(patient.birthdate).toLocaleDateString()}</span>
-                      <span className="w-1/5">{patient.birthplace}</span>
+                      <span className="w-1/5">{patient.address}, {patient.city}</span>
                       <span className="w-1/5">{patient.idnumber}</span>
                     </div>
                   ))}
