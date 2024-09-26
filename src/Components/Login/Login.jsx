@@ -6,31 +6,57 @@ import { useNavigate } from "react-router-dom";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
   const navigate = useNavigate();
 
+  const validateForm = () => {
+    let isValid = true;
+
+    // Reset error messages
+    setEmailError("");
+    setPasswordError("");
+
+    // Email validation
+    if (!email) {
+      setEmailError("Email is required.");
+      isValid = false;
+    }
+
+    // Password validation
+    if (!password) {
+      setPasswordError("Password is required.");
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const result = await axios.post("http://localhost:3001/login", {
-        email,
-        password,
-      });
-      if (result.data.message === "Login Successful") {
-        localStorage.setItem("role", result.data.role);
-        localStorage.setItem("userId", result.data.userId);
-        if (result.data.role === "admin") {
-          navigate("/admin");
+
+    if (validateForm()) {
+      try {
+        const result = await axios.post("http://localhost:3001/login", {
+          email,
+          password,
+        });
+        if (result.data.message === "Login Successful") {
+          localStorage.setItem("role", result.data.role);
+          localStorage.setItem("userId", result.data.userId);
+          if (result.data.role === "admin") {
+            navigate("/admin");
+          } else {
+            navigate("/home");
+          }
         } else {
-          navigate("/home");
+          setPasswordError(result.data.message);
         }
-      } else {
-        setError(result.data.message);
+      } catch (err) {
+        console.error(err);
+        setPasswordError("An error occurred. Please try again.");
       }
-    } catch (err) {
-      console.error(err);
-      setError("An error occurred. Please try again.");
     }
   };
 
@@ -68,6 +94,7 @@ function Login() {
               Welcome! Please enter your details.
             </p>
           </div>
+
           <form onSubmit={handleSubmit}>
             <div className="w-full flex flex-col">
               <input
@@ -76,15 +103,15 @@ function Login() {
                 className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
                 onChange={(e) => setEmail(e.target.value)}
               />
+              {emailError && <span className="text-red-500 text-sm">{emailError}</span>}
               <input
                 type="password"
                 placeholder="Password"
                 className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
                 onChange={(e) => setPassword(e.target.value)}
               />
+              {passwordError && <span className="text-red-500 text-sm">{passwordError}</span>}
             </div>
-
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
             <p
               onClick={toggleModal}
