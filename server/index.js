@@ -14,7 +14,6 @@ mongoose.connect('mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employ
 app.post('/register', (req, res) => {
     const { firstname, lastname, email, password, confirmPassword } = req.body;
 
-    // Set default role as 'user'
     const role = 'user';
 
     EmployeeModel.create({ firstname, lastname, email, password, confirmPassword, role })
@@ -259,6 +258,17 @@ app.post('/api/laboratory', async (req, res) => {
         .catch(err => res.status(500).json({ message: 'Error creating laboratory request', error: err }));
 }
 );
+
+// GET endpoint to fetch lab records
+app.get('/api/laboratory', async (req, res) => {
+    try {
+      const labRecords = await LaboratoryModel.find().populate('patient');
+      res.json(labRecords);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching laboratory records', error });
+    }
+  });
+  
 
 //console log
 app.listen(3001, () => {

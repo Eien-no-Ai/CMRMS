@@ -14,11 +14,10 @@ const PatientSchema = new mongoose.Schema({
     phonenumber: { type: String },
     email: { type: String, required: true, unique: true },
     course: { type: String },
-    sex: { type: String, required: true }
+    sex: { type: String, required: true },
+    isCreatedAt: { type: Date, default: Date.now },
 });
 
 const PatientModel = mongoose.model('patients', PatientSchema);
 
 module.exports = PatientModel;
-
-

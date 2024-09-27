@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 
 const LaboratorySchema = new mongoose.Schema({
+    patient: { type: mongoose.Schema.Types.ObjectId, ref: 'patients', required: true },
     bloodChemistry: {
-        bloodSugar: { type: String, default: "" },  // Stores blood sugar data as string
+        bloodSugar: { type: String, default: "" },
         bloodUreaNitrogen: { type: String, default: "" },
         bloodUricAcid: { type: String, default: "" },
         creatinine: { type: String, default: "" },

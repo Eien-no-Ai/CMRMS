@@ -11,6 +11,7 @@ import AdminSignUp from "./Components/Admin/AdminSignUp";
 import PrivateRoute from "./Components/PrivateRoute";
 import PublicRoute from "./Components/PublicRoute"; 
 import NotFound from "./Components/NotFound/NotFound";
+import Laboratory from "./Components/Laboratory/Laboratory";
 
 function App() {
   return (
@@ -21,6 +22,8 @@ function App() {
           {/* random url */}
 
         <Route path="*" element={<NotFound />} />
+        <Route path="/test" element={<Laboratory />} />
+
 
           {/* Public routes that redirect logged-in users */}
           <Route

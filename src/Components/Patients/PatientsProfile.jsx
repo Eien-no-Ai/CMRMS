@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../Navbar/Navbar";
@@ -40,7 +40,26 @@ function PatientsProfile() {
   const [selectedTab, setSelectedTab] = useState("clinical");
   const [showRequestOptions, setShowRequestOptions] = useState(false);
   const [isLabModalOpen, setIsLabModalOpen] = useState(false); // Modal state
+  const dropdownRef = useRef(null); // Dropdown ref
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showRequestOptions && dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowRequestOptions(false); // Close dropdown if clicked outside
+      }
+    };
+  
+    if (showRequestOptions) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+  
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showRequestOptions]);
+  
   useEffect(() => {
     const fetchPatient = async () => {
       try {
@@ -138,9 +157,15 @@ function PatientsProfile() {
       const handleSubmit = async (e) => {
         e.preventDefault(); // Prevent the default form submission behavior
         try {
+          // Include the patient ID in the form data
+          const dataToSend = { ...formData, patient: id };
+      
+          // Optional: Log the data to verify
+          console.log("Submitting data:", dataToSend);
+      
           // Make a POST request using axios to the correct endpoint
-          const result = await axios.post('http://localhost:3001/api/laboratory', formData);
-    
+          const result = await axios.post('http://localhost:3001/api/laboratory', dataToSend);
+      
           // Check for successful form submission
           if (result.data.message === "Laboratory request created successfully") {
             console.log('Form submitted successfully:', result.data);
@@ -156,8 +181,8 @@ function PatientsProfile() {
           // Catch and log any errors
           console.error('An error occurred:', err);
         }
-    };
-    
+      };
+      
 
   return (
     <div>
@@ -174,8 +199,8 @@ function PatientsProfile() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="text-center">
                     <img
-                      src="https://scontent.fcrk4-1.fna.fbcdn.net/v/t39.30808-6/456586001_2803226679827926_8516965841580877388_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=uZaQBiQ9pDsQ7kNvgEplSfn&_nc_ht=scontent.fcrk4-1.fna&_nc_gid=AhoI5F7qvo2ToJqUHTtVEAu&oh=00_AYBo9EIORac0VeeyLuTwIcraEMqToJB2FM6xIWt-OrCnsA&oe=66E050CD"
-                      alt="Diane Cooper"
+                      src="https://via.placeholder.com/150"
+                      alt="Placeholder"
                       className="mx-auto h-20 w-20 rounded-full"
                     />
                     <h2 className="mt-4 text-xl font-semibold">
@@ -203,8 +228,8 @@ function PatientsProfile() {
                       <button className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full">
                         New Record
                       </button>
-                      <div className="relative">
-                        <button
+                      <div className="relative" ref={dropdownRef}>
+                      <button
                           className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                           onClick={handleMakeRequest}
                         >
