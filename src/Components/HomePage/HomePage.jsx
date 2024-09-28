@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { FaHtml5, FaAndroid } from "react-icons/fa";
 import { BiSearch } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
+import axios from "axios";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const [userRole, setUserRole] = useState(null);
@@ -52,17 +54,22 @@ const Dashboard = () => {
     }
   }, []);
 
-  useEffect(() => {
-    // Example data fetching for patients and updates
-    fetch("http://localhost:3001/patients")
-      .then((response) => response.json())
-      .then((data) => setPatients(data))
-      .catch((error) => console.error("Error fetching patients:", error));
+  const fetchPatients = () => {
+    axios
+      .get("http://localhost:3001/patients")
+      .then((response) => {
+        const sortedPatients = response.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setPatients(sortedPatients);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the patients!", error);
+      });
+  };
 
-    fetch("http://localhost:3001/updates")
-      .then((response) => response.json())
-      .then((data) => setUpdates(data))
-      .catch((error) => console.error("Error fetching updates:", error));
+  useEffect(() => {
+    fetchPatients();
   }, []);
 
   // Prepare records based on user role
@@ -79,6 +86,26 @@ const Dashboard = () => {
     }
     setRecords(userRecords);
   }, [userRole]);
+  // Check if the user role is 'user' and display the message
+  if (userRole === "user") {
+    return (
+      <div>
+        <Navbar />
+        <div className="p-6 pt-20 bg-gray-100 min-h-screen">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-semibold">Dashboard</h1>
+          </div>
+          <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 flex justify-center">
+            <p className="text-gray-700 flex items-center">
+              <span className="mr-2">&#9432;</span> Please proceed to Management
+              Information Systems (MIS) for assigning of roles.
+            </p>
+          </div>
+          <div className="flex justify-center mt-4"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -107,42 +134,63 @@ const Dashboard = () => {
                   )}
                   {records.includes("Laboratory Records") && (
                     <div className="grid grid-cols-2 gap-6">
-                      <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
+                      <a
+                        href="/laboratory-records" // Link to Laboratory Records page
+                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                      >
                         <FaAndroid size={40} className="text-gray-500 mb-2" />
                         <span className="font-semibold text-custom-red">
                           LABORATORY RECORDS
                         </span>
-                      </div>
-                      <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
+                      </a>
+                      <a
+                        href="/laboratory-requests" // Link to Laboratory Requests page
+                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                      >
                         <FaAndroid size={40} className="text-gray-500 mb-2" />
                         <span className="font-semibold text-custom-red">
                           LABORATORY REQUESTS
                         </span>
-                      </div>
+                      </a>
                     </div>
                   )}
                   {records.includes("X-Ray Records") && (
                     <div className="grid grid-cols-2 gap-6">
-                      <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
+                      <a
+                        href="/x-ray-records" // Link to X-Ray Records page
+                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                      >
                         <FaAndroid size={40} className="text-gray-500 mb-2" />
                         <span className="font-semibold text-custom-red">
                           X-RAY RECORDS
                         </span>
-                      </div>
-                      <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
+                      </a>
+                      <a
+                        href="/x-ray-requests" // Link to X-Ray Requests page
+                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                      >
                         <FaAndroid size={40} className="text-gray-500 mb-2" />
                         <span className="font-semibold text-custom-red">
                           X-RAY REQUESTS
                         </span>
-                      </div>
+                      </a>
                     </div>
                   )}
                 </div>
               ) : (
                 records.map((record, index) => (
-                  <div
+                  <Link
                     key={index}
-                    className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1"
+                    to={
+                      record === "Clinical Records"
+                        ? "/clinical-records"
+                        : record === "Laboratory Records"
+                        ? "/laboratory-records"
+                        : record === "X-Ray Records"
+                        ? "/x-ray-records"
+                        : "#"
+                    }
+                    className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105"
                   >
                     {record === "Clinical Records" && (
                       <>
@@ -168,7 +216,7 @@ const Dashboard = () => {
                         </span>
                       </>
                     )}
-                  </div>
+                  </Link>
                 ))
               )}
             </div>
@@ -191,8 +239,8 @@ const Dashboard = () => {
 
               <div className="overflow-x-auto h-96">
                 <div className="min-w-full">
-                <div className="flex justify-between items-center py-2 border-b font-semibold text-gray-700 sticky top-0 bg-white z-10">
-                  <div className="w-1/5 flex items-center">
+                  <div className="flex justify-between items-center py-2 border-b font-semibold text-gray-700 sticky top-0 bg-white z-10">
+                    <div className="w-1/5 flex items-center">
                       <span>Patient Name</span>
                     </div>
                     <span className="w-1/5">Birthdate</span>
@@ -214,8 +262,12 @@ const Dashboard = () => {
                           {patient.lastname}, {patient.firstname}
                         </span>
                       </div>
-                      <span className="w-1/5">{new Date(patient.birthdate).toLocaleDateString()}</span>
-                      <span className="w-1/5">{patient.address}, {patient.city}</span>
+                      <span className="w-1/5">
+                        {new Date(patient.birthdate).toLocaleDateString()}
+                      </span>
+                      <span className="w-1/5">
+                        {patient.address}, {patient.city}
+                      </span>
                       <span className="w-1/5">{patient.idnumber}</span>
                     </div>
                   ))}

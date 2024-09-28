@@ -66,12 +66,14 @@ function Navbar() {
         <span className="mr-8 ml-8 text-xl">CMRMS</span>
       </div>
       <div className="flex items-center space-x-20 mr-8">
-        {/* Conditionally render links based on role */}
-        {role !== 'admin' && (
+        {role !== 'admin' && role !==  'user' &&(
           <>
             <a href="/home" className="hover:underline">Home</a>
             <a href="/patients" className="hover:underline">Patients</a>
           </>
+        )}
+        {role === 'user'  && (
+          <a href="/home" className="hover:underline">Home</a>
         )}
         {role === 'admin' && (
           <a href="/admin" className="hover:underline">Home</a>
@@ -84,12 +86,10 @@ function Navbar() {
           
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg py-2 z-10">
-              {/* Display the user's name if available */}
               <div className="px-4 py-2 text-sm text-gray-800 border-b">
                 {userData.firstname ? `Hello, ${userData.firstname}` : 'Hello, User'}
               </div>
               <a href="/profile" className="block px-4 py-2 text-sm hover:bg-gray-100">Profile</a>
-              {/* Logout link with onClick handler */}
               <button 
                 onClick={handleLogout} 
                 className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"

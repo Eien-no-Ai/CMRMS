@@ -20,10 +20,7 @@ function App() {
         <Routes>
           
           {/* random url */}
-
-        <Route path="*" element={<NotFound />} />
-        <Route path="/test" element={<Laboratory />} />
-
+          <Route path="*" element={<NotFound />} />
 
           {/* Public routes that redirect logged-in users */}
           <Route
@@ -91,6 +88,16 @@ function App() {
                 <Profile />
               </PrivateRoute>
             }
+          />
+
+          {/* Laboratory Routes */}
+          <Route 
+            path="/laboratory-requests" 
+            element={
+              <PrivateRoute allowedRoles={['laboratory staff']}>
+                <Laboratory />
+              </PrivateRoute>
+            } 
           />
 
           {/* Admin Routes */}

@@ -15,7 +15,7 @@ const PatientSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     course: { type: String },
     sex: { type: String, required: true },
-    isCreatedAt: { type: Date, default: Date.now },
+    createdAt: { type: Date, default: Date.now }, 
 });
 
 const PatientModel = mongoose.model('patients', PatientSchema);

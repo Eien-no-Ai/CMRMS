@@ -63,13 +63,14 @@ function Patients() {
     axios
       .get("http://localhost:3001/patients")
       .then((response) => {
-        setPatients(response.data);
+        const sortedPatients = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setPatients(sortedPatients);
       })
       .catch((error) => {
         console.error("There was an error fetching the patients!", error);
       });
   };
-
+  
   const handleSubmit = (e) => {
     e.preventDefault();
 
