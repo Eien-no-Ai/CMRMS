@@ -3,7 +3,9 @@ const express = require('express');
 const cors = require('cors');
 const EmployeeModel = require('./models/Employee');
 const e = require('express');
-
+const ClinicModel = require('./models/Clinic');
+const PatientModel = require('./models/Patient');
+const LaboratoryModel = require('./models/Laboratory');
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -174,8 +176,6 @@ app.get('/search', (req, res) => {
 
 // P A T I E N T
 
-const PatientModel = require('./models/Patient');
-const LaboratoryModel = require('./models/Laboratory');
 
 app.post('/add-patient', (req, res) => {
     const { firstname, middlename, lastname, birthdate, birthplace, idnumber, address, city, state, postalcode, phonenumber, email, course, sex } = req.body;
@@ -280,6 +280,47 @@ app.get('/api/laboratory/:patientId', async (req, res) => {
     }
 });
 
+// C L I N I C A L   R E C O R D S
+
+app.post('/api/clinicalRecords', async (req, res) => {
+    const clinicalRecords = req.body;
+
+    // Validate if the provided patient ID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(clinicalRecords.patient)) {
+        return res.status(400).json({ success: false, message: 'Invalid patient ID' });
+    }
+
+    ClinicModel.create(clinicalRecords)
+        .then(clinicRequest => res.json({ success: true, message: 'Clinic request created successfully', clinicRequest }))
+        .catch(err => res.status(500).json({ success: false, message: 'Error creating clinic request', error: err.message }));
+});
+
+
+// app.post('/api/clinicalRecords', async (req, res) => {
+//     const clinicalRecords = req.body;
+//     // Optionally check if patient exists
+//     try {
+//         const patient = await PatientModel.findById(clinicalRecords.patientId);
+//         if (!patient) {
+//             return res.status(400).json({ success: false, message: 'Patient not found' });
+//         }
+//         const clinicRequest = await ClinicModel.create(clinicalRecords);
+//         res.json({ success: true, message: 'Clinic request created successfully', clinicRequest });
+//     } catch (err) {
+//         console.error("Error creating clinic request:", err);
+//         res.status(500).json({ success: false, message: 'Error creating clinic request', error: err.message });
+//     }
+// });
+
+// app.get('/api/clinicalRecords', async (req, res) => {
+//     try {
+//         const clinicRecords = await ClinicModel.find().populate('patient');
+//         res.json(clinicRecords);
+//     } catch (error) {
+//         res.status(500).json({ message: 'Error fetching clinic records', error });
+//     }
+// }
+// );
 
 //console log
 app.listen(3001, () => {

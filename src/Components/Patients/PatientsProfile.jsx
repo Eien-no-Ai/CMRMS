@@ -7,19 +7,19 @@ const clinicalRecords = [
   {
     date: "12 Dec '19",
     complaints: "Headache",
-    treatment: "Paracetamol",
+    treatments: "Paracetamol",
     diagnosis: "Headache",
   },
   {
     date: "12 Dec '19",
     complaints: "Headache",
-    treatment: "Paracetamol",
+    treatments: "Paracetamol",
     diagnosis: "Headache",
   },
   {
     date: "12 Dec '19",
     complaints: "Headache",
-    treatment: "Paracetamol",
+    treatments: "Paracetamol",
     diagnosis: "Headache",
   },
 ];
@@ -40,10 +40,11 @@ function PatientsProfile() {
   const [newRecord, setNewRecord] = useState({
     date: new Date().toLocaleDateString(), // Default to today's date
     complaints: "",
-    treatment: "",
+    treatments: "",
     diagnosis: "",
   });
   const [laboratoryRecords, setLaboratoryRecords] = useState([]);
+  const [clinicalRecords, setClinicalRecords] = useState([]);
 
   useEffect(() => {
     const fetchLabRecords = async () => {
@@ -91,24 +92,23 @@ function PatientsProfile() {
   const handleNewRecordSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Optionally: POST the new record to your API endpoint
-      const response = await axios.post(
-        "http://localhost:3001/api/clinicalRecords",
-        {
-          ...newRecord,
-          patientId: id, // Include patient ID
+        const response = await axios.post(
+            "http://localhost:3001/api/clinicalRecords",
+            {
+                ...newRecord,
+                patient: id, // Send patient instead of patientId
+            }
+        );
+        if (response.status === 200) {
+            setClinicalRecords([...clinicalRecords, response.data.clinicRequest]); // Update local state immutably
+            handleNewRecordClose(); // Close modal
         }
-      );
-
-      if (response.data.success) {
-        // Optionally: Update your clinicalRecords state
-        clinicalRecords.push(newRecord); // Add to local state
-        handleNewRecordClose(); // Close modal
-      }
     } catch (error) {
-      console.error("Error adding new record:", error);
+        console.error("Error adding new record:", error.response || error);
     }
-  };
+};
+
+  
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -428,7 +428,7 @@ function PatientsProfile() {
                         <p className="text-gray-500 text-sm">{records.date}</p>
                         <p className="font-semibold">{records.complaints}</p>
                       </div>
-                      <div className="text-gray-500">{records.treatment}</div>
+                      <div className="text-gray-500">{records.treatments}</div>
                       <div className="text-gray-500">{records.diagnosis}</div>
                       <button className="text-custom-red">Edit</button>
                     </li>
@@ -530,8 +530,8 @@ function PatientsProfile() {
                 <label className="block text-sm font-medium">Treatment</label>
                 <input
                   type="text"
-                  name="treatment"
-                  value={newRecord.treatment}
+                  name="treatments"
+                  value={newRecord.treatments}
                   onChange={handleNewRecordChange}
                   required
                   className="border rounded-lg w-full p-2 mt-1"
