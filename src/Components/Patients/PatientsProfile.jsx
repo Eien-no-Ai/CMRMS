@@ -6,7 +6,7 @@ import Navbar from "../Navbar/Navbar";
 function PatientsProfile() {
   const { id } = useParams();
   const [patient, setPatient] = useState(null);
-  const [selectedTab, setSelectedTab] = useState("clinical");
+  const [selectedTab, setSelectedTab] = useState("");
   const [showRequestOptions, setShowRequestOptions] = useState(false);
   const [isLabModalOpen, setIsLabModalOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -26,6 +26,26 @@ function PatientsProfile() {
     xrayResult: "",
     xrayType: "",
   });
+  
+  const [role, setRole] = useState(null); // Store the user role
+  // Retrieve the role from localStorage and set default tab based on role
+  useEffect(() => {
+    const storedRole = localStorage.getItem('role');
+    if (storedRole) {
+      setRole(storedRole);
+
+      // Automatically set the default tab based on the role
+      if (storedRole === "clinic staff") {
+        setSelectedTab("clinical");
+      } else if (storedRole === "laboratory staff") {
+        setSelectedTab("laboratory");
+      } else if (storedRole === "xray staff") {
+        setSelectedTab("xray");
+      } else if (storedRole === "doctor") {
+        setSelectedTab("clinical"); // Doctor should see all records starting with clinical
+      }
+    }
+  }, []);
 
   const fetchLabRecords = useCallback(async () => {
     try {
@@ -205,13 +225,13 @@ function PatientsProfile() {
   };
 
   const displayedRecords =
-    selectedTab === "clinical"
-      ? clinicalRecords
-      : selectedTab === "laboratory"
-      ? laboratoryRecords
-      : selectedTab === "xray"
-      ? xrayRecords
-      : selectedTab === "";
+  selectedTab === "clinical"
+    ? clinicalRecords
+    : selectedTab === "laboratory"
+    ? laboratoryRecords
+    : selectedTab === "xray"
+    ? xrayRecords
+    : [];
 
   const initialFormData = {
     bloodChemistry: {
@@ -426,44 +446,49 @@ function PatientsProfile() {
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex justify-between items-center">
               <div className="space-x-4">
-                <button
-                  className={`${
-                    selectedTab === "clinical"
-                      ? "text-custom-red font-semibold"
-                      : ""
-                  }`}
-                  onClick={() => handleTabChange("clinical")}
-                >
-                  Clinical Records
-                </button>
-                <button
-                  className={`${
-                    selectedTab === "laboratory"
-                      ? "text-custom-red font-semibold"
-                      : ""
-                  }`}
-                  onClick={() => handleTabChange("laboratory")}
-                >
-                  Laboratory Records
-                </button>
-                <button
-                  className={`${
-                    selectedTab === "xray"
-                      ? "text-custom-red font-semibold"
-                      : ""
-                  }`}
-                  onClick={() => handleTabChange("xray")}
-                >
-                  X-ray Records
-                </button>
+                {(role === "clinic staff" || role === "doctor" )&& (
+                  <button
+                    className={`${
+                      selectedTab === "clinical" ? "text-custom-red font-semibold" : ""
+                    }`}
+                    onClick={() => handleTabChange("clinical")}
+                  >
+                    Clinical Records
+                  </button>
+                )}
+                
+                {(role === "laboratory staff" || role === "doctor" )&& (
+                  <button
+                    className={`${
+                      selectedTab === "laboratory" ? "text-custom-red font-semibold" : ""
+                    }`}
+                    onClick={() => handleTabChange("laboratory")}
+                  >
+                    Laboratory Records
+                  </button>
+                )}
+               
+                {(role === "xray staff" || role === "doctor" )&& (
+                  <button
+                    className={`${
+                      selectedTab === "xray" ? "text-custom-red font-semibold" : ""
+                    }`}
+                    onClick={() => handleTabChange("xray")}
+                  >
+                    X-ray Records
+                  </button>
+                )}
+
+
               </div>
+
             </div>
+            
             <div className="mt-4">
               <ul className="space-y-4">
-                {selectedTab === "clinical" &&
+                {selectedTab === "clinical" && (role === "clinic staff" || role === "doctor")&& 
                   (displayedRecords.length > 0 ? (
                     <ul className="space-y-2">
-                      {" "}
                       {displayedRecords.map((records, index) => (
                         <li
                           key={index}
@@ -473,27 +498,19 @@ function PatientsProfile() {
                             <p className="text-gray-500 text-sm">
                               {new Date(records.isCreatedAt).toLocaleString()}
                             </p>
-                            <p className="font-semibold">
-                              {records.complaints}
-                            </p>
+                            <p className="font-semibold">{records.complaints}</p>
                           </div>
-                          <div className="flex-1 text-gray-500">
-                            {records.treatments}
-                          </div>
-                          <div className="flex-1 text-gray-500">
-                            {records.diagnosis}
-                          </div>
+                          <div className="flex-1 text-gray-500">{records.treatments}</div>
+                          <div className="flex-1 text-gray-500">{records.diagnosis}</div>
                           <button className="text-custom-red">Edit</button>
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-center text-gray-500 py-4">
-                      No clinical records found.
-                    </p>
+                    <p className="text-center text-gray-500 py-4">No clinical records found.</p>
                   ))}
 
-                {selectedTab === "laboratory" &&
+                {selectedTab === "laboratory" && (role === "laboratory staff" || role === "doctor") &&
                   (displayedRecords.length > 0 ? (
                     displayedRecords.map((records, index) => {
                       const allTests = [
@@ -503,9 +520,7 @@ function PatientsProfile() {
                         ...Object.entries(records.hematology)
                           .filter(([key, value]) => value)
                           .map(([key, value]) => value),
-                        ...Object.entries(
-                          records.clinicalMicroscopyParasitology
-                        )
+                        ...Object.entries(records.clinicalMicroscopyParasitology)
                           .filter(([key, value]) => value)
                           .map(([key, value]) => value),
                         ...Object.entries(records.bloodBankingSerology)
@@ -541,12 +556,10 @@ function PatientsProfile() {
                       );
                     })
                   ) : (
-                    <p className="text-center text-gray-500 py-4">
-                      No lab records available.
-                    </p>
+                    <p className="text-center text-gray-500 py-4">No lab records available.</p>
                   ))}
 
-                {selectedTab === "xray" &&
+                {selectedTab === "xray" && (role === "xray staff" || role === "doctor")&&
                   (displayedRecords.length > 0 ? (
                     displayedRecords.map((records, index) => (
                       <li
@@ -559,16 +572,12 @@ function PatientsProfile() {
                           </p>
                           <p className="font-semibold">{records.xrayType}</p>
                         </div>
-                        <div className="text-gray-500">
-                          {records.xrayResult}
-                        </div>
+                        <div className="text-gray-500">{records.xrayResult}</div>
                         <button className="text-custom-red">Edit</button>
                       </li>
                     ))
                   ) : (
-                    <p className="text-center text-gray-500 py-4">
-                      No X-ray records available.
-                    </p>
+                    <p className="text-center text-gray-500 py-4">No X-ray records available.</p>
                   ))}
               </ul>
             </div>
