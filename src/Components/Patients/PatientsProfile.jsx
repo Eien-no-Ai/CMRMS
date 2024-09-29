@@ -3,27 +3,6 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../Navbar/Navbar";
 
-const clinicalRecords = [
-  {
-    date: "12 Dec '19",
-    complaints: "Headache",
-    treatments: "Paracetamol",
-    diagnosis: "Headache",
-  },
-  {
-    date: "12 Dec '19",
-    complaints: "Headache",
-    treatments: "Paracetamol",
-    diagnosis: "Headache",
-  },
-  {
-    date: "12 Dec '19",
-    complaints: "Headache",
-    treatments: "Paracetamol",
-    diagnosis: "Headache",
-  },
-];
-
 const xrayRecords = [
   { date: "10 Jan '23", xrayType: "Chest X-ray", result: "Normal" },
   { date: "15 Mar '23", xrayType: "Dental X-ray", result: "Cavity detected" },
@@ -65,13 +44,34 @@ function PatientsProfile() {
 
   const fetchLabRecords = async () => {
     try {
-        const response = await axios.get(`http://localhost:3001/api/laboratory/${id}`);
-        setLaboratoryRecords(response.data);
+      const response = await axios.get(
+        `http://localhost:3001/api/laboratory/${id}`
+      );
+      setLaboratoryRecords(response.data);
     } catch (error) {
-        console.error("There was an error fetching the laboratory records!", error);
+      console.error(
+        "There was an error fetching the laboratory records!",
+        error
+      );
     }
-};
+  };
 
+  useEffect(() => {
+    const fetchClinicalRecords = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/api/clinicalRecords/${id}`
+        );
+        setClinicalRecords(response.data);
+      } catch (error) {
+        console.error(
+          "There was an error fetching the clinical records!",
+          error
+        );
+      }
+    };
+    fetchClinicalRecords();
+  }, [id]);
 
   const handleNewRecordOpen = () => {
     setIsNewRecordModalOpen(true);
@@ -92,23 +92,21 @@ function PatientsProfile() {
   const handleNewRecordSubmit = async (e) => {
     e.preventDefault();
     try {
-        const response = await axios.post(
-            "http://localhost:3001/api/clinicalRecords",
-            {
-                ...newRecord,
-                patient: id, // Send patient instead of patientId
-            }
-        );
-        if (response.status === 200) {
-            setClinicalRecords([...clinicalRecords, response.data.clinicRequest]); // Update local state immutably
-            handleNewRecordClose(); // Close modal
+      const response = await axios.post(
+        "http://localhost:3001/api/clinicalRecords",
+        {
+          ...newRecord,
+          patient: id, // Send patient instead of patientId
         }
+      );
+      if (response.status === 200) {
+        setClinicalRecords([...clinicalRecords, response.data.clinicRequest]); // Update local state immutably
+        handleNewRecordClose(); // Close modal
+      }
     } catch (error) {
-        console.error("Error adding new record:", error.response || error);
+      console.error("Error adding new record:", error.response || error);
     }
-};
-
-  
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -419,19 +417,29 @@ function PatientsProfile() {
             <div className="mt-4">
               <ul className="space-y-4">
                 {selectedTab === "clinical" &&
-                  displayedRecords.map((records, index) => (
-                    <li
-                      key={index}
-                      className="flex justify-between items-center p-4 bg-gray-100 rounded-lg"
-                    >
-                      <div>
-                        <p className="text-gray-500 text-sm">{records.date}</p>
-                        <p className="font-semibold">{records.complaints}</p>
-                      </div>
-                      <div className="text-gray-500">{records.treatments}</div>
-                      <div className="text-gray-500">{records.diagnosis}</div>
-                      <button className="text-custom-red">Edit</button>
-                    </li>
+                  (displayedRecords.length > 0 ? (
+                    displayedRecords.map((records, index) => (
+                      <li
+                        key={index}
+                        className="flex justify-between items-center p-4 bg-gray-100 rounded-lg"
+                      >
+                        <div>
+                          <p className="text-gray-500 text-sm">
+                            {new Date(records.isCreatedAt).toLocaleString()}
+                          </p>
+                          <p className="font-semibold">{records.complaints}</p>
+                        </div>
+                        <div className="text-gray-500">
+                          {records.treatments}
+                        </div>
+                        <div className="text-gray-500">{records.diagnosis}</div>
+                        <button className="text-custom-red">Edit</button>
+                      </li>
+                    ))
+                  ) : (
+                    <p className="text-center text-gray-500 py-4">
+                      No clinical records found.
+                    </p>
                   ))}
 
                 {selectedTab === "laboratory" &&
@@ -490,18 +498,26 @@ function PatientsProfile() {
                   ))}
 
                 {selectedTab === "xray" &&
-                  displayedRecords.map((records, index) => (
-                    <li
-                      key={index}
-                      className="flex justify-between items-center p-4 bg-gray-100 rounded-lg"
-                    >
-                      <div>
-                        <p className="text-gray-500 text-sm">{records.date}</p>
-                        <p className="font-semibold">{records.xrayType}</p>
-                      </div>
-                      <div className="text-gray-500">{records.result}</div>
-                      <button className="text-custom-red">Edit</button>
-                    </li>
+                  (displayedRecords.length > 0 ? (
+                    displayedRecords.map((records, index) => (
+                      <li
+                        key={index}
+                        className="flex justify-between items-center p-4 bg-gray-100 rounded-lg"
+                      >
+                        <div>
+                          <p className="text-gray-500 text-sm">
+                            {records.date}
+                          </p>
+                          <p className="font-semibold">{records.xrayType}</p>
+                        </div>
+                        <div className="text-gray-500">{records.result}</div>
+                        <button className="text-custom-red">Edit</button>
+                      </li>
+                    ))
+                  ) : (
+                    <p className="text-center text-gray-500 py-4">
+                      No X-ray records available.
+                    </p>
                   ))}
               </ul>
             </div>

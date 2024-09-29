@@ -295,6 +295,26 @@ app.post('/api/clinicalRecords', async (req, res) => {
         .catch(err => res.status(500).json({ success: false, message: 'Error creating clinic request', error: err.message }));
 });
 
+// GET endpoint to fetch all clinical records
+app.get('/api/clinicalRecords', async (req, res) => {
+    try {
+        const clinicalRecords = await ClinicModel.find().populate('patient'); // Populating the patient data
+        res.json(clinicalRecords);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching clinical records', error });
+    }
+});
+
+// GET endpoint to fetch clinical records for a specific patient
+app.get('/api/clinicalRecords/:patientId', async (req, res) => {
+    const { patientId } = req.params;
+    try {
+        const clinicalRecords = await ClinicModel.find({ patient: patientId });
+        res.json(clinicalRecords);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching clinical records', error });
+    }
+});
 
 // app.post('/api/clinicalRecords', async (req, res) => {
 //     const clinicalRecords = req.body;

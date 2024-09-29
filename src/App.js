@@ -12,6 +12,7 @@ import PrivateRoute from "./Components/PrivateRoute";
 import PublicRoute from "./Components/PublicRoute"; 
 import NotFound from "./Components/NotFound/NotFound";
 import Laboratory from "./Components/Laboratory/Laboratory";
+import Clinic from "./Components/Clinic/Clinic";
 
 function App() {
   return (
@@ -86,6 +87,16 @@ function App() {
             element={
               <PrivateRoute allowedRoles={['user', 'doctor', 'clinic staff', 'laboratory staff', 'xray staff', 'admin']}>
                 <Profile />
+              </PrivateRoute>
+            }
+          />
+
+           {/* Clinic Route */}
+           <Route
+            path="/clinic-records"
+            element={
+              <PrivateRoute allowedRoles={['doctor', 'clinic staff']}>
+                <Clinic />
               </PrivateRoute>
             }
           />

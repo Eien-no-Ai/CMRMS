@@ -125,12 +125,15 @@ const Dashboard = () => {
               {records.length === 1 ? (
                 <div className="col-span-4">
                   {records.includes("Clinical Records") && (
-                    <div className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1">
+                    <a
+                      href="/clinic-records" // Link to Clinical Records page
+                      className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                    >
                       <FaHtml5 size={40} className="text-gray-500 mb-2" />
                       <span className="font-semibold text-custom-red">
                         CLINICAL RECORDS
                       </span>
-                    </div>
+                    </a>
                   )}
                   {records.includes("Laboratory Records") && (
                     <div className="grid grid-cols-2 gap-6">
@@ -183,7 +186,7 @@ const Dashboard = () => {
                     key={index}
                     to={
                       record === "Clinical Records"
-                        ? "/clinical-records"
+                        ? "/clinic-records"
                         : record === "Laboratory Records"
                         ? "/laboratory-records"
                         : record === "X-Ray Records"
