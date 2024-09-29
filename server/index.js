@@ -415,14 +415,14 @@ app.post("/api/xrayResults", async (req, res) => {
     .then((xrayRequest) =>
       res.json({
         success: true,
-        message: "Clinic request created successfully",
+        message: "X-Ray request created successfully",
         xrayRequest,
       })
     )
     .catch((err) =>
       res.status(500).json({
         success: false,
-        message: "Error creating clinic request",
+        message: "Error creating X-Ray request",
         error: err.message,
       })
     );
