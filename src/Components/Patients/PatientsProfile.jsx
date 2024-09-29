@@ -21,7 +21,6 @@ function PatientsProfile() {
   const [clinicalRecords, setClinicalRecords] = useState([]);
   const [xrayRecords, setXrayRecords] = useState([]);
   const [isNewXrayModalOpen, setIsNewXrayModalOpen] = useState(false);
-  
   const [newXrayRecord, setNewXrayRecord] = useState({
     date: new Date().toLocaleDateString(),
     xrayResult: "",
@@ -38,7 +37,10 @@ function PatientsProfile() {
       );
       setLaboratoryRecords(sortedLabRecords);
     } catch (error) {
-      console.error("There was an error fetching the laboratory records!", error);
+      console.error(
+        "There was an error fetching the laboratory records!",
+        error
+      );
     }
   }, [id]);
 
@@ -83,7 +85,10 @@ function PatientsProfile() {
         );
         setPatient(response.data);
       } catch (error) {
-        console.error("There was an error fetching the patient details!", error);
+        console.error(
+          "There was an error fetching the patient details!",
+          error
+        );
       }
     };
     fetchPatient();
@@ -457,24 +462,31 @@ function PatientsProfile() {
               <ul className="space-y-4">
                 {selectedTab === "clinical" &&
                   (displayedRecords.length > 0 ? (
-                    displayedRecords.map((records, index) => (
-                      <li
-                        key={index}
-                        className="flex justify-between items-center p-4 bg-gray-100 rounded-lg"
-                      >
-                        <div>
-                          <p className="text-gray-500 text-sm">
-                            {new Date(records.isCreatedAt).toLocaleString()}
-                          </p>
-                          <p className="font-semibold">{records.complaints}</p>
-                        </div>
-                        <div className="text-gray-500">
-                          {records.treatments}
-                        </div>
-                        <div className="text-gray-500">{records.diagnosis}</div>
-                        <button className="text-custom-red">Edit</button>
-                      </li>
-                    ))
+                    <ul className="space-y-2">
+                      {" "}
+                      {displayedRecords.map((records, index) => (
+                        <li
+                          key={index}
+                          className="flex justify-between items-center p-4 bg-gray-100 rounded-lg"
+                        >
+                          <div className="flex-1">
+                            <p className="text-gray-500 text-sm">
+                              {new Date(records.isCreatedAt).toLocaleString()}
+                            </p>
+                            <p className="font-semibold">
+                              {records.complaints}
+                            </p>
+                          </div>
+                          <div className="flex-1 text-gray-500">
+                            {records.treatments}
+                          </div>
+                          <div className="flex-1 text-gray-500">
+                            {records.diagnosis}
+                          </div>
+                          <button className="text-custom-red">Edit</button>
+                        </li>
+                      ))}
+                    </ul>
                   ) : (
                     <p className="text-center text-gray-500 py-4">
                       No clinical records found.
@@ -484,7 +496,6 @@ function PatientsProfile() {
                 {selectedTab === "laboratory" &&
                   (displayedRecords.length > 0 ? (
                     displayedRecords.map((records, index) => {
-                      // Combine all test results into one string
                       const allTests = [
                         ...Object.entries(records.bloodChemistry)
                           .filter(([key, value]) => value)
@@ -505,7 +516,7 @@ function PatientsProfile() {
                           .map(([key, value]) => value),
                       ]
                         .filter(Boolean)
-                        .join(", "); // Filter out empty fields and join them into a single string
+                        .join(", ");
 
                       return (
                         <li
@@ -516,7 +527,6 @@ function PatientsProfile() {
                             <p className="text-gray-500 text-sm">
                               {new Date(records.isCreatedAt).toLocaleString()}
                             </p>
-                            {/* Display all the tests in one p tag */}
                             <p className="font-semibold">
                               {allTests || "No test data available"}
                             </p>
