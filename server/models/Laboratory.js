@@ -40,6 +40,7 @@ const LaboratorySchema = new mongoose.Schema({
         gramsStain: { type: String, default: "" },
         KOH: { type: String, default: "" },
     },
+    labResult: { type: String, default: "" },
     isCreatedAt: { type: Date, default: Date.now },
 });
 

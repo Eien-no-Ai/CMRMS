@@ -1,77 +1,93 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../Navbar/Navbar";
-
-const xrayRecords = [
-  { date: "10 Jan '23", xrayType: "Chest X-ray", result: "Normal" },
-  { date: "15 Mar '23", xrayType: "Dental X-ray", result: "Cavity detected" },
-];
 
 function PatientsProfile() {
   const { id } = useParams();
   const [patient, setPatient] = useState(null);
   const [selectedTab, setSelectedTab] = useState("clinical");
   const [showRequestOptions, setShowRequestOptions] = useState(false);
-  const [isLabModalOpen, setIsLabModalOpen] = useState(false); // Modal state
-  const dropdownRef = useRef(null); // Dropdown ref
-  const [isNewRecordModalOpen, setIsNewRecordModalOpen] = useState(false); // New Record Modal state
+  const [isLabModalOpen, setIsLabModalOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const [isNewRecordModalOpen, setIsNewRecordModalOpen] = useState(false);
   const [newRecord, setNewRecord] = useState({
-    date: new Date().toLocaleDateString(), // Default to today's date
+    date: new Date().toLocaleDateString(),
     complaints: "",
     treatments: "",
     diagnosis: "",
   });
   const [laboratoryRecords, setLaboratoryRecords] = useState([]);
   const [clinicalRecords, setClinicalRecords] = useState([]);
+  const [xrayRecords, setXrayRecords] = useState([]);
+  const [isNewXrayModalOpen, setIsNewXrayModalOpen] = useState(false);
+  
+  const [newXrayRecord, setNewXrayRecord] = useState({
+    date: new Date().toLocaleDateString(),
+    xrayResult: "",
+    xrayType: "",
+  });
 
-  useEffect(() => {
-    const fetchLabRecords = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3001/api/laboratory/${id}`
-        ); // Pass the patient ID
-        setLaboratoryRecords(response.data);
-      } catch (error) {
-        console.error(
-          "There was an error fetching the laboratory records!",
-          error
-        );
-      }
-    };
-    fetchLabRecords();
-  }, [id]);
-
-  const fetchLabRecords = async () => {
+  const fetchLabRecords = useCallback(async () => {
     try {
       const response = await axios.get(
         `http://localhost:3001/api/laboratory/${id}`
       );
-      setLaboratoryRecords(response.data);
-    } catch (error) {
-      console.error(
-        "There was an error fetching the laboratory records!",
-        error
+      const sortedLabRecords = response.data.sort(
+        (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
       );
+      setLaboratoryRecords(sortedLabRecords);
+    } catch (error) {
+      console.error("There was an error fetching the laboratory records!", error);
     }
-  };
+  }, [id]);
+
+  const fetchXrayRecords = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/xrayResults/${id}`
+      );
+      const sortedXrayRecords = response.data.sort(
+        (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
+      );
+      setXrayRecords(sortedXrayRecords);
+      console.log("Fetched X-ray Records:", sortedXrayRecords);
+    } catch (error) {
+      console.error("There was an error fetching the X-ray records!", error);
+    }
+  }, [id]);
+
+  const fetchClinicalRecords = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/clinicalRecords/${id}`
+      );
+      const sortedClinicalRecords = response.data.sort(
+        (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
+      );
+      setClinicalRecords(sortedClinicalRecords);
+    } catch (error) {
+      console.error("There was an error fetching the clinical records!", error);
+    }
+  }, [id]);
 
   useEffect(() => {
-    const fetchClinicalRecords = async () => {
+    fetchLabRecords();
+    fetchXrayRecords();
+    fetchClinicalRecords();
+
+    const fetchPatient = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/api/clinicalRecords/${id}`
+          `http://localhost:3001/patients/${id}`
         );
-        setClinicalRecords(response.data);
+        setPatient(response.data);
       } catch (error) {
-        console.error(
-          "There was an error fetching the clinical records!",
-          error
-        );
+        console.error("There was an error fetching the patient details!", error);
       }
     };
-    fetchClinicalRecords();
-  }, [id]);
+    fetchPatient();
+  }, [id, fetchLabRecords, fetchXrayRecords, fetchClinicalRecords]);
 
   const handleNewRecordOpen = () => {
     setIsNewRecordModalOpen(true);
@@ -96,16 +112,53 @@ function PatientsProfile() {
         "http://localhost:3001/api/clinicalRecords",
         {
           ...newRecord,
-          patient: id, // Send patient instead of patientId
+          patient: id,
         }
       );
       if (response.status === 200) {
-        setClinicalRecords([...clinicalRecords, response.data.clinicRequest]); // Update local state immutably
-        handleNewRecordClose(); // Close modal
+        handleNewRecordClose();
+        await fetchClinicalRecords();
       }
     } catch (error) {
       console.error("Error adding new record:", error.response || error);
     }
+  };
+
+  const handleNewXraySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const newXrayData = {
+        ...newXrayRecord,
+        patient: id,
+        xrayResult: "pending",
+      };
+      const response = await axios.post(
+        "http://localhost:3001/api/xrayResults",
+        newXrayData
+      );
+      if (response.status === 200) {
+        handleNewXrayModalClose();
+        await fetchXrayRecords();
+      }
+    } catch (error) {
+      console.error("Error adding new X-ray record:", error.response || error);
+    }
+  };
+
+  const handleNewXrayChange = (e) => {
+    const { name, value } = e.target;
+    setNewXrayRecord((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleNewXrayModalOpen = () => {
+    setIsNewXrayModalOpen(true);
+  };
+
+  const handleNewXrayModalClose = () => {
+    setIsNewXrayModalOpen(false);
   };
 
   useEffect(() => {
@@ -115,7 +168,7 @@ function PatientsProfile() {
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target)
       ) {
-        setShowRequestOptions(false); // Close dropdown if clicked outside
+        setShowRequestOptions(false);
       }
     };
 
@@ -129,23 +182,6 @@ function PatientsProfile() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showRequestOptions]);
-
-  useEffect(() => {
-    const fetchPatient = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3001/patients/${id}`
-        );
-        setPatient(response.data);
-      } catch (error) {
-        console.error(
-          "There was an error fetching the patient details!",
-          error
-        );
-      }
-    };
-    fetchPatient();
-  }, [id]);
 
   const handleTabChange = (tab) => {
     setSelectedTab(tab);
@@ -168,7 +204,9 @@ function PatientsProfile() {
       ? clinicalRecords
       : selectedTab === "laboratory"
       ? laboratoryRecords
-      : xrayRecords;
+      : selectedTab === "xray"
+      ? xrayRecords
+      : selectedTab === "";
 
   const initialFormData = {
     bloodChemistry: {
@@ -218,16 +256,17 @@ function PatientsProfile() {
       ...prevData,
       [section]: {
         ...prevData[section],
-        [field]: prevData[section][field] === "" ? field : "", // Toggle between field name and empty string
+        [field]: prevData[section][field] === "" ? field : "",
       },
     }));
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     try {
-      const dataToSend = { ...formData, patient: id };
+      const dataToSend = { ...formData, patient: id, labResult: "pending" };
       console.log("Submitting data:", dataToSend);
+
       const result = await axios.post(
         "http://localhost:3001/api/laboratory",
         dataToSend
@@ -236,8 +275,8 @@ function PatientsProfile() {
       if (result.data.message === "Laboratory request created successfully") {
         console.log("Form submitted successfully:", result.data);
         setFormData(initialFormData);
-        handleModalClose(); 
-        fetchLabRecords(); // Fetch lab records again after submitting
+        handleModalClose();
+        fetchLabRecords();
       } else {
         console.error("Error submitting form:", result.data);
       }
@@ -311,7 +350,7 @@ function PatientsProfile() {
                             </button>
                             <button
                               className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                              onClick={() => alert("X-ray request made")}
+                              onClick={handleNewXrayModalOpen}
                             >
                               X-ray
                             </button>
@@ -483,7 +522,7 @@ function PatientsProfile() {
                             </p>
                           </div>
                           <div className="flex-1 text-gray-500 text-center">
-                            {records.status} pending
+                            {records.labResult}
                           </div>
                           <div className="flex-1 text-right">
                             <button className="text-custom-red">Edit</button>
@@ -506,11 +545,13 @@ function PatientsProfile() {
                       >
                         <div>
                           <p className="text-gray-500 text-sm">
-                            {records.date}
+                            {new Date(records.isCreatedAt).toLocaleString()}
                           </p>
                           <p className="font-semibold">{records.xrayType}</p>
                         </div>
-                        <div className="text-gray-500">{records.result}</div>
+                        <div className="text-gray-500">
+                          {records.xrayResult}
+                        </div>
                         <button className="text-custom-red">Edit</button>
                       </li>
                     ))
@@ -1013,6 +1054,49 @@ function PatientsProfile() {
                 Submit
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {isNewXrayModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-2 px-6 rounded-lg w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-bold mb-4 text-center">
+              New X-ray Request
+            </h2>
+            <form onSubmit={handleNewXraySubmit}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium">X-ray Type</label>
+                <select
+                  name="xrayType"
+                  value={newXrayRecord.xrayType}
+                  onChange={handleNewXrayChange}
+                  required
+                  className="border rounded-lg w-full p-2 mt-1"
+                >
+                  <option value="" disabled>
+                    Select X-ray Type
+                  </option>
+                  <option value="panoramic">Panoramic</option>
+                  <option value="chest">Chest</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                  onClick={handleNewXrayModalClose}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

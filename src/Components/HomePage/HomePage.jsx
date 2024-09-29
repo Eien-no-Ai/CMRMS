@@ -126,7 +126,7 @@ const Dashboard = () => {
                 <div className="col-span-4">
                   {records.includes("Clinical Records") && (
                     <a
-                      href="/clinic-records" // Link to Clinical Records page
+                      href="/clinic/records" // Link to Clinical Records page
                       className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                     >
                       <FaHtml5 size={40} className="text-gray-500 mb-2" />
@@ -138,7 +138,7 @@ const Dashboard = () => {
                   {records.includes("Laboratory Records") && (
                     <div className="grid grid-cols-2 gap-6">
                       <a
-                        href="/laboratory-records" // Link to Laboratory Records page
+                        href="/laboratory/records" // Link to Laboratory Records page
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
                         <FaAndroid size={40} className="text-gray-500 mb-2" />
@@ -147,7 +147,7 @@ const Dashboard = () => {
                         </span>
                       </a>
                       <a
-                        href="/laboratory-requests" // Link to Laboratory Requests page
+                        href="/laboratory/requests" // Link to Laboratory Requests page
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
                         <FaAndroid size={40} className="text-gray-500 mb-2" />
@@ -160,7 +160,7 @@ const Dashboard = () => {
                   {records.includes("X-Ray Records") && (
                     <div className="grid grid-cols-2 gap-6">
                       <a
-                        href="/x-ray-records" // Link to X-Ray Records page
+                        href="/xray/records" // Link to X-Ray Records page
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
                         <FaAndroid size={40} className="text-gray-500 mb-2" />
@@ -169,7 +169,7 @@ const Dashboard = () => {
                         </span>
                       </a>
                       <a
-                        href="/x-ray-requests" // Link to X-Ray Requests page
+                        href="/xray/requests" // Link to X-Ray Requests page
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
                         <FaAndroid size={40} className="text-gray-500 mb-2" />
@@ -186,11 +186,11 @@ const Dashboard = () => {
                     key={index}
                     to={
                       record === "Clinical Records"
-                        ? "/clinic-records"
+                        ? "/clinic/records"
                         : record === "Laboratory Records"
-                        ? "/laboratory-records"
+                        ? "/laboratory/records"
                         : record === "X-Ray Records"
-                        ? "/x-ray-records"
+                        ? "/xray/records"
                         : "#"
                     }
                     className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105"
