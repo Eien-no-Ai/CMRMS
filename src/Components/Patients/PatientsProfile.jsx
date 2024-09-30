@@ -335,16 +335,20 @@ function PatientsProfile() {
                     <div className="flex justify-center mt-2 space-x-6">
                       <div>
                         <p className="text-gray-700 text-lg font-semibold">
-                          15
+                          {clinicalRecords.length}
                         </p>
                         <p className="text-gray-500">Clinical</p>
                       </div>
                       <div>
-                        <p className="text-gray-700 text-lg font-semibold">2</p>
+                        <p className="text-gray-700 text-lg font-semibold">
+                          {laboratoryRecords.length}
+                        </p>
                         <p className="text-gray-500">Laboratory</p>
                       </div>
                       <div>
-                        <p className="text-gray-700 text-lg font-semibold">2</p>
+                        <p className="text-gray-700 text-lg font-semibold">
+                          {xrayRecords.length}
+                        </p>
                         <p className="text-gray-500">X-ray</p>
                       </div>
                     </div>
