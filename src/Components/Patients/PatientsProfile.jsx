@@ -333,24 +333,55 @@ function PatientsProfile() {
                     </h2>
                     <p className="text-gray-500">{patient.email}</p>
                     <div className="flex justify-center mt-2 space-x-6">
-                      <div>
-                        <p className="text-gray-700 text-lg font-semibold">
-                          {clinicalRecords.length}
-                        </p>
-                        <p className="text-gray-500">Clinical</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-700 text-lg font-semibold">
-                          {laboratoryRecords.length}
-                        </p>
-                        <p className="text-gray-500">Laboratory</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-700 text-lg font-semibold">
-                          {xrayRecords.length}
-                        </p>
-                        <p className="text-gray-500">X-ray</p>
-                      </div>
+                      {role === "doctor" && (
+                        <>
+                          <div>
+                            <p className="text-gray-700 text-lg font-semibold">
+                              {clinicalRecords.length}
+                            </p>
+                            <p className="text-gray-500">Clinical</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-700 text-lg font-semibold">
+                              {laboratoryRecords.length}
+                            </p>
+                            <p className="text-gray-500">Laboratory</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-700 text-lg font-semibold">
+                              {xrayRecords.length}
+                            </p>
+                            <p className="text-gray-500">X-ray</p>
+                          </div>
+                        </>
+                      )}
+
+                      {role === "clinic staff" && (
+                        <div>
+                          <p className="text-gray-700 text-lg font-semibold">
+                            {clinicalRecords.length}
+                          </p>
+                          <p className="text-gray-500">Clinical Records</p>
+                        </div>
+                      )}
+
+                      {role === "laboratory staff" && (
+                        <div>
+                          <p className="text-gray-700 text-lg font-semibold">
+                            {laboratoryRecords.length}
+                          </p>
+                          <p className="text-gray-500">Laboratory Records</p>
+                        </div>
+                      )}
+
+                      {role === "xray staff" && (
+                        <div>
+                          <p className="text-gray-700 text-lg font-semibold">
+                            {xrayRecords.length}
+                          </p>
+                          <p className="text-gray-500">X-ray Records</p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -361,7 +392,7 @@ function PatientsProfile() {
                           }`}
                           onClick={handleNewRecordOpen}
                         >
-                          New Record
+                          New Clinic Record
                         </button>
                       )}
 
@@ -370,7 +401,7 @@ function PatientsProfile() {
                           className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full col-span-4"
                           onClick={handleNewXrayModalOpen}
                         >
-                          X-ray
+                          Add X-ray Record
                         </button>
                       )}
 
