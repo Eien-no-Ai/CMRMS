@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import cover_image from "../assets/cover.jpg";
 import axios from "axios"; 
+import { useNavigate } from "react-router-dom";
 
 function AdminSignUp() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -35,6 +37,7 @@ function AdminSignUp() {
         role: "admin",
       });
       alert("Registration Successful");
+      navigate("/login");
     } catch (error) {
       console.error("Error registering admin:", error);
       alert("Registration Failed");

@@ -70,7 +70,7 @@ function App() {
           <Route
             path="/patients"
             element={
-              <PrivateRoute allowedRoles={['user', 'doctor', 'clinic staff', 'laboratory staff', 'xray staff']}>
+              <PrivateRoute allowedRoles={['doctor', 'clinic staff', 'xray staff']}>
                 <Patients />
               </PrivateRoute>
             }
@@ -78,7 +78,7 @@ function App() {
           <Route
             path="/patients/:id"
             element={
-              <PrivateRoute allowedRoles={['user', 'doctor', 'clinic staff', 'laboratory staff', 'xray staff']}>
+              <PrivateRoute allowedRoles={['doctor', 'clinic staff', 'xray staff']}>
                 <PatientsProfile />
               </PrivateRoute>
             }

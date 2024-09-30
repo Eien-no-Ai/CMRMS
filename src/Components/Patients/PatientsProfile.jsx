@@ -26,11 +26,11 @@ function PatientsProfile() {
     xrayResult: "",
     xrayType: "",
   });
-  
+
   const [role, setRole] = useState(null); // Store the user role
   // Retrieve the role from localStorage and set default tab based on role
   useEffect(() => {
-    const storedRole = localStorage.getItem('role');
+    const storedRole = localStorage.getItem("role");
     if (storedRole) {
       setRole(storedRole);
 
@@ -225,13 +225,13 @@ function PatientsProfile() {
   };
 
   const displayedRecords =
-  selectedTab === "clinical"
-    ? clinicalRecords
-    : selectedTab === "laboratory"
-    ? laboratoryRecords
-    : selectedTab === "xray"
-    ? xrayRecords
-    : [];
+    selectedTab === "clinical"
+      ? clinicalRecords
+      : selectedTab === "laboratory"
+      ? laboratoryRecords
+      : selectedTab === "xray"
+      ? xrayRecords
+      : [];
 
   const initialFormData = {
     bloodChemistry: {
@@ -313,7 +313,6 @@ function PatientsProfile() {
   return (
     <div>
       <Navbar />
-
       <div className="p-6 pt-20 bg-gray-100 min-h-screen">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-semibold">Patient Profile</h1>
@@ -351,37 +350,54 @@ function PatientsProfile() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                      <button
-                        className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
-                        onClick={handleNewRecordOpen}
-                      >
-                        New Record
-                      </button>
-                      <div className="relative" ref={dropdownRef}>
+                      {role !== "xray staff" && (
                         <button
-                          className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
-                          onClick={handleMakeRequest}
+                          className={`mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full ${
+                            role === "clinic staff" ? "col-span-4" : ""
+                          }`}
+                          onClick={handleNewRecordOpen}
                         >
-                          Make a Request
+                          New Record
                         </button>
-                        {/* Request options */}
-                        {showRequestOptions && (
-                          <div className="absolute mt-2 bg-white border rounded-lg shadow-lg">
-                            <button
-                              className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                              onClick={handleModalOpen} // Open modal here
-                            >
-                              Laboratory
-                            </button>
-                            <button
-                              className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                              onClick={handleNewXrayModalOpen}
-                            >
-                              X-ray
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      )}
+
+                      {role === "xray staff" && (
+                        <button
+                          className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full col-span-4"
+                          onClick={handleNewXrayModalOpen}
+                        >
+                          X-ray
+                        </button>
+                      )}
+
+                      {role !== "clinic staff" && role !== "xray staff" && (
+                        <div className="relative" ref={dropdownRef}>
+                          <button
+                            className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
+                            onClick={handleMakeRequest}
+                          >
+                            Make a Request
+                          </button>
+
+                          {/* Request options dropdown */}
+                          {showRequestOptions && (
+                            <div className="absolute mt-2 bg-white border rounded-lg shadow-lg">
+                              <button
+                                className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                                onClick={handleModalOpen} // Open modal for Laboratory
+                              >
+                                Laboratory
+                              </button>
+                              <button
+                                className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                                onClick={handleNewXrayModalOpen} // Open modal for X-ray
+                              >
+                                X-ray
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -446,47 +462,51 @@ function PatientsProfile() {
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex justify-between items-center">
               <div className="space-x-4">
-                {(role === "clinic staff" || role === "doctor" )&& (
+                {(role === "clinic staff" || role === "doctor") && (
                   <button
                     className={`${
-                      selectedTab === "clinical" ? "text-custom-red font-semibold" : ""
+                      selectedTab === "clinical"
+                        ? "text-custom-red font-semibold"
+                        : ""
                     }`}
                     onClick={() => handleTabChange("clinical")}
                   >
                     Clinical Records
                   </button>
                 )}
-                
-                {(role === "laboratory staff" || role === "doctor" )&& (
+
+                {(role === "laboratory staff" || role === "doctor") && (
                   <button
                     className={`${
-                      selectedTab === "laboratory" ? "text-custom-red font-semibold" : ""
+                      selectedTab === "laboratory"
+                        ? "text-custom-red font-semibold"
+                        : ""
                     }`}
                     onClick={() => handleTabChange("laboratory")}
                   >
                     Laboratory Records
                   </button>
                 )}
-               
-                {(role === "xray staff" || role === "doctor" )&& (
+
+                {(role === "xray staff" || role === "doctor") && (
                   <button
                     className={`${
-                      selectedTab === "xray" ? "text-custom-red font-semibold" : ""
+                      selectedTab === "xray"
+                        ? "text-custom-red font-semibold"
+                        : ""
                     }`}
                     onClick={() => handleTabChange("xray")}
                   >
                     X-ray Records
                   </button>
                 )}
-
-
               </div>
-
             </div>
-            
+
             <div className="mt-4">
               <ul className="space-y-4">
-                {selectedTab === "clinical" && (role === "clinic staff" || role === "doctor")&& 
+                {selectedTab === "clinical" &&
+                  (role === "clinic staff" || role === "doctor") &&
                   (displayedRecords.length > 0 ? (
                     <ul className="space-y-2">
                       {displayedRecords.map((records, index) => (
@@ -498,19 +518,28 @@ function PatientsProfile() {
                             <p className="text-gray-500 text-sm">
                               {new Date(records.isCreatedAt).toLocaleString()}
                             </p>
-                            <p className="font-semibold">{records.complaints}</p>
+                            <p className="font-semibold">
+                              {records.complaints}
+                            </p>
                           </div>
-                          <div className="flex-1 text-gray-500">{records.treatments}</div>
-                          <div className="flex-1 text-gray-500">{records.diagnosis}</div>
+                          <div className="flex-1 text-gray-500">
+                            {records.treatments}
+                          </div>
+                          <div className="flex-1 text-gray-500">
+                            {records.diagnosis}
+                          </div>
                           <button className="text-custom-red">Edit</button>
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-center text-gray-500 py-4">No clinical records found.</p>
+                    <p className="text-center text-gray-500 py-4">
+                      No clinical records found.
+                    </p>
                   ))}
 
-                {selectedTab === "laboratory" && (role === "laboratory staff" || role === "doctor") &&
+                {selectedTab === "laboratory" &&
+                  (role === "laboratory staff" || role === "doctor") &&
                   (displayedRecords.length > 0 ? (
                     displayedRecords.map((records, index) => {
                       const allTests = [
@@ -520,7 +549,9 @@ function PatientsProfile() {
                         ...Object.entries(records.hematology)
                           .filter(([key, value]) => value)
                           .map(([key, value]) => value),
-                        ...Object.entries(records.clinicalMicroscopyParasitology)
+                        ...Object.entries(
+                          records.clinicalMicroscopyParasitology
+                        )
                           .filter(([key, value]) => value)
                           .map(([key, value]) => value),
                         ...Object.entries(records.bloodBankingSerology)
@@ -556,10 +587,13 @@ function PatientsProfile() {
                       );
                     })
                   ) : (
-                    <p className="text-center text-gray-500 py-4">No lab records available.</p>
+                    <p className="text-center text-gray-500 py-4">
+                      No lab records available.
+                    </p>
                   ))}
 
-                {selectedTab === "xray" && (role === "xray staff" || role === "doctor")&&
+                {selectedTab === "xray" &&
+                  (role === "xray staff" || role === "doctor") &&
                   (displayedRecords.length > 0 ? (
                     displayedRecords.map((records, index) => (
                       <li
@@ -572,12 +606,16 @@ function PatientsProfile() {
                           </p>
                           <p className="font-semibold">{records.xrayType}</p>
                         </div>
-                        <div className="text-gray-500">{records.xrayResult}</div>
+                        <div className="text-gray-500">
+                          {records.xrayResult}
+                        </div>
                         <button className="text-custom-red">Edit</button>
                       </li>
                     ))
                   ) : (
-                    <p className="text-center text-gray-500 py-4">No X-ray records available.</p>
+                    <p className="text-center text-gray-500 py-4">
+                      No X-ray records available.
+                    </p>
                   ))}
               </ul>
             </div>
