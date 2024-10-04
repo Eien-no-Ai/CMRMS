@@ -6,7 +6,7 @@ const PatientSchema = new mongoose.Schema({
     middlename: { type: String },
     lastname: { type: String, required: true },
     birthdate: { type: Date, required: true },
-    idnumber: { type: String, required: true, unique: true },
+    idnumber: { type: String, unique: true },
     address: { type: String },
     city: { type: String },
     state: { type: String },
@@ -15,6 +15,9 @@ const PatientSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     course: { type: String },
     sex: { type: String, required: true },
+    patientType: { type: String, required: true },
+    emergencyContact: { type: String, required: true },
+    position: { type: String },
     createdAt: { type: Date, default: Date.now }, 
 });
 

@@ -13,21 +13,22 @@ function Patients() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [message, setMessage] = useState("");
-  const [patientToEdit, setPatientToEdit] = useState(null); // Tracks patient being edited
+  const [patientToEdit, setPatientToEdit] = useState(null);
 
+  const [patientType, setPatientType] = useState("");
   const [firstname, setFirstName] = useState("");
   const [middlename, setMiddleName] = useState("");
   const [lastname, setLastName] = useState("");
   const [birthdate, setBirthDate] = useState("");
   const [idnumber, setIdNumber] = useState("");
   const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [postalcode, setPostalCode] = useState("");
   const [phonenumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [course, setCourse] = useState("");
   const [sex, setSex] = useState("");
+  const [emergencyContact, setEmergencyContact] = useState("");
+  const [position, setPosition] = useState("");
+
   const [accountToDelete, setAccountToDelete] = useState(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [dropdownIndex, setDropdownIndex] = useState(null);
@@ -63,14 +64,16 @@ function Patients() {
     axios
       .get("http://localhost:3001/patients")
       .then((response) => {
-        const sortedPatients = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const sortedPatients = response.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
         setPatients(sortedPatients);
       })
       .catch((error) => {
         console.error("There was an error fetching the patients!", error);
       });
   };
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -81,13 +84,13 @@ function Patients() {
       birthdate,
       idnumber,
       address,
-      city,
-      state,
-      postalcode,
       phonenumber,
       email,
       course,
       sex,
+      patientType,
+      emergencyContact,
+      position,
     };
 
     // Check if editing an existing patient or adding a new one
@@ -134,13 +137,12 @@ function Patients() {
     setBirthDate("");
     setIdNumber("");
     setAddress("");
-    setCity("");
-    setState("");
-    setPostalCode("");
     setPhoneNumber("");
     setEmail("");
     setCourse("");
     setSex("");
+    setEmergencyContact("");
+    setPosition("");
   };
 
   const indexOfLastPatient = currentPage * patientsPerPage;
@@ -201,40 +203,39 @@ function Patients() {
       setBirthDate(patient.birthdate);
       setIdNumber(patient.idnumber);
       setAddress(patient.address);
-      setCity(patient.city);
-      setState(patient.state);
-      setPostalCode(patient.postalcode);
       setPhoneNumber(patient.phonenumber);
       setEmail(patient.email);
       setCourse(patient.course);
       setSex(patient.sex);
+      setEmergencyContact(patient.emergencyContact);
+      setPosition(patient.position);
       setIsModalOpen(true);
     }
   };
 
   const handleDeletePatient = async () => {
     try {
-        const patientId = accountToDelete; // Use the stored patient ID
-        console.log("Deleting patient with ID:", patientId);
-        const result = await axios.delete(`http://localhost:3001/patients/${patientId}`);
-        console.log(result);
-        fetchPatients();
-        setIsConfirmModalOpen(false);
-        setMessage("Patient deleted successfully!");
-        setTimeout(() => setMessage(""), 3000);
+      const patientId = accountToDelete; // Use the stored patient ID
+      console.log("Deleting patient with ID:", patientId);
+      const result = await axios.delete(
+        `http://localhost:3001/patients/${patientId}`
+      );
+      console.log(result);
+      fetchPatients();
+      setIsConfirmModalOpen(false);
+      setMessage("Patient deleted successfully!");
+      setTimeout(() => setMessage(""), 3000);
     } catch (err) {
-        console.error("Error deleting patient:", err);
-        setMessage("Error deleting patient.");
-        setTimeout(() => setMessage(""), 3000);
+      console.error("Error deleting patient:", err);
+      setMessage("Error deleting patient.");
+      setTimeout(() => setMessage(""), 3000);
     }
-};
-
+  };
 
   const handleDeleteClick = (patientId) => {
     setAccountToDelete(patientId); // Set patient ID to delete
     setIsConfirmModalOpen(true);
-};
-
+  };
 
   const closeConfirmModal = () => {
     setIsConfirmModalOpen(false);
@@ -464,163 +465,398 @@ function Patients() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-4 px-8 rounded-lg shadow-lg w-1/2">
             <h2 className="text-xl font-semibold mb-4">
-              {" "}
               {patientToEdit ? "Edit Patient" : "Add Patient"}
             </h2>
 
             <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-3 gap-4">
-                {/* Full Name */}
-                <div className="col-span-3">
-                  <label className="block mb-2">Full Name</label>
-
-                  <div className="grid grid-cols-3 gap-4">
-                    <input
-                      type="text"
-                      value={firstname}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="First Name"
-                      className="px-4 py-2 border rounded w-full"
-                      required
-                    />
-                    <input
-                      type="text"
-                      value={middlename}
-                      onChange={(e) => setMiddleName(e.target.value)}
-                      placeholder="Middle Name"
-                      className="px-4 py-2 border rounded w-full"
-                    />
-                    <input
-                      type="text"
-                      value={lastname}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Last Name"
-                      className="px-4 py-2 border rounded w-full"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="col-span-2">
-                  <label className="block mb-2">Date of Birth</label>
-                  <input
-                    type="date"
-                    value={birthdate}
-                    onChange={(e) => setBirthDate(e.target.value)}
-                    className="px-4 py-2 border rounded w-full"
-                    required
-                  />
-                </div>
-
-                <div className="col-span-1">
-                  <label className="block mb-2">Sex</label>
-                  <select
-                    value={sex}
-                    onChange={(e) => setSex(e.target.value)}
-                    className="px-4 py-2 border rounded w-full"
-                    required
-                  >
-                    <option value="">Select Sex</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                  </select>
-                </div>
-
-                <div className="col-span-3 grid grid-cols-2 gap-4">
-                  {/* ID Number */}
-                  <div>
-                    <label className="block mb-2">ID Number</label>
-                    <input
-                      type="text"
-                      placeholder="Enter ID Number"
-                      value={idnumber}
-                      onChange={(e) => setIdNumber(e.target.value)}
-                      className="px-4 py-2 border rounded w-full"
-                      required
-                    />
-                  </div>
-
-                  {/* Course and Year */}
-                  <div>
-                    <label className="block mb-2">Course and Year</label>
-                    <input
-                      type="text"
-                      value={course}
-                      onChange={(e) => setCourse(e.target.value)}
-                      placeholder="Enter Course"
-                      className="px-4 py-2 border rounded w-full"
-                    />
-                  </div>
-                </div>
-
-                {/* Address */}
-                <div className="col-span-3">
-                  <label className="block mb-2">Address</label>
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Street Address"
-                    className="px-4 py-2 border rounded w-full"
-                  />
-                </div>
-
-                {/* City, State/Province */}
-                <div className="col-span-1">
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="City"
-                    className="px-4 py-2 border rounded w-full"
-                  />
-                </div>
-
-                <div className="col-span-1">
-                  <input
-                    type="text"
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    placeholder="State/Province"
-                    className="px-4 py-2 border rounded w-full"
-                  />
-                </div>
-
-                <div className="col-span-1">
-                  <input
-                    type="text"
-                    value={postalcode}
-                    onChange={(e) => setPostalCode(e.target.value)}
-                    placeholder="Postal/Zip Code"
-                    className="px-4 py-2 border rounded w-full"
-                  />
-                </div>
-
-                <div className="col-span-3 grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block mb-2">Phone Number</label>
-                    <input
-                      type="text"
-                      value={phonenumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      placeholder="(000) 000-0000"
-                      className="px-4 py-2 border rounded w-full"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block mb-2">E-mail Address</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="example@example.com"
-                      className="px-4 py-2 border rounded w-full"
-                      required
-                    />
-                  </div>
-                </div>
+              {/* Patient Type Dropdown */}
+              <div className="col-span-3">
+                <label className="block mb-2">Patient Type</label>
+                <select
+                  value={patientType}
+                  onChange={(e) => setPatientType(e.target.value)}
+                  className="px-4 py-2 border rounded w-full"
+                  required
+                >
+                  <option value="">Select Patient Type</option>
+                  <option value="Student">Student</option>
+                  <option value="Employee">Employee</option>
+                  <option value="OPD">Outpatient (OPD)</option>
+                </select>
               </div>
+
+              {patientType === "Student" && (
+                <div className="grid grid-cols-3 gap-4">
+                  {/* Full Name Fields - Display only for Student */}
+                  <div className="col-span-3">
+                    <label className="block mb-2">Full Name</label>
+                    <div className="grid grid-cols-3 gap-4">
+                      <input
+                        type="text"
+                        value={firstname}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="First Name"
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                      <input
+                        type="text"
+                        value={middlename}
+                        onChange={(e) => setMiddleName(e.target.value)}
+                        placeholder="Middle Name"
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                      <input
+                        type="text"
+                        value={lastname}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Last Name"
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Date of Birth */}
+                  <div className="col-span-2">
+                    <label className="block mb-2">Date of Birth</label>
+                    <input
+                      type="date"
+                      value={birthdate}
+                      onChange={(e) => setBirthDate(e.target.value)}
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-span-1">
+                    <label className="block mb-2">Sex</label>
+                    <select
+                      value={sex}
+                      onChange={(e) => setSex(e.target.value)}
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    >
+                      <option value="">Select Sex</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+
+                  {/* ID Number and Course/Year Side by Side */}
+                  <div className="col-span-3 grid grid-cols-2 gap-4">
+                    {/* ID Number */}
+                    <div>
+                      <label className="block mb-2">ID Number</label>
+                      <input
+                        type="text"
+                        placeholder="Enter ID Number"
+                        value={idnumber}
+                        onChange={(e) => setIdNumber(e.target.value)}
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                    </div>
+
+                    {/* Course and Year */}
+                    <div>
+                      <label className="block mb-2">Course and Year</label>
+                      <input
+                        type="text"
+                        value={course}
+                        onChange={(e) => setCourse(e.target.value)}
+                        placeholder="Enter Course"
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Address */}
+                  <div className="col-span-3">
+                    <label className="block mb-2">Address</label>
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Address"
+                      className="px-4 py-2 border rounded w-full"
+                    />
+                  </div>
+
+                  {/* Phone Number, Email, and Emergency Contact */}
+                  <div className="col-span-3 grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block mb-2">Phone Number</label>
+                      <input
+                        type="text"
+                        value={phonenumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="(000) 000-0000"
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block mb-2">Emergency Contact</label>
+                      <input
+                        type="text"
+                        value={emergencyContact}
+                        onChange={(e) => setEmergencyContact(e.target.value)}
+                        placeholder="(000) 000-0000"
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block mb-2">E-mail Address</label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="example@example.com"
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {patientType === "Employee" && (
+                <div className="grid grid-cols-3 gap-4">
+                  {/* Full Name Fields - Display only for Student */}
+                  <div className="col-span-3">
+                    <label className="block mb-2">Full Name</label>
+                    <div className="grid grid-cols-3 gap-4">
+                      <input
+                        type="text"
+                        value={firstname}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="First Name"
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                      <input
+                        type="text"
+                        value={middlename}
+                        onChange={(e) => setMiddleName(e.target.value)}
+                        placeholder="Middle Name"
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                      <input
+                        type="text"
+                        value={lastname}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Last Name"
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Date of Birth */}
+                  <div className="col-span-2">
+                    <label className="block mb-2">Date of Birth</label>
+                    <input
+                      type="date"
+                      value={birthdate}
+                      onChange={(e) => setBirthDate(e.target.value)}
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-span-1">
+                    <label className="block mb-2">Sex</label>
+                    <select
+                      value={sex}
+                      onChange={(e) => setSex(e.target.value)}
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    >
+                      <option value="">Select Sex</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+
+                  {/* ID Number and Course/Year Side by Side */}
+                  <div className="col-span-3 grid grid-cols-2 gap-4">
+                    {/* ID Number */}
+                    <div>
+                      <label className="block mb-2">ID Number</label>
+                      <input
+                        type="text"
+                        placeholder="Enter ID Number"
+                        value={idnumber}
+                        onChange={(e) => setIdNumber(e.target.value)}
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                    </div>
+
+                    {/* Position/ Department */}
+                    <div>
+                      <label className="block mb-2">Position Department</label>
+                      <input
+                        type="text"
+                        value={position}
+                        onChange={(e) => setPosition(e.target.value)}
+                        placeholder="Enter Position/ Department"
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Address */}
+                  <div className="col-span-3">
+                    <label className="block mb-2">Address</label>
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Address"
+                      className="px-4 py-2 border rounded w-full"
+                    />
+                  </div>
+
+                  {/* Phone Number, Email, and Emergency Contact */}
+                  <div className="col-span-3 grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block mb-2">Phone Number</label>
+                      <input
+                        type="text"
+                        value={phonenumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="(000) 000-0000"
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block mb-2">Emergency Contact</label>
+                      <input
+                        type="text"
+                        value={emergencyContact}
+                        onChange={(e) => setEmergencyContact(e.target.value)}
+                        placeholder="(000) 000-0000"
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block mb-2">E-mail Address</label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="example@example.com"
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+              {patientType === "OPD" && (
+                <div className="grid grid-cols-3 gap-4">
+                  {/* Full Name Fields - Display only for Student */}
+                  <div className="col-span-3">
+                    <label className="block mb-2">Full Name</label>
+                    <div className="grid grid-cols-3 gap-4">
+                      <input
+                        type="text"
+                        value={firstname}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="First Name"
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                      <input
+                        type="text"
+                        value={middlename}
+                        onChange={(e) => setMiddleName(e.target.value)}
+                        placeholder="Middle Name"
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                      <input
+                        type="text"
+                        value={lastname}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Last Name"
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Date of Birth */}
+                  <div className="col-span-2">
+                    <label className="block mb-2">Date of Birth</label>
+                    <input
+                      type="date"
+                      value={birthdate}
+                      onChange={(e) => setBirthDate(e.target.value)}
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-span-1">
+                    <label className="block mb-2">Sex</label>
+                    <select
+                      value={sex}
+                      onChange={(e) => setSex(e.target.value)}
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    >
+                      <option value="">Select Sex</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+
+                  {/* Address */}
+                  <div className="col-span-3">
+                    <label className="block mb-2">Address</label>
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Address"
+                      className="px-4 py-2 border rounded w-full"
+                    />
+                  </div>
+
+                  {/* Phone Number and Email */}
+                  <div className="col-span-3 grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block mb-2">Phone Number</label>
+                      <input
+                        type="text"
+                        value={phonenumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="(000) 000-0000"
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block mb-2">E-mail Address</label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="example@example.com"
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Submit/Cancel Buttons */}
               <div className="flex justify-end mt-4">

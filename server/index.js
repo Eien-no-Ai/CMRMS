@@ -31,14 +31,14 @@ const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
 const otpStore = new Map();
 
 // Endpoint to send OTP to the user's email
-app.post('/forgot-password', async (req, res) => {
+app.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
 
   // Check if the email exists in the user collection
   const user = await EmployeeModel.findOne({ email });
 
   if (!user) {
-    return res.status(404).json({ error: 'Email not found' });
+    return res.status(404).json({ error: "Email not found" });
   }
 
   // If email is valid, generate an OTP and send it
@@ -46,24 +46,24 @@ app.post('/forgot-password', async (req, res) => {
   otpStore.set(email, otp); // Store OTP in memory
 
   const mailOptions = {
-    from: 'clinicub01@gmail.com',
+    from: "clinicub01@gmail.com",
     to: email,
-    subject: 'Forgot Password OTP',
+    subject: "Forgot Password OTP",
     text: `Your OTP for password reset is: ${otp}`,
   };
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.response);
-    res.json({ message: 'OTP sent successfully' });
+    console.log("Email sent:", info.response);
+    res.json({ message: "OTP sent successfully" });
   } catch (error) {
-    console.error('Error sending email:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error sending email:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
 // Endpoint to verify the entered OTP and change the password
-app.post('/verify-otp', async (req, res) => {
+app.post("/verify-otp", async (req, res) => {
   const { email, otp, newPassword } = req.body;
 
   // Check if the entered OTP matches the stored OTP
@@ -75,20 +75,30 @@ app.post('/verify-otp', async (req, res) => {
       // Update the user's password in MongoDB without hashing
       await EmployeeModel.updateOne({ email }, { password: newPassword });
 
-      console.log('Password updated successfully');
-      res.json({ message: 'Password updated successfully! Redirecting you to Login...' });
+      console.log("Password updated successfully");
+      res.json({
+        message: "Password updated successfully! Redirecting you to Login...",
+      });
     } catch (error) {
-      console.error('Error updating password:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      console.error("Error updating password:", error);
+      res.status(500).json({ error: "Internal Server Error" });
     }
   } else {
-    res.status(400).json({ error: 'Invalid OTP' });
+    res.status(400).json({ error: "Invalid OTP" });
   }
 });
 
 // account registration
 app.post("/register", (req, res) => {
-  const { firstname, lastname, email, password, confirmPassword, role, department } = req.body;
+  const {
+    firstname,
+    lastname,
+    email,
+    password,
+    confirmPassword,
+    role,
+    department,
+  } = req.body;
 
   const assignedRole = role === "admin" ? "admin" : "user";
 
@@ -106,7 +116,6 @@ app.post("/register", (req, res) => {
       res.status(500).json({ error: "Error registering user", details: err })
     );
 });
-
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
@@ -223,9 +232,16 @@ app.post("/add-account", (req, res) => {
   const { firstname, lastname, email, role, department } = req.body; // Include department
   // Set the default password to the user's last name
   const password = lastname;
-  
+
   // Create a new employee with the department included
-  EmployeeModel.create({ firstname, lastname, email, role, password, department })
+  EmployeeModel.create({
+    firstname,
+    lastname,
+    email,
+    role,
+    password,
+    department,
+  })
     .then((newAccount) =>
       res.json({ message: "Account Created Successfully", account: newAccount })
     )
@@ -295,6 +311,9 @@ app.post("/add-patient", (req, res) => {
     email,
     course,
     sex,
+    patientType,
+    emergencyContact,
+    position,
   } = req.body;
 
   const newPatient = new PatientModel({
@@ -312,15 +331,18 @@ app.post("/add-patient", (req, res) => {
     email,
     course,
     sex,
+    patientType,
+    emergencyContact,
+    position,
   });
 
   newPatient
     .save()
     .then((patient) =>
-      res.json({ message: "Patient added successfully", patient })
+      res.status(201).json({ message: "Patient added successfully", patient })
     )
     .catch((err) =>
-      res.status(500).json({ message: "Error adding patient", error: err })
+      res.status(500).json({ message: "Error adding patient", error: err.message })
     );
 });
 

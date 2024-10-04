@@ -196,7 +196,7 @@ function PatientsProfile() {
     setShowRequestOptions((prev) => !prev);
   };
 
-  const handleModalOpen = () => {
+  const handleLabModalOpen = () => {
     setIsLabModalOpen(true);
   };
 
@@ -290,6 +290,21 @@ function PatientsProfile() {
     }
   };
 
+  const calculateAge = (birthdate) => {
+    const today = new Date();
+    const birthDate = new Date(birthdate);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // Adjust age if the birthday hasn't occurred this year yet
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
+  
+
   return (
     <div>
       <Navbar />
@@ -316,16 +331,20 @@ function PatientsProfile() {
                     <div className="flex justify-center mt-2 space-x-6">
                       <div>
                         <p className="text-gray-700 text-lg font-semibold">
-                          15
+                          {clinicalRecords.length}
                         </p>
                         <p className="text-gray-500">Clinical</p>
                       </div>
                       <div>
-                        <p className="text-gray-700 text-lg font-semibold">2</p>
+                        <p className="text-gray-700 text-lg font-semibold">
+                          {laboratoryRecords.length}
+                        </p>
                         <p className="text-gray-500">Laboratory</p>
                       </div>
                       <div>
-                        <p className="text-gray-700 text-lg font-semibold">2</p>
+                        <p className="text-gray-700 text-lg font-semibold">
+                          {xrayRecords.length}
+                        </p>
                         <p className="text-gray-500">X-ray</p>
                       </div>
                     </div>
@@ -335,7 +354,7 @@ function PatientsProfile() {
                         className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                         onClick={handleNewRecordOpen}
                       >
-                        New Record
+                        Check Up
                       </button>
                       <div className="relative" ref={dropdownRef}>
                         <button
@@ -349,7 +368,7 @@ function PatientsProfile() {
                           <div className="absolute mt-2 bg-white border rounded-lg shadow-lg">
                             <button
                               className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                              onClick={handleModalOpen} // Open modal here
+                              onClick={handleLabModalOpen} // Open modal here
                             >
                               Laboratory
                             </button>
@@ -367,8 +386,24 @@ function PatientsProfile() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
+                      <p className="text-gray-500">ID Number</p>
+                      <p className="font-semibold">{patient.idnumber}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Course/ Year</p>
+                      <p className="font-semibold">{patient.course}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Age</p>
+                      <p className="font-semibold">{calculateAge(patient.birthdate)}</p>
+                    </div>
+                    <div>
                       <p className="text-gray-500">Gender</p>
                       <p className="font-semibold">{patient.sex}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Address</p>
+                      <p className="font-semibold">{patient.address}</p>
                     </div>
                     <div>
                       <p className="text-gray-500">Birthday</p>
@@ -376,31 +411,14 @@ function PatientsProfile() {
                         {new Date(patient.birthdate).toLocaleDateString()}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-gray-500">Street Address</p>
-                      <p className="font-semibold">{patient.address}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">City</p>
-                      <p className="font-semibold">{patient.city}</p>
-                    </div>
+                   
                     <div>
                       <p className="text-gray-500">Phone Number</p>
                       <p className="font-semibold">{patient.phonenumber}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500">ZIP Code</p>
-                      <p className="font-semibold">{patient.postalcode}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">ID Number</p>
-                      <p className="font-semibold">{patient.idnumber}</p>
-                    </div>
-                    <div>
                       <p className="text-gray-500">Emergency Contact</p>
-                      <p className="font-semibold">
-                        {patient.emergencycontact}
-                      </p>
+                      <p className="font-semibold">{patient.emergencyContact}</p>
                     </div>
                   </div>
                 </div>
