@@ -10,20 +10,19 @@ function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [department, setDepartment] = useState("");
   const navigate = useNavigate();
   
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post('http://localhost:3001/register', {firstname: firstname, lastname: lastname, email: email, password: password, confirmPassword: confirmPassword})
+    axios.post('http://localhost:3001/register', {firstname: firstname, lastname: lastname, email: email, password: password, confirmPassword: confirmPassword , department: department})
     .then(result => {console.log(result)
       navigate('/login');
     })
     .catch (err => console.log(err));
     
   }
-
-
 
   return (
     <div className="w-full h-screen flex flex-col md:flex-row items-start">
@@ -57,6 +56,17 @@ function SignUp() {
               className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
               onChange={(e) => setLastName(e.target.value)}
             />
+
+            <select 
+              onChange={(e) => setDepartment(e.target.value)}
+              className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+              >
+                <option value="" disabled selected>Department</option>
+                <option value="physicaltherapy">Physical Therapy</option>
+                <option value="clinic">Clinic</option>
+                <option value="laboratory">Laboratory</option>
+                <option value="xray">X-Ray</option>
+            </select>
 
             <input
               type="email"

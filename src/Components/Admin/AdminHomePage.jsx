@@ -19,11 +19,29 @@ function AdminHomePage() {
     firstname: "",
     lastname: "",
     email: "",
+    department: "",
     role: "user",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRefs = useRef([]);
 
+  // Get available roles based on department
+  const getAvailableRoles = (department) => {
+    switch (department) {
+      case "physicaltherapy":
+        return ["Select role for Physical Therapy", "physical therapist","special trainee"];
+      case "clinic":
+        return ["Select role for Clinic", "clinic staff", "doctor"];
+      case "laboratory":
+        return ["Select role for Laboratory", "laboratory staff", "doctor","medtech","pathologist","phlebotomist"];
+      case "xray":
+        return ["Select role for X-Ray", "xray staff"];
+      default:
+        return ["Select department first"];
+    }
+  };
+  
+  //Fetch all accounts
   useEffect(() => {
     axios
       .get("http://localhost:3001/accounts")
@@ -34,6 +52,7 @@ function AdminHomePage() {
         console.error("Error fetching accounts:", error);
       });
   }, []);
+
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -124,13 +143,17 @@ function AdminHomePage() {
     }
   };
 
+  // Update newAccount state based on input changes
   const handleInputChange = (e) => {
-    setNewAccount({
-      ...newAccount,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setNewAccount((prev) => ({
+      ...prev,
+      [name]: value,
+      role: name === "department" ? "" : prev.role, // Reset role when department changes
+    }));
   };
-
+  
+  // Update role of the account
   const handleRoleChange = async (localIndex, newRole) => {
     const fullIndex = (currentPage - 1) * accountsPerPage + localIndex;
     const email = accounts[fullIndex].email;
@@ -281,20 +304,20 @@ function AdminHomePage() {
                         </div>
                       </td>
                       <td className="py-4">
-                        <select
-                          value={account.role || "User"}
-                          onChange={(e) => handleRoleChange(index, e.target.value)}
-                          className="px-4 py-2 border rounded w-1/2"
-                        >
-                          <option value="user" disabled>User</option>
-                          <option value="doctor">Doctor</option>
-                          <option value="clinic staff">Clinic Staff</option>
-                          <option value="laboratory staff">Laboratory Staff</option>
-                          <option value="xray staff">X-Ray Staff</option>
-                          <option value="admin">Admin</option>
-                        </select>
+                      <select
+                        value={account.role || ""}
+                        onChange={(e) => handleRoleChange(index, e.target.value)}
+                        className="px-4 py-2 border rounded w-1/2"
+                      >
+                        {getAvailableRoles(account.department).map((role, index) =>
+                          index === 0 ? (
+                            <option key={role} value="" disabled selected>{role}</option> // Disabled department-specific message
+                          ) : (
+                            <option key={role} value={role}>{role}</option>
+                          )
+                        )}
+                      </select>
                       </td>
-
                       <td className="py-4">{account.email}</td>
                       <td className="py-4">
                         <div className="relative" ref={(el) => (dropdownRefs.current[index] = el)}>
@@ -433,19 +456,20 @@ function AdminHomePage() {
 
                   <div className="col-span-3 grid grid-cols-2 gap-4">
                     <div className="col-span-1">
-                      <label className="block mb-2">Role</label>
+                    <label className="block mb-2">Role</label>
                       <select
                         name="role"
-                        value={newAccount.role}
+                        value={newAccount.role || ""}
                         onChange={handleInputChange}
                         className="px-4 py-2 border rounded w-full"
                       >
-                        <option value="user" disabled>user</option>
-                        <option>doctor</option>
-                        <option>laboratory staff</option>
-                        <option>clinic staff</option>
-                        <option>xray staff</option>
-                        <option>admin</option>
+                        {getAvailableRoles(newAccount.department).map((role, index) =>
+                          index === 0 ? (
+                            <option key={role} value="" disabled selected>{role}</option> // Disabled department-specific message
+                          ) : (
+                            <option key={role} value={role}>{role}</option>
+                          )
+                        )}
                       </select>
                     </div>
                     <div>
