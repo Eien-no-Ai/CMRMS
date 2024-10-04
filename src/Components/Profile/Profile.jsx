@@ -1,24 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Navbar from '../Navbar/Navbar';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Navbar from "../Navbar/Navbar";
 
 function Profile() {
   const [userData, setUserData] = useState({});
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const userId = localStorage.getItem('userId'); // Get the user ID from localStorage
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const userId = localStorage.getItem("userId"); // Get the user ID from localStorage
 
   // Fetch the user data when the component is mounted
   useEffect(() => {
     if (userId) {
-      axios.get(`http://localhost:3001/user/${userId}`)
-        .then(response => {
+      axios
+        .get(`http://localhost:3001/user/${userId}`)
+        .then((response) => {
           setUserData(response.data);
         })
-        .catch(error => {
-          console.error('Error fetching user data:', error);
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
         });
     }
   }, [userId]);
@@ -26,29 +27,30 @@ function Profile() {
   const handlePasswordUpdate = () => {
     // Basic validation
     if (password !== confirmPassword) {
-      setErrorMessage('Passwords do not match');
-      setSuccessMessage('');
+      setErrorMessage("Passwords do not match");
+      setSuccessMessage("");
       return;
     }
 
     if (password.length < 6) {
-      setErrorMessage('Password should be at least 6 characters long');
-      setSuccessMessage('');
+      setErrorMessage("Password should be at least 6 characters long");
+      setSuccessMessage("");
       return;
     }
 
     // Send update password request to the backend
-    axios.put(`http://localhost:3001/user/${userId}/update-password`, { password })
-      .then(response => {
-        setSuccessMessage('Password updated successfully');
-        setErrorMessage('');
-        setPassword('');
-        setConfirmPassword('');
+    axios
+      .put(`http://localhost:3001/user/${userId}/update-password`, { password })
+      .then((response) => {
+        setSuccessMessage("Password updated successfully");
+        setErrorMessage("");
+        setPassword("");
+        setConfirmPassword("");
       })
-      .catch(error => {
-        setErrorMessage('Error updating password');
-        setSuccessMessage('');
-        console.error('Error updating password:', error);
+      .catch((error) => {
+        setErrorMessage("Error updating password");
+        setSuccessMessage("");
+        console.error("Error updating password:", error);
       });
   };
 
@@ -56,8 +58,8 @@ function Profile() {
   useEffect(() => {
     if (errorMessage || successMessage) {
       const timer = setTimeout(() => {
-        setErrorMessage('');
-        setSuccessMessage('');
+        setErrorMessage("");
+        setSuccessMessage("");
       }, 3000);
 
       return () => clearTimeout(timer); // Cleanup timer if component unmounts
@@ -107,13 +109,12 @@ function Profile() {
                 </label>
                 <input
                   type="text"
-                  value={userData.firstname || ''}
+                  value={userData.firstname || ""}
                   placeholder="First Name"
                   className="w-full p-2 border border-gray-300 rounded-lg"
                   readOnly
                 />
               </div>
-
 
               {/* Last Name */}
               <div>
@@ -122,14 +123,12 @@ function Profile() {
                 </label>
                 <input
                   type="text"
-                  value={userData.lastname || ''}
+                  value={userData.lastname || ""}
                   placeholder="Last Name"
                   className="w-full p-2 border border-gray-300 rounded-lg"
                   readOnly
                 />
               </div>
-
-              
             </div>
 
             {/* Email */}
@@ -139,7 +138,7 @@ function Profile() {
               </label>
               <input
                 type="email"
-                value={userData.email || ''}
+                value={userData.email || ""}
                 placeholder="Email"
                 className="w-full p-2 border border-gray-300 rounded-lg"
                 readOnly
@@ -176,10 +175,14 @@ function Profile() {
 
             {/* Error and Success Messages */}
             {errorMessage && (
-              <p className="text-center mt-4 p-2 bg-red-100 border border-custom-red text-custom-red rounded">{errorMessage}</p>
+              <p className="text-center mt-4 p-2 bg-red-100 border border-custom-red text-custom-red rounded">
+                {errorMessage}
+              </p>
             )}
             {successMessage && (
-              <p className="text-center mt-4 p-2 bg-green-100 border border-green-400 text-green-700 rounded">{successMessage}</p>
+              <p className="text-center mt-4 p-2 bg-green-100 border border-green-400 text-green-700 rounded">
+                {successMessage}
+              </p>
             )}
 
             {/* Update Button */}

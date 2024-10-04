@@ -16,8 +16,7 @@ mongoose.connect(
 
 // account registration
 app.post("/register", (req, res) => {
-  const { firstname, lastname, email, password, confirmPassword, role } =
-    req.body;
+  const { firstname, lastname, email, password, confirmPassword, role, department } = req.body;
 
   const assignedRole = role === "admin" ? "admin" : "user";
 
@@ -28,12 +27,14 @@ app.post("/register", (req, res) => {
     password,
     confirmPassword,
     role: assignedRole,
+    department, // Save the department
   })
     .then((employee) => res.json(employee))
     .catch((err) =>
       res.status(500).json({ error: "Error registering user", details: err })
     );
 });
+
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
@@ -147,10 +148,12 @@ app.post("/reset-password", (req, res) => {
 });
 
 app.post("/add-account", (req, res) => {
-  const { firstname, lastname, email, role } = req.body;
+  const { firstname, lastname, email, role, department } = req.body; // Include department
   // Set the default password to the user's last name
   const password = lastname;
-  EmployeeModel.create({ firstname, lastname, email, role, password })
+  
+  // Create a new employee with the department included
+  EmployeeModel.create({ firstname, lastname, email, role, password, department })
     .then((newAccount) =>
       res.json({ message: "Account Created Successfully", account: newAccount })
     )

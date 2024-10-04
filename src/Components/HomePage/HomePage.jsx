@@ -72,20 +72,23 @@ const Dashboard = () => {
     fetchPatients();
   }, []);
 
-  // Prepare records based on user role
   useEffect(() => {
-    const userRecords = [];
-    if (userRole === "clinic staff" || userRole === "doctor") {
-      userRecords.push("Clinical Records");
-    }
-    if (userRole === "laboratory staff" || userRole === "doctor") {
-      userRecords.push("Laboratory Records");
-    }
-    if (userRole === "xray staff" || userRole === "doctor") {
-      userRecords.push("X-Ray Records");
-    }
+    const roleRecordMapping = {
+      "nurse": ["Clinical Records"],
+      "doctor": ["Clinical Records", "Laboratory Records", "X-Ray Records"],
+      "pathologist": ["Laboratory Records"],
+      "junior medtech": ["Laboratory Records"],
+      "senior medtech": ["Laboratory Records"],
+      "radiologic technologist": ["X-Ray Records"],
+      "radiologist": ["X-Ray Records"]
+    };
+  
+    // Check if the userRole exists in the mapping and get the records it can access
+    const userRecords = roleRecordMapping[userRole] || [];
+  
     setRecords(userRecords);
   }, [userRole]);
+  
   // Check if the user role is 'user' and display the message
   if (userRole === "user") {
     return (
