@@ -29,13 +29,13 @@ function AdminHomePage() {
   const getAvailableRoles = (department) => {
     switch (department) {
       case "physicaltherapy":
-        return ["Select role for Physical Therapy", "physical therapist","special trainee"];
+        return ["Select role for Physical Therapy", "physical therapist", "special trainee"];
       case "clinic":
-        return ["Select role for Clinic", "clinic staff", "doctor"];
+        return ["Select role for Clinic", "clinic staff", "nurse", "doctor" , "pathologist"];
       case "laboratory":
-        return ["Select role for Laboratory", "laboratory staff", "doctor","medtech","pathologist","phlebotomist"];
+        return ["Select role for Laboratory", "laboratory staff", ,"senior medtech","junior medtech"];
       case "xray":
-        return ["Select role for X-Ray", "xray staff"];
+        return ["Select role for X-Ray", "xray staff", "radiologist","radiologic technologist"];  
       default:
         return ["Select department first"];
     }
@@ -311,7 +311,7 @@ function AdminHomePage() {
                       >
                         {getAvailableRoles(account.department).map((role, index) =>
                           index === 0 ? (
-                            <option key={role} value="" disabled selected>{role}</option> // Disabled department-specific message
+                            <option key={role} value="user" disabled selected>User</option> // Disabled department-specific message
                           ) : (
                             <option key={role} value={role}>{role}</option>
                           )
@@ -465,7 +465,7 @@ function AdminHomePage() {
                       >
                         {getAvailableRoles(newAccount.department).map((role, index) =>
                           index === 0 ? (
-                            <option key={role} value="" disabled selected>{role}</option> // Disabled department-specific message
+                            <option key={role} value="user" disabled selected>User</option> // Disabled department-specific message
                           ) : (
                             <option key={role} value={role}>{role}</option>
                           )
