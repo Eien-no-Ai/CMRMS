@@ -20,6 +20,7 @@ function PatientsProfile() {
   const [laboratoryRecords, setLaboratoryRecords] = useState([]);
   const [clinicalRecords, setClinicalRecords] = useState([]);
   const [xrayRecords, setXrayRecords] = useState([]);
+  const [physicaltheraphyRecords, setPhysicalTherapyRecords] = useState([]);
   const [isNewXrayModalOpen, setIsNewXrayModalOpen] = useState(false);
   const [newXrayRecord, setNewXrayRecord] = useState({
     date: new Date().toLocaleDateString(),
@@ -43,6 +44,8 @@ function PatientsProfile() {
         setSelectedTab("xray");
       } else if (storedRole === "doctor") {
         setSelectedTab("clinical"); // Doctor should see all records starting with clinical
+      } else if (storedRole === "physical therapist" || storedRole === "special trainee") {
+        setSelectedTab("physical therapy");
       }
     }
   }, []);
@@ -231,6 +234,8 @@ function PatientsProfile() {
       ? laboratoryRecords
       : selectedTab === "xray"
       ? xrayRecords
+      : selectedTab === "physical therapy"
+      ? physicaltheraphyRecords
       : [];
 
   const initialFormData = {

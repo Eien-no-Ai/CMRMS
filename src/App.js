@@ -14,6 +14,7 @@ import NotFound from "./Components/NotFound/NotFound";
 import Laboratory from "./Components/Laboratory/Laboratory";
 import Clinic from "./Components/Clinic/Clinic";
 import Xray from "./Components/Xray/Xray";
+import PhysicalTherapy from "./Components/PhysicalTherapy/PhysicalTherapy";
 
 function App() {
   return (
@@ -62,7 +63,7 @@ function App() {
           <Route
             path="/home"
             element={
-              <PrivateRoute allowedRoles={['user', 'doctor', 'clinic staff', 'laboratory staff', 'xray staff']}>
+              <PrivateRoute allowedRoles={['user', 'doctor', 'clinic staff', 'laboratory staff', 'xray staff', "physical therapist","special trainee"]}>
                 <HomePage />
               </PrivateRoute>
             }
@@ -70,7 +71,7 @@ function App() {
           <Route
             path="/patients"
             element={
-              <PrivateRoute allowedRoles={['doctor', 'clinic staff', 'xray staff']}>
+              <PrivateRoute allowedRoles={['doctor', 'clinic staff', 'xray staff' ,'physical therapist','special trainee']}>
                 <Patients />
               </PrivateRoute>
             }
@@ -78,7 +79,7 @@ function App() {
           <Route
             path="/patients/:id"
             element={
-              <PrivateRoute allowedRoles={['doctor', 'clinic staff', 'xray staff']}>
+              <PrivateRoute allowedRoles={['doctor', 'clinic staff', 'xray staff','physical therapist','special trainee']}>
                 <PatientsProfile />
               </PrivateRoute>
             }
@@ -86,7 +87,7 @@ function App() {
           <Route
             path="/profile"
             element={
-              <PrivateRoute allowedRoles={['user', 'doctor', 'clinic staff', 'laboratory staff', 'xray staff', 'admin']}>
+              <PrivateRoute allowedRoles={['user', 'doctor', 'clinic staff', 'laboratory staff', 'xray staff', 'admin' ,  "physical therapist","special trainee"]}>
                 <Profile />
               </PrivateRoute>
             }
@@ -118,6 +119,16 @@ function App() {
             element={
               <PrivateRoute allowedRoles={['xray staff']}>
                 <Xray />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Physical Therapy Routes */}
+          <Route
+            path="/physicaltherapy/requests"
+            element={
+              <PrivateRoute allowedRoles={['physical therapist','special trainee']}>
+                <PhysicalTherapy />
               </PrivateRoute>
             }
           />
