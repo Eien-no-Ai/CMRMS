@@ -7,7 +7,13 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [otpSent, setOtpSent] = useState(false); // To track OTP state
+  const [otp, setOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [modalError, setModalError] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // To store the success message
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // New state for success modal
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -36,21 +42,63 @@ function Login() {
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
+    setOtpSent(false); // Reset OTP state when closing the modal
+    setModalError("");
+  };
+
+  const handleSendOTP = async () => {
+    try {
+      const result = await axios.post("http://localhost:3001/forgot-password", { email });
+      if (result.data.message === "OTP sent successfully") {
+        setOtpSent(true); // Show OTP input after sending OTP
+      } else {
+        setModalError(result.data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      setModalError("Failed to send OTP. Please try again.");
+    }
+  };
+
+  // Handle password reset with OTP
+  const handleResetPassword = async () => {
+    try {
+      const result = await axios.post("http://localhost:3001/verify-otp", {
+        email,
+        otp,
+        newPassword,
+      });
+      console.log(result.data); // Log the response for debugging
+      setIsSuccessModalOpen(true); // Open the success modal
+      if (result.data.message === "Password updated successfully!") {
+        setSuccessMessage("Password updated successfully!"); // Set the success message
+        setOtpSent(false); // Reset OTP state after successful password reset
+        setModalError(""); // Clear any previous error messages
+        
+      } else {
+        setModalError(result.data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      setModalError("Failed to reset password. Please try again.");
+    }
+  };
+
+  const closeSuccessModal = () => {
+    setIsSuccessModalOpen(false); // Close the success modal
+    toggleModal(); // Also close the main modal
   };
 
   return (
     <div className="w-full h-screen flex flex-col md:flex-row items-start">
+      {/* Existing login form */}
       <div className="relative w-full md:w-1/2 h-64 md:h-full flex flex-col">
         <div className="absolute top-[20%] left-[10%] flex flex-col">
           <h1 className="text-2xl md:text-4xl text-white font-bold my-2 md:my-4">
             University of Baguio
           </h1>
         </div>
-        <img
-          src={cover_image}
-          alt="Cover"
-          className="w-full h-full object-cover"
-        />
+        <img src={cover_image} alt="Cover" className="w-full h-full object-cover" />
       </div>
 
       <div className="w-full md:w-1/2 h-full bg-[#f5f5f5] flex flex-col p-8 md:p-20 justify-between">
@@ -117,20 +165,85 @@ function Login() {
         </div>
       </div>
 
+      {/* Forgot Password Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3 transition-transform transform scale-95 hover:scale-100">
-            <h2 className="text-lg font-semibold mb-4 text-left">
-              Forgot Password?
-            </h2>
-            <p className="text-sm text-gray-700 text-left">
-              Proceed to Management Information Systems (MIS) to reset your
-              password.
-            </p>
+            <h2 className="text-lg font-semibold mb-4 text-left">Forgot Password?</h2>
+
+            {successMessage ? (
+              <p className="text-green-500 text-sm mt-2">{successMessage}</p> // Show success message
+            ) : (
+              <>
+                {!otpSent ? (
+                  <>
+                    <input
+                      type="email"
+                      placeholder="Enter your email"
+                      className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    {modalError && <p className="text-red-500 text-sm mt-2">{modalError}</p>}
+                    <button
+                      onClick={handleSendOTP}
+                      className="px-6 py-2 mt-4 bg-[#C3151C] text-white font-semibold rounded-lg shadow-md hover:bg-[#A30E16] transition duration-200"
+                    >
+                      Send OTP
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <input
+                      type="email"
+                      placeholder="Enter your email"
+                      className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Enter OTP"
+                      className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+                      onChange={(e) => setOtp(e.target.value)}
+                    />
+                    <input
+                      type="password"
+                      placeholder="New Password"
+                      className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+                      onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                    <button
+                      onClick={handleResetPassword}
+                      className="px-6 py-2 mt-4 bg-[#C3151C] text-white font-semibold rounded-lg shadow-md hover:bg-[#A30E16] transition duration-200"
+                    >
+                      Reset Password
+                    </button>
+                  </>
+                )}
+              </>
+            )}
+
             <div className="mt-6 flex justify-center">
               <button
                 onClick={toggleModal}
-                className="px-6 py-2 bg-[#C3151C] text-white font-semibold rounded-lg shadow-md hover:bg-[#A30E16] transition duration-200"
+                className="px-4 py-2 bg-gray-300 text-black font-semibold rounded-lg shadow-md hover:bg-gray-400 transition duration-200"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {isSuccessModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3 transition-transform transform scale-95 hover:scale-100">
+            <h2 className="text-lg font-semibold mb-4 text-left">Success!</h2>
+            <p className="text-green-500 text-sm mt-2">{successMessage}</p>
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={closeSuccessModal}
+                className="px-4 py-2 bg-[#C3151C] text-white font-semibold rounded-lg shadow-md hover:bg-[#A30E16] transition duration-200"
               >
                 Close
               </button>

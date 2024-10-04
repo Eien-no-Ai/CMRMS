@@ -9,10 +9,82 @@ const LaboratoryModel = require("./models/Laboratory");
 const app = express();
 app.use(cors());
 app.use(express.json());
+const nodemailer = require("nodemailer");
 
 mongoose.connect(
   "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee"
 );
+
+// Nodemailer setup
+const transporter = nodemailer.createTransport({
+  service: "gmail", // Use your email service
+  auth: {
+    user: "clinicub01@gmail.com",
+    pass: "ydif agki wbne yggg",
+  },
+});
+
+// Generate random OTP
+const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
+
+// Store generated OTPs (in-memory storage, for simplicity)
+const otpStore = new Map();
+
+// Endpoint to send OTP to the user's email
+app.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  // Check if the email exists in the user collection
+  const user = await EmployeeModel.findOne({ email });
+
+  if (!user) {
+    return res.status(404).json({ error: 'Email not found' });
+  }
+
+  // If email is valid, generate an OTP and send it
+  const otp = generateOTP();
+  otpStore.set(email, otp); // Store OTP in memory
+
+  const mailOptions = {
+    from: 'clinicub01@gmail.com',
+    to: email,
+    subject: 'Forgot Password OTP',
+    text: `Your OTP for password reset is: ${otp}`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+    res.json({ message: 'OTP sent successfully' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Endpoint to verify the entered OTP and change the password
+app.post('/verify-otp', async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  // Check if the entered OTP matches the stored OTP
+  if (otpStore.has(email) && otpStore.get(email) == otp) {
+    // OTP is valid
+    otpStore.delete(email); // Remove the used OTP
+
+    try {
+      // Update the user's password in MongoDB without hashing
+      await EmployeeModel.updateOne({ email }, { password: newPassword });
+
+      console.log('Password updated successfully');
+      res.json({ message: 'Password updated successfully! Redirecting you to Login...' });
+    } catch (error) {
+      console.error('Error updating password:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  } else {
+    res.status(400).json({ error: 'Invalid OTP' });
+  }
+});
 
 // account registration
 app.post("/register", (req, res) => {
