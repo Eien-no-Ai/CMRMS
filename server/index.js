@@ -6,6 +6,8 @@ const e = require("express");
 const ClinicModel = require("./models/Clinic");
 const PatientModel = require("./models/Patient");
 const LaboratoryModel = require("./models/Laboratory");
+const PhysicalTherapyModel = require("./models/PhysicalTheraphy");
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -533,6 +535,69 @@ app.get("/api/xrayResults/:patientId", async (req, res) => {
     res.status(500).json({ message: "Error fetching X-ray records", error });
   }
 });
+
+// P H Y S I C A L   T H E R A P Y   R E C O R D S
+
+app.post("/api/physicalTherapy", async (req, res) => {
+  const physicalTherapyData = req.body;
+
+  // Validate if the provided patient ID is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(physicalTherapyData.patient)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid patient ID" });
+  }
+
+  PhysicalTherapyModel.create(physicalTherapyData)
+    .then((physicalTherapyData) =>
+      res.json({
+        success: true,
+        message: "Physical Therapy request created successfully",
+        physicalTherapyData,
+      })
+    )
+    .catch((err) =>
+      res.status(500).json({
+        success: false,
+        message: "Error creating Physical Therapy request",
+        error: err.message,
+      })
+    );
+});
+
+// GET endpoint to fetch all Physical Therapy records
+app.get("/api/physicalTherapy", async (req, res) => {
+  try {
+    const physicalTherapyRecords = await PhysicalTherapyModel.find().populate("patient"); // Populating patient data
+    res.json(physicalTherapyRecords);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching X-ray records", error });
+  }
+});
+
+// GET endpoint to fetch Physical Therapy records for a specific patient
+app.get("/api/physicalTherapy/:patientId", async (req, res) => {
+  const { patientId } = req.params;
+
+  // Validate if the provided patient ID is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(patientId)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid patient ID" });
+  }
+
+  try {
+    const physicalTherapyRecords = await PhysicalTherapyModel.find({ patient: patientId }).populate(
+      "patient"
+    );
+    res.json(physicalTherapyRecords);
+  } catch (error) {
+    console.error("Error fetching Physical Therapy records:", error);
+    res.status(500).json({ message: "Error fetching Physical Therapy records", error });
+  }
+});
+
+
 
 //console log
 app.listen(3001, () => {

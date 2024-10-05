@@ -125,7 +125,7 @@ function App() {
 
           {/* Physical Therapy Routes */}
           <Route
-            path="/physicaltherapy/requests"
+            path="/physicaltherapy/records"
             element={
               <PrivateRoute allowedRoles={['physical therapist','special trainee']}>
                 <PhysicalTherapy />
