@@ -33,7 +33,7 @@ function AdminHomePage() {
       case "clinic":
         return ["Select role for Clinic", "clinic staff", "nurse", "doctor" , "pathologist"];
       case "laboratory":
-        return ["Select role for Laboratory", "laboratory staff", ,"senior medtech","junior medtech"];
+        return ["Select role for Laboratory", "laboratory staff", "senior medtech","junior medtech"];
       case "xray":
         return ["Select role for X-Ray", "xray staff", "radiologist","radiologic technologist"];  
       default:
