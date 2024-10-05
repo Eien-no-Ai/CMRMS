@@ -474,6 +474,22 @@ app.post("/api/clinicalRecords", async (req, res) => {
     );
 });
 
+app.put("/api/clinicalRecords/:id", async (req, res) => {
+  const { id } = req.params;
+  const updatedData = req.body;
+
+  try {
+    const updatedRecord = await ClinicModel.findByIdAndUpdate(id, updatedData, { new: true });
+    if (updatedRecord) {
+      res.json({ success: true, message: "Record updated successfully", updatedRecord });
+    } else {
+      res.status(404).json({ message: "Record not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error updating record", error: error.message });
+  }
+});
+
 // GET endpoint to fetch all clinical records
 app.get("/api/clinicalRecords", async (req, res) => {
   try {
@@ -488,7 +504,7 @@ app.get("/api/clinicalRecords", async (req, res) => {
 app.get("/api/clinicalRecords/:patientId", async (req, res) => {
   const { patientId } = req.params;
   try {
-    const clinicalRecords = await ClinicModel.find({ patient: patientId });
+    const clinicalRecords = await ClinicModel.find({ patient: patientId }).populate('createdBy'); // Populate employee details
     res.json(clinicalRecords);
   } catch (error) {
     res.status(500).json({ message: "Error fetching clinical records", error });

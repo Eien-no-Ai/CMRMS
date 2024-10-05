@@ -15,6 +15,7 @@ function PatientsProfile() {
     date: new Date().toLocaleDateString(),
     complaints: "",
     treatments: "",
+    emergencyTreatments: "",
     diagnosis: "",
   });
   const [laboratoryRecords, setLaboratoryRecords] = useState([]);
@@ -26,6 +27,22 @@ function PatientsProfile() {
     xrayResult: "",
     xrayType: "",
   });
+  const [role, setRole] = useState(null); // Store the user role
+  // Inside your component definition
+  const [isTreatmentModalOpen, setIsTreatmentModalOpen] = useState(false);
+  const [isDiagnosisModalOpen, setIsDiagnosisModalOpen] = useState(false);
+  const [newTreatment, setNewTreatment] = useState("");
+  const [newDiagnosis, setNewDiagnosis] = useState("");
+  const [showEmergencyTreatmentInput, setShowEmergencyTreatmentInput] =
+    useState(false);
+
+  // Fetch the role from localStorage
+  useEffect(() => {
+    const storedRole = localStorage.getItem("role");
+    if (storedRole) {
+      setRole(storedRole); // Store the role in state
+    }
+  }, []);
 
   const fetchLabRecords = useCallback(async () => {
     try {
@@ -98,8 +115,17 @@ function PatientsProfile() {
     setIsNewRecordModalOpen(true);
   };
 
+  // Close the new record modal and reset form state
   const handleNewRecordClose = () => {
     setIsNewRecordModalOpen(false);
+    setShowEmergencyTreatmentInput(false);
+    setNewRecord({
+      date: new Date().toLocaleDateString(),
+      complaints: "",
+      treatments: "",
+      emergencyTreatments: "",
+      diagnosis: "",
+    });
   };
 
   const handleNewRecordChange = (e) => {
@@ -112,14 +138,22 @@ function PatientsProfile() {
 
   const handleNewRecordSubmit = async (e) => {
     e.preventDefault();
+
+    const userId = localStorage.getItem("userId"); // Get the logged-in user's ID
+
+    // Combine the regular treatments and the emergency treatment
+    const updatedRecord = {
+      ...newRecord,
+      patient: id,
+      createdBy: userId, // Add the logged-in user's ID as createdBy
+    };
+
     try {
       const response = await axios.post(
         "http://localhost:3001/api/clinicalRecords",
-        {
-          ...newRecord,
-          patient: id,
-        }
+        updatedRecord
       );
+
       if (response.status === 200) {
         handleNewRecordClose();
         await fetchClinicalRecords();
@@ -295,15 +329,60 @@ function PatientsProfile() {
     const birthDate = new Date(birthdate);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
+
     // Adjust age if the birthday hasn't occurred this year yet
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
-    
+
     return age;
   };
-  
+
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+
+  // Function to handle "View" button click
+  const handleViewRecord = (record) => {
+    setSelectedRecord(record);
+    setIsViewModalOpen(true);
+  };
+
+  const updateClinicalRecord = async (selectedRecord) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:3001/api/clinicalRecords/${selectedRecord._id}`,
+        selectedRecord
+      );
+      if (response.status === 200) {
+        setIsViewModalOpen(false);
+        fetchClinicalRecords(); // Refresh the clinical records after updating
+      }
+    } catch (error) {
+      console.error("Error updating record:", error);
+    }
+  };
+
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userId = localStorage.getItem("userId"); // Get userId from localStorage
+      if (userId) {
+        try {
+          const response = await axios.get(
+            `http://localhost:3001/user/${userId}`
+          );
+          setUser(response.data); // Store the user (employee) data
+        } catch (error) {
+          console.error("There was an error fetching the user details!", error);
+        }
+      }
+    };
+    fetchUser();
+  }, []);
 
   return (
     <div>
@@ -395,7 +474,9 @@ function PatientsProfile() {
                     </div>
                     <div>
                       <p className="text-gray-500">Age</p>
-                      <p className="font-semibold">{calculateAge(patient.birthdate)}</p>
+                      <p className="font-semibold">
+                        {calculateAge(patient.birthdate)}
+                      </p>
                     </div>
                     <div>
                       <p className="text-gray-500">Gender</p>
@@ -411,14 +492,16 @@ function PatientsProfile() {
                         {new Date(patient.birthdate).toLocaleDateString()}
                       </p>
                     </div>
-                   
+
                     <div>
                       <p className="text-gray-500">Phone Number</p>
                       <p className="font-semibold">{patient.phonenumber}</p>
                     </div>
                     <div>
                       <p className="text-gray-500">Emergency Contact</p>
-                      <p className="font-semibold">{patient.emergencyContact}</p>
+                      <p className="font-semibold">
+                        {patient.emergencyContact}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -496,12 +579,30 @@ function PatientsProfile() {
                             </p>
                           </div>
                           <div className="flex-1 text-gray-500">
-                            {records.treatments}
+                            {/* Display truncated regular treatments */}
+                            {records.treatments.length > 20
+                              ? `${records.treatments.substring(0, 20)}...`
+                              : records.treatments}
+
+                            {/* Display emergency treatment in red if it exists */}
+                            {records.emergencyTreatment && (
+                              <p className="text-custom-red italic">
+                                Emergency: {records.emergencyTreatment}
+                              </p>
+                            )}
                           </div>
+
                           <div className="flex-1 text-gray-500">
-                            {records.diagnosis}
+                            {records.diagnosis.length > 20
+                              ? `${records.diagnosis.substring(0, 20)}...`
+                              : records.diagnosis}
                           </div>
-                          <button className="text-custom-red">Edit</button>
+                          <button
+                            className="text-custom-red"
+                            onClick={() => handleViewRecord(records)}
+                          >
+                            View
+                          </button>
                         </li>
                       ))}
                     </ul>
@@ -601,7 +702,9 @@ function PatientsProfile() {
             </h2>
             <form onSubmit={handleNewRecordSubmit}>
               <div className="mb-4">
-                <label className="block text-sm font-medium">Complaints</label>
+                <label className="block text-sm font-medium">
+                  Complaints/Findings
+                </label>
                 <input
                   type="text"
                   name="complaints"
@@ -611,28 +714,66 @@ function PatientsProfile() {
                   className="border rounded-lg w-full p-2 mt-1"
                 />
               </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium">Treatment</label>
-                <input
-                  type="text"
-                  name="treatments"
-                  value={newRecord.treatments}
-                  onChange={handleNewRecordChange}
-                  required
-                  className="border rounded-lg w-full p-2 mt-1"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium">Diagnosis</label>
-                <input
-                  type="text"
-                  name="diagnosis"
-                  value={newRecord.diagnosis}
-                  onChange={handleNewRecordChange}
-                  required
-                  className="border rounded-lg w-full p-2 mt-1"
-                />
-              </div>
+
+              {/* Conditionally render Treatment and Diagnosis fields */}
+              {role === "doctor" && (
+                <>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium">
+                      Treatment
+                    </label>
+                    <input
+                      type="text"
+                      name="treatments"
+                      value={newRecord.treatments}
+                      onChange={handleNewRecordChange}
+                      className="border rounded-lg w-full p-2 mt-1"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium">
+                      Diagnosis
+                    </label>
+                    <input
+                      type="text"
+                      name="diagnosis"
+                      value={newRecord.diagnosis}
+                      onChange={handleNewRecordChange}
+                      className="border rounded-lg w-full p-2 mt-1"
+                    />
+                  </div>
+                </>
+              )}
+
+              {role === "nurse" && (
+                <>
+                  {!showEmergencyTreatmentInput ? (
+                    <div className="mb-4">
+                      <p
+                        className="text-sm italic text-custom-red cursor-pointer"
+                        onClick={() => setShowEmergencyTreatmentInput(true)}
+                      >
+                        Add Emergency Treatment
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium">
+                        Emergency Treatment
+                      </label>
+                      <input
+                        type="text"
+                        name="emergencyTreatment"
+                        value={newRecord.emergencyTreatment || ""}
+                        onChange={handleNewRecordChange}
+                        className="border rounded-lg w-full p-2 mt-1"
+                        placeholder="Enter emergency treatment"
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
@@ -652,6 +793,193 @@ function PatientsProfile() {
           </div>
         </div>
       )}
+      {isViewModalOpen && selectedRecord && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col">
+            <div className="mb-6">
+              <h2 className="text-lg font-bold">View Clinical Record</h2>
+              <p className="text-gray-500">
+                {selectedRecord?.isCreatedAt
+                  ? new Date(selectedRecord.isCreatedAt).toLocaleString()
+                  : "No date available"}
+              </p>
+            </div>
+
+            <div className="flex-grow">
+              <div className="mb-4">
+                <label className="block text-sm font-medium">Complaints</label>
+                <p className="border rounded-lg p-2 mt-1">
+                  {selectedRecord.complaints}
+                </p>
+              </div>
+
+              <div className="mb-4 w-full">
+                <div className="flex justify-between items-center">
+                  <div className="block text-sm font-medium">Treatments</div>
+                  {role === "doctor" && (
+                    <button
+                      className="text-sm text-custom-red underline italic hover:text-custom-red focus:outline-none"
+                      onClick={() => setIsTreatmentModalOpen(true)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        padding: "0",
+                      }}
+                    >
+                      Add
+                    </button>
+                  )}
+                </div>
+                {/* Display treatments */}
+                <div className="border rounded-lg p-2 mt-1 w-full bg-gray-50">
+                  {/* Display emergency treatment in red */}
+                  {selectedRecord.emergencyTreatment && (
+                    <p className="text-custom-red italic">
+                      Emergency: {selectedRecord.emergencyTreatment}
+                      <br />
+                      Treated by: {selectedRecord.createdBy.firstname}{" "}
+                      {selectedRecord.createdBy.lastname}
+                    </p>
+                  )}
+                </div>
+                {/* Textarea */}
+                <textarea
+                  className="border rounded-lg p-2 mt-1 w-full"
+                  value={selectedRecord.treatments || ""}
+                  disabled
+                  placeholder="Existing treatments"
+                />
+              </div>
+
+              {/* Diagnosis Section (Text Area Disabled) */}
+              <div className="mb-4 w-full">
+                <div className="flex justify-between items-center">
+                  {/* Label */}
+                  <div className="block text-sm font-medium">Diagnosis</div>
+
+                  {/* Conditionally Render Add Button if Role is not Nurse */}
+                  {role === "doctor" && (
+                    <button
+                      className="text-sm text-custom-red underline italic hover:text-custom-red focus:outline-none"
+                      onClick={() => setIsDiagnosisModalOpen(true)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        padding: "0",
+                      }}
+                    >
+                      Add
+                    </button>
+                  )}
+                </div>
+
+                {/* Textarea */}
+                <textarea
+                  className="border rounded-lg p-2 mt-1 w-full"
+                  value={selectedRecord.diagnosis || ""}
+                  disabled
+                  placeholder="Existing diagnosis"
+                />
+              </div>
+            </div>
+
+            {/* Buttons Section */}
+            <div className="flex justify-end space-x-4 mt-4">
+              <button
+                className="px-6 py-2 bg-gray-500 text-white rounded-md"
+                onClick={() => setIsViewModalOpen(false)}
+              >
+                Close
+              </button>
+              <button
+                className="px-6 py-2 bg-custom-red text-white rounded-md"
+                onClick={() => updateClinicalRecord(selectedRecord)}
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for adding Treatment */}
+      {isTreatmentModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-bold mb-4">Add Treatment</h2>
+            <input
+              type="text"
+              className="border rounded-lg w-full p-2 mb-4"
+              value={newTreatment}
+              onChange={(e) => setNewTreatment(e.target.value)}
+              placeholder="Enter new treatment"
+            />
+            <div className="flex justify-end space-x-3">
+              <button
+                className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                onClick={() => setIsTreatmentModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                onClick={() => {
+                  setSelectedRecord({
+                    ...selectedRecord,
+                    treatments: selectedRecord.treatments
+                      ? `${selectedRecord.treatments}, ${newTreatment}`
+                      : newTreatment,
+                  });
+                  setIsTreatmentModalOpen(false);
+                  setNewTreatment(""); // Clear the treatment input after adding
+                }}
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for adding Diagnosis */}
+      {isDiagnosisModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-bold mb-4">Add Diagnosis</h2>
+            <input
+              type="text"
+              className="border rounded-lg w-full p-2 mb-4"
+              value={newDiagnosis}
+              onChange={(e) => setNewDiagnosis(e.target.value)}
+              placeholder="Enter new diagnosis"
+            />
+            <div className="flex justify-end space-x-3">
+              <button
+                className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                onClick={() => setIsDiagnosisModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                onClick={() => {
+                  setSelectedRecord({
+                    ...selectedRecord,
+                    diagnosis: selectedRecord.diagnosis
+                      ? `${selectedRecord.diagnosis}, ${newDiagnosis}`
+                      : newDiagnosis,
+                  });
+                  setIsDiagnosisModalOpen(false);
+                  setNewDiagnosis(""); // Clear the diagnosis input after adding
+                }}
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isLabModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
