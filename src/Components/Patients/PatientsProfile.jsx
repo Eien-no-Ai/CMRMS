@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../Navbar/Navbar";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 function PatientsProfile() {
   const { id } = useParams();
@@ -462,7 +464,33 @@ function PatientsProfile() {
     }
   };
   
-
+  const handleGenerateReport = () => {
+    const pdf = new jsPDF();
+  
+    // Set the title of the report
+    pdf.text("Physical Therapy Report", 20, 20);
+  
+    // Table headers
+    const headers = ["Date", "SOAP Summary", "Physical Therapy Result"];
+  
+    // Table data
+    const tableData = displayedRecords.map((record) => [
+      new Date(record.isCreatedAt).toLocaleString(),
+      record.SOAPSummary,
+      record.physicalTherapyResult,
+    ]);
+  
+    // Generate the table using autoTable
+    pdf.autoTable({
+      head: [headers],
+      body: tableData,
+      startY: 30, // Start table below the title
+    });
+  
+    // Save the PDF with a dynamic filename
+    pdf.save("Physical_Therapy_Report.pdf");
+  };
+  
   return (
     <div>
       <Navbar />
@@ -567,12 +595,23 @@ function PatientsProfile() {
 
                       {role === "special trainee" && (
                         <button
-                          className={`mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full ${
+                          className={`mt-1 bg-custom-red text-white py-2 px-4 rounded-lg w-full ${
                             role === "special trainee" ? "col-span-4" : ""
                           }`}
                           onClick={handleNewTherapyRecordOpen}
                         >
                           New Physical Theraphy Record
+                        </button>
+                      )}
+
+                      {role === "special trainee" && (
+                        <button
+                          className={`mt-1 bg-custom-red text-white py-2 px-4 rounded-lg w-full ${
+                            role === "special trainee" ? "col-span-4" : ""
+                          }`}
+                          onClick={handleGenerateReport}
+                        >
+                          Generate Physical Therapy Record
                         </button>
                       )}
 
