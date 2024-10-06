@@ -32,7 +32,9 @@ function PatientsProfile() {
     xrayResult: "",
     xrayType: "",
   });
-
+  const [isSignatureModalOpen, setSignatureModalOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [signatureUrl, setSignatureUrl] = useState(null); // Store the fetched signature URL
   const [role, setRole] = useState(null); // Store the user role
   // Retrieve the role from localStorage and set default tab based on role
   useEffect(() => {
@@ -374,6 +376,92 @@ function PatientsProfile() {
       console.error("An error occurred:", err);
     }
   };
+
+  // Physical Therapy Signature Modal
+  const handleViewClick = (record) => {
+    setSelectedRecord(record);
+    setSignatureModalOpen(true);
+  };
+    
+  const handleSignatureModalClose = () => {
+    setSignatureModalOpen(false);
+    setSelectedRecord(null);
+  };
+
+  const [signatureFile, setSignatureFile] = useState(null);
+
+  const handleSignatureFileChange = (event) => {
+    setSignatureFile(event.target.files[0]);
+  };
+
+  // Fetch the user ID from localStorage
+  const userId = localStorage.getItem('userId'); // Get the user ID from localStorage
+  const [userData, setUserData] = useState({});
+    // Fetch the user data when the component is mounted
+    useEffect(() => {
+      if (userId) {
+        axios.get(`http://localhost:3001/user/${userId}`)
+          .then(response => {
+            setUserData(response.data);
+          })
+          .catch(error => {
+            console.error('Error fetching user data:', error);
+          });
+      }
+    }, [userId]);
+
+
+  // Handle signature upload
+  console.log("Selected Employee ID:", userId);
+  const handleSignatureUpload = async (event) => {
+    event.preventDefault();
+    
+    const formData = new FormData();
+    formData.append('signature', signatureFile);
+
+    try {
+      const response = await axios.post(
+        `http://localhost:3001/api/upload-signature/user/${userId}`,  // Ensure the correct _id is passed here
+        formData, 
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',  // Ensure proper content type
+          },
+        }
+      );
+
+      if (response.data && response.data.signature) {
+        console.log("Signature uploaded successfully:", response.data.signature);
+        setSignatureModalOpen(false); // Close the modal on success
+      } else {
+        console.error("Signature upload failed, no response data.");
+      }
+    } catch (error) {
+      if (error.response) {
+        console.error("Server responded with error:", error.response.data.message);
+      } else {
+        console.error("Error uploading signature:", error.message);
+      }
+    }
+  };
+
+  // Fetch the signature URL when the component is mounted
+  console.log("Fetched signature URL:", signatureUrl);
+  const fetchSignature = async (userId) => {
+    try {
+      const response = await axios.get(`http://localhost:3001/api/signature/user/${userId}`);
+      
+      // Ensure response contains a signature field
+      if (response.data && response.data.signature) {
+        setSignatureUrl(response.data.signature); // Set the signature URL from the response
+      } else {
+        console.error("No signature found.");
+      }
+    } catch (error) {
+      console.error("Error fetching signature:", error);
+    }
+  };
+  
 
   return (
     <div>
@@ -776,7 +864,13 @@ function PatientsProfile() {
                         <div className="text-gray-500">
                           {records.physicalTherapyResult}
                         </div>
-                        <button className="text-custom-red">Edit</button>
+                        <button 
+                          className="text-custom-red" 
+                          onClick={() => handleViewClick(records)}
+                        >
+                          View
+                        </button>
+
                       </li>
                     ))
                   ) : (
@@ -789,6 +883,64 @@ function PatientsProfile() {
           </div>
         </div>
       </div>
+
+      {isSignatureModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-bold mb-4 text-center">Upload Signature</h2>
+
+            <form onSubmit={handleSignatureUpload}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium">Select Signature Image</label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleSignatureFileChange}
+                  required
+                  className="border rounded-lg w-full p-2 mt-1"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                  onClick={handleSignatureModalClose}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                >
+                  Submit
+                </button>
+
+                <button
+                type="button"
+                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
+                onClick={() => fetchSignature(userId)} // Call fetchSignature with userId
+              >
+                Fetch Signature
+              </button>
+
+              </div>
+            </form>
+
+            {/* Display fetched signature image */}
+            {signatureUrl && (
+              <div className="mt-4 mb-4">
+                <h3 className="text-sm font-medium mb-2">Current Signature:</h3>
+                <img 
+                  src={signatureUrl} // Use the URL fetched from the backend
+                  alt="Signature"
+                  className="border rounded-lg w-full h-auto mb-4"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {isNewTherapyRecordModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+
 function SignUp() {
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
@@ -11,12 +12,13 @@ function SignUp() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [department, setDepartment] = useState("");
+  const [signature, setSignature] = useState("");
   const navigate = useNavigate();
   
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post('http://localhost:3001/register', {firstname: firstname, lastname: lastname, email: email, password: password, confirmPassword: confirmPassword , department: department})
+    axios.post('http://localhost:3001/register', {firstname: firstname, lastname: lastname, email: email, password: password, confirmPassword: confirmPassword , department: department , signature:signature})
     .then(result => {console.log(result)
       navigate('/login');
     })
