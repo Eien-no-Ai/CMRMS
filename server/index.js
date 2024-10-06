@@ -420,8 +420,15 @@ app.post("/api/laboratory", async (req, res) => {
 
 // GET endpoint to fetch lab records
 app.get("/api/laboratory", async (req, res) => {
+  const { clinicId } = req.query;
+
   try {
-    const labRecords = await LaboratoryModel.find().populate("patient");
+    let query = {};
+    if (clinicId) {
+      query.clinicId = clinicId; // Filter lab records by clinicId
+    }
+    
+    const labRecords = await LaboratoryModel.find(query).populate("patient");
     res.json(labRecords);
   } catch (error) {
     res

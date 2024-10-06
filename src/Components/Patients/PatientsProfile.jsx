@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../Navbar/Navbar";
+import { FaXRay } from "react-icons/fa6";
+import { SlChemistry } from "react-icons/sl";
+import { GiBiceps } from "react-icons/gi";
 
 function PatientsProfile() {
   const { id } = useParams();
@@ -303,7 +306,16 @@ function PatientsProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const dataToSend = { ...formData, patient: id, labResult: "pending" };
+      // Assume you have the clinicId stored or available in the context
+      const clinicId = selectedRecord._id; // Replace this with your logic to get the clinic ID
+
+      // Prepare data to send, including patient ID and clinic ID
+      const dataToSend = {
+        ...formData,
+        patient: id, // patient ID from URL params
+        clinicId: clinicId, // clinicId from the selected clinical record
+        labResult: "pending",
+      };
       console.log("Submitting data:", dataToSend);
 
       const result = await axios.post(
@@ -313,14 +325,14 @@ function PatientsProfile() {
 
       if (result.data.message === "Laboratory request created successfully") {
         console.log("Form submitted successfully:", result.data);
-        setFormData(initialFormData);
-        handleModalClose();
-        fetchLabRecords();
+        setFormData(initialFormData); // Reset the form data after submission
+        handleModalClose(); // Close the modal after successful submission
+        fetchLabRecords(); // Refresh the lab records list
       } else {
         console.error("Error submitting form:", result.data);
       }
     } catch (err) {
-      console.error("An error occurred:", err);
+      console.error("An error occurred while submitting the form:", err);
     }
   };
 
@@ -343,10 +355,22 @@ function PatientsProfile() {
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
+  const [selectedLabTests, setSelectedLabTests] = useState([]);
 
-  // Function to handle "View" button click
-  const handleViewRecord = (record) => {
-    setSelectedRecord(record);
+  const handleViewRecord = async (record) => {
+    setSelectedRecord(record); // Store the selected clinical record
+
+    try {
+      // Fetch lab records associated with the clinical record (clinicId)
+      const labResponse = await axios.get(
+        `http://localhost:3001/api/laboratory?clinicId=${record._id}` // Pass clinicId as a query param
+      );
+      const labTests = labResponse.data; // Lab tests associated with the clinical record
+      setSelectedLabTests(labTests); // Store lab tests in the state
+    } catch (error) {
+      console.error("Error fetching lab tests for the clinical record:", error);
+    }
+
     setIsViewModalOpen(true);
   };
 
@@ -364,25 +388,6 @@ function PatientsProfile() {
       console.error("Error updating record:", error);
     }
   };
-
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const userId = localStorage.getItem("userId"); // Get userId from localStorage
-      if (userId) {
-        try {
-          const response = await axios.get(
-            `http://localhost:3001/user/${userId}`
-          );
-          setUser(response.data); // Store the user (employee) data
-        } catch (error) {
-          console.error("There was an error fetching the user details!", error);
-        }
-      }
-    };
-    fetchUser();
-  }, []);
 
   return (
     <div>
@@ -796,8 +801,8 @@ function PatientsProfile() {
       {isViewModalOpen && selectedRecord && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col">
-            <div className="mb-6">
-              <h2 className="text-lg font-bold">View Clinical Record</h2>
+            <div className="mb-4">
+              <h2 className="text-lg font-bold">{selectedRecord.complaints}</h2>
               <p className="text-gray-500">
                 {selectedRecord?.isCreatedAt
                   ? new Date(selectedRecord.isCreatedAt).toLocaleString()
@@ -806,13 +811,7 @@ function PatientsProfile() {
             </div>
 
             <div className="flex-grow">
-              <div className="mb-4">
-                <label className="block text-sm font-medium">Complaints</label>
-                <p className="border rounded-lg p-2 mt-1">
-                  {selectedRecord.complaints}
-                </p>
-              </div>
-
+              {/* Treatments Section */}
               <div className="mb-4 w-full">
                 <div className="flex justify-between items-center">
                   <div className="block text-sm font-medium">Treatments</div>
@@ -830,34 +829,44 @@ function PatientsProfile() {
                     </button>
                   )}
                 </div>
-                {/* Display treatments */}
-                <div className="border rounded-lg p-2 mt-1 w-full bg-gray-50">
-                  {/* Display emergency treatment in red */}
-                  {selectedRecord.emergencyTreatment && (
+
+                {selectedRecord.emergencyTreatment && (
+                  <div className="border rounded-lg p-2 mt-1 w-full bg-gray-50">
                     <p className="text-custom-red italic">
                       Emergency: {selectedRecord.emergencyTreatment}
                       <br />
                       Treated by: {selectedRecord.createdBy.firstname}{" "}
                       {selectedRecord.createdBy.lastname}
                     </p>
-                  )}
-                </div>
-                {/* Textarea */}
-                <textarea
-                  className="border rounded-lg p-2 mt-1 w-full"
-                  value={selectedRecord.treatments || ""}
-                  disabled
-                  placeholder="Existing treatments"
-                />
+                  </div>
+                )}
+
+                {selectedRecord.treatments &&
+                selectedRecord.treatments.length > 0 ? (
+                  <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
+                    {selectedRecord.treatments
+                      .split(", ")
+                      .map((treatment, index) => (
+                        <div
+                          key={index}
+                          className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm space-x-4"
+                        >
+                          <div className="flex-1">
+                            <p className="text-gray-800 font-semibold">
+                              {treatment}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 py-4">No treatments available.</p>
+                )}
               </div>
 
-              {/* Diagnosis Section (Text Area Disabled) */}
               <div className="mb-4 w-full">
                 <div className="flex justify-between items-center">
-                  {/* Label */}
                   <div className="block text-sm font-medium">Diagnosis</div>
-
-                  {/* Conditionally Render Add Button if Role is not Nurse */}
                   {role === "doctor" && (
                     <button
                       className="text-sm text-custom-red underline italic hover:text-custom-red focus:outline-none"
@@ -873,40 +882,140 @@ function PatientsProfile() {
                   )}
                 </div>
 
-                {/* Textarea */}
-                <textarea
-                  className="border rounded-lg p-2 mt-1 w-full"
-                  value={selectedRecord.diagnosis || ""}
-                  disabled
-                  placeholder="Existing diagnosis"
-                />
+                {selectedRecord.diagnosis &&
+                selectedRecord.diagnosis.length > 0 ? (
+                  <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
+                    {selectedRecord.diagnosis
+                      .split(", ")
+                      .map((diagnosis, index) => (
+                        <div
+                          key={index}
+                          className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-sm space-x-4"
+                        >
+                          <div className="flex-1">
+                            <p className="text-gray-800 font-semibold">
+                              {diagnosis}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 py-4">No treatments available.</p>
+                )}
               </div>
+
+              {selectedLabTests && selectedLabTests.length > 0 ? (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium">Lab Tests</label>
+                  <div className="mb-4 max-h-48 overflow-y-auto">
+
+                  <ul className="space-y-4">
+                    {selectedLabTests
+                      .sort(
+                        (a, b) =>
+                          new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
+                      )
+                      .map((labTest, index) => {
+                        const allTests = [
+                          ...Object.entries(labTest.bloodChemistry || {})
+                            .filter(([key, value]) => value)
+                            .map(([key]) => key),
+                          ...Object.entries(labTest.hematology || {})
+                            .filter(([key, value]) => value)
+                            .map(([key]) => key),
+                          ...Object.entries(
+                            labTest.clinicalMicroscopyParasitology || {}
+                          )
+                            .filter(([key, value]) => value)
+                            .map(([key]) => key),
+                          ...Object.entries(labTest.bloodBankingSerology || {})
+                            .filter(([key, value]) => value)
+                            .map(([key]) => key),
+                          ...Object.entries(labTest.microbiology || {})
+                            .filter(([key, value]) => value)
+                            .map(([key]) => key),
+                        ].join(", ");
+
+                        return (
+                          <li
+                            key={index}
+                            className="grid grid-cols-3 gap-4 items-center p-4 bg-gray-100 rounded-lg"
+                          >
+                            <div className="col-span-1">
+                              <p className="text-gray-500 text-sm">
+                                {new Date(labTest.isCreatedAt).toLocaleString()}
+                              </p>
+                              <p className="font-semibold">{allTests}</p>
+                            </div>
+
+                            <div className="col-span-1 flex justify-center items-center">
+                              <p className="text-gray-500">
+                                {labTest.labResult || "pending"}
+                              </p>
+                            </div>
+
+                            <div className="col-span-1 flex justify-end items-center">
+                              <button className="text-custom-red">Edit</button>
+                            </div>
+                          </li>
+                        );
+                      })}
+                  </ul>
+                  </div>
+
+                </div>
+              ) : (
+                <p className="text-gray-500">
+                  No lab tests available for this record.
+                </p>
+              )}
             </div>
 
-            {/* Buttons Section */}
-            <div className="flex justify-end space-x-4 mt-4">
-              <button
-                className="px-6 py-2 bg-gray-500 text-white rounded-md"
-                onClick={() => setIsViewModalOpen(false)}
-              >
-                Close
-              </button>
-              <button
-                className="px-6 py-2 bg-custom-red text-white rounded-md"
-                onClick={() => updateClinicalRecord(selectedRecord)}
-              >
-                Submit
-              </button>
+            <div className="flex justify-between items-center mt-4">
+              <div className="flex space-x-2">
+                <button
+                  className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                  onClick={handleLabModalOpen}
+                >
+                  <SlChemistry className="mr-2" /> Lab Request
+                </button>
+                <button
+                  className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                  onClick={handleNewXrayModalOpen}
+                >
+                  <FaXRay className="mr-2" /> X-Ray Request
+                </button>
+                <button className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300">
+                  <GiBiceps className="mr-2" /> Refer to PT
+                </button>
+              </div>
+
+              <div className="flex space-x-4">
+                <button
+                  className="px-6 py-2 bg-gray-500 text-white rounded-md"
+                  onClick={() => setIsViewModalOpen(false)}
+                >
+                  Close
+                </button>
+                <button
+                  className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                  onClick={() => updateClinicalRecord(selectedRecord)}
+                >
+                  Submit
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal for adding Treatment */}
       {isTreatmentModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-bold mb-4">Add Treatment</h2>
+            <h2 className="text-lg font-bold mb-4 text-center">
+              Add Treatment
+            </h2>
             <input
               type="text"
               className="border rounded-lg w-full p-2 mb-4"
@@ -916,13 +1025,13 @@ function PatientsProfile() {
             />
             <div className="flex justify-end space-x-3">
               <button
-                className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border transition duration-200"
                 onClick={() => setIsTreatmentModalOpen(false)}
               >
                 Cancel
               </button>
               <button
-                className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
                 onClick={() => {
                   setSelectedRecord({
                     ...selectedRecord,
@@ -931,7 +1040,7 @@ function PatientsProfile() {
                       : newTreatment,
                   });
                   setIsTreatmentModalOpen(false);
-                  setNewTreatment(""); // Clear the treatment input after adding
+                  setNewTreatment("");
                 }}
               >
                 Add

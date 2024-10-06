@@ -16,7 +16,7 @@ const PatientSchema = new mongoose.Schema({
     course: { type: String },
     sex: { type: String, required: true },
     patientType: { type: String, required: true },
-    emergencyContact: { type: String, required: true },
+    emergencyContact: { type: String, },
     position: { type: String },
     createdAt: { type: Date, default: Date.now }, 
 });

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FaHtml5, FaAndroid } from "react-icons/fa";
 import { BiSearch } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { TbBuildingHospital } from "react-icons/tb";
+import { FaXRay } from "react-icons/fa6";
+import { SlChemistry } from "react-icons/sl";
 
 const Dashboard = () => {
   const [userRole, setUserRole] = useState(null);
@@ -132,7 +134,7 @@ const Dashboard = () => {
                       href="/clinic/records" // Link to Clinical Records page
                       className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                     >
-                      <FaHtml5 size={40} className="text-gray-500 mb-2" />
+                      <TbBuildingHospital size={40} className="text-gray-500 mb-2" />
                       <span className="font-semibold text-custom-red">
                         CLINICAL RECORDS
                       </span>
@@ -144,7 +146,7 @@ const Dashboard = () => {
                         href="/laboratory/records" // Link to Laboratory Records page
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
-                        <FaAndroid size={40} className="text-gray-500 mb-2" />
+                        <SlChemistry size={40} className="text-gray-500 mb-2"/>
                         <span className="font-semibold text-custom-red">
                           LABORATORY RECORDS
                         </span>
@@ -153,7 +155,7 @@ const Dashboard = () => {
                         href="/laboratory/requests" // Link to Laboratory Requests page
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
-                        <FaAndroid size={40} className="text-gray-500 mb-2" />
+                        <SlChemistry size={40} className="text-gray-500 mb-2"/>
                         <span className="font-semibold text-custom-red">
                           LABORATORY REQUESTS
                         </span>
@@ -166,7 +168,7 @@ const Dashboard = () => {
                         href="/xray/records" // Link to X-Ray Records page
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
-                        <FaAndroid size={40} className="text-gray-500 mb-2" />
+                        <FaXRay size={40} className="text-gray-500 mb-2" />
                         <span className="font-semibold text-custom-red">
                           X-RAY RECORDS
                         </span>
@@ -175,7 +177,7 @@ const Dashboard = () => {
                         href="/xray/requests" // Link to X-Ray Requests page
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
-                        <FaAndroid size={40} className="text-gray-500 mb-2" />
+                        <FaXRay size={40} className="text-gray-500 mb-2" />
                         <span className="font-semibold text-custom-red">
                           X-RAY REQUESTS
                         </span>
@@ -200,7 +202,7 @@ const Dashboard = () => {
                   >
                     {record === "Clinical Records" && (
                       <>
-                        <FaHtml5 size={40} className="text-gray-500 mb-2" />
+                        <TbBuildingHospital size={40} className="text-gray-500 mb-2" />
                         <span className="font-semibold text-custom-red">
                           CLINICAL RECORDS
                         </span>
@@ -208,15 +210,14 @@ const Dashboard = () => {
                     )}
                     {record === "Laboratory Records" && (
                       <>
-                        <FaAndroid size={40} className="text-gray-500 mb-2" />
-                        <span className="font-semibold text-custom-red">
+                        <SlChemistry size={40} className="text-gray-500 mb-2"/>                        <span className="font-semibold text-custom-red">
                           LABORATORY RECORDS
                         </span>
                       </>
                     )}
                     {record === "X-Ray Records" && (
                       <>
-                        <FaAndroid size={40} className="text-gray-500 mb-2" />
+                        <FaXRay size={40} className="text-gray-500 mb-2" />
                         <span className="font-semibold text-custom-red">
                           X-RAY RECORDS
                         </span>
