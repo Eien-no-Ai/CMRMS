@@ -14,6 +14,7 @@ import NotFound from "./Components/NotFound/NotFound";
 import Laboratory from "./Components/Laboratory/Laboratory";
 import Clinic from "./Components/Clinic/Clinic";
 import Xray from "./Components/Xray/Xray";
+import Package from "./Components/Package/Package";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           
           {/* random url */}
           <Route path="*" element={<NotFound />} />
+          <Route path="/packages" element={<Package />} />
 
           {/* Public routes that redirect logged-in users */}
           <Route

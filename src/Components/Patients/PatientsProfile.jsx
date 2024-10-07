@@ -568,7 +568,7 @@ function PatientsProfile() {
               <ul className="space-y-4">
                 {selectedTab === "clinical" &&
                   (displayedRecords.length > 0 ? (
-                    <ul className="space-y-2">
+                    <ul className="space-y-4">
                       {" "}
                       {displayedRecords.map((records, index) => (
                         <li
@@ -901,7 +901,7 @@ function PatientsProfile() {
                       ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 py-4">No treatments available.</p>
+                  <p className="text-gray-500 py-4">No diagnosis available.</p>
                 )}
               </div>
 
@@ -956,7 +956,7 @@ function PatientsProfile() {
                             </div>
 
                             <div className="col-span-1 flex justify-end items-center">
-                              <button className="text-custom-red">Edit</button>
+                              <button className="text-custom-red">View</button>
                             </div>
                           </li>
                         );
