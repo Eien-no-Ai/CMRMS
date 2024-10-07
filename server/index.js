@@ -7,108 +7,15 @@ const ClinicModel = require("./models/Clinic");
 const PatientModel = require("./models/Patient");
 const LaboratoryModel = require("./models/Laboratory");
 const PhysicalTherapyModel = require("./models/PhysicalTheraphy");
-const multer = require("multer");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 const nodemailer = require("nodemailer");
 
-const path = require("path");
-
 mongoose.connect(
   "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee"
 );
-
-// Serve static files from 'uploads' directory
-app.use('/uploads', express.static('uploads'));
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Ensure this directory exists or create it
-  },
-  filename: async (req, file, cb) => {
-    try {
-      const { id } = req.params;
-
-      // Fetch employee details to get the last name
-      const employee = await EmployeeModel.findById(id).select('lastname'); // Ensure 'lastname' is the correct field name
-
-      console.log("Fetched Employee:", employee); // Log employee data for debugging
-
-      if (!employee) {
-        return cb(new Error("Employee not found"), false); // Handle error if employee is not found
-      }
-
-      // Use employee's last name as the filename, append timestamp to avoid conflicts
-      const uniqueSuffix = Date.now();
-      const filename = `${employee.lastname}-${uniqueSuffix}${path.extname(file.originalname)}`;
-
-      cb(null, filename); // Set filename to lastName + uniqueSuffix
-    } catch (error) {
-      console.error("Error fetching employee for filename:", error);
-      cb(error, false); // Handle error in filename generation
-    }
-  }
-});
-
-const upload = multer({ storage });
-
-// API endpoint to upload signature
-app.post('/api/upload-signature/user/:id', upload.single('signature'), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded" });
-  }
-
-  try {
-    const { id } = req.params;
-
-    // Find the employee by id and update the signature field with the new filename
-    const employee = await EmployeeModel.findByIdAndUpdate(
-      id,
-      { signature: req.file.filename }, // Store the generated filename based on the last name
-      { new: true } // Return the updated employee
-    );
-
-    if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
-    }
-
-    return res.json({
-      message: "Signature uploaded successfully",
-      signature: req.file.filename, // Return the updated signature filename
-    });
-  } catch (error) {
-    console.error("Error during signature upload:", error);
-    return res.status(500).json({ message: "Server error while uploading signature" });
-  }
-});
-
-
-// API endpoint to fetch the signature
-app.get('/api/signature/user/:id', async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const employee = await EmployeeModel
-      .findById(id)
-      .select('signature'); // Select only the signature field
-
-    if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
-    }
-
-    // Create the URL for the signature file
-    const signatureUrl = `http://localhost:3001/uploads/${employee.signature}`;
-
-    return res.json({ signature: signatureUrl }); // Return the full URL
-  } catch (error) {
-    console.error("Error fetching signature:", error);
-    return res.status(500).json({ message: "Server error while fetching signature" });
-  }
-});
-
-
 
 // Nodemailer setup
 const transporter = nodemailer.createTransport({
