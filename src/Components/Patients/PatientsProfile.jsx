@@ -38,6 +38,7 @@ function PatientsProfile() {
   const [newDiagnosis, setNewDiagnosis] = useState("");
   const [showEmergencyTreatmentInput, setShowEmergencyTreatmentInput] =
     useState(false);
+  const [clinicId, setClinicId] = useState(null); // Added state for clinicId
 
   // Fetch the role from localStorage
   useEffect(() => {
@@ -233,8 +234,9 @@ function PatientsProfile() {
     setShowRequestOptions((prev) => !prev);
   };
 
-  const handleLabModalOpen = () => {
+  const handleLabModalOpen = (record) => {
     setIsLabModalOpen(true);
+    setClinicId(record._id);
   };
 
   const handleModalClose = () => {
@@ -306,16 +308,17 @@ function PatientsProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Assume you have the clinicId stored or available in the context
-      const clinicId = selectedRecord._id; // Replace this with your logic to get the clinic ID
-
-      // Prepare data to send, including patient ID and clinic ID
       const dataToSend = {
         ...formData,
-        patient: id, // patient ID from URL params
-        clinicId: clinicId, // clinicId from the selected clinical record
+        patient: id,
         labResult: "pending",
       };
+
+      // Include clinicId if available
+      if (clinicId) {
+        dataToSend.clinicId = clinicId; // Add clinicId if it exists
+      }
+
       console.log("Submitting data:", dataToSend);
 
       const result = await axios.post(
@@ -325,14 +328,16 @@ function PatientsProfile() {
 
       if (result.data.message === "Laboratory request created successfully") {
         console.log("Form submitted successfully:", result.data);
-        setFormData(initialFormData); // Reset the form data after submission
-        handleModalClose(); // Close the modal after successful submission
-        fetchLabRecords(); // Refresh the lab records list
+        setFormData(initialFormData); // Reset form data
+        handleModalClose(); // Close the modal
+        fetchLabRecords(); // Refresh lab records
       } else {
         console.error("Error submitting form:", result.data);
       }
     } catch (err) {
       console.error("An error occurred while submitting the form:", err);
+    } finally {
+      setClinicId(null); // Clear clinicId explicitly
     }
   };
 
@@ -358,15 +363,15 @@ function PatientsProfile() {
   const [selectedLabTests, setSelectedLabTests] = useState([]);
 
   const handleViewRecord = async (record) => {
-    setSelectedRecord(record); // Store the selected clinical record
+    setSelectedRecord(record);
+    setClinicId(record._id);
 
     try {
-      // Fetch lab records associated with the clinical record (clinicId)
       const labResponse = await axios.get(
-        `http://localhost:3001/api/laboratory?clinicId=${record._id}` // Pass clinicId as a query param
+        `http://localhost:3001/api/laboratory?clinicId=${record._id}`
       );
-      const labTests = labResponse.data; // Lab tests associated with the clinical record
-      setSelectedLabTests(labTests); // Store lab tests in the state
+      const labTests = labResponse.data;
+      setSelectedLabTests(labTests);
     } catch (error) {
       console.error("Error fetching lab tests for the clinical record:", error);
     }
@@ -910,60 +915,65 @@ function PatientsProfile() {
                   <label className="block text-sm font-medium">Lab Tests</label>
                   <div className="mb-4 max-h-48 overflow-y-auto">
 
-                  <ul className="space-y-4">
-                    {selectedLabTests
-                      .sort(
-                        (a, b) =>
-                          new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
-                      )
-                      .map((labTest, index) => {
-                        const allTests = [
-                          ...Object.entries(labTest.bloodChemistry || {})
-                            .filter(([key, value]) => value)
-                            .map(([key]) => key),
-                          ...Object.entries(labTest.hematology || {})
-                            .filter(([key, value]) => value)
-                            .map(([key]) => key),
-                          ...Object.entries(
-                            labTest.clinicalMicroscopyParasitology || {}
-                          )
-                            .filter(([key, value]) => value)
-                            .map(([key]) => key),
-                          ...Object.entries(labTest.bloodBankingSerology || {})
-                            .filter(([key, value]) => value)
-                            .map(([key]) => key),
-                          ...Object.entries(labTest.microbiology || {})
-                            .filter(([key, value]) => value)
-                            .map(([key]) => key),
-                        ].join(", ");
+                    <ul className="space-y-4">
+                      {selectedLabTests
+                        .sort(
+                          (a, b) =>
+                            new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
+                        )
+                        .map((labTest, index) => {
+                          const allTests = [
+                            ...Object.entries(labTest.bloodChemistry || {})
+                              .filter(([key, value]) => value)
+                              .map(([key]) => key),
+                            ...Object.entries(labTest.hematology || {})
+                              .filter(([key, value]) => value)
+                              .map(([key]) => key),
+                            ...Object.entries(
+                              labTest.clinicalMicroscopyParasitology || {}
+                            )
+                              .filter(([key, value]) => value)
+                              .map(([key]) => key),
+                            ...Object.entries(
+                              labTest.bloodBankingSerology || {}
+                            )
+                              .filter(([key, value]) => value)
+                              .map(([key]) => key),
+                            ...Object.entries(labTest.microbiology || {})
+                              .filter(([key, value]) => value)
+                              .map(([key]) => key),
+                          ].join(", ");
 
-                        return (
-                          <li
-                            key={index}
-                            className="grid grid-cols-3 gap-4 items-center p-4 bg-gray-100 rounded-lg"
-                          >
-                            <div className="col-span-1">
-                              <p className="text-gray-500 text-sm">
-                                {new Date(labTest.isCreatedAt).toLocaleString()}
-                              </p>
-                              <p className="font-semibold">{allTests}</p>
-                            </div>
+                          return (
+                            <li
+                              key={index}
+                              className="grid grid-cols-3 gap-4 items-center p-4 bg-gray-100 rounded-lg"
+                            >
+                              <div className="col-span-1">
+                                <p className="text-gray-500 text-sm">
+                                  {new Date(
+                                    labTest.isCreatedAt
+                                  ).toLocaleString()}
+                                </p>
+                                <p className="font-semibold">{allTests}</p>
+                              </div>
 
-                            <div className="col-span-1 flex justify-center items-center">
-                              <p className="text-gray-500">
-                                {labTest.labResult || "pending"}
-                              </p>
-                            </div>
+                              <div className="col-span-1 flex justify-center items-center">
+                                <p className="text-gray-500">
+                                  {labTest.labResult || "pending"}
+                                </p>
+                              </div>
 
-                            <div className="col-span-1 flex justify-end items-center">
-                              <button className="text-custom-red">View</button>
-                            </div>
-                          </li>
-                        );
-                      })}
-                  </ul>
+                              <div className="col-span-1 flex justify-end items-center">
+                                <button className="text-custom-red">
+                                  View
+                                </button>
+                              </div>
+                            </li>
+                          );
+                        })}
+                    </ul>
                   </div>
-
                 </div>
               ) : (
                 <p className="text-gray-500">
@@ -976,7 +986,7 @@ function PatientsProfile() {
               <div className="flex space-x-2">
                 <button
                   className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                  onClick={handleLabModalOpen}
+                  onClick={() => handleLabModalOpen(selectedRecord)}
                 >
                   <SlChemistry className="mr-2" /> Lab Request
                 </button>
