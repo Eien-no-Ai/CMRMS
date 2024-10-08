@@ -29,6 +29,7 @@ function PatientsProfile() {
     date: new Date().toLocaleDateString(),
     xrayResult: "",
     xrayType: "",
+    xrayDescription: "",
   });
   const [role, setRole] = useState(null); // Store the user role
   // Inside your component definition
@@ -166,25 +167,41 @@ function PatientsProfile() {
       console.error("Error adding new record:", error.response || error);
     }
   };
-
+  
   const handleNewXraySubmit = async (e) => {
     e.preventDefault();
     try {
-      const newXrayData = {
+      const dataToSend = {
         ...newXrayRecord,
         patient: id,
         xrayResult: "pending",
       };
+
+      // Include clinicId if available
+      if (clinicId) {
+        dataToSend.clinicId = clinicId; // Add clinicId to the data
+      }
+
       const response = await axios.post(
         "http://localhost:3001/api/xrayResults",
-        newXrayData
+        dataToSend
       );
-      if (response.status === 200) {
-        handleNewXrayModalClose();
-        await fetchXrayRecords();
+
+      if (response.data.success) {
+        console.log("X-ray submitted successfully:", response.data);
+        setNewXrayRecord({}); // Reset form data
+        handleNewXrayModalClose(); // Close the modal
+        fetchXrayRecords(); // Refresh X-ray records
+      } else {
+        console.error("Error submitting X-ray form:", response.data);
       }
     } catch (error) {
-      console.error("Error adding new X-ray record:", error.response || error);
+      console.error(
+        "An error occurred while submitting the X-ray form:",
+        error
+      );
+    } finally {
+      setClinicId(null); // Clear clinicId explicitly
     }
   };
 
@@ -196,7 +213,8 @@ function PatientsProfile() {
     }));
   };
 
-  const handleNewXrayModalOpen = () => {
+  const handleNewXrayModalOpen = (record) => {
+    setClinicId(record._id);
     setIsNewXrayModalOpen(true);
   };
 
@@ -361,6 +379,7 @@ function PatientsProfile() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [selectedLabTests, setSelectedLabTests] = useState([]);
+  const [selectedXrayRecords, setSelectedXrayRecords] = useState([]);
 
   const handleViewRecord = async (record) => {
     setSelectedRecord(record);
@@ -372,8 +391,18 @@ function PatientsProfile() {
       );
       const labTests = labResponse.data;
       setSelectedLabTests(labTests);
+
+      // Fetch X-ray records for the specific clinic
+      const xrayResponse = await axios.get(
+        `http://localhost:3001/api/xrayResults?clinicId=${record._id}`
+      );
+      const xrayRecords = xrayResponse.data;
+      setSelectedXrayRecords(xrayRecords);
     } catch (error) {
-      console.error("Error fetching lab tests for the clinical record:", error);
+      console.error(
+        "Error fetching lab or X-ray records for the clinical record:",
+        error
+      );
     }
 
     setIsViewModalOpen(true);
@@ -664,7 +693,7 @@ function PatientsProfile() {
                             {records.labResult}
                           </div>
                           <div className="flex-1 text-right">
-                            <button className="text-custom-red">Edit</button>
+                            <button className="text-custom-red">View</button>
                           </div>
                         </li>
                       );
@@ -680,18 +709,24 @@ function PatientsProfile() {
                     displayedRecords.map((records, index) => (
                       <li
                         key={index}
-                        className="flex justify-between items-center p-4 bg-gray-100 rounded-lg"
+                        className="grid grid-cols-3 gap-4 items-center p-4 bg-gray-100 rounded-lg"
                       >
-                        <div>
+                        <div className="col-span-1">
                           <p className="text-gray-500 text-sm">
                             {new Date(records.isCreatedAt).toLocaleString()}
                           </p>
-                          <p className="font-semibold">{records.xrayType}</p>
+                          <p className="font-semibold">
+                            {records.xrayDescription}
+                          </p>
                         </div>
-                        <div className="text-gray-500">
-                          {records.xrayResult}
+
+                        <div className="col-span-1">
+                          <p className="text-gray-500">{records.xrayType}</p>
                         </div>
-                        <button className="text-custom-red">Edit</button>
+                        <div className="col-span-1 flex justify-between items-center">
+                          <p className="text-gray-500">{records.xrayResult}</p>
+                          <button className="text-custom-red">View</button>
+                        </div>
                       </li>
                     ))
                   ) : (
@@ -704,6 +739,7 @@ function PatientsProfile() {
           </div>
         </div>
       </div>
+
       {isNewRecordModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-2 px-6 rounded-lg w-full max-w-md shadow-lg">
@@ -912,9 +948,10 @@ function PatientsProfile() {
 
               {selectedLabTests && selectedLabTests.length > 0 ? (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium">Lab Tests</label>
+                  <label className="block text-sm font-medium mb-4">
+                    Lab Tests
+                  </label>
                   <div className="mb-4 max-h-48 overflow-y-auto">
-
                     <ul className="space-y-4">
                       {selectedLabTests
                         .sort(
@@ -981,7 +1018,47 @@ function PatientsProfile() {
                 </p>
               )}
             </div>
-
+            {selectedXrayRecords && selectedXrayRecords.length > 0 ? (
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-4">
+                  X-Ray Records
+                </label>
+                <div className="mb-4 max-h-48 overflow-y-auto">
+                  <ul className="space-y-4">
+                    {selectedXrayRecords
+                      .sort(
+                        (a, b) =>
+                          new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
+                      )
+                      .map((xray, index) => (
+                        <li
+                          key={index}
+                          className="grid grid-cols-3 gap-4 items-center p-4 bg-gray-100 rounded-lg"
+                        >
+                          <div className="col-span-1">
+                            <p className="text-gray-500 text-sm">
+                              {new Date(xray.isCreatedAt).toLocaleString()}
+                            </p>
+                            <p className="font-semibold">{xray.xrayType}</p>
+                          </div>
+                          <div className="col-span-1 flex justify-center items-center">
+                            <p className="text-gray-500">
+                              {xray.xrayResult || "pending"}
+                            </p>
+                          </div>
+                          <div className="col-span-1 flex justify-end items-center">
+                            <button className="text-custom-red">View</button>
+                          </div>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              </div>
+            ) : (
+              <p className="text-gray-500">
+                No X-ray records available for this record.
+              </p>
+            )}
             <div className="flex justify-between items-center mt-4">
               <div className="flex space-x-2">
                 <button
@@ -992,10 +1069,11 @@ function PatientsProfile() {
                 </button>
                 <button
                   className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                  onClick={handleNewXrayModalOpen}
+                  onClick={() => handleNewXrayModalOpen(selectedRecord)}
                 >
                   <FaXRay className="mr-2" /> X-Ray Request
                 </button>
+
                 <button className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300">
                   <GiBiceps className="mr-2" /> Refer to PT
                 </button>
@@ -1551,11 +1629,20 @@ function PatientsProfile() {
                   <option value="" disabled>
                     Select X-ray Type
                   </option>
-                  <option value="panoramic">Panoramic</option>
-                  <option value="chest">Chest</option>
+                  <option value="medical">Medical X-Ray</option>
+                  <option value="dental">Dental X-ray</option>
                 </select>
               </div>
-
+              <div className="mb-4">
+                <label className="block text-sm font-medium">Description</label>
+                <textarea
+                  name="xrayDescription"
+                  value={newXrayRecord.xrayDescription || ""}
+                  onChange={handleNewXrayChange}
+                  className="border rounded-lg w-full p-2 mt-1"
+                  placeholder="Enter X-ray description or details"
+                />
+              </div>
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"

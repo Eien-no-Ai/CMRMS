@@ -550,8 +550,10 @@ app.post("/api/xrayResults", async (req, res) => {
 
 // GET endpoint to fetch all X-ray records
 app.get("/api/xrayResults", async (req, res) => {
+  const { clinicId } = req.query;
   try {
-    const xrayRecords = await XrayModel.find().populate("patient"); // Populating patient data
+    const query = clinicId ? { clinicId } : {}; // Filter by clinicId if provided
+    const xrayRecords = await XrayModel.find(query).populate("patient");
     res.json(xrayRecords);
   } catch (error) {
     res.status(500).json({ message: "Error fetching X-ray records", error });
