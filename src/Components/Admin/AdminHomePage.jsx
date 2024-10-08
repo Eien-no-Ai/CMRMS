@@ -144,32 +144,43 @@ function AdminHomePage() {
       [e.target.name]: e.target.value,
     });
   };
-
   const handleRoleChange = async (localIndex, newRole) => {
-    const fullIndex = (currentPage - 1) * accountsPerPage + localIndex;
-    const email = accounts[fullIndex].email;
-
-    try {
-      const response = await axios.post("http://localhost:3001/role", {
-        email: email,
-        role: newRole,
-      });
-
-      if (response.data.message === "Role Updated") {
-        setAccounts((prevAccounts) => {
-          const updatedAccounts = [...prevAccounts];
-          updatedAccounts[fullIndex].role = newRole;
-          return updatedAccounts;
+    // Get the index of the filtered accounts
+    const filteredIndex = (currentPage - 1) * accountsPerPage + localIndex;
+    
+    // Find the account from the filtered accounts
+    const accountToUpdate = filteredAccounts[filteredIndex];
+  
+    if (accountToUpdate) {
+      const email = accountToUpdate.email; // Use the email of the correct account
+  
+      try {
+        const response = await axios.post("http://localhost:3001/role", {
+          email: email,
+          role: newRole,
         });
-        setMessage("Role successfully updated.");
-      } else {
-        setMessage(response.data.message);
+  
+        if (response.data.message === "Role Updated") {
+          setAccounts((prevAccounts) => {
+            const updatedAccounts = [...prevAccounts];
+            // Update the role of the specific account in the original list
+            const accountIndex = prevAccounts.findIndex((acc) => acc.email === email);
+            if (accountIndex !== -1) {
+              updatedAccounts[accountIndex].role = newRole; // Update the role
+            }
+            return updatedAccounts;
+          });
+          setMessage("Role successfully updated.");
+        } else {
+          setMessage(response.data.message);
+        }
+      } catch (error) {
+        console.error("Error updating role:", error);
+        setMessage("Error updating role.");
       }
-    } catch (error) {
-      console.error("Error updating role:", error);
-      setMessage("Error updating role.");
     }
   };
+  
 
   const handleResetPassword = async (index) => {
     const fullIndex = (currentPage - 1) * accountsPerPage + index;
