@@ -1,24 +1,93 @@
 import React, { useState, useEffect } from "react";
-import { BiSearch } from "react-icons/bi";
+import { BiSearch, BiChevronDown } from "react-icons/bi"; // Import arrow icon
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
-import { BsThreeDots } from "react-icons/bs";
 
 function Laboratory() {
   const [labRecords, setLabRecords] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const labRecordsPerPage = 4;
   const [searchQuery, setSearchQuery] = useState("");
-  // const [message, setMessage] = useState("");
   const [showFullList, setShowFullList] = useState(false);
+  const [isHematologyVisible, setIsHematologyVisible] = useState(false); // Visibility state for Hematology
+  const [isClinicalMicroscopyVisible, setIsClinicalMicroscopyVisible] =
+    useState(false); // Visibility state for Clinical Microscopy
+  const [isSerologyVisible, setIsSerologyVisible] = useState(false); // New visibility state for Serology section
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    labNo: "",
+    name: "",
+    courseDept: "",
+    date: new Date().toLocaleDateString(),
+    age: "",
+    sex: "",
+  });
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  const toggleHematologyVisibility = () =>
+    setIsHematologyVisible(!isHematologyVisible); // Toggle Hematology visibility
+
+  const toggleClinicalMicroscopyVisibility = () =>
+    setIsClinicalMicroscopyVisible(!isClinicalMicroscopyVisible); // Toggle Clinical Microscopy visibility
+
+  const toggleSerologyVisibility = () =>
+    setIsSerologyVisible(!isSerologyVisible); // Toggle Serology visibility
+
+  const handleAddResultClick = async (record) => {
+    console.log("Clicked record:", record);
+
+    if (record && record.patient) {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/patients/${record.patient._id}`
+        );
+        const patientData = response.data;
+
+        console.log("Fetched patient data:", patientData);
+
+        setFormData({
+          labNo: record.labNo || "",
+          name: `${patientData.firstname} ${patientData.lastname}`,
+          courseDept:
+            patientData.patientType === "Student"
+              ? patientData.course
+              : patientData.position || "",
+          date: new Date().toLocaleDateString(),
+          age: getAge(patientData.birthdate),
+          sex: patientData.sex || "",
+          patientType: patientData.patientType,
+        });
+
+        openModal();
+      } catch (error) {
+        console.error("There was an error fetching the patient data!", error);
+      }
+    } else {
+      console.warn("No valid patient data found for this record.");
+      openModal();
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSaveResult = () => {
+    console.log("Saving result:", formData);
+    closeModal();
+  };
 
   useEffect(() => {
-    fetchLabRecords(); // Fetch lab records on component mount
+    fetchLabRecords();
   }, []);
 
   const fetchLabRecords = () => {
     axios
-      .get("http://localhost:3001/api/laboratory") // Fetch all records
+      .get("http://localhost:3001/api/laboratory")
       .then((response) => {
         const sortedRecords = response.data.sort(
           (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
@@ -71,15 +140,24 @@ function Laboratory() {
     setShowFullList(!showFullList);
   };
 
+  const getAge = (birthdate) => {
+    const today = new Date();
+    const birthDate = new Date(birthdate);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    return age;
+  };
+
   return (
     <div>
       <Navbar />
       <div className="p-6 pt-20 bg-gray-100 min-h-screen">
-        {/* {message && (
-          <div className="bg-green-500 text-white p-4 rounded-lg mb-4">
-            {message}
-          </div>
-        )} */}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-semibold">Laboratory Requests</h1>
         </div>
@@ -154,7 +232,7 @@ function Laboratory() {
                           .map(([key, value]) => value),
                       ]
                         .filter(Boolean)
-                        .join(", "); // Filter out empty fields and join them into a single string
+                        .join(", ");
 
                       return (
                         <tr key={record._id} className="border-b">
@@ -183,13 +261,14 @@ function Laboratory() {
                             </p>
                           </td>
                           <td className="py-4">
-                            <p>
-                              {record.labResult}
-                            </p>
+                            <p>{record.labResult}</p>
                           </td>
-                          <td className="py-4">
-                            <button className="text-gray-500 hover:text-gray-700">
-                              <BsThreeDots size={20} />
+                          <td className="py-4 ">
+                            <button
+                              className="text-custom-red"
+                              onClick={() => handleAddResultClick(record)}
+                            >
+                              Add Result
                             </button>
                           </td>
                         </tr>
@@ -250,6 +329,666 @@ function Laboratory() {
           </div>
         )}
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
+            <h2 className="text-xl font-semibold mb-4">Result Form</h2>
+            <form className="flex-grow">
+              <div className="flex mb-4">
+                <div className="w-3/4 mr-2">
+                  <label className="block text-gray-700">Lab No.</label>
+                  <input
+                    type="text"
+                    name="labNo"
+                    value={formData.labNo}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div className="w-1/4">
+                  <label className="block text-gray-700">Date</label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+              </div>
+
+              <div className="flex mb-4">
+                <div className="w-1/2 mr-2">
+                  <label className="block text-gray-700">Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    readOnly
+                    className="w-full px-3 py-2 border rounded bg-gray-100"
+                  />
+                </div>
+                <div className="w-1/4 mr-2">
+                  <label className="block text-gray-700">Age</label>
+                  <input
+                    type="text"
+                    name="age"
+                    value={formData.age}
+                    readOnly
+                    className="w-full px-3 py-2 border rounded bg-gray-100"
+                  />
+                </div>
+                <div className="w-1/4">
+                  <label className="block text-gray-700">Sex</label>
+                  <input
+                    type="text"
+                    name="sex"
+                    value={formData.sex}
+                    readOnly
+                    className="w-full px-3 py-2 border rounded bg-gray-100"
+                  />
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700">
+                  {formData.patientType === "student"
+                    ? "Course/Dept."
+                    : "Position"}
+                </label>
+                <input
+                  type="text"
+                  name="courseDept"
+                  value={formData.courseDept}
+                  readOnly
+                  className="w-full px-3 py-2 border rounded bg-gray-100"
+                />
+              </div>
+
+              {/* Hematology Section */}
+              <div className="mb-0">
+                <div
+                  className="flex items-center justify-between cursor-pointer"
+                  onClick={toggleHematologyVisibility}
+                >
+                  <h3 className="text-lg font-semibold my-0 py-2">
+                    I. Hematology
+                  </h3>
+                  <BiChevronDown
+                    className={`transform transition-transform duration-300 ${
+                      isHematologyVisible ? "rotate-180" : ""
+                    }`}
+                    size={24}
+                  />
+                </div>
+                <div className="w-full h-px bg-gray-300 my-0"></div>
+
+                {isHematologyVisible && (
+                  <div className="grid grid-cols-3 gap-4 p-4">
+                    <div className="col-span-1 font-semibold">Tests</div>
+                    <div className="col-span-1 font-semibold">Result</div>
+                    <div className="col-span-1 font-semibold">
+                      Reference Range
+                    </div>
+
+                    <div className="col-span-1">Red Blood Cell Count</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="redBloodCellCount"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      Male: 4.0 - 5.5 x10^12/L; Female: 3.5 - 5.0 x10^12/L
+                    </div>
+
+                    <div className="col-span-1">Hemoglobin</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="hemoglobin"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      Male: 140 - 180 g/L; Female: 120 - 180 g/L
+                    </div>
+
+                    <div className="col-span-1">Hematocrit</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="hematocrit"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      Male: 0.40 - 0.54; Female: 0.37 - 0.47
+                    </div>
+
+                    <div className="col-span-1">Leukocyte Count</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="leukocyteCount"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="col-span-1">5.0 - 10.0 x10^9/L</div>
+
+                    <div className="col-span-1">Differential Count</div>
+                    <div className="col-span-1"></div>
+                    <div className="col-span-1"></div>
+
+                    <div className="col-span-1 ml-9">Segmenters</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="segmenters"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="col-span-1">0.50 - 0.70</div>
+
+                    <div className="col-span-1 ml-9">Lymphocytes</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="lymphocytes"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="col-span-1">0.20 - 0.40</div>
+
+                    <div className="col-span-1 ml-9">Monocytes</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="monocytes"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="col-span-1">0.00 - 0.07</div>
+
+                    <div className="col-span-1 ml-9">Eosinophils</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="eosinophils"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="col-span-1">0.00 - 0.05</div>
+
+                    <div className="col-span-1 ml-9">Basophils</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="basophils"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="col-span-1">0.00 - 0.01</div>
+
+                    <div className="col-span-1 ml-9">Total</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="basophils"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="col-span-1"></div>
+
+                    <div className="col-span-1">Platelet Count</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="plateletCount"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="col-span-1">150 - 400 x10^9/L</div>
+
+                    <div className="col-span-1">Others</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="others"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="col-span-1"></div>
+                  </div>
+                )}
+              </div>
+
+              <div
+                className="flex items-center justify-between cursor-pointer"
+                onClick={toggleClinicalMicroscopyVisibility}
+              >
+                <h3 className="text-lg font-semibold mb-0 py-2">
+                  II. Clinical Microscopy and Parasitology
+                </h3>
+                <BiChevronDown
+                  className={`transform transition-transform duration-300 ${
+                    isClinicalMicroscopyVisible ? "rotate-180" : ""
+                  }`}
+                  size={24}
+                />
+              </div>
+              <div className="w-full h-px bg-gray-300 my-0"></div>
+
+              {isClinicalMicroscopyVisible && (
+                <div className="grid grid-cols-6 gap-4 p-4">
+                  {/* Routine Urinalysis - Macroscopic Examination */}
+                  <h4 className="col-span-6 font-semibold">
+                    Routine Urinalysis - Macroscopic Examination
+                  </h4>
+                  <label className="col-span-1">Color</label>
+                  <input
+                    type="text"
+                    className="col-span-2 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Appearance</label>
+                  <input
+                    type="text"
+                    className="col-span-2 border rounded px-3 py-1"
+                  />
+
+                  {/* Routine Urinalysis - Chemical Examination */}
+                  <h4 className="col-span-6 font-semibold mt-4">
+                    Chemical Examination
+                  </h4>
+                  <label className="col-span-1">Sugar</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Urobilinogen</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Albumin</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Ketones</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Blood</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Nitrite</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Bilirubin</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Leukocyte</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Reaction</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Specific Gravity</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                  />
+
+                  {/* Routine Urinalysis - Microscopic Examination */}
+                  <h4 className="col-span-6 font-semibold mt-4">
+                    Microscopic Examination
+                  </h4>
+                  <label className="col-span-1">Pus Cells</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                    placeholder="/hpf"
+                  />
+                  <label className="col-span-1">Epithelial Cells</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                    placeholder="/lpf"
+                  />
+                  <label className="col-span-1">Red Blood Cells</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                    placeholder="/hpf"
+                  />
+                  <label className="col-span-1">Mucus Threads</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                    placeholder="/lpf"
+                  />
+                  <label className="col-span-1">Bacteria</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                    placeholder="/hpf"
+                  />
+                  <label className="col-span-1">Crystals</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                    placeholder="/lpf"
+                  />
+                  <label className="col-span-1">Yeast Cells</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                    placeholder="/hpf"
+                  />
+                  <label className="col-span-1">Amorphous</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                    placeholder="/lpf"
+                  />
+                  <label className="col-span-1">Cast</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                    placeholder="/lpf"
+                  />
+                  <label className="col-span-1">Others</label>
+                  <input
+                    type="text"
+                    className="col-span-1 border rounded px-3 py-1"
+                  />
+
+                  {/* Routine Fecalysis */}
+                  <h4 className="col-span-6 font-semibold mt-4">
+                    Routine Fecalysis
+                  </h4>
+                  <label className="col-span-1">Color</label>
+                  <input
+                    type="text"
+                    className="col-span-2 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Consistency</label>
+                  <input
+                    type="text"
+                    className="col-span-2 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Bacteria</label>
+                  <input
+                    type="text"
+                    className="col-span-2 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Others</label>
+                  <input
+                    type="text"
+                    className="col-span-2 border rounded px-3 py-1"
+                  />
+
+                  {/* Microscopic Examination for Fecalysis */}
+                  <h4 className="col-span-6 font-semibold mt-4">
+                    Microscopic Examination
+                  </h4>
+                  <label className="col-span-1">Direct Fecal Smear</label>
+                  <input
+                    type="text"
+                    className="col-span-2 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Kato Thick Smear</label>
+                  <input
+                    type="text"
+                    className="col-span-2 border rounded px-3 py-1"
+                  />
+                </div>
+              )}
+
+              {/* Serology Section */}
+              <div
+                className="flex items-center justify-between cursor-pointer"
+                onClick={toggleSerologyVisibility}
+              >
+                <h3 className="text-lg font-semibold mb-0 py-2">
+                  III. Serology
+                </h3>
+                <BiChevronDown
+                  className={`transform transition-transform duration-300 ${
+                    isSerologyVisible ? "rotate-180" : ""
+                  }`}
+                  size={24}
+                />
+              </div>
+              <div className="w-full h-px bg-gray-300 my-0"></div>
+
+              {isSerologyVisible && (
+                <div className="grid grid-cols-12 gap-4 p-4">
+                  {/* Hepatitis B Surface Antigen Determination and Anti-HAV Test */}
+                  <h4 className="col-span-6 font-semibold">
+                    Hepatitis B Surface Antigen Determination (Screening Test
+                    Only)
+                  </h4>
+                  <h4 className="col-span-6 font-semibold">
+                    Anti-HAV Test (Screening Test Only)
+                  </h4>
+
+                  <label className="col-span-1">Method Used</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Method Used</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  <label className="col-span-1">Lot No.</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Lot No.</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  <label className="col-span-1">Expiration Date</label>
+                  <input
+                    type="date"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Expiration Date</label>
+                  <input
+                    type="date"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  <label className="col-span-1">Result</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Result</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  {/* Serum Pregnancy and Test for Treponema pallidum / Syphilis */}
+                  <h4 className="col-span-6 font-semibold">Serum Pregnancy</h4>
+                  <h4 className="col-span-6 font-semibold">
+                    Test for Treponema pallidum / Syphilis
+                  </h4>
+
+                  <label className="col-span-1">Method Used</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Method Used</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  <label className="col-span-1">Lot No.</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Lot No.</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  <label className="col-span-1">Expiration Date</label>
+                  <input
+                    type="date"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Expiration Date</label>
+                  <input
+                    type="date"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  <label className="col-span-1">Result</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Result</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  {/* Salmonella typhi and Blood Typing */}
+                  <h4 className="col-span-6 font-semibold">Salmonella typhi</h4>
+                  <h4 className="col-span-6 font-semibold">Blood Typing</h4>
+
+                  <label className="col-span-1">Method Used</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">ABO Type</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  <label className="col-span-1">Lot No.</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Rh Type</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  <label className="col-span-1">Expiration Date</label>
+                  <input
+                    type="date"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  <label className="col-span-1">Result</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  {/* Test for Dengue and Others */}
+                  <h4 className="col-span-6 font-semibold">Test for Dengue</h4>
+                  <h4 className="col-span-6 font-semibold">Others</h4>
+
+                  <label className="col-span-1">Method Used</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Method Used</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  <label className="col-span-1">Lot No.</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Lot No.</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  <label className="col-span-1">Expiration Date</label>
+                  <input
+                    type="date"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Expiration Date</label>
+                  <input
+                    type="date"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+
+                  <label className="col-span-1">Result</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                  <label className="col-span-1">Result</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                  />
+                </div>
+              )}
+            </form>
+
+            {/* Buttons Wrapper */}
+            <div className="flex justify-end space-x-4 mt-4">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="px-6 py-2 text-gray-700 border border-gray-400 rounded hover:bg-gray-300 transition duration-300 ease-in-out"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveResult}
+                className="px-6 py-2 text-white bg-custom-red rounded hover:bg-red-600 transition duration-300 ease-in-out"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
