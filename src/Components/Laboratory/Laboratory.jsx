@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BiSearch, BiChevronDown } from "react-icons/bi"; // Import arrow icon
+import { BiSearch, BiChevronDown } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
 
@@ -9,10 +9,9 @@ function Laboratory() {
   const labRecordsPerPage = 4;
   const [searchQuery, setSearchQuery] = useState("");
   const [showFullList, setShowFullList] = useState(false);
-  const [isHematologyVisible, setIsHematologyVisible] = useState(false); // Visibility state for Hematology
-  const [isClinicalMicroscopyVisible, setIsClinicalMicroscopyVisible] =
-    useState(false); // Visibility state for Clinical Microscopy
-  const [isSerologyVisible, setIsSerologyVisible] = useState(false); // New visibility state for Serology section
+  const [isHematologyVisible, setIsHematologyVisible] = useState(false);
+  const [isClinicalMicroscopyVisible, setIsClinicalMicroscopyVisible] = useState(false);
+  const [isSerologyVisible, setIsSerologyVisible] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -28,13 +27,13 @@ function Laboratory() {
   const closeModal = () => setIsModalOpen(false);
 
   const toggleHematologyVisibility = () =>
-    setIsHematologyVisible(!isHematologyVisible); // Toggle Hematology visibility
+    setIsHematologyVisible(!isHematologyVisible);
 
   const toggleClinicalMicroscopyVisibility = () =>
-    setIsClinicalMicroscopyVisible(!isClinicalMicroscopyVisible); // Toggle Clinical Microscopy visibility
+    setIsClinicalMicroscopyVisible(!isClinicalMicroscopyVisible);
 
   const toggleSerologyVisibility = () =>
-    setIsSerologyVisible(!isSerologyVisible); // Toggle Serology visibility
+    setIsSerologyVisible(!isSerologyVisible);
 
   const handleAddResultClick = async (record) => {
     console.log("Clicked record:", record);

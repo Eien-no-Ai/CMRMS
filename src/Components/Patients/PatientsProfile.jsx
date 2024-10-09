@@ -1059,41 +1059,45 @@ function PatientsProfile() {
                 No X-ray records available for this record.
               </p>
             )}
-            <div className="flex justify-between items-center mt-4">
-              <div className="flex space-x-2">
-                <button
-                  className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                  onClick={() => handleLabModalOpen(selectedRecord)}
-                >
-                  <SlChemistry className="mr-2" /> Lab Request
-                </button>
-                <button
-                  className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                  onClick={() => handleNewXrayModalOpen(selectedRecord)}
-                >
-                  <FaXRay className="mr-2" /> X-Ray Request
-                </button>
+     <div className="flex justify-between items-center mt-4">
+  {/* Left Side: Doctor-Specific Button Group */}
+  {role === 'doctor' && (
+    <div className="flex space-x-2">
+      <button
+        className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+        onClick={() => handleLabModalOpen(selectedRecord)}
+      >
+        <SlChemistry className="mr-2" /> Lab Request
+      </button>
+      <button
+        className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+        onClick={() => handleNewXrayModalOpen(selectedRecord)}
+      >
+        <FaXRay className="mr-2" /> X-Ray Request
+      </button>
+      <button className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300">
+        <GiBiceps className="mr-2" /> Refer to PT
+      </button>
+    </div>
+  )}
 
-                <button className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300">
-                  <GiBiceps className="mr-2" /> Refer to PT
-                </button>
-              </div>
+  {/* Right Side: Close and Submit Buttons */}
+  <div className="flex space-x-4">
+    <button
+      className="px-6 py-2 bg-gray-500 text-white rounded-md"
+      onClick={() => setIsViewModalOpen(false)}
+    >
+      Close
+    </button>
+    <button
+      className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+      onClick={() => updateClinicalRecord(selectedRecord)}
+    >
+      Submit
+    </button>
+  </div>
+</div>
 
-              <div className="flex space-x-4">
-                <button
-                  className="px-6 py-2 bg-gray-500 text-white rounded-md"
-                  onClick={() => setIsViewModalOpen(false)}
-                >
-                  Close
-                </button>
-                <button
-                  className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                  onClick={() => updateClinicalRecord(selectedRecord)}
-                >
-                  Submit
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       )}
