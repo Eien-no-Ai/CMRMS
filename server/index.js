@@ -6,6 +6,7 @@ const e = require("express");
 const ClinicModel = require("./models/Clinic");
 const PatientModel = require("./models/Patient");
 const LaboratoryModel = require("./models/Laboratory");
+const PackageModel = require("./models/Package");
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -14,6 +15,52 @@ const nodemailer = require("nodemailer");
 mongoose.connect(
   "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee"
 );
+
+app.post("/api/packages", async (req, res) => {
+  const { name, bloodChemistry, hematology, clinicalMicroscopyParasitology, bloodBankingSerology, microbiology, xrayType } = req.body;
+
+  const newPackage = new PackageModel({
+    name,
+    bloodChemistry,
+    hematology,
+    clinicalMicroscopyParasitology,
+    bloodBankingSerology,
+    microbiology,
+    xrayType,
+  });
+
+  try {
+    const savedPackage = await newPackage.save();
+    res.status(201).json(savedPackage);
+  } catch (error) {
+    console.error("Error creating package:", error);
+    res.status(400).json({ message: "Error creating package" });
+  }
+});
+
+
+app.get("/api/packages", async (req, res) => {
+  try {
+    const packages = await PackageModel.find();
+    res.json(packages);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching packages" });
+  }
+});
+
+app.get("/api/packages/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const package = await PackageModel
+      .findById(id);
+    res.json(package);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching package" });
+  }
+});
 
 // Nodemailer setup
 const transporter = nodemailer.createTransport({
