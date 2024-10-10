@@ -155,6 +155,21 @@ const Package = () => {
     </>
   );
 
+const [isModalOpen, setIsModalOpen] = useState(false);
+const [selectedPackage, setSelectedPackage] = useState(null);
+
+// Function to open the modal with selected package
+const handlePackageClick = (pkg) => {
+  setSelectedPackage(pkg);
+  setIsModalOpen(true);
+};
+
+// Function to close the modal
+const handleCloseModal = () => {
+  setIsModalOpen(false);
+  setSelectedPackage(null);
+};
+
   return (
     <div>
       <Navbar />
@@ -191,20 +206,40 @@ const Package = () => {
         </div>
 
          {/* Display the list of packages */}
-        <div className="bg-white shadow-md rounded-lg p-4">
-          {packages.map((pkg) => (
-            <div key={pkg._id} className="border-b last:border-b-0 py-2">
-              <h3 className="font-semibold">{pkg.name}</h3>
-              {renderLabTests("Blood Chemistry", pkg.bloodChemistry)}
-              {renderLabTests("Hematology", pkg.hematology)}
-              {renderLabTests("Clinical Microscopy & Parasitology", pkg.clinicalMicroscopyParasitology)}
-              {renderLabTests("Blood Banking & Serology", pkg.bloodBankingSerology)}
-              {renderLabTests("Microbiology", pkg.microbiology)}
-              <p className="font-semibold">X-ray</p>
-              <p>{pkg.xrayType}</p> {/* Display the X-ray type */}
+         {isModalOpen && selectedPackage && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
+              <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+                <h2 className="text-xl font-semibold mb-4">{selectedPackage.name}</h2>
+                {renderLabTests("Blood Chemistry", selectedPackage.bloodChemistry)}
+                {renderLabTests("Hematology", selectedPackage.hematology)}
+                {renderLabTests("Clinical Microscopy & Parasitology", selectedPackage.clinicalMicroscopyParasitology)}
+                {renderLabTests("Blood Banking & Serology", selectedPackage.bloodBankingSerology)}
+                {renderLabTests("Microbiology", selectedPackage.microbiology)}
+                <p className="font-semibold">X-ray</p>
+                <p>{selectedPackage.xrayType}</p>
+                <button
+                  className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg"
+                  onClick={handleCloseModal}
+                >
+                  Close
+                </button>
+              </div>
             </div>
-          ))}
-        </div>
+          )}
+
+          <div className="bg-white shadow-md rounded-lg p-4">
+            {packages.map((pkg) => (
+              <div key={pkg._id} className="border-b last:border-b-0 py-2">
+                <h3 
+                  className="font-semibold text-blue-500 cursor-pointer"
+                  onClick={() => handlePackageClick(pkg)}
+                >
+                {pkg.name}
+                </h3>
+              </div>
+            ))}
+          </div>
+
 
         {/* Laboratory Request Form Modal */}
         {isPackageModalOpen && (
