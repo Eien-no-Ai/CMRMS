@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { BiSearch, BiChevronDown } from "react-icons/bi";
+import { BiSearch, BiChevronDown } from "react-icons/bi"; // Import arrow icon
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
+import { useParams } from "react-router-dom";
+import { useCallback } from "react";
 
 function Laboratory() {
   const [labRecords, setLabRecords] = useState([]);
@@ -9,31 +11,137 @@ function Laboratory() {
   const labRecordsPerPage = 4;
   const [searchQuery, setSearchQuery] = useState("");
   const [showFullList, setShowFullList] = useState(false);
-  const [isHematologyVisible, setIsHematologyVisible] = useState(false);
-  const [isClinicalMicroscopyVisible, setIsClinicalMicroscopyVisible] = useState(false);
-  const [isSerologyVisible, setIsSerologyVisible] = useState(false);
-
+  const [isHematologyVisible, setIsHematologyVisible] = useState(false); // Visibility state for Hematology
+  const [isClinicalMicroscopyVisible, setIsClinicalMicroscopyVisible] =
+    useState(false); // Visibility state for Clinical Microscopy
+  const [isSerologyVisible, setIsSerologyVisible] = useState(false); // New visibility state for Serology section
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    labNo: "",
-    name: "",
-    courseDept: "",
-    date: new Date().toLocaleDateString(),
-    age: "",
-    sex: "",
+    labNumber: "",        // Lab number
+    patient: "",          // Patient ID or name (you can adjust this as needed)
+    clinicId: "",         // Clinic ID
+    Hematology: {
+      redBloodCellCount: "",
+      Hemoglobin: "",
+      Hematocrit: "",
+      LeukocyteCount: "",
+      DifferentialCount: {
+        segmenters: "",
+        lymphocytes: "",
+        monocytes: "",
+        eosinophils: "",
+        basophils: "",
+        total: ""
+      },
+      PlateletCount: "",
+      others: ""
+    },
+    
+    clinicalMicroscopyParasitology: {
+      routineUrinalysis: {
+        macroscopicExam: { 
+          color: "",
+          appearance: "",
+        },
+        // LMP: "",
+        chemicalExam: {
+          sugar: "",
+          albumin: "",
+          blood: "",
+          bilirubin: "",
+          urobilinogen: "",
+          ketones: "",
+          nitrites: "",
+          leukocytes: "",
+          reaction: "",
+          specificGravity: "",
+        },
+        microscopicExam: {
+          pusCells: "",
+          RBC: "",
+          epithelialCells: "",
+          casts: "",
+          crystals: "",
+          bacteria: "",
+          yeastCells: "",
+          mucusThreads: "",
+          amorphous: "",
+          others: ""
+        },
+      },
+      routineFecalysis: { 
+        color: "",
+        consistency: "",
+        bacteria: "",
+        microscopicExam: {
+          directFecalSmear: "",
+          katoThickSmear: "",
+        },
+        others: ""
+      },
+    },
+    bloodBankingSerology: {
+      hepatitisBSurfaceAntigen: {
+        methodUsed: "",
+        lotNumber: "",
+        expirationDate: "",
+        result: "",
+      },
+      serumPregnancy: {
+        methodUsed: "",
+        lotNumber: "",
+        expirationDate: "",
+        result: "",
+      },
+      salmonellaTyphi: {
+        methodUsed: "",
+        lotNumber: "",
+        expirationDate: "",
+        result: "",
+      },
+      testDengue: {
+        methodUsed: "",
+        lotNumber: "",
+        expirationDate: "",
+        result: "",
+      },
+      antiHAVTest: {
+        methodUsed: "",
+        lotNumber: "",
+        expirationDate: "",
+        result: "",
+      },
+      treponemaPallidumTest: {
+        methodUsed: "",
+        lotNumber: "",
+        expirationDate: "",
+        result: "",
+      },
+      bloodTyping: {
+        ABOType: "",
+        RhType: "",
+      },
+      others:{
+        methodUsed: "",
+        lotNumber: "",
+        expirationDate: "",
+        result: "",
+      }
+    },
+    
   });
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
   const toggleHematologyVisibility = () =>
-    setIsHematologyVisible(!isHematologyVisible);
+    setIsHematologyVisible(!isHematologyVisible); // Toggle Hematology visibility
 
   const toggleClinicalMicroscopyVisibility = () =>
-    setIsClinicalMicroscopyVisible(!isClinicalMicroscopyVisible);
+    setIsClinicalMicroscopyVisible(!isClinicalMicroscopyVisible); // Toggle Clinical Microscopy visibility
 
   const toggleSerologyVisibility = () =>
-    setIsSerologyVisible(!isSerologyVisible);
+    setIsSerologyVisible(!isSerologyVisible); // Toggle Serology visibility
 
   const handleAddResultClick = async (record) => {
     console.log("Clicked record:", record);
@@ -70,18 +178,118 @@ function Laboratory() {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  
+  const handleInputChange = (e, parentKey, childKey, subChildKey, field) => {
+    const { value } = e.target;
+  
+    // If all keys are provided (for deeply nested objects)
+    if (parentKey && childKey && subChildKey && field) {
+      setFormData((prevData) => ({
+        ...prevData,
+        [parentKey]: {
+          ...prevData[parentKey],
+          [childKey]: {
+            ...prevData[parentKey]?.[childKey],
+            [subChildKey]: {
+              ...prevData[parentKey]?.[childKey]?.[subChildKey],
+              [field]: value,
+            },
+          },
+        },
+      }));
+    } else if (parentKey && childKey && subChildKey) {
+      setFormData((prevData) => ({
+        ...prevData,
+        [parentKey]: {
+          ...prevData[parentKey],
+          [childKey]: {
+            ...prevData[parentKey][childKey],
+            [subChildKey]: value,
+          },
+        },
+      }));
+    }else if (parentKey && childKey && field) {
+      // Handle one level less deeply nested object
+      setFormData((prevData) => ({
+        ...prevData,
+        [parentKey]: {
+          ...prevData[parentKey],
+          [childKey]: {
+            ...prevData[parentKey]?.[childKey],
+            [field]: value,
+          },
+        },
+      }));
+    } else if (parentKey && childKey) {
+      // Handle two-level nested object
+      setFormData((prevData) => ({
+        ...prevData,
+        [parentKey]: {
+          ...prevData[parentKey],
+          [childKey]: value,
+        },
+      }));
+    } else {
+      // Handle top-level fields
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: value,
+      }));
+    }
   };
+  
 
-  const handleSaveResult = () => {
-    console.log("Saving result:", formData);
-    closeModal();
+  
+  const handleSaveResult = async () => {
+    // Log the current state before sending
+    console.log("Current form data:", formData);
+  
+    const {
+      labNumber,
+      patient,
+      clinicId,
+      Hematology,
+      clinicalMicroscopyParasitology,
+      bloodBankingSerology,
+    } = formData;  // Make sure you are using formData here
+  
+    // // Check for any missing required fields
+    // if (!labNumber || !patient || !clinicId) {
+    //   alert("Please fill in all required fields.");
+    //   return;
+    // }
+  
+    const dataToSend = {
+      labNumber,
+      patient,
+      clinicId,
+      Hematology,
+      clinicalMicroscopyParasitology,
+      bloodBankingSerology,
+    };
+  
+    console.log("Data to save:", dataToSend); // Log the data to be sent
+  
+    try {
+      const response = await axios.post('http://localhost:3001/api/laboratory-results', dataToSend);
+  
+      if (response.status === 200) {
+        console.log("Laboratory result saved successfully:", response.data);
+      } else {
+        console.error("Unexpected response status:", response.status);
+        alert("Failed to save laboratory results. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error saving laboratory results:", error);
+      alert("Failed to save laboratory results. Please try again.");
+    }
   };
-
+  
+  
+  
   useEffect(() => {
     fetchLabRecords();
+
   }, []);
 
   const fetchLabRecords = () => {
@@ -97,6 +305,7 @@ function Laboratory() {
         console.error("There was an error fetching the lab records!", error);
       });
   };
+
 
   const indexOfLastRecord = currentPage * labRecordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - labRecordsPerPage;
@@ -153,6 +362,7 @@ function Laboratory() {
     return age;
   };
 
+  
   return (
     <div>
       <Navbar />
@@ -340,7 +550,7 @@ function Laboratory() {
                   <input
                     type="text"
                     name="labNo"
-                    value={formData.labNo}
+                    value={formData.labNumber}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border rounded"
                   />
@@ -348,7 +558,7 @@ function Laboratory() {
                 <div className="w-1/4">
                   <label className="block text-gray-700">Date</label>
                   <input
-                    type="date"
+                    type="text"
                     name="date"
                     value={formData.date}
                     onChange={handleInputChange}
@@ -436,6 +646,8 @@ function Laboratory() {
                         type="text"
                         name="redBloodCellCount"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={formData.Hematology?.redBloodCellCount || ""}
+                        onChange={(e) => handleInputChange(e, "Hematology", "redBloodCellCount")}
                       />
                     </div>
                     <div className="col-span-1">
@@ -448,6 +660,8 @@ function Laboratory() {
                         type="text"
                         name="hemoglobin"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={formData.Hematology?.Hemoglobin || ""}
+                        onChange={(e) => handleInputChange(e, "Hematology", "Hemoglobin")}
                       />
                     </div>
                     <div className="col-span-1">
@@ -460,6 +674,8 @@ function Laboratory() {
                         type="text"
                         name="hematocrit"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={formData.Hematology?.Hematocrit || ""}
+                        onChange={(e) => handleInputChange(e, "Hematology", "Hematocrit")}
                       />
                     </div>
                     <div className="col-span-1">
@@ -472,6 +688,8 @@ function Laboratory() {
                         type="text"
                         name="leukocyteCount"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={formData.Hematology?.LeukocyteCount || ""}
+                        onChange={(e) => handleInputChange(e, "Hematology", "LeukocyteCount")}
                       />
                     </div>
                     <div className="col-span-1">5.0 - 10.0 x10^9/L</div>
@@ -486,6 +704,8 @@ function Laboratory() {
                         type="text"
                         name="segmenters"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={formData.Hematology?.DifferentialCount?.segmenters || ""}
+                        onChange={(e) => handleInputChange(e, "Hematology", "DifferentialCount", "segmenters")}
                       />
                     </div>
                     <div className="col-span-1">0.50 - 0.70</div>
@@ -496,6 +716,8 @@ function Laboratory() {
                         type="text"
                         name="lymphocytes"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={formData.Hematology?.DifferentialCount?.lymphocytes || ""}
+                        onChange={(e) => handleInputChange(e, "Hematology", "DifferentialCount", "lymphocytes")}
                       />
                     </div>
                     <div className="col-span-1">0.20 - 0.40</div>
@@ -506,6 +728,8 @@ function Laboratory() {
                         type="text"
                         name="monocytes"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={formData.Hematology?.DifferentialCount?.monocytes || ""}
+                        onChange={(e) => handleInputChange(e, "Hematology", "DifferentialCount", "monocytes")}
                       />
                     </div>
                     <div className="col-span-1">0.00 - 0.07</div>
@@ -516,6 +740,8 @@ function Laboratory() {
                         type="text"
                         name="eosinophils"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={formData.Hematology?.DifferentialCount?.eosinophils || ""}
+                        onChange={(e) => handleInputChange(e, "Hematology", "DifferentialCount", "eosinophils")}
                       />
                     </div>
                     <div className="col-span-1">0.00 - 0.05</div>
@@ -526,6 +752,8 @@ function Laboratory() {
                         type="text"
                         name="basophils"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={formData.Hematology?.DifferentialCount?.basophils || ""}
+                        onChange={(e) => handleInputChange(e, "Hematology", "DifferentialCount", "basophils")}
                       />
                     </div>
                     <div className="col-span-1">0.00 - 0.01</div>
@@ -534,8 +762,10 @@ function Laboratory() {
                     <div className="col-span-1">
                       <input
                         type="text"
-                        name="basophils"
+                        name="total"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={formData.Hematology?.DifferentialCount?.total || ""}
+                        onChange={(e) => handleInputChange(e, "Hematology", "DifferentialCount", "total")}
                       />
                     </div>
                     <div className="col-span-1"></div>
@@ -546,6 +776,8 @@ function Laboratory() {
                         type="text"
                         name="plateletCount"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={formData.Hematology?.PlateletCount || ""}
+                        onChange={(e) => handleInputChange(e, "Hematology", "PlateletCount")}
                       />
                     </div>
                     <div className="col-span-1">150 - 400 x10^9/L</div>
@@ -556,6 +788,8 @@ function Laboratory() {
                         type="text"
                         name="others"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={formData.Hematology?.others || ""}
+                        onChange={(e) => handleInputChange(e, "Hematology", "others")}
                       />
                     </div>
                     <div className="col-span-1"></div>
@@ -589,11 +823,15 @@ function Laboratory() {
                   <input
                     type="text"
                     className="col-span-2 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.macroscopicExam?.color || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "macroscopicExam", "color")}
                   />
                   <label className="col-span-1">Appearance</label>
                   <input
                     type="text"
                     className="col-span-2 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.macroscopicExam?.appearance || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "macroscopicExam", "appearance")}
                   />
 
                   {/* Routine Urinalysis - Chemical Examination */}
@@ -604,51 +842,71 @@ function Laboratory() {
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.chemicalExam?.sugar || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "chemicalExam", "sugar")}
                   />
                   <label className="col-span-1">Urobilinogen</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.chemicalExam?.urobilinogen || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "chemicalExam", "urobilinogen")}
                   />
                   <label className="col-span-1">Albumin</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.chemicalExam?.albumin || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "chemicalExam", "albumin")}
                   />
                   <label className="col-span-1">Ketones</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.chemicalExam?.ketones || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "chemicalExam", "ketones")}
                   />
                   <label className="col-span-1">Blood</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.chemicalExam?.blood || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "chemicalExam", "blood")}
                   />
                   <label className="col-span-1">Nitrite</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.chemicalExam?.nitrites || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "chemicalExam", "nitrites")}
                   />
                   <label className="col-span-1">Bilirubin</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.chemicalExam?.bilirubin || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "chemicalExam", "bilirubin")}
                   />
                   <label className="col-span-1">Leukocyte</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.chemicalExam?.leukocytes || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "chemicalExam", "leukocytes")}
                   />
                   <label className="col-span-1">Reaction</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.chemicalExam?.reaction || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "chemicalExam", "reaction")}
                   />
                   <label className="col-span-1">Specific Gravity</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.chemicalExam?.specificGravity || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "chemicalExam", "specificGravity")}
                   />
 
                   {/* Routine Urinalysis - Microscopic Examination */}
@@ -660,59 +918,79 @@ function Laboratory() {
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
                     placeholder="/hpf"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.microscopicExam?.pusCells || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "microscopicExam", "pusCells")}
                   />
                   <label className="col-span-1">Epithelial Cells</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
                     placeholder="/lpf"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.microscopicExam?.epithelialCells || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "microscopicExam", "epithelialCells")}
                   />
                   <label className="col-span-1">Red Blood Cells</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
                     placeholder="/hpf"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.microscopicExam?.RBC || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "microscopicExam", "RBC")}
                   />
                   <label className="col-span-1">Mucus Threads</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
                     placeholder="/lpf"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.microscopicExam?.mucusThreads || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "microscopicExam", "mucusThreads")}
                   />
                   <label className="col-span-1">Bacteria</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
                     placeholder="/hpf"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.microscopicExam?.bacteria || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "microscopicExam", "bacteria")}
                   />
                   <label className="col-span-1">Crystals</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
                     placeholder="/lpf"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.microscopicExam?.crystals || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "microscopicExam", "crystals")}
                   />
                   <label className="col-span-1">Yeast Cells</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
                     placeholder="/hpf"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.microscopicExam?.yeastCells || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "microscopicExam", "yeastCells")}
                   />
                   <label className="col-span-1">Amorphous</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
                     placeholder="/lpf"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.microscopicExam?.amorphous || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "microscopicExam", "amorphous")}
                   />
                   <label className="col-span-1">Cast</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
                     placeholder="/lpf"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.microscopicExam?.casts || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "microscopicExam", "casts")}
                   />
                   <label className="col-span-1">Others</label>
                   <input
                     type="text"
                     className="col-span-1 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineUrinalysis?.microscopicExam?.others || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineUrinalysis", "microscopicExam", "others")}
                   />
 
                   {/* Routine Fecalysis */}
@@ -723,21 +1001,29 @@ function Laboratory() {
                   <input
                     type="text"
                     className="col-span-2 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineFecalysis?.color || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineFecalysis", "color")}
                   />
                   <label className="col-span-1">Consistency</label>
                   <input
                     type="text"
                     className="col-span-2 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineFecalysis?.consistency || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineFecalysis", "consistency")}
                   />
                   <label className="col-span-1">Bacteria</label>
                   <input
                     type="text"
                     className="col-span-2 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineFecalysis?.bacteria || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineFecalysis", "bacteria")}
                   />
                   <label className="col-span-1">Others</label>
                   <input
                     type="text"
                     className="col-span-2 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineFecalysis?.others || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineFecalysis", "others")}
                   />
 
                   {/* Microscopic Examination for Fecalysis */}
@@ -748,11 +1034,15 @@ function Laboratory() {
                   <input
                     type="text"
                     className="col-span-2 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineFecalysis?.microscopicExam?.directFecalSmear || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineFecalysis", "microscopicExam", "directFecalSmear")}
                   />
                   <label className="col-span-1">Kato Thick Smear</label>
                   <input
                     type="text"
                     className="col-span-2 border rounded px-3 py-1"
+                    value={formData.clinicalMicroscopyParasitology?.routineFecalysis?.microscopicExam?.katoThickSmear || ""}
+                    onChange={(e) => handleInputChange(e, "clinicalMicroscopyParasitology", "routineFecalysis", "microscopicExam", "katoThickSmear")}
                   />
                 </div>
               )}
@@ -789,44 +1079,60 @@ function Laboratory() {
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.hepatitisBSurfaceAntigen?.methodUsed || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "hepatitisBSurfaceAntigen", null, "methodUsed")}
                   />
                   <label className="col-span-1">Method Used</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.antiHAVTest?.methodUsed || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "antiHAVTest", null, "methodUsed")}
                   />
 
                   <label className="col-span-1">Lot No.</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.hepatitisBSurfaceAntigen?.lotNumber || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "hepatitisBSurfaceAntigen", null, "lotNumber")}
                   />
                   <label className="col-span-1">Lot No.</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.antiHAVTest?.lotNumber || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "antiHAVTest", null, "lotNumber")}
                   />
 
                   <label className="col-span-1">Expiration Date</label>
                   <input
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.hepatitisBSurfaceAntigen?.expirationDate || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "hepatitisBSurfaceAntigen", null, "expirationDate")}
                   />
                   <label className="col-span-1">Expiration Date</label>
                   <input
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.antiHAVTest?.expirationDate || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "antiHAVTest", null, "expirationDate")}
                   />
 
                   <label className="col-span-1">Result</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.hepatitisBSurfaceAntigen?.result || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "hepatitisBSurfaceAntigen", null, "result")}
                   />
                   <label className="col-span-1">Result</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.antiHAVTest?.result || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "antiHAVTest", null, "result")}
                   />
 
                   {/* Serum Pregnancy and Test for Treponema pallidum / Syphilis */}
@@ -839,44 +1145,60 @@ function Laboratory() {
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.treponemaPallidumTest?.methodUsed || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "treponemaPallidumTest", null, "methodUsed")}
                   />
                   <label className="col-span-1">Method Used</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.serumPregnancy?.methodUsed || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "serumPregnancy", null, "methodUsed")}
                   />
 
                   <label className="col-span-1">Lot No.</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.treponemaPallidumTest?.lotNumber || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "treponemaPallidumTest", null, "lotNumber")}
                   />
                   <label className="col-span-1">Lot No.</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.serumPregnancy?.lotNumber || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "serumPregnancy", null, "lotNumber")}
                   />
 
                   <label className="col-span-1">Expiration Date</label>
                   <input
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.treponemaPallidumTest?.expirationDate || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "treponemaPallidumTest", null, "expirationDate")}
                   />
                   <label className="col-span-1">Expiration Date</label>
                   <input
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.serumPregnancy?.expirationDate || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "serumPregnancy", null, "expirationDate")}
                   />
 
                   <label className="col-span-1">Result</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.treponemaPallidumTest?.result || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "treponemaPallidumTest", null, "result")}
                   />
                   <label className="col-span-1">Result</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.serumPregnancy?.result || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "serumPregnancy", null, "result")}
                   />
 
                   {/* Salmonella typhi and Blood Typing */}
@@ -887,34 +1209,46 @@ function Laboratory() {
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.salmonellaTyphi?.methodUsed || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "salmonellaTyphi", null, "methodUsed")}
                   />
                   <label className="col-span-1">ABO Type</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.bloodTyping?.ABOType || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "bloodTyping", null, "ABOType")}
                   />
 
                   <label className="col-span-1">Lot No.</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.salmonellaTyphi?.lotNumber || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "salmonellaTyphi", null, "lotNumber")}
                   />
                   <label className="col-span-1">Rh Type</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.bloodTyping?.RhType || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "bloodTyping", null, "RhType")}
                   />
 
                   <label className="col-span-1">Expiration Date</label>
                   <input
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.salmonellaTyphi?.expirationDate || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "salmonellaTyphi", null, "expirationDate")}
                   />
 
                   <label className="col-span-1">Result</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.salmonellaTyphi?.result || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "salmonellaTyphi", null, "result")}
                   />
 
                   {/* Test for Dengue and Others */}
@@ -925,44 +1259,60 @@ function Laboratory() {
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.testDengue?.methodUsed || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "testDengue", null, "methodUsed")}
                   />
                   <label className="col-span-1">Method Used</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.others?.methodUsed || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "others", null, "methodUsed")}
                   />
 
                   <label className="col-span-1">Lot No.</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.testDengue?.lotNumber || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "testDengue", null, "lotNumber")}
                   />
                   <label className="col-span-1">Lot No.</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.others?.lotNumber || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "others", null, "lotNumber")}
                   />
 
                   <label className="col-span-1">Expiration Date</label>
                   <input
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.testDengue?.expirationDate || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "testDengue", null, "expirationDate")}
                   />
                   <label className="col-span-1">Expiration Date</label>
                   <input
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.others?.expirationDate || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "others", null, "expirationDate")}
                   />
 
                   <label className="col-span-1">Result</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.testDengue?.result || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "testDengue", null, "result")}
                   />
                   <label className="col-span-1">Result</label>
                   <input
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
+                    value={formData.bloodBankingSerology?.others?.result || ""}
+                    onChange={(e) => handleInputChange(e, "bloodBankingSerology", "others", null, "result")}
                   />
                 </div>
               )}

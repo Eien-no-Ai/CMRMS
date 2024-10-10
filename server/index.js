@@ -6,6 +6,7 @@ const e = require("express");
 const ClinicModel = require("./models/Clinic");
 const PatientModel = require("./models/Patient");
 const LaboratoryModel = require("./models/Laboratory");
+const LaboratoryResultsModel = require("./models/LaboratoryResults");
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -14,6 +15,53 @@ const nodemailer = require("nodemailer");
 mongoose.connect(
   "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee"
 );
+
+app.post('/api/laboratory-results', async (req, res) => {
+  const { labNumber, patient, clinicId, Hematology, clinicalMicroscopyParasitology, bloodBankingSerology } = req.body;
+
+  console.log("Received data:", req.body); // Log the received data
+
+  // // Validation: Check for missing fields before saving
+  // if (!labNumber || !patient || !clinicId || !Hematology) {
+  //   return res.status(400).json({ message: "Missing required fields" });
+  // }
+
+  try {
+    const labResults = await LaboratoryResultsModel.create({
+      labNumber,
+      patient,
+      clinicId,
+      Hematology,
+      clinicalMicroscopyParasitology,
+      bloodBankingSerology,
+    });
+
+    res.json({
+      message: "Laboratory results saved successfully",
+      labResults,
+    });
+  } catch (error) {
+    console.error("Error saving laboratory results:", error);
+    res.status(500).json({ message: "Error saving laboratory results", error });
+  }
+});
+
+// // POST endpoint to save a lab request
+// app.post("/api/laboratory-results", async (req, res) => {
+//   const labData = req.body; // Expecting the form data in the request body
+//   LaboratoryResultsModel.create(labData)
+//     .then((labResult) =>
+//       res.json({
+//         message: "Laboratory request created successfully",
+//         labResult,
+//       })
+//     )
+//     .catch((err) =>
+//       res
+//         .status(500)
+//         .json({ message: "Error creating laboratory request", error: err })
+//     );
+// });
 
 // Nodemailer setup
 const transporter = nodemailer.createTransport({
