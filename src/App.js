@@ -15,6 +15,7 @@ import Laboratory from "./Components/Laboratory/Laboratory";
 import Clinic from "./Components/Clinic/Clinic";
 import Xray from "./Components/Xray/Xray";
 import Package from "./Components/Package/Package";
+import LaboratoryResult from "./Components/Laboratory/LaboratoryResult";
 
 function App() {
   return (
@@ -110,6 +111,15 @@ function App() {
             element={
               <PrivateRoute allowedRoles={['junior medtech', 'senior medtech', 'pathologist']}>
                 <Laboratory />
+              </PrivateRoute>
+            } 
+          />
+
+          <Route 
+            path="/laboratory/records" 
+            element={
+              <PrivateRoute allowedRoles={['junior medtech', 'senior medtech', 'pathologist', 'doctor']}>
+                <LaboratoryResult />
               </PrivateRoute>
             } 
           />

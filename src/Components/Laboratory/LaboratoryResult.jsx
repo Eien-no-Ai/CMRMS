@@ -3,7 +3,7 @@ import { BiSearch, BiChevronDown } from "react-icons/bi"; // Import arrow icon
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
 
-function Laboratory() {
+function LaboratoryResult() {
   const [labRecords, setLabRecords] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const labRecordsPerPage = 4;
@@ -276,7 +276,7 @@ function Laboratory() {
             labResult: "complete",
           }
         );
-        closeModal(); // Close the modal
+        closeModal();
         fetchLabRecords();
 
         setFormData({
@@ -313,10 +313,10 @@ function Laboratory() {
       .get("http://localhost:3001/api/laboratory")
       .then((response) => {
         // Filter records where labResult is "pending"
-        const pendingRecords = response.data
-          .filter((record) => record.labResult === "pending")
+        const completeRecords = response.data
+          .filter((record) => record.labResult === "complete")
           .sort((a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt));
-        setLabRecords(pendingRecords);
+        setLabRecords(completeRecords);
       })
       .catch((error) => {
         console.error("There was an error fetching the lab records!", error);
@@ -383,7 +383,7 @@ function Laboratory() {
       <Navbar />
       <div className="p-6 pt-20 bg-gray-100 min-h-screen">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl font-semibold">Laboratory Requests</h1>
+          <h1 className="text-3xl font-semibold">Laboratory Records</h1>
         </div>
 
         <div className="flex justify-between items-center mb-6">
@@ -391,7 +391,7 @@ function Laboratory() {
             <span className="font-bold text-4xl text-custom-red">
               {filteredLabRecords.length}
             </span>{" "}
-            requests
+            records
           </p>
 
           <div className="flex items-center space-x-4">
@@ -2084,4 +2084,4 @@ function Laboratory() {
   );
 }
 
-export default Laboratory;
+export default LaboratoryResult;

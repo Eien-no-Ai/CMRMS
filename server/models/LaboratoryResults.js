@@ -2,9 +2,10 @@ const e = require('express');
 const mongoose = require('mongoose');
 
 const LaboratoryResultsSchema = new mongoose.Schema({
-    //
     patient: { type: mongoose.Schema.Types.ObjectId, ref: 'patients'},
     clinicId: { type: mongoose.Schema.Types.ObjectId, ref: 'clinics'},
+    laboratoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'laboratory' },  // Reference to laboratory collection
+    labNumber: { type: String, default: "" },
     Hematology: {
         redBloodCellCount: { type: String, default: "" },
         Hemoglobin: { type: String, default: "" },
@@ -21,14 +22,14 @@ const LaboratoryResultsSchema = new mongoose.Schema({
         PlateletCount: { type: String, default: "" },
         others: { type: String, default: "" }
     },
-    //
+
     clinicalMicroscopyParasitology: {
         routineUrinalysis: {
+            LMP: { type: String, default: "" },
             macroscopicExam: { 
                 color: { type: String, default: "" },
                 appearance: { type: String, default: "" },
             },
-            // LMP: { type: String, default: "" },
             chemicalExam: {
                 sugar: { type: String, default: "" },
                 albumin: { type: String, default: "" },
@@ -66,7 +67,6 @@ const LaboratoryResultsSchema = new mongoose.Schema({
             others: { type: String, default: "" },
         },
     },
-    //
     bloodBankingSerology: {
         hepatitisBSurfaceAntigen: {
             methodUsed: { type: String, default: "" },
@@ -115,7 +115,6 @@ const LaboratoryResultsSchema = new mongoose.Schema({
             result: { type: String, default: "" },
         }
     },
-    labNumber: { type: String, default: "" },
     isCreatedAt: { type: Date, default: Date.now },
 });
 

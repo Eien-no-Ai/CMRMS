@@ -17,20 +17,24 @@ mongoose.connect(
 );
 
 app.post('/api/laboratory-results', async (req, res) => {
-  const { labNumber, patient, clinicId, Hematology, clinicalMicroscopyParasitology, bloodBankingSerology } = req.body;
+  const {
+    labNumber,
+    patient,
+    clinicId,
+    laboratoryId,  // Accept laboratoryId in the request
+    Hematology,
+    clinicalMicroscopyParasitology,
+    bloodBankingSerology
+  } = req.body;
 
   console.log("Received data:", req.body); // Log the received data
-
-  // // Validation: Check for missing fields before saving
-  // if (!labNumber || !patient || !clinicId || !Hematology) {
-  //   return res.status(400).json({ message: "Missing required fields" });
-  // }
 
   try {
     const labResults = await LaboratoryResultsModel.create({
       labNumber,
       patient,
       clinicId,
+      laboratoryId,  // Save laboratoryId in the database
       Hematology,
       clinicalMicroscopyParasitology,
       bloodBankingSerology,
@@ -45,6 +49,7 @@ app.post('/api/laboratory-results', async (req, res) => {
     res.status(500).json({ message: "Error saving laboratory results", error });
   }
 });
+
 
 // // POST endpoint to save a lab request
 // app.post("/api/laboratory-results", async (req, res) => {
@@ -499,6 +504,30 @@ app.get("/api/laboratory/:patientId", async (req, res) => {
       .json({ message: "Error fetching laboratory records", error });
   }
 });
+
+
+// PUT endpoint to update labResult in Laboratory
+app.put("/api/laboratory/:id", async (req, res) => {
+  const { id } = req.params;
+  const { labResult } = req.body;
+
+  try {
+    const updatedLab = await LaboratoryModel.findByIdAndUpdate(
+      id,
+      { labResult },
+      { new: true }
+    );
+
+    if (updatedLab) {
+      res.json({ message: "Laboratory status updated successfully", updatedLab });
+    } else {
+      res.status(404).json({ message: "Laboratory not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error updating laboratory status", error });
+  }
+});
+
 
 // C L I N I C A L   R E C O R D S
 
