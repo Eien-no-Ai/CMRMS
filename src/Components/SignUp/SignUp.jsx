@@ -12,7 +12,7 @@ function SignUp() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
-
+  const [signature, setSignature] = useState("");
   const handleSubmit = (e) => {
     e.preventDefault();
     axios
@@ -21,6 +21,7 @@ function SignUp() {
         lastname: lastname,
         email: email,
         password: password,
+        signature: signature,
         confirmPassword: confirmPassword,
         department: department, // Add department to the post request
       })
