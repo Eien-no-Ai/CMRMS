@@ -50,6 +50,24 @@ app.post('/api/laboratory-results', async (req, res) => {
   }
 });
 
+// Endpoint to get lab results by ID
+app.get('/api/laboratory-results/:id', async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid ID format" });
+  }
+  
+  try {
+    const labResult = await LaboratoryResultsModel.findById(id);
+    if (!labResult) {
+      return res.status(404).json({ message: "Laboratory result not found" });
+    }
+    res.json(labResult);
+  } catch (error) {
+    console.error("Error fetching laboratory result:", error);
+    res.status(500).json({ message: "Error fetching laboratory result", error });
+  }
+});
 
 // // POST endpoint to save a lab request
 // app.post("/api/laboratory-results", async (req, res) => {
