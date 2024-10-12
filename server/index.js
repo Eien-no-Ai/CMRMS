@@ -16,7 +16,19 @@ mongoose.connect(
   "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee"
 );
 
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
+
+// Define the uploads directory path
+const uploadsDir = path.join(__dirname, 'uploads');
+
+// Check if the uploads directory exists, create it if it doesn't
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    console.log('Uploads directory created at:', uploadsDir);
+} else {
+    console.log('Uploads directory already exists:', uploadsDir);
+}
 const multer = require("multer");
 
 // Serve static files from 'uploads' directory
@@ -156,6 +168,31 @@ app.get('/api/laboratory-results/:id', async (req, res) => {
     res.json(labResult);
   } catch (error) {
     console.error("Error fetching laboratory result:", error);
+    res.status(500).json({ message: "Error fetching laboratory result", error });
+  }
+});
+
+// Endpoint to get lab result by laboratory request ID
+app.get('/api/laboratory-results/by-request/:laboratoryId', async (req, res) => {
+  const { laboratoryId } = req.params;
+
+  // Validate laboratoryId format
+  if (!mongoose.Types.ObjectId.isValid(laboratoryId)) {
+    return res.status(400).json({ message: "Invalid laboratory request ID format" });
+  }
+
+  try {
+    // Find lab result by laboratory request ID
+
+    const labResult = await LaboratoryResultsModel.findOne({ laboratoryId }).populate(
+      "patient"
+    );
+    if (!labResult) {
+      return res.status(404).json({ message: "No laboratory result found for the given request ID" });
+    }
+    res.json(labResult);
+  } catch (error) {
+    console.error("Error fetching laboratory result by request ID:", error);
     res.status(500).json({ message: "Error fetching laboratory result", error });
   }
 });

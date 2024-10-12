@@ -167,7 +167,7 @@ function PatientsProfile() {
       console.error("Error adding new record:", error.response || error);
     }
   };
-  
+
   const handleNewXraySubmit = async (e) => {
     e.preventDefault();
     try {
@@ -191,7 +191,13 @@ function PatientsProfile() {
         console.log("X-ray submitted successfully:", response.data);
         setNewXrayRecord({}); // Reset form data
         handleNewXrayModalClose(); // Close the modal
-        fetchXrayRecords(); // Refresh X-ray records
+        fetchXrayRecords(); // Refresh the main X-ray records list
+
+        // Refresh X-ray records in the view modal for the specific record
+        const updatedXrayRecords = await axios.get(
+          `http://localhost:3001/api/xrayResults?clinicId=${clinicId}`
+        );
+        setSelectedXrayRecords(updatedXrayRecords.data);
       } else {
         console.error("Error submitting X-ray form:", response.data);
       }
@@ -337,8 +343,6 @@ function PatientsProfile() {
         dataToSend.clinicId = clinicId; // Add clinicId if it exists
       }
 
-      console.log("Submitting data:", dataToSend);
-
       const result = await axios.post(
         "http://localhost:3001/api/laboratory",
         dataToSend
@@ -349,6 +353,12 @@ function PatientsProfile() {
         setFormData(initialFormData); // Reset form data
         handleModalClose(); // Close the modal
         fetchLabRecords(); // Refresh lab records
+
+        // Refresh lab tests in the view modal for the specific record
+        const updatedLabTests = await axios.get(
+          `http://localhost:3001/api/laboratory?clinicId=${clinicId}`
+        );
+        setSelectedLabTests(updatedLabTests.data);
       } else {
         console.error("Error submitting form:", result.data);
       }
@@ -508,8 +518,13 @@ function PatientsProfile() {
                       <p className="font-semibold">{patient.idnumber}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500">Course/ Year</p>
-                      <p className="font-semibold">{patient.course}</p>
+                      <p className="text-gray-500">Department/ Position</p>
+                      <p className="font-semibold">
+                        {" "}
+                        {patient.patientType === "Employee"
+                          ? patient.position
+                          : patient.course}
+                      </p>
                     </div>
                     <div>
                       <p className="text-gray-500">Age</p>
@@ -598,12 +613,13 @@ function PatientsProfile() {
                 </button>
               </div>
             </div>
-            <div className="mt-4">
+
+            {/* Scrollable section */}
+            <div className="mt-4 max-h-72 overflow-y-auto">
               <ul className="space-y-4">
                 {selectedTab === "clinical" &&
                   (displayedRecords.length > 0 ? (
                     <ul className="space-y-4">
-                      {" "}
                       {displayedRecords.map((records, index) => (
                         <li
                           key={index}
@@ -618,19 +634,15 @@ function PatientsProfile() {
                             </p>
                           </div>
                           <div className="flex-1 text-gray-500">
-                            {/* Display truncated regular treatments */}
                             {records.treatments.length > 20
                               ? `${records.treatments.substring(0, 20)}...`
                               : records.treatments}
-
-                            {/* Display emergency treatment in red if it exists */}
                             {records.emergencyTreatment && (
                               <p className="text-custom-red italic">
                                 Emergency: {records.emergencyTreatment}
                               </p>
                             )}
                           </div>
-
                           <div className="flex-1 text-gray-500">
                             {records.diagnosis.length > 20
                               ? `${records.diagnosis.substring(0, 20)}...`
@@ -651,30 +663,29 @@ function PatientsProfile() {
                     </p>
                   ))}
 
+                {/* Laboratory Records */}
                 {selectedTab === "laboratory" &&
                   (displayedRecords.length > 0 ? (
                     displayedRecords.map((records, index) => {
                       const allTests = [
-                        ...Object.entries(records.bloodChemistry)
+                        ...Object.entries(records.bloodChemistry || {})
                           .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
-                        ...Object.entries(records.hematology)
+                          .map(([key]) => key),
+                        ...Object.entries(records.hematology || {})
                           .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
+                          .map(([key]) => key),
                         ...Object.entries(
-                          records.clinicalMicroscopyParasitology
+                          records.clinicalMicroscopyParasitology || {}
                         )
                           .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
-                        ...Object.entries(records.bloodBankingSerology)
+                          .map(([key]) => key),
+                        ...Object.entries(records.bloodBankingSerology || {})
                           .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
-                        ...Object.entries(records.microbiology)
+                          .map(([key]) => key),
+                        ...Object.entries(records.microbiology || {})
                           .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
-                      ]
-                        .filter(Boolean)
-                        .join(", ");
+                          .map(([key]) => key),
+                      ].join(", ");
 
                       return (
                         <li
@@ -704,6 +715,7 @@ function PatientsProfile() {
                     </p>
                   ))}
 
+                {/* X-ray Records */}
                 {selectedTab === "xray" &&
                   (displayedRecords.length > 0 ? (
                     displayedRecords.map((records, index) => (
@@ -719,7 +731,6 @@ function PatientsProfile() {
                             {records.xrayDescription}
                           </p>
                         </div>
-
                         <div className="col-span-1">
                           <p className="text-gray-500">{records.xrayType}</p>
                         </div>
@@ -1059,45 +1070,44 @@ function PatientsProfile() {
                 No X-ray records available for this record.
               </p>
             )}
-     <div className="flex justify-between items-center mt-4">
-  {/* Left Side: Doctor-Specific Button Group */}
-  {role === 'doctor' && (
-    <div className="flex space-x-2">
-      <button
-        className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-        onClick={() => handleLabModalOpen(selectedRecord)}
-      >
-        <SlChemistry className="mr-2" /> Lab Request
-      </button>
-      <button
-        className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-        onClick={() => handleNewXrayModalOpen(selectedRecord)}
-      >
-        <FaXRay className="mr-2" /> X-Ray Request
-      </button>
-      <button className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300">
-        <GiBiceps className="mr-2" /> Refer to PT
-      </button>
-    </div>
-  )}
+            <div className="flex justify-between items-center mt-4">
+              {/* Left Side: Doctor-Specific Button Group */}
+              {role === "doctor" && (
+                <div className="flex space-x-2">
+                  <button
+                    className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                    onClick={() => handleLabModalOpen(selectedRecord)}
+                  >
+                    <SlChemistry className="mr-2" /> Lab Request
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                    onClick={() => handleNewXrayModalOpen(selectedRecord)}
+                  >
+                    <FaXRay className="mr-2" /> X-Ray Request
+                  </button>
+                  <button className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300">
+                    <GiBiceps className="mr-2" /> Refer to PT
+                  </button>
+                </div>
+              )}
 
-  {/* Right Side: Close and Submit Buttons */}
-  <div className="flex space-x-4">
-    <button
-      className="px-6 py-2 bg-gray-500 text-white rounded-md"
-      onClick={() => setIsViewModalOpen(false)}
-    >
-      Close
-    </button>
-    <button
-      className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-      onClick={() => updateClinicalRecord(selectedRecord)}
-    >
-      Submit
-    </button>
-  </div>
-</div>
-
+              {/* Right Side: Close and Submit Buttons */}
+              <div className="flex space-x-4">
+                <button
+                  className="px-6 py-2 bg-gray-500 text-white rounded-md"
+                  onClick={() => setIsViewModalOpen(false)}
+                >
+                  Close
+                </button>
+                <button
+                  className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                  onClick={() => updateClinicalRecord(selectedRecord)}
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

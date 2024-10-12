@@ -298,7 +298,7 @@ function Patients() {
                     <th className="py-3 w-1/4">Basic Info</th>
                     <th className="py-3 w-1/4">Birthday</th>
                     <th className="py-3 w-1/4">ID Number</th>
-                    <th className="py-3 w-1/4">Course/ Yr</th>
+                    <th className="py-3 w-1/4">Department/ Position</th>
                     <th className="py-3 w-1/12"></th>
                   </tr>
                 </thead>
@@ -337,7 +337,11 @@ function Patients() {
                           {new Date(patient.birthdate).toLocaleDateString()}
                         </td>
                         <td className="py-4">{patient.idnumber}</td>
-                        <td className="py-4">{patient.course}</td>
+                        <td className="py-4">
+                          {patient.patientType === "Employee"
+                            ? patient.position
+                            : patient.course}
+                        </td>{" "}
                         <td className="py-4">
                           <div
                             className="relative"

@@ -55,43 +55,45 @@ function Profile() {
       });
   };
 
- 
   // Fetch the user data when the component is mounted
   useEffect(() => {
     if (userId) {
-      axios.get(`http://localhost:3001/user/${userId}`)
-        .then(response => {
+      axios
+        .get(`http://localhost:3001/user/${userId}`)
+        .then((response) => {
           setUserData(response.data);
         })
-        .catch(error => {
-          console.error('Error fetching user data:', error);
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
         });
     }
   }, [userId]);
-
 
   // Handle signature upload
   console.log("Selected Employee ID:", userId);
   // Handle signature upload
   const handleSignatureUpload = async (event) => {
     event.preventDefault();
-    
+
     const formData = new FormData();
-    formData.append('signature', signatureFile);
+    formData.append("signature", signatureFile);
 
     try {
       const response = await axios.post(
-        `http://localhost:3001/api/upload-signature/user/${userId}`,  // Ensure correct ID is passed
-        formData, 
+        `http://localhost:3001/api/upload-signature/user/${userId}`, // Ensure correct ID is passed
+        formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',  // Proper content type
+            "Content-Type": "multipart/form-data", // Proper content type
           },
         }
       );
 
       if (response.data && response.data.signature) {
-        console.log("Signature uploaded successfully:", response.data.signature);
+        console.log(
+          "Signature uploaded successfully:",
+          response.data.signature
+        );
         setSignatureUrl(response.data.signature); // Set the uploaded signature URL
         setSignatureModalOpen(false); // Close modal on success
       } else {
@@ -99,7 +101,10 @@ function Profile() {
       }
     } catch (error) {
       if (error.response) {
-        console.error("Server responded with error:", error.response.data.message);
+        console.error(
+          "Server responded with error:",
+          error.response.data.message
+        );
       } else {
         console.error("Error uploading signature:", error.message);
       }
@@ -120,8 +125,10 @@ function Profile() {
 
   const fetchSignature = async (userId) => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/signature/user/${userId}`);
-      
+      const response = await axios.get(
+        `http://localhost:3001/api/signature/user/${userId}`
+      );
+
       if (response.data && response.data.signature) {
         setSignatureUrl(response.data.signature); // Set signature URL
       } else {
@@ -258,22 +265,18 @@ function Profile() {
               </p>
             )}
 
-            <div className="mt-6">
-              <button
-                onClick={handlePasswordUpdate}
-                className="w-full bg-custom-red text-white px-4 py-2 rounded-lg"
-              >
-                Update Password
-              </button>
-            </div>
-
-            {/* Upload Signature Button */}
-            <div className="mt-6">
+            <div className="mt-6 flex justify-end space-x-2">
               <button
                 onClick={() => setSignatureModalOpen(true)}
-                className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg"
+                className="bg-custom-gray text-white px-4 py-2 rounded-lg"
               >
                 Upload Signature
+              </button>
+              <button
+                onClick={handlePasswordUpdate}
+                className="bg-custom-red text-white px-4 py-2 rounded-lg"
+              >
+                Update Password
               </button>
             </div>
           </div>
@@ -283,14 +286,18 @@ function Profile() {
       {isSignatureModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-bold mb-4 text-center">Upload Signature</h2>
+            <h2 className="text-lg font-bold mb-4 text-center">
+              Upload Signature
+            </h2>
 
             <form onSubmit={handleSignatureUpload}>
               <div className="mb-4">
-                <label className="block text-sm font-medium">Select Signature Image</label>
-                <input 
-                  type="file" 
-                  accept="image/*" 
+                <label className="block text-sm font-medium">
+                  Select Signature Image
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
                   onChange={handleSignatureFileChange}
                   required
                   className="border rounded-lg w-full p-2 mt-1"
@@ -312,14 +319,13 @@ function Profile() {
                   Submit
                 </button>
 
-                <button
-                type="button"
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
-                onClick={() => fetchSignature(userId)} // Call fetchSignature with userId
-              >
-                Fetch Signature
-              </button>
-
+                {/* <button
+                  type="button"
+                  className="bg-blue-500 text-white py-2 px-4 rounded-lg"
+                  onClick={() => fetchSignature(userId)} // Call fetchSignature with userId
+                >
+                  Fetch Signature
+                </button> */}
               </div>
             </form>
 
@@ -327,7 +333,7 @@ function Profile() {
             {signatureUrl && (
               <div className="mt-4 mb-4">
                 <h3 className="text-sm font-medium mb-2">Current Signature:</h3>
-                <img 
+                <img
                   src={signatureUrl} // Use the URL fetched from the backend
                   alt="Signature"
                   className="border rounded-lg w-full h-auto mb-4"

@@ -619,9 +619,7 @@ function Laboratory() {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700">
-                  {formData.patientType === "student"
-                    ? "Course/Dept."
-                    : "Position"}
+                  Department/ Position
                 </label>
                 <input
                   type="text"
