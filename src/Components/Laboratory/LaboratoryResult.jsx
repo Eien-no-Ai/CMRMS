@@ -159,121 +159,146 @@ function LaboratoryResult() {
             </div>
           </div>
         </div>
-
-        <div className="bg-white p-6 py-1 rounded-lg shadow-md">
-          <table className="min-w-full">
-            <thead>
-              <tr className="text-left text-gray-600">
-                <th className="py-3 w-1/4">Patient Info</th>
-                <th className="py-3 w-1/4">Lab Test Req</th>
-                <th className="py-3 w-1/4">Status</th>
-                <th className="py-3 w-1/12"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentLabRecords.length === 0 ? (
-                <tr>
-                  <td colSpan="4" className="py-4 text-center text-gray-500">
-                    No lab records found.
-                  </td>
-                </tr>
-              ) : (
-                currentLabRecords.map((record) => {
-                  const allTests = [
-                    ...Object.entries(record.bloodChemistry || {})
-                      .filter(([key, value]) => value)
-                      .map(([key, value]) => value),
-                    ...Object.entries(record.hematology || {})
-                      .filter(([key, value]) => value)
-                      .map(([key, value]) => value),
-                    ...Object.entries(
-                      record.clinicalMicroscopyParasitology || {}
-                    )
-                      .filter(([key, value]) => value)
-                      .map(([key, value]) => value),
-                    ...Object.entries(record.bloodBankingSerology || {})
-                      .filter(([key, value]) => value)
-                      .map(([key, value]) => value),
-                    ...Object.entries(record.microbiology || {})
-                      .filter(([key, value]) => value)
-                      .map(([key, value]) => value),
-                  ]
-                    .filter(Boolean)
-                    .join(", ");
-
-                  return (
-                    <tr key={record._id} className="border-b">
-                      <td className="py-4">
-                        {record.patient ? (
-                          <>
-                            <p className="font-semibold">
-                              {record.patient.lastname},{" "}
-                              {record.patient.firstname}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {new Date(record.isCreatedAt).toLocaleString()}
-                            </p>
-                          </>
-                        ) : (
-                          <p className="text-sm text-gray-500">
-                            No patient data
-                          </p>
-                        )}
-                      </td>
-                      <td className="py-4">
-                        <p className="font-semibold">
-                          {allTests || "No test data available"}
-                        </p>
-                      </td>
-                      <td className="py-4">
-                        <p>{record.labResult}</p>
-                      </td>
-                      <td className="py-4 ">
-                        <button
-                          onClick={() => openModal(record._id)}
-                          className="text-custom-red"
-                        >
-                          View
-                        </button>
+        {searchQuery || showFullList ? (
+          <div>
+            <div className="bg-white p-6 py-1 rounded-lg shadow-md">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="text-left text-gray-600">
+                    <th className="py-3 w-1/4">Patient Info</th>
+                    <th className="py-3 w-1/4">Lab Test Req</th>
+                    <th className="py-3 w-1/4">Status</th>
+                    <th className="py-3 w-1/12"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentLabRecords.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan="4"
+                        className="py-4 text-center text-gray-500"
+                      >
+                        No lab records found.
                       </td>
                     </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                  ) : (
+                    currentLabRecords.map((record) => {
+                      const allTests = [
+                        ...Object.entries(record.bloodChemistry || {})
+                          .filter(([key, value]) => value)
+                          .map(([key, value]) => value),
+                        ...Object.entries(record.hematology || {})
+                          .filter(([key, value]) => value)
+                          .map(([key, value]) => value),
+                        ...Object.entries(
+                          record.clinicalMicroscopyParasitology || {}
+                        )
+                          .filter(([key, value]) => value)
+                          .map(([key, value]) => value),
+                        ...Object.entries(record.bloodBankingSerology || {})
+                          .filter(([key, value]) => value)
+                          .map(([key, value]) => value),
+                        ...Object.entries(record.microbiology || {})
+                          .filter(([key, value]) => value)
+                          .map(([key, value]) => value),
+                      ]
+                        .filter(Boolean)
+                        .join(", ");
 
-        <div className="flex justify-between items-center mt-4">
-          <div>
-            Page <span className="text-custom-red">{currentPage}</span> of{" "}
-            {totalPages}
+                      return (
+                        <tr key={record._id} className="border-b">
+                          <td className="py-4">
+                            {record.patient ? (
+                              <>
+                                <p className="font-semibold">
+                                  {record.patient.lastname},{" "}
+                                  {record.patient.firstname}
+                                </p>
+                                <p className="text-sm text-gray-500">
+                                  {new Date(
+                                    record.isCreatedAt
+                                  ).toLocaleString()}
+                                </p>
+                              </>
+                            ) : (
+                              <p className="text-sm text-gray-500">
+                                No patient data
+                              </p>
+                            )}
+                          </td>
+                          <td className="py-4">
+                            <p className="font-semibold">
+                              {allTests || "No test data available"}
+                            </p>
+                          </td>
+                          <td className="py-4">
+                            <p>{record.labResult}</p>
+                          </td>
+                          <td className="py-4 ">
+                            <button
+                              onClick={() => openModal(record._id)}
+                              className="text-custom-red"
+                            >
+                              View
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex justify-between items-center mt-4">
+              <div>
+                Page <span className="text-custom-red">{currentPage}</span> of{" "}
+                {totalPages}
+              </div>
+              <div>
+                <button
+                  onClick={paginatePrev}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 mr-2 rounded-lg border ${
+                    currentPage === 1
+                      ? "bg-gray-300"
+                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                  }`}
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={paginateNext}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 rounded-lg border ${
+                    currentPage === totalPages
+                      ? "bg-gray-300"
+                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                  }`}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
+        ) : (
           <div>
-            <button
-              onClick={paginatePrev}
-              disabled={currentPage === 1}
-              className={`px-4 py-2 mr-2 rounded-lg border ${
-                currentPage === 1
-                  ? "bg-gray-300"
-                  : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-              }`}
-            >
-              Previous
-            </button>
-            <button
-              onClick={paginateNext}
-              disabled={currentPage === totalPages}
-              className={`px-4 py-2 rounded-lg border ${
-                currentPage === totalPages
-                  ? "bg-gray-300"
-                  : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-              }`}
-            >
-              Next
-            </button>
+            <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 flex justify-center">
+              <p className="text-gray-700 flex items-center">
+                <span className="mr-2">&#9432;</span> Whole laboratory request
+                list is not shown to save initial load time.
+              </p>
+            </div>
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={toggleListVisibility}
+                className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+              >
+                Load All Laboratory Records
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Modal for Viewing Details */}

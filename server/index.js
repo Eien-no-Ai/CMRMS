@@ -192,8 +192,6 @@ app.post('/api/laboratory-results', async (req, res) => {
     bloodBankingSerology
   } = req.body;
 
-  console.log("Received data:", req.body); // Log the received data
-
   try {
     const labResults = await LaboratoryResultsModel.create({
       labNumber,

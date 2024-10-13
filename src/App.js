@@ -139,7 +139,7 @@ function App() {
            <Route
             path="/physicaltherapy/records"
             element={
-              <PrivateRoute allowedRoles={['physical therapist','special trainee']}>
+              <PrivateRoute allowedRoles={['physical therapist','special trainee', 'doctor']}>
                 <PhysicalTherapy />
               </PrivateRoute>
             }

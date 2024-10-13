@@ -561,7 +561,7 @@ const handleGenerateReport = () => {
                         <p className="text-gray-700 text-lg font-semibold">
                           {laboratoryRecords.length}
                         </p>
-                        <p className="text-gray-500">Laboratory</p>
+                        <p className="text-gray-500">Lab</p>
                       </div>
                       <div>
                         <p className="text-gray-700 text-lg font-semibold">
@@ -573,7 +573,7 @@ const handleGenerateReport = () => {
                         <p className="text-gray-700 text-lg font-semibold">
                           {physicalTherapyRecords.length}
                         </p>
-                        <p className="text-gray-500">Physical Therapy</p>
+                        <p className="text-gray-500">PT</p>
                       </div>
                     </div>
 
@@ -584,18 +584,18 @@ const handleGenerateReport = () => {
                       >
                         Check Up
                       </button>
-                        <button
+                        {/* <button
                           className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                           onClick={handleNewTherapyRecordOpen}
                         >
                           New Physical Theraphy Record
-                        </button>
-                        <button
+                        </button> */}
+                        {/* <button
                           className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                           onClick={handleGenerateReport}
                         >
                           Generate Report
-                        </button>
+                        </button> */}
                       <div className="relative" ref={dropdownRef}>
                         <button
                           className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
@@ -1270,7 +1270,10 @@ const handleGenerateReport = () => {
                   >
                     <FaXRay className="mr-2" /> X-Ray Request
                   </button>
-                  <button className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300">
+                  <button 
+                    className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                    onClick={() => handleNewTherapyRecordOpen(selectedRecord)}
+                    >
                     <GiBiceps className="mr-2" /> Refer to PT
                   </button>
                 </div>

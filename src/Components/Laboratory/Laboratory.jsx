@@ -143,7 +143,7 @@ function Laboratory() {
   const handleAddResultClick = async (record) => {
     console.log("Clicked record:", record);
 
-    if (record && record.patient && record.clinicId && record._id) {
+    if (record && record.patient && record._id) {
       try {
         // Fetch patient data
         const response = await axios.get(
