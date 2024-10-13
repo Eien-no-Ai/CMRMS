@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const LaboratoryResultsSchema = new mongoose.Schema({
     patient: { type: mongoose.Schema.Types.ObjectId, ref: 'patients'},
     clinicId: { type: mongoose.Schema.Types.ObjectId, ref: 'clinics'},
-    laboratoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'laboratory' },  // Reference to laboratory collection
+    laboratoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'laboratory' },
     labNumber: { type: String, default: "" },
     Hematology: {
         redBloodCellCount: { type: String, default: "" },

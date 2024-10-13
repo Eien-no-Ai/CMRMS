@@ -20,7 +20,7 @@ function PatientsProfile() {
   const [physicalTherapyRecords, setPhysicalTherapyRecords] = useState([]);
   const [newTherapyRecord, setNewTherapyRecord] = useState({
     date: new Date().toLocaleDateString(),
-    SOAPSummary:"",
+    SOAPSummary: "",
   });
   const [newRecord, setNewRecord] = useState({
     date: new Date().toLocaleDateString(),
@@ -122,91 +122,97 @@ function PatientsProfile() {
   }, [id]);
 
   useEffect(() => {
-  fetchLabRecords();
-  fetchXrayRecords();
-  fetchClinicalRecords();
-  fetchPhysicalTherapyRecords();
-  
-  const fetchPatient = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:3001/patients/${id}`
-      );
-      setPatient(response.data);
-    } catch (error) {
-      console.error(
-        "There was an error fetching the patient details!",
-        error
-      );
-    }
-  };
-  fetchPatient();
-}, [id, fetchLabRecords, fetchXrayRecords, fetchClinicalRecords, fetchPhysicalTherapyRecords]);
+    fetchLabRecords();
+    fetchXrayRecords();
+    fetchClinicalRecords();
+    fetchPhysicalTherapyRecords();
 
-const handleNewTherapyRecordOpen = () => {
-  setIsNewTherapyRecordModalOpen(true);
-};
-
-const handleNewTherapyRecordClose = () => {
-  setIsNewTherapyRecordModalOpen(false);
-};
-
-const handleNewTherapyRecordChange = (e) => {
-  const { name, value } = e.target;
-  setNewTherapyRecord((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
-};
-
-const handleNewTherapySubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await axios.post(
-      "http://localhost:3001/api/physicalTherapy", // Fix the spelling here
-      {
-        ...newTherapyRecord,
-        patient: id,
+    const fetchPatient = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/patients/${id}`
+        );
+        setPatient(response.data);
+      } catch (error) {
+        console.error(
+          "There was an error fetching the patient details!",
+          error
+        );
       }
-    );
-    if (response.status === 200) {
-      handleNewTherapyRecordClose();
-      fetchPhysicalTherapyRecords();
-      setNewTherapyRecord({
-        SOAPSummary:"",
-      }); 
-    }
-  } catch (error) {
-    console.error("Error adding new record:", error.response || error);
-  }
-};
-
-const handleGenerateReport = () => {
-  const pdf = new jsPDF();
-
-  // Set the title of the report
-  pdf.text("Physical Therapy Report", 20, 20);
-
-  // Table headers
-  const headers = ["Date", "SOAP Summary", "Physical Therapy Result"];
-
-  // Table data
-  const tableData = displayedRecords.map((record) => [
-    new Date(record.isCreatedAt).toLocaleString(),
-    record.SOAPSummary,
-    record.physicalTherapyResult,
+    };
+    fetchPatient();
+  }, [
+    id,
+    fetchLabRecords,
+    fetchXrayRecords,
+    fetchClinicalRecords,
+    fetchPhysicalTherapyRecords,
   ]);
 
-  // Generate the table using autoTable
-  pdf.autoTable({
-    head: [headers],
-    body: tableData,
-    startY: 30, // Start table below the title
-  });
+  const handleNewTherapyRecordOpen = () => {
+    setIsNewTherapyRecordModalOpen(true);
+  };
 
-  // Save the PDF with a dynamic filename
-  pdf.save("Physical_Therapy_Report.pdf");
-};
+  const handleNewTherapyRecordClose = () => {
+    setIsNewTherapyRecordModalOpen(false);
+  };
+
+  const handleNewTherapyRecordChange = (e) => {
+    const { name, value } = e.target;
+    setNewTherapyRecord((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleNewTherapySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/api/physicalTherapy", // Fix the spelling here
+        {
+          ...newTherapyRecord,
+          patient: id,
+        }
+      );
+      if (response.status === 200) {
+        handleNewTherapyRecordClose();
+        fetchPhysicalTherapyRecords();
+        setNewTherapyRecord({
+          SOAPSummary: "",
+        });
+      }
+    } catch (error) {
+      console.error("Error adding new record:", error.response || error);
+    }
+  };
+
+  const handleGenerateReport = () => {
+    const pdf = new jsPDF();
+
+    // Set the title of the report
+    pdf.text("Physical Therapy Report", 20, 20);
+
+    // Table headers
+    const headers = ["Date", "SOAP Summary", "Physical Therapy Result"];
+
+    // Table data
+    const tableData = displayedRecords.map((record) => [
+      new Date(record.isCreatedAt).toLocaleString(),
+      record.SOAPSummary,
+      record.physicalTherapyResult,
+    ]);
+
+    // Generate the table using autoTable
+    pdf.autoTable({
+      head: [headers],
+      body: tableData,
+      startY: 30, // Start table below the title
+    });
+
+    // Save the PDF with a dynamic filename
+    pdf.save("Physical_Therapy_Report.pdf");
+  };
 
   const handleNewRecordOpen = () => {
     setIsNewRecordModalOpen(true);
@@ -360,15 +366,15 @@ const handleGenerateReport = () => {
   };
 
   const displayedRecords =
-  selectedTab === "clinical"
-    ? clinicalRecords
-    : selectedTab === "laboratory"
-    ? laboratoryRecords
-    : selectedTab === "xray"
-    ? xrayRecords
-    : selectedTab === "physical therapy"
-    ? physicalTherapyRecords
-    : [];
+    selectedTab === "clinical"
+      ? clinicalRecords
+      : selectedTab === "laboratory"
+      ? laboratoryRecords
+      : selectedTab === "xray"
+      ? xrayRecords
+      : selectedTab === "physical therapy"
+      ? physicalTherapyRecords
+      : [];
 
   const initialFormData = {
     bloodChemistry: {
@@ -520,11 +526,56 @@ const handleGenerateReport = () => {
       );
       if (response.status === 200) {
         setIsViewModalOpen(false);
-        fetchClinicalRecords(); // Refresh the clinical records after updating
+        fetchClinicalRecords();
       }
     } catch (error) {
       console.error("Error updating record:", error);
     }
+  };
+
+  const [showHistoryOptions, setShowHistoryOptions] = useState(false);
+  const historyDropdownRef = useRef(null);
+
+  const handleAddHistory = () => {
+    setShowHistoryOptions((prev) => !prev);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        showHistoryOptions &&
+        historyDropdownRef.current &&
+        !historyDropdownRef.current.contains(event.target)
+      ) {
+        setShowHistoryOptions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showHistoryOptions]);
+
+  const [isMedicalModalOpen, setIsMedicalModalOpen] = useState(false);
+
+  const handleMedicalOpen = () => {
+    setIsMedicalModalOpen(true);
+    setShowHistoryOptions(false);
+  };
+
+  const handleMedicalClose = () => {
+    setIsMedicalModalOpen(false);
+  };
+
+  const [isFamilyPersonalModalOpen, setisFamilyPersonalModalOpen] = useState(false);
+
+  const handleFamilyPersonalOpen = () => {
+    setisFamilyPersonalModalOpen(true);
+    setShowHistoryOptions(false);
+  };
+
+  const handleFamilyClose = () => {
+    setisFamilyPersonalModalOpen(false);
   };
 
   return (
@@ -578,19 +629,19 @@ const handleGenerateReport = () => {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                    <button
+                      <button
                         className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                         onClick={handleNewRecordOpen}
                       >
                         Check Up
                       </button>
-                        {/* <button
+                      {/* <button
                           className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                           onClick={handleNewTherapyRecordOpen}
                         >
                           New Physical Theraphy Record
                         </button> */}
-                        {/* <button
+                      {/* <button
                           className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                           onClick={handleGenerateReport}
                         >
@@ -674,19 +725,531 @@ const handleGenerateReport = () => {
               </div>
             </>
           )}
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex justify-between">
-              <h2 className="font-semibold text-lg">Notes</h2>
+          <div className="bg-white p-6 rounded-lg shadow-sm h-full flex flex-col justify-between">
+            <div>
+              <h2 className="font-semibold text-lg">History</h2>
+              {/* Your content here */}
             </div>
-            <ul className="mt-4 text-gray-500 space-y-2">
-              <li>- This patient is lorem ipsum dolor sit amet</li>
-              <li>- Lorem ipsum dolor sit amet</li>
-              <li>- Has allergic history with Cataflam</li>
-            </ul>
-            <button className="mt-4 w-full bg-custom-red text-white p-2 rounded-lg">
-              Add Note
-            </button>
+            <div className="relative mt-4" ref={historyDropdownRef}>
+              <button
+                className="w-full bg-custom-red text-white p-2 rounded-lg"
+                onClick={handleAddHistory}
+              >
+                Add History
+              </button>
+              {showHistoryOptions && (
+                <div className="absolute mt-2 w-full bg-white border rounded-lg shadow-lg">
+                  <button
+                    className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                    onClick={handleMedicalOpen}
+                  >
+                    Medical
+                  </button>
+                  
+                  <button
+                    className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                    onClick={handleFamilyPersonalOpen}
+                  >
+                    Family/ Personal
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
+          {isMedicalModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white py-4 px-6 rounded-lg w-full max-w-3xl shadow-lg overflow-y-auto max-h-[80vh]">
+                <h1 className="text-2xl font-semibold text-center mb-6">
+                  Medical History Form
+                </h1>
+
+                {/* Conditions Section */}
+                <div className="mt-6">
+                  <label className="block text-sm font-semibold">
+                    Has any of the applicant suffered from, or been told he had
+                    any of the following conditions:
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 1. Nose or
+                      throat disorders
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 14. Hernia
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 2. Ear trouble
+                      / deafness
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 15. Rheumatism,
+                      joint or back pain
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 3. Asthma
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 16. Eye
+                      disorders
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 4. Tuberculosis
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 17. Stomach
+                      pain / ulcer
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 5. Other lung
+                      diseases
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 18. Other
+                      abdominal disorders
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 6. High Blood
+                      Pressure
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 19. Kidney or
+                      bladder diseases
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 7. Heart
+                      diseases
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 20. Sexually
+                      Transmitted Disease
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 8. Rheumatic
+                      Fever
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 21. Genetic or
+                      Familial disorder
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 9. Diabetes
+                      Mellitus
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 22. Tropical
+                      Diseases
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 10. Endocrine
+                      Disorder
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 23. Chronic
+                      cough
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 11. Cancer /
+                      Tumor
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 24. Fainting
+                      spells, fits or seizures
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 12. Mental
+                      Disorder / Depression
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 25. Frequent
+                      headache
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 13. Head or
+                      neck injury
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 26. Dizziness
+                    </label>
+                  </div>
+
+                  <div className="mt-6">
+                    <p className="text-sm font-medium">Do you have Malaria?</p>
+                    <div className="flex space-x-4 mt-2">
+                      <label>
+                        <input type="radio" name="allergies" className="mr-2" />
+                        Yes
+                      </label>
+                      <label>
+                        <input type="radio" name="allergies" className="mr-2" />
+                        No
+                      </label>
+                    </div>
+                    <textarea
+                      placeholder="Please date the last attack."
+                      className="textarea mt-2 border rounded-md p-2 w-full col-span-3"
+                    ></textarea>
+                  </div>
+
+                  <div className="mt-6">
+                    <p className="text-sm font-medium">
+                      Have you undergo any operations?
+                    </p>
+                    <div className="flex space-x-4 mt-2">
+                      <label>
+                        <input type="radio" name="allergies" className="mr-2" />
+                        Yes
+                      </label>
+                      <label>
+                        <input type="radio" name="allergies" className="mr-2" />
+                        No
+                      </label>
+                    </div>
+                    <textarea
+                      placeholder="Please list them."
+                      className="textarea mt-2 border rounded-md p-2 w-full col-span-3"
+                    ></textarea>
+                  </div>
+
+                  <div className="mt-7 flex flex-col space-y-4">
+                    <label className="text-sm font-semibold text-gray-700">
+                      I hereby certify that all the information I have disclosed
+                      as reflected in this report are true to the best of my
+                      knowledge and belief and that any misrepresentation or
+                      concealment on my part may lead to consequences, which may
+                      or may not include disqualification, etc.
+                      <br />
+                      <br />
+                      I hereby authorize UB Medical-Dental Clinic and its
+                      officially designated examining physicians and staff to
+                      conduct the examinations necessary to assess my fitness to
+                      undergo Internship/On-the-Job Training/Practicum.
+                      <br />
+                      <br />
+                      By signing this, I hold UB Medical-Dental Clinic and its
+                      authorized physicians and staff free from any criminal,
+                      civil, administrative, ethical, and moral liability, that
+                      may arise from the above.
+                    </label>
+
+                    <div className="flex justify-end mt-4">
+                      <div className="w-1/2">
+                        <label className="text-sm font-medium text-gray-700 block mb-2">
+                          Upload Signature
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Accepted file types: JPG, PNG. Max size: 5MB
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end mt-4 space-x-3">
+                  <button
+                    className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                    onClick={handleMedicalClose}
+                  >
+                    Close
+                  </button>
+                  <button
+                    className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                    onClick={() => {
+                      console.log("Save Medical History");
+                      handleMedicalClose();
+                    }}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isFamilyPersonalModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white py-4 px-6 rounded-lg w-full max-w-3xl shadow-lg overflow-y-auto max-h-[80vh]">
+                <h1 className="text-2xl font-semibold text-center mb-6">
+                  History Form
+                </h1>
+
+                {/* Conditions Section */}
+                <div className="mt-6">
+                  <h2 className="font-semibold">I. Family History</h2>
+                  <label className="block text-sm font-semibold">
+                    Has any of the applicant's family members (maternal and
+                    paternal) had any of the following diseases:
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 1. Heart
+                      Disease
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 5. Hypertension
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 2. Tuberculosis
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 6. Diabetes
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 3. Kidney
+                      Disease (UTI, Etc.)
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 7. Cancer
+                    </label>
+                    <label>
+                      <input type="checkbox" className="mr-2" /> 4. Asthma
+                    </label>
+                  </div>
+
+                  <div className="mt-6">
+                    <p className="text-sm font-medium">
+                      Do you have any medication allergies?
+                    </p>
+                    <div className="flex space-x-4 mt-2">
+                      <label>
+                        <input type="radio" name="allergies" className="mr-2" />
+                        Yes
+                      </label>
+                      <label>
+                        <input type="radio" name="allergies" className="mr-2" />
+                        No
+                      </label>
+                      <label>
+                        <input type="radio" name="allergies" className="mr-2" />
+                        Not Sure
+                      </label>
+                    </div>
+                    <textarea
+                      placeholder="Please list them."
+                      className="textarea mt-2 border rounded-md p-2 w-full col-span-3"
+                    ></textarea>
+                  </div>
+                </div>
+
+                {/* Tobacco Usage Section */}
+                <div className="mt-6">
+                  <h2 className="font-semibold">II. Personal History</h2>
+                  <div>
+                    <div className="flex items-center space-x-4">
+                      <label className="text-sm font-semibold text-gray-700 w-1/2">
+                        Do you use any kind of tobacco or have you ever used
+                        them?
+                      </label>
+
+                      <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500">
+                        <option>Yes</option>
+                        <option>No</option>
+                      </select>
+                    </div>
+                    <div className="space-y-4 mt-4">
+                      <div className="flex items-center space-x-4">
+                        <label className="text-sm font-medium text-gray-700 w-1/2">
+                          A. Sticks per day:
+                        </label>
+                        <input
+                          type="number"
+                          placeholder="Enter number"
+                          className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+
+                      <div className="flex items-center space-x-4">
+                        <label className="text-sm font-medium text-gray-700 w-1/2">
+                          B. Quit smoking?
+                        </label>
+                        <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500">
+                          <option>Yes</option>
+                          <option>No</option>
+                        </select>
+                      </div>
+
+                      <div className="flex items-center space-x-4">
+                        <label className="text-sm font-medium text-gray-700 w-1/2">
+                          C. When?
+                        </label>
+                        <input
+                          type="date"
+                          className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center space-x-4 mt-6">
+                      <label className="text-sm font-semibold text-gray-700 w-1/2">
+                        Do you drink alcoholic beverages?
+                      </label>
+
+                      <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500">
+                        <option>Yes</option>
+                        <option>No</option>
+                      </select>
+                    </div>
+                    <div className="space-y-4 mt-4">
+                      <div className="flex items-center space-x-4">
+                        <label className="text-sm font-medium text-gray-700 w-1/2">
+                          A. Amount per day?
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Enter amount"
+                          className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+
+                      <div className="flex items-center space-x-4">
+                        <label className="text-sm font-medium text-gray-700 w-1/2">
+                          B. Quit drinking?
+                        </label>
+                        <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500">
+                          <option>Yes</option>
+                          <option>No</option>
+                        </select>
+                      </div>
+
+                      <div className="flex items-center space-x-4">
+                        <label className="text-sm font-medium text-gray-700 w-1/2">
+                          C. When?
+                        </label>
+                        <input
+                          type="date"
+                          className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center space-x-4 mt-6">
+                      <label className="text-sm font-semibold text-gray-700 w-1/2">
+                        For Women
+                      </label>
+
+                      <label className="w-1/2"></label>
+                    </div>
+                    <div className="flex items-center space-x-4 mt-6">
+                      <label className="text-sm font-medium text-gray-700 w-1/2">
+                        A. Pregnant?
+                      </label>
+
+                      <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500">
+                        <option>Yes</option>
+                        <option>No</option>
+                      </select>
+                    </div>
+                    <div className="space-y-4 mt-4">
+                      <div className="flex items-center space-x-4">
+                        <label className="text-sm font-medium text-gray-700 w-1/2">
+                          B. Month
+                        </label>
+                        <input
+                          type="date"
+                          placeholder="Enter amount"
+                          className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+
+                      <div className="flex items-center space-x-4">
+                        <label className="text-sm font-medium text-gray-700 w-1/2">
+                          C. Last Menstrual Period
+                        </label>
+                        <input
+                          type="date"
+                          placeholder="Enter amount"
+                          className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+
+                      <div className="flex items-center space-x-4">
+                        <label className="text-sm font-medium text-gray-700 w-1/2">
+                          D. Abortion/ Miscarriage?
+                        </label>
+                        <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500">
+                          <option>Abortion</option>
+                          <option>Miscarriage</option>
+                        </select>
+                      </div>
+                      <div className="flex items-center space-x-4 mt-6">
+                        <label className="text-sm font-medium text-gray-700 w-1/2">
+                          E. Dysmenorrhea?
+                        </label>
+
+                        <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500">
+                          <option>Yes</option>
+                          <option>No</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-7 flex flex-col space-y-4">
+                    <label className="text-sm font-semibold text-gray-700">
+                      I hereby certify that all the information I have disclosed
+                      as reflected in this report is true to the best of my
+                      knowledge and belief, and that any misrepresentation or
+                      concealment on my part may lead to consequences, which may
+                      or may not include disqualification, etc.
+                      <br />
+                      <br />
+                      I hereby authorize UB Medical-Dental Clinic and its
+                      officially designated examining physicians and staff to
+                      conduct the examinations necessary to assess my fitness to
+                      undergo Internship/On-the-Job Training/Practicum.
+                      <br />
+                      <br />
+                      By signing this, I hold UB Medical-Dental Clinic and its
+                      authorized physicians and staff free from any criminal,
+                      civil, administrative, ethical, and moral liability that
+                      may arise from the above.
+                    </label>
+
+                    <div className="flex justify-end mt-4">
+                      <div className="w-1/2">
+                        <label className="text-sm font-medium text-gray-700 block mb-2">
+                          Upload Signature
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Accepted file types: JPG, PNG. Max size: 5MB
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end mt-4 space-x-3">
+                  <button
+                    className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                    onClick={handleFamilyClose}
+                  >
+                    Close
+                  </button>
+                  <button
+                    className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                    onClick={() => {
+                      console.log("Save Medical History");
+                      handleFamilyClose();
+                    }}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mt-6">
@@ -724,14 +1287,14 @@ const handleGenerateReport = () => {
                   X-ray Records
                 </button>
                 <button
-                    className={`${
-                      selectedTab === "physical therapy"
-                        ? "text-custom-red font-semibold"
-                        : ""
-                    }`}
-                    onClick={() => handleTabChange("physical therapy")}
-                  >
-                    Physical Therapy Records
+                  className={`${
+                    selectedTab === "physical therapy"
+                      ? "text-custom-red font-semibold"
+                      : ""
+                  }`}
+                  onClick={() => handleTabChange("physical therapy")}
+                >
+                  Physical Therapy Records
                 </button>
               </div>
             </div>
@@ -869,7 +1432,8 @@ const handleGenerateReport = () => {
                   ))}
 
                 {selectedTab === "physical therapy" &&
-                  (role === "special trainee" || role === "physical therapist") &&
+                  (role === "special trainee" ||
+                    role === "physical therapist") &&
                   (displayedRecords.length > 0 ? (
                     displayedRecords.map((records, index) => (
                       <li
@@ -906,7 +1470,9 @@ const handleGenerateReport = () => {
             </h2>
             <form onSubmit={handleNewTherapySubmit}>
               <div className="mb-4">
-                <label className="block text-sm font-medium">SOAP SUMMARY</label>
+                <label className="block text-sm font-medium">
+                  SOAP SUMMARY
+                </label>
                 <input
                   type="text"
                   name="SOAPSummary"
@@ -1270,10 +1836,10 @@ const handleGenerateReport = () => {
                   >
                     <FaXRay className="mr-2" /> X-Ray Request
                   </button>
-                  <button 
+                  <button
                     className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
                     onClick={() => handleNewTherapyRecordOpen(selectedRecord)}
-                    >
+                  >
                     <GiBiceps className="mr-2" /> Refer to PT
                   </button>
                 </div>
