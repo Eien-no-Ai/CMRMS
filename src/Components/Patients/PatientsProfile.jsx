@@ -569,6 +569,12 @@ const handleGenerateReport = () => {
                         </p>
                         <p className="text-gray-500">X-ray</p>
                       </div>
+                      <div>
+                        <p className="text-gray-700 text-lg font-semibold">
+                          {physicalTherapyRecords.length}
+                        </p>
+                        <p className="text-gray-500">Physical Therapy</p>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
