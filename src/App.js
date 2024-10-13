@@ -16,6 +16,7 @@ import Clinic from "./Components/Clinic/Clinic";
 import Xray from "./Components/Xray/Xray";
 import Package from "./Components/Package/Package";
 import LaboratoryResult from "./Components/Laboratory/LaboratoryResult";
+import PhysicalTherapy from "./Components/PhysicalTherapy/PhysicalTherapy";
 
 function App() {
   return (
@@ -65,7 +66,7 @@ function App() {
           <Route
             path="/home"
             element={
-              <PrivateRoute allowedRoles={['user', 'nurse', 'doctor', 'pathologist', 'junior medtech', 'senior medtech', 'radiologic technologist', 'radiologist']}>
+              <PrivateRoute allowedRoles={['user', 'nurse', 'doctor', 'pathologist', 'junior medtech', 'senior medtech', 'radiologic technologist', 'radiologist','special trainee','physical therapist']}>
                 <HomePage />
               </PrivateRoute>
             }
@@ -73,7 +74,7 @@ function App() {
           <Route
             path="/patients"
             element={
-              <PrivateRoute allowedRoles={['nurse', 'doctor', 'pathologist', 'junior medtech', 'senior medtech', 'radiologic technologist', 'radiologist']}>
+              <PrivateRoute allowedRoles={['nurse', 'doctor', 'pathologist', 'junior medtech', 'senior medtech', 'radiologic technologist', 'radiologist','special trainee','physical therapist']}>
                 <Patients />
               </PrivateRoute>
             }
@@ -81,7 +82,7 @@ function App() {
           <Route
             path="/patients/:id"
             element={
-              <PrivateRoute allowedRoles={['nurse', 'doctor', 'pathologist', 'junior medtech', 'senior medtech', 'radiologic technologist', 'radiologist']}>
+              <PrivateRoute allowedRoles={['nurse', 'doctor', 'pathologist', 'junior medtech', 'senior medtech', 'radiologic technologist', 'radiologist','special trainee','physical therapist']}>
                 <PatientsProfile />
               </PrivateRoute>
             }
@@ -89,7 +90,7 @@ function App() {
           <Route
             path="/profile"
             element={
-              <PrivateRoute allowedRoles={['user', 'nurse', 'doctor', 'pathologist', 'junior medtech', 'senior medtech', 'radiologic technologist', 'radiologist', 'admin']}>
+              <PrivateRoute allowedRoles={['user', 'nurse', 'doctor', 'pathologist', 'junior medtech', 'senior medtech', 'radiologic technologist', 'radiologist', 'admin','special trainee','physical therapist']}>
                 <Profile />
               </PrivateRoute>
             }
@@ -130,6 +131,16 @@ function App() {
             element={
               <PrivateRoute allowedRoles={['radiologic technologist', 'radiologist']}>
                 <Xray />
+              </PrivateRoute>
+            }
+          />
+          
+           {/* Physical Therapy Routes */}
+           <Route
+            path="/physicaltherapy/records"
+            element={
+              <PrivateRoute allowedRoles={['physical therapist','special trainee']}>
+                <PhysicalTherapy />
               </PrivateRoute>
             }
           />

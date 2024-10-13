@@ -5,6 +5,8 @@ import Navbar from "../Navbar/Navbar";
 import { FaXRay } from "react-icons/fa6";
 import { SlChemistry } from "react-icons/sl";
 import { GiBiceps } from "react-icons/gi";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 function PatientsProfile() {
   const { id } = useParams();
@@ -14,6 +16,12 @@ function PatientsProfile() {
   const [isLabModalOpen, setIsLabModalOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [isNewRecordModalOpen, setIsNewRecordModalOpen] = useState(false);
+  const [isNewTherapyRecordModalOpen, setIsNewTherapyRecordModalOpen] = useState(false);
+  const [physicalTherapyRecords, setPhysicalTherapyRecords] = useState([]);
+  const [newTherapyRecord, setNewTherapyRecord] = useState({
+    date: new Date().toLocaleDateString(),
+    SOAPSummary:"",
+  });
   const [newRecord, setNewRecord] = useState({
     date: new Date().toLocaleDateString(),
     complaints: "",
@@ -95,26 +103,110 @@ function PatientsProfile() {
     }
   }, [id]);
 
-  useEffect(() => {
-    fetchLabRecords();
-    fetchXrayRecords();
-    fetchClinicalRecords();
+  //Fetch Physical Therapy Records
+  const fetchPhysicalTherapyRecords = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/physicalTherapy/${id}`
+      );
+      const sortedPhysicalTherapyRecords = response.data.sort(
+        (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
+      );
+      setPhysicalTherapyRecords(sortedPhysicalTherapyRecords);
+    } catch (error) {
+      console.error(
+        "There was an error fetching the Physical Therapy records!",
+        error
+      );
+    }
+  }, [id]);
 
-    const fetchPatient = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3001/patients/${id}`
-        );
-        setPatient(response.data);
-      } catch (error) {
-        console.error(
-          "There was an error fetching the patient details!",
-          error
-        );
+  useEffect(() => {
+  fetchLabRecords();
+  fetchXrayRecords();
+  fetchClinicalRecords();
+  fetchPhysicalTherapyRecords();
+  
+  const fetchPatient = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/patients/${id}`
+      );
+      setPatient(response.data);
+    } catch (error) {
+      console.error(
+        "There was an error fetching the patient details!",
+        error
+      );
+    }
+  };
+  fetchPatient();
+}, [id, fetchLabRecords, fetchXrayRecords, fetchClinicalRecords, fetchPhysicalTherapyRecords]);
+
+const handleNewTherapyRecordOpen = () => {
+  setIsNewTherapyRecordModalOpen(true);
+};
+
+const handleNewTherapyRecordClose = () => {
+  setIsNewTherapyRecordModalOpen(false);
+};
+
+const handleNewTherapyRecordChange = (e) => {
+  const { name, value } = e.target;
+  setNewTherapyRecord((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+};
+
+const handleNewTherapySubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const response = await axios.post(
+      "http://localhost:3001/api/physicalTherapy", // Fix the spelling here
+      {
+        ...newTherapyRecord,
+        patient: id,
       }
-    };
-    fetchPatient();
-  }, [id, fetchLabRecords, fetchXrayRecords, fetchClinicalRecords]);
+    );
+    if (response.status === 200) {
+      handleNewTherapyRecordClose();
+      fetchPhysicalTherapyRecords();
+      setNewTherapyRecord({
+        SOAPSummary:"",
+      }); 
+    }
+  } catch (error) {
+    console.error("Error adding new record:", error.response || error);
+  }
+};
+
+const handleGenerateReport = () => {
+  const pdf = new jsPDF();
+
+  // Set the title of the report
+  pdf.text("Physical Therapy Report", 20, 20);
+
+  // Table headers
+  const headers = ["Date", "SOAP Summary", "Physical Therapy Result"];
+
+  // Table data
+  const tableData = displayedRecords.map((record) => [
+    new Date(record.isCreatedAt).toLocaleString(),
+    record.SOAPSummary,
+    record.physicalTherapyResult,
+  ]);
+
+  // Generate the table using autoTable
+  pdf.autoTable({
+    head: [headers],
+    body: tableData,
+    startY: 30, // Start table below the title
+  });
+
+  // Save the PDF with a dynamic filename
+  pdf.save("Physical_Therapy_Report.pdf");
+};
 
   const handleNewRecordOpen = () => {
     setIsNewRecordModalOpen(true);
@@ -268,13 +360,15 @@ function PatientsProfile() {
   };
 
   const displayedRecords =
-    selectedTab === "clinical"
-      ? clinicalRecords
-      : selectedTab === "laboratory"
-      ? laboratoryRecords
-      : selectedTab === "xray"
-      ? xrayRecords
-      : selectedTab === "";
+  selectedTab === "clinical"
+    ? clinicalRecords
+    : selectedTab === "laboratory"
+    ? laboratoryRecords
+    : selectedTab === "xray"
+    ? xrayRecords
+    : selectedTab === "physical therapy"
+    ? physicalTherapyRecords
+    : [];
 
   const initialFormData = {
     bloodChemistry: {
@@ -478,12 +572,24 @@ function PatientsProfile() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                      <button
+                    <button
                         className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                         onClick={handleNewRecordOpen}
                       >
                         Check Up
                       </button>
+                        <button
+                          className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
+                          onClick={handleNewTherapyRecordOpen}
+                        >
+                          New Physical Theraphy Record
+                        </button>
+                        <button
+                          className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
+                          onClick={handleGenerateReport}
+                        >
+                          Generate Report
+                        </button>
                       <div className="relative" ref={dropdownRef}>
                         <button
                           className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
@@ -610,6 +716,16 @@ function PatientsProfile() {
                   onClick={() => handleTabChange("xray")}
                 >
                   X-ray Records
+                </button>
+                <button
+                    className={`${
+                      selectedTab === "physical therapy"
+                        ? "text-custom-red font-semibold"
+                        : ""
+                    }`}
+                    onClick={() => handleTabChange("physical therapy")}
+                  >
+                    Physical Therapy Records
                 </button>
               </div>
             </div>
@@ -745,12 +861,74 @@ function PatientsProfile() {
                       No X-ray records available.
                     </p>
                   ))}
+
+                {selectedTab === "physical therapy" &&
+                  (role === "special trainee" || role === "physical therapist") &&
+                  (displayedRecords.length > 0 ? (
+                    displayedRecords.map((records, index) => (
+                      <li
+                        key={index}
+                        className="flex justify-between items-center p-4 bg-gray-100 rounded-lg"
+                      >
+                        <div>
+                          <p className="text-gray-500 text-sm">
+                            {new Date(records.isCreatedAt).toLocaleString()}
+                          </p>
+                          <p className="font-semibold">{records.SOAPSummary}</p>
+                        </div>
+                        <div className="text-gray-500">
+                          {records.physicalTherapyResult}
+                        </div>
+                        <button className="text-custom-red">Edit</button>
+                      </li>
+                    ))
+                  ) : (
+                    <p className="text-center text-gray-500 py-4">
+                      No Physical Therapy records available.
+                    </p>
+                  ))}
               </ul>
             </div>
           </div>
         </div>
       </div>
-
+      {isNewTherapyRecordModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-2 px-6 rounded-lg w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-bold mb-4 text-center">
+              New Physical Therapy Record
+            </h2>
+            <form onSubmit={handleNewTherapySubmit}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium">SOAP SUMMARY</label>
+                <input
+                  type="text"
+                  name="SOAPSummary"
+                  value={newTherapyRecord.SOAPSummary}
+                  onChange={handleNewTherapyRecordChange}
+                  required
+                  className="border rounded-lg w-full p-2 mt-1"
+                />
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                  onClick={handleNewTherapyRecordClose}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {isNewRecordModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-2 px-6 rounded-lg w-full max-w-md shadow-lg">
