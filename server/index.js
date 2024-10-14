@@ -183,6 +183,7 @@ app.get('/api/signature/user/:id', async (req, res) => {
 
 app.post('/api/laboratory-results', async (req, res) => {
   const {
+    ORNumber,
     labNumber,
     patient,
     clinicId,
@@ -194,6 +195,7 @@ app.post('/api/laboratory-results', async (req, res) => {
 
   try {
     const labResults = await LaboratoryResultsModel.create({
+      ORNumber,
       labNumber,
       patient,
       clinicId,

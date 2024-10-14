@@ -308,6 +308,16 @@ function LaboratoryResult() {
             <h2 className="text-xl font-semibold mb-4">Result Form</h2>
             <form className="flex-grow">
               <div className="flex mb-4">
+              <div className="w-3/4 mr-2">
+                  <label className="block text-gray-700">OR No.</label>
+                  <input
+                    type="text"
+                    name="ORNumber" // Changed name to match the formData key
+                    value={labDetails.ORNumber || "N/A"}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+
                 <div className="w-3/4 mr-2">
                   <label className="block text-gray-700">Lab No.</label>
                   <input
