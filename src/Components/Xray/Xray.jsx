@@ -466,45 +466,101 @@ function Xray() {
 
                 {/* Conditional Rendering for Preview and Input */}
                 {formData.XrayNo && formData.imageFile ? (
-                  // Preview Mode (when XrayNo and imageFile are not empty)
-                  <div>
-                    {/* Display X-ray and patient details */}
-                    <div className="mb-4">
-                      <p><strong>X-ray No.:</strong> {formData.XrayNo}</p>
-                      <p><strong>Date:</strong> {formData.date}</p>
-                    </div>
-                    <div className="mb-4">
-                      <p><strong>Name:</strong> {formData.name}</p>
-                      <p><strong>Age:</strong> {formData.age}</p>
-                      <p><strong>Sex:</strong> {formData.sex}</p>
-                      <p><strong>Course/Dept.:</strong> {formData.courseDept}</p>
-                    </div>
+                  <div className="mb-4">
+  <div className="flex mb-4">
+    <div className="w-3/4 mr-2">
+      <label className="block text-gray-700">Xray No.</label>
+      <input
+        type="text"
+        name="XrayNo"
+        value={formData.XrayNo}
+        className="w-full px-3 py-2 border rounded bg-gray-100"
+        readOnly
+      />
+    </div>
+    <div className="w-1/4">
+      <label className="block text-gray-700">Date</label>
+      <input
+        type="text"
+        name="date"
+        value={formData.date}
+        className="w-full px-3 py-2 border rounded bg-gray-100"
+        readOnly
+      />
+    </div>
+  </div>
 
-                    {/* Image Preview */}
-                    {formData.imageFile && (
-                      <div className="mb-4">
-                        <img
-                          src={`${formData.imageFile}`}  // Assuming image is stored on the server
-                          alt="X-ray"
-                          className="w-full h-auto"
-                        />
-                      </div>
-                    )}
+  <div className="flex mb-4">
+    <div className="w-1/2 mr-2">
+      <label className="block text-gray-700">Name</label>
+      <input
+        type="text"
+        name="name"
+        value={formData.name}
+        className="w-full px-3 py-2 border rounded bg-gray-100"
+        readOnly
+      />
+    </div>
+    <div className="w-1/4 mr-2">
+      <label className="block text-gray-700">Age</label>
+      <input
+        type="text"
+        name="age"
+        value={formData.age}
+        className="w-full px-3 py-2 border rounded bg-gray-100"
+        readOnly
+      />
+    </div>
+    <div className="w-1/4">
+      <label className="block text-gray-700">Sex</label>
+      <input
+        type="text"
+        name="sex"
+        value={formData.sex}
+        className="w-full px-3 py-2 border rounded bg-gray-100"
+        readOnly
+      />
+    </div>
+  </div>
 
-                    {/* Diagnosis Field Logic */}
-                    {userRole === "radiologist" && (
-                      <div className="mb-4">
-                        <label className="block font-semibold mb-2">Diagnosis:</label>
-                        <input
-                          type="text"
-                          name="diagnosis"
-                          value={formData.diagnosis}
-                          onChange={handleInputChange}
-                          className="px-4 py-2 w-full border border-gray-300 rounded"
-                        />
-                      </div>
-                    )}
-                  </div>
+  <div className="mb-4">
+    <label className="block text-gray-700">
+      {formData.patientType === "Student" ? "Course/Dept." : "Position"}
+    </label>
+    <input
+      type="text"
+      name="courseDept"
+      value={formData.courseDept}
+      className="w-full px-3 py-2 border rounded bg-gray-100"
+      readOnly
+    />
+  </div>
+
+  {/* Image Preview */}
+  {formData.imageFile && (
+    <div className="mb-4">
+      <img
+        src={`${formData.imageFile}`}  // Assuming the image is stored on the server
+        alt="X-ray"
+        className="w-full h-auto"
+      />
+    </div>
+  )}
+
+  {/* Diagnosis Field Logic */}
+  {userRole === "radiologist" && (
+    <div className="mb-4">
+      <label className="block font-semibold mb-2">Diagnosis:</label>
+      <input
+        type="text"
+        name="diagnosis"
+        value={formData.diagnosis}
+        onChange={handleInputChange}
+        className="px-4 py-2 w-full border border-gray-300 rounded"
+      />
+    </div>
+  )}
+</div>
                 ) : (
                   // Add Result Form (when XrayNo or imageFile are empty)
                   <form className="flex-grow">
