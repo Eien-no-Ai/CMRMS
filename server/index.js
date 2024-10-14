@@ -866,6 +866,73 @@ app.get("/api/xrayResults/:patientId", async (req, res) => {
   }
 });
 
+
+  const router = express.Router();
+  // Ensure the folder exists or create it
+  const xrayResultUploadPath = path.join(__dirname, './xrayResultUpload');
+  if (!fs.existsSync(xrayResultUploadPath)) {
+    fs.mkdirSync(xrayResultUploadPath, { recursive: true }); // Create the folder if it doesn't exist
+  }
+  
+// Multer storage setup
+const storagee = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, './xrayResultUpload/'); // Folder where files will be uploaded
+  },
+  filename: (req, file, cb) => {
+    const originalName = file.originalname;
+    const extension = originalName.split('.').pop(); // Extract the file extension
+    const filename = `${req.body.labNo}_${Date.now()}.${extension}`;
+    cb(null, filename);
+  }
+});
+app.use("/xrayResultUpload", express.static(path.join(__dirname, "xrayResultUpload")));
+const uploadd = multer({ storage: storagee });
+
+// API endpoint to handle PUT request for updating X-ray results
+app.put('/api/xrayResults/:id', uploadd.single('imageFile'), async (req, res) => {
+  console.log(req.body);  // Log the request body to check if all fields are received
+  console.log(req.file);  // Log the uploaded file
+
+  const { labNo, diagnosis, patientId, clinicId } = req.body;
+  const imageFile = req.file ? req.file.filename : '';  // Check if file exists
+
+  // Find the existing record by ID
+  const existingRecord = await XrayModel.findById(req.params.id);
+  if (!existingRecord) {
+    return res.status(400).json({ success: false, message: "No matching record found for the given patient and clinic." });
+  }
+
+  // Update the existing record
+  existingRecord.labNo = labNo;
+  existingRecord.diagnosis = diagnosis || "";  // Update diagnosis if provided (only for radiologic technologists)
+  
+  // Save the image URL with the desired format
+  const imageUrl = `http://localhost:3001/xrayResultUpload/${imageFile}`;
+  existingRecord.imageFile = imageUrl;
+
+  // Set the xrayResult status based on whether the diagnosis is provided (only for radiologic technologists)
+  if (diagnosis && diagnosis.trim()) {
+    existingRecord.xrayResult = 'done'; // If diagnosis is provided, set to done
+  } else {
+    existingRecord.xrayResult = 'pending'; // If diagnosis is empty, set to pending
+  }
+
+  // Save the updated record
+  const updatedXray = await existingRecord.save();
+  console.log("Updated X-ray record:", updatedXray);  // Log the updated record
+
+  // Return success and include the imageFile for preview
+  return res.json({
+    success: true,
+    updatedRecord: updatedXray,
+    imageFile: imageUrl // Return the image URL for preview
+  });
+});
+                      
+module.exports = router;
+
+
 //console log
 app.listen(3001, () => {
   console.log("Server is running on port 3001");

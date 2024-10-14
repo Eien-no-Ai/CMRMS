@@ -359,6 +359,8 @@ function AdminHomePage() {
                                 Radiologic Technologist
                               </option>
                               <option value="radiologist">Radiologist</option>
+                              <option value="dentist">Dentist</option>
+
                             </>
                           ) : (
                             <>
@@ -379,6 +381,7 @@ function AdminHomePage() {
                               </option>
                               <option value="radiologist">Radiologist</option>
                               <option value="admin">Admin</option>
+                              <option value="dentist">Dentist</option>
                             </>
                           )}
                         </select>
