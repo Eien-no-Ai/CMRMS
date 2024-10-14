@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const XraySchema = new mongoose.Schema({
+  XrayNo: { type: String, default: "" },
   patient: { type: mongoose.Schema.Types.ObjectId, ref: 'patients', required: true },
   clinicId: { type: mongoose.Schema.Types.ObjectId, ref: 'clinics', },
   xrayType: { type: String, default: ""  },
@@ -10,7 +11,6 @@ const XraySchema = new mongoose.Schema({
 
   diagnosis: { type: String, default: "" },
   imageFile: { type: String, default: "" },
-  labNo: { type: String, default: "" },
 });
 
 const XrayModel = mongoose.model("xrays", XraySchema);

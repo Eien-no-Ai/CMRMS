@@ -17,6 +17,7 @@ import Xray from "./Components/Xray/Xray";
 import Package from "./Components/Package/Package";
 import LaboratoryResult from "./Components/Laboratory/LaboratoryResult";
 import PhysicalTherapy from "./Components/PhysicalTherapy/PhysicalTherapy";
+import XrayResult from "./Components/Xray/XrayResult";
 
 function App() {
   return (
@@ -131,6 +132,14 @@ function App() {
             element={
               <PrivateRoute allowedRoles={['radiologic technologist', 'radiologist', 'dentist']}>
                 <Xray />
+              </PrivateRoute>
+            }
+          />
+           <Route
+            path="/xray/records"
+            element={
+              <PrivateRoute allowedRoles={['radiologic technologist', 'radiologist', 'dentist']}>
+                <XrayResult />
               </PrivateRoute>
             }
           />

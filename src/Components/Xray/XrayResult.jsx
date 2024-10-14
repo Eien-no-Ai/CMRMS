@@ -3,7 +3,7 @@ import { BiSearch } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
 
-function Xray() {
+function XrayResult() {
   const [xrayRecords, setXrayRecords] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const xrayRecordsPerPage = 4;
@@ -44,7 +44,7 @@ function Xray() {
       .then((response) => {
         // Filter records where xrayResult is "pending"
         const pendingRecords = response.data.filter(
-          (record) => record.xrayResult === "pending"
+          (record) => record.xrayResult === "done"
         );
         const sortedRecords = pendingRecords.sort(
           (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
@@ -389,104 +389,104 @@ function Xray() {
             <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
               <h2 className="text-xl font-semibold mb-4">Result Form</h2>
 
-              {/* Conditional rendering based on the xrayResult */}
-              <form className="flex-grow">
-                {/* Input Fields for Pending Status */}
-                <div className="flex mb-4">
-                  <div className="w-3/4 mr-2">
-                    <label className="block text-gray-700">Xray No.</label>
+              <div className="flex flex-col mb-4">
+                <form className="flex-grow">
+                  {/* Input Fields for Pending Status */}
+                  <div className="flex mb-4">
+                    <div className="w-3/4 mr-2">
+                      <label className="block text-gray-700">Xray No.</label>
+                      <input
+                        type="text"
+                        name="XrayNo"
+                        value={formData.XrayNo}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border rounded"
+                      />
+                    </div>
+                    <div className="w-1/4">
+                      <label className="block text-gray-700">Date</label>
+                      <input
+                        type="date"
+                        name="date"
+                        value={formData.date}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border rounded"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex mb-4">
+                    <div className="w-1/2 mr-2">
+                      <label className="block text-gray-700">Name</label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        readOnly
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="w-1/4 mr-2">
+                      <label className="block text-gray-700">Age</label>
+                      <input
+                        type="text"
+                        name="age"
+                        value={formData.age}
+                        readOnly
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="w-1/4">
+                      <label className="block text-gray-700">Sex</label>
+                      <input
+                        type="text"
+                        name="sex"
+                        value={formData.sex}
+                        readOnly
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700">
+                      {formData.patientType === "student"
+                        ? "Course/Dept."
+                        : "Position"}
+                    </label>
                     <input
                       type="text"
-                      name="XrayNo"
-                      value={formData.XrayNo}
-                      onChange={handleInputChange}
+                      name="courseDept"
+                      value={formData.courseDept}
+                      readOnly
+                      className="w-full px-3 py-2 border rounded bg-gray-100"
+                    />
+                  </div>
+
+                  {/* Diagnosis input */}
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Diagnosis</label>
+                    <textarea
+                      name="diagnosis" // Ensure the name attribute is present
                       className="w-full px-3 py-2 border rounded"
-                    />
-                  </div>
-                  <div className="w-1/4">
-                    <label className="block text-gray-700">Date</label>
-                    <input
-                      type="date"
-                      name="date"
-                      value={formData.date}
+                      rows="4"
+                      placeholder="Enter a diagnosis..."
+                      value={formData.diagnosis}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border rounded"
                     />
                   </div>
-                </div>
+                </form>
 
-                <div className="flex mb-4">
-                  <div className="w-1/2 mr-2">
-                    <label className="block text-gray-700">Name</label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      readOnly
-                      className="w-full px-3 py-2 border rounded bg-gray-100"
+                {formData.imageFile && (
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Xray - Result</label>
+                    <img
+                      src={`${formData.imageFile}`} // Assuming image is stored on the server
+                      alt="X-ray"
+                      className="w-full h-auto"
                     />
                   </div>
-                  <div className="w-1/4 mr-2">
-                    <label className="block text-gray-700">Age</label>
-                    <input
-                      type="text"
-                      name="age"
-                      value={formData.age}
-                      readOnly
-                      className="w-full px-3 py-2 border rounded bg-gray-100"
-                    />
-                  </div>
-                  <div className="w-1/4">
-                    <label className="block text-gray-700">Sex</label>
-                    <input
-                      type="text"
-                      name="sex"
-                      value={formData.sex}
-                      readOnly
-                      className="w-full px-3 py-2 border rounded bg-gray-100"
-                    />
-                  </div>
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700">
-                    {formData.patientType === "Student"
-                      ? "Course/Dept."
-                      : "Position"}
-                  </label>
-                  <input
-                    type="text"
-                    name="courseDept"
-                    value={formData.courseDept}
-                    readOnly
-                    className="w-full px-3 py-2 border rounded bg-gray-100"
-                  />
-                </div>
-
-                {/* Image Upload */}
-                <div className="mb-4">
-                  <label className="block text-gray-700">
-                    Upload X-ray Image
-                  </label>
-                  <input
-                    type="file"
-                    onChange={handleImageChange}
-                    className="w-full px-3 py-2 border rounded"
-                  />
-                </div>
-
-                {/* Diagnosis input */}
-                <div className="mb-4">
-                  <label className="block text-gray-700">Diagnosis</label>
-                  <textarea
-                    name="diagnosis" // Ensure the name attribute is present
-                    className="w-full px-3 py-2 border rounded"
-                    rows="4"
-                    placeholder="Enter a diagnosis..."
-                    value={formData.diagnosis}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </form>
+                )}
+              </div>
 
               <div className="flex justify-end space-x-4 mt-4">
                 <button
@@ -515,4 +515,4 @@ function Xray() {
   );
 }
 
-export default Xray;
+export default XrayResult;
