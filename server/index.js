@@ -78,6 +78,24 @@ app.get("/api/physicalTherapy/:patientId", async (req, res) => {
   }
 });
 
+app.put("/api/physicalTherapy/:id", async (req, res) => {
+  const { id } = req.params;
+  const updatedData = req.body;
+
+  try {
+    const updatedRecord = await PhysicalTherapyModel.findByIdAndUpdate(id, updatedData, { new: true });
+    if (updatedRecord) {
+      res.json({ success: true, message: "Record updated successfully", updatedRecord });
+    }
+    else {
+      res.status(404).json({ message: "Record not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error updating record", error: error.message });
+  }
+}
+);
+
 const fs = require('fs');
 const path = require('path');
 

@@ -82,7 +82,9 @@ const Dashboard = () => {
       "junior medtech": ["Laboratory Records"],
       "senior medtech": ["Laboratory Records"],
       "radiologic technologist": ["X-Ray Records"],
-      "radiologist": ["X-Ray Records"]
+      "radiologist": ["X-Ray Records"],
+      "special trainee":["Physical Therapy Records"],
+      "physical therapist":["Physical Therapy Records"],
     };
   
     // Check if the userRole exists in the mapping and get the records it can access
@@ -122,112 +124,133 @@ const Dashboard = () => {
 
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-2">
-            <div
-              className={`${
-                records.length === 1 ? "grid-cols-4" : "grid-cols-3"
-              } grid gap-6`}
-            >
-              {records.length === 1 ? (
-                <div className="col-span-4">
-                  {records.includes("Clinical Records") && (
+          <div
+            className={`${
+              records.length === 1 ? "grid-cols-4" : "grid-cols-3"
+            } grid gap-6`}
+          >
+            {records.length === 1 ? (
+              <div className="col-span-4">
+                {records.includes("Clinical Records") && (
+                  <a
+                    href="/clinic/records" // Link to Clinical Records page
+                    className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                  >
+                    <TbBuildingHospital size={40} className="text-gray-500 mb-2" />
+                    <span className="font-semibold text-custom-red">
+                      CLINICAL RECORDS
+                    </span>
+                  </a>
+                )}
+                {records.includes("Laboratory Records") && (
+                  <div className="grid grid-cols-2 gap-6">
                     <a
-                      href="/clinic/records" // Link to Clinical Records page
+                      href="/laboratory/records" // Link to Laboratory Records page
                       className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                     >
+                      <SlChemistry size={40} className="text-gray-500 mb-2"/>
+                      <span className="font-semibold text-custom-red">
+                        LABORATORY RECORDS
+                      </span>
+                    </a>
+                    <a
+                      href="/laboratory/requests" // Link to Laboratory Requests page
+                      className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                    >
+                      <SlChemistry size={40} className="text-gray-500 mb-2"/>
+                      <span className="font-semibold text-custom-red">
+                        LABORATORY REQUESTS
+                      </span>
+                    </a>
+                  </div>
+                )}
+                {records.includes("X-Ray Records") && (
+                  <div className="grid grid-cols-2 gap-6">
+                    <a
+                      href="/xray/records" // Link to X-Ray Records page
+                      className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                    >
+                      <FaXRay size={40} className="text-gray-500 mb-2" />
+                      <span className="font-semibold text-custom-red">
+                        X-RAY RECORDS
+                      </span>
+                    </a>
+                    <a
+                      href="/xray/requests" // Link to X-Ray Requests page
+                      className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                    >
+                      <FaXRay size={40} className="text-gray-500 mb-2" />
+                      <span className="font-semibold text-custom-red">
+                        X-RAY REQUESTS
+                      </span>
+                    </a>
+                  </div>
+                )}
+                {records.includes("Physical Therapy Records") && (
+                  <a
+                    href="/physicaltherapy/records" // Link to Physical Therapy Records page
+                    className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                  >
+                    <FaXRay size={40} className="text-gray-500 mb-2" />
+                    <span className="font-semibold text-custom-red">
+                      PHYSICAL THERAPY RECORDS
+                    </span>
+                  </a>
+                )}
+              </div>
+            ) : (
+              records.map((record, index) => (
+                <Link
+                  key={index}
+                  to={
+                    record === "Clinical Records"
+                      ? "/clinic/records"
+                      : record === "Laboratory Records"
+                      ? "/laboratory/records"
+                      : record === "X-Ray Records"
+                      ? "/xray/records"
+                      : record === "Physical Therapy Records"
+                      ? "/physicaltherapy/records"
+                      : "#"
+                  }
+                  className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105"
+                >
+                  {record === "Clinical Records" && (
+                    <>
                       <TbBuildingHospital size={40} className="text-gray-500 mb-2" />
                       <span className="font-semibold text-custom-red">
                         CLINICAL RECORDS
                       </span>
-                    </a>
+                    </>
                   )}
-                  {records.includes("Laboratory Records") && (
-                    <div className="grid grid-cols-2 gap-6">
-                      <a
-                        href="/laboratory/records" // Link to Laboratory Records page
-                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
-                      >
-                        <SlChemistry size={40} className="text-gray-500 mb-2"/>
-                        <span className="font-semibold text-custom-red">
-                          LABORATORY RECORDS
-                        </span>
-                      </a>
-                      <a
-                        href="/laboratory/requests" // Link to Laboratory Requests page
-                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
-                      >
-                        <SlChemistry size={40} className="text-gray-500 mb-2"/>
-                        <span className="font-semibold text-custom-red">
-                          LABORATORY REQUESTS
-                        </span>
-                      </a>
-                    </div>
+                  {record === "Laboratory Records" && (
+                    <>
+                      <SlChemistry size={40} className="text-gray-500 mb-2" />
+                      <span className="font-semibold text-custom-red">
+                        LABORATORY RECORDS
+                      </span>
+                    </>
                   )}
-                  {records.includes("X-Ray Records") && (
-                    <div className="grid grid-cols-2 gap-6">
-                      <a
-                        href="/xray/records" // Link to X-Ray Records page
-                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
-                      >
-                        <FaXRay size={40} className="text-gray-500 mb-2" />
-                        <span className="font-semibold text-custom-red">
-                          X-RAY RECORDS
-                        </span>
-                      </a>
-                      <a
-                        href="/xray/requests" // Link to X-Ray Requests page
-                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
-                      >
-                        <FaXRay size={40} className="text-gray-500 mb-2" />
-                        <span className="font-semibold text-custom-red">
-                          X-RAY REQUESTS
-                        </span>
-                      </a>
-                    </div>
+                  {record === "X-Ray Records" && (
+                    <>
+                      <FaXRay size={40} className="text-gray-500 mb-2" />
+                      <span className="font-semibold text-custom-red">
+                        X-RAY RECORDS
+                      </span>
+                    </>
                   )}
-                </div>
-              ) : (
-                records.map((record, index) => (
-                  <Link
-                    key={index}
-                    to={
-                      record === "Clinical Records"
-                        ? "/clinic/records"
-                        : record === "Laboratory Records"
-                        ? "/laboratory/records"
-                        : record === "X-Ray Records"
-                        ? "/xray/records"
-                        : "#"
-                    }
-                    className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105"
-                  >
-                    {record === "Clinical Records" && (
-                      <>
-                        <TbBuildingHospital size={40} className="text-gray-500 mb-2" />
-                        <span className="font-semibold text-custom-red">
-                          CLINICAL RECORDS
-                        </span>
-                      </>
-                    )}
-                    {record === "Laboratory Records" && (
-                      <>
-                        <SlChemistry size={40} className="text-gray-500 mb-2"/>                        <span className="font-semibold text-custom-red">
-                          LABORATORY RECORDS
-                        </span>
-                      </>
-                    )}
-                    {record === "X-Ray Records" && (
-                      <>
-                        <FaXRay size={40} className="text-gray-500 mb-2" />
-                        <span className="font-semibold text-custom-red">
-                          X-RAY RECORDS
-                        </span>
-                      </>
-                    )}
-                  </Link>
-                ))
-              )}
-            </div>
-
+                  {record === "Physical Therapy Records" && (
+                    <>
+                      <FaXRay size={40} className="text-gray-500 mb-2" />
+                      <span className="font-semibold text-custom-red">
+                        PHYSICAL THERAPY RECORDS
+                      </span>
+                    </>
+                  )}
+                </Link>
+              ))
+            )}
+          </div>
             <div className="bg-white p-6 rounded-lg shadow-md mt-6">
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-xl font-semibold mb-4">Recent Patients</h2>

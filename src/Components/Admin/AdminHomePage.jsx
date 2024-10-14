@@ -584,6 +584,11 @@ function AdminHomePage() {
                             </option>
                             <option value="radiologist">Radiologist</option>
                           </>
+                        ) : newAccount.department === "pt" ? (
+                          <>
+                            <option value="special trainee">Special Trainee</option>
+                            <option value="physical therapist">Physical Therapist</option>
+                          </>
                         ) : (
                           <>
                             <option value="nurse">Nurse</option>
@@ -601,7 +606,8 @@ function AdminHomePage() {
                             <option value="radiologist">Radiologist</option>
                             <option value="admin">Admin</option>
                           </>
-                        )}
+                        )
+                        }
                       </select>
                     </div>
                     <div>

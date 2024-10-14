@@ -20,6 +20,8 @@ function PatientsProfile() {
   const [physicalTherapyRecords, setPhysicalTherapyRecords] = useState([]);
   const [newTherapyRecord, setNewTherapyRecord] = useState({
     date: new Date().toLocaleDateString(),
+    Diagnosis: "",
+    Precautions: "",
     SOAPSummary: "",
   });
   const [newRecord, setNewRecord] = useState({
@@ -180,6 +182,8 @@ function PatientsProfile() {
         fetchPhysicalTherapyRecords();
         setNewTherapyRecord({
           SOAPSummary: "",
+          Diagnosis: "",
+          Precautions: "",
         });
       }
     } catch (error) {
@@ -200,7 +204,7 @@ function PatientsProfile() {
     const tableData = displayedRecords.map((record) => [
       new Date(record.isCreatedAt).toLocaleString(),
       record.SOAPSummary,
-      record.physicalTherapyResult,
+      record.Diagnosis,
     ]);
 
     // Generate the table using autoTable
@@ -635,12 +639,7 @@ function PatientsProfile() {
                       >
                         Check Up
                       </button>
-                      {/* <button
-                          className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
-                          onClick={handleNewTherapyRecordOpen}
-                        >
-                          New Physical Theraphy Record
-                        </button> */}
+                      
                       {/* <button
                           className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                           onClick={handleGenerateReport}
@@ -669,6 +668,12 @@ function PatientsProfile() {
                             >
                               X-ray
                             </button>
+                            {/* <button
+                            className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                              onClick={handleNewTherapyRecordOpen}
+                            >
+                              Physical Theraphy 
+                           </button> */}
                           </div>
                         )}
                       </div>
@@ -1286,9 +1291,10 @@ function PatientsProfile() {
                 >
                   X-ray Records
                 </button>
+                {(role === "physical therapist" || role === "special trainee") && (
                 <button
                   className={`${
-                    selectedTab === "physical therapy"
+                    selectedTab === "physical therapy" 
                       ? "text-custom-red font-semibold"
                       : ""
                   }`}
@@ -1296,6 +1302,7 @@ function PatientsProfile() {
                 >
                   Physical Therapy Records
                 </button>
+                )}
               </div>
             </div>
 
@@ -1432,8 +1439,6 @@ function PatientsProfile() {
                   ))}
 
                 {selectedTab === "physical therapy" &&
-                  (role === "special trainee" ||
-                    role === "physical therapist") &&
                   (displayedRecords.length > 0 ? (
                     displayedRecords.map((records, index) => (
                       <li
@@ -1445,6 +1450,7 @@ function PatientsProfile() {
                             {new Date(records.isCreatedAt).toLocaleString()}
                           </p>
                           <p className="font-semibold">{records.SOAPSummary}</p>
+                          <p className="text-gray-500">{records.Diagnosis}</p>
                         </div>
                         <div className="text-gray-500">
                           {records.physicalTherapyResult}
@@ -1463,20 +1469,20 @@ function PatientsProfile() {
         </div>
       </div>
       {isNewTherapyRecordModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white py-2 px-6 rounded-lg w-full max-w-md shadow-lg">
+         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
             <h2 className="text-lg font-bold mb-4 text-center">
               New Physical Therapy Record
             </h2>
             <form onSubmit={handleNewTherapySubmit}>
               <div className="mb-4">
                 <label className="block text-sm font-medium">
-                  SOAP SUMMARY
+                  Diagnosis
                 </label>
                 <input
                   type="text"
-                  name="SOAPSummary"
-                  value={newTherapyRecord.SOAPSummary}
+                  name="Diagnosis"
+                  value={newTherapyRecord.Diagnosis}
                   onChange={handleNewTherapyRecordChange}
                   required
                   className="border rounded-lg w-full p-2 mt-1"
