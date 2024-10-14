@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { BiSearch } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
@@ -13,6 +13,8 @@ function XrayResult() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [result, setResult] = useState("");
   const [imageFile, setImageFile] = useState(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false); // New state for image modal
+  const [fullImageSrc, setFullImageSrc] = useState("");
 
   const [formData, setFormData] = useState({
     XrayNo: "",
@@ -26,35 +28,43 @@ function XrayResult() {
     imageFile: "",
   });
 
-  useEffect(() => {
-    fetchXrayRecords();
-  }, []);
-
-  useEffect(() => {
-    // Retrieve the role from localStorage
-    const storedRole = localStorage.getItem("role");
-    if (storedRole) {
-      setUserRole(storedRole);
-    }
-  }, []);
-
-  const fetchXrayRecords = () => {
+  const fetchXrayRecords = useCallback(() => {
     axios
       .get("http://localhost:3001/api/xrayResults")
       .then((response) => {
-        // Filter records where xrayResult is "pending"
-        const pendingRecords = response.data.filter(
-          (record) => record.xrayResult === "done"
-        );
-        const sortedRecords = pendingRecords.sort(
+        const filteredRecords = response.data.filter((record) => {
+          return (
+            record.xrayResult === "done" &&
+            ((userRole === "radiologist" && record.xrayType === "medical") ||
+              (userRole === "radiologic technologist" &&
+                record.xrayType === "medical") ||
+              (userRole === "dentist" && record.xrayType === "dental"))
+          );
+        });
+
+        const sortedRecords = filteredRecords.sort(
           (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
         );
+
         setXrayRecords(sortedRecords);
       })
       .catch((error) => {
         console.error("There was an error fetching the X-ray records!", error);
       });
-  };
+  }, [userRole]);
+
+  useEffect(() => {
+    if (userRole) {
+      fetchXrayRecords();
+    }
+  }, [userRole, fetchXrayRecords]);
+
+  useEffect(() => {
+    const storedRole = localStorage.getItem("role");
+    if (storedRole) {
+      setUserRole(storedRole);
+    }
+  }, []);
 
   const getAge = (birthdate) => {
     const today = new Date();
@@ -202,6 +212,11 @@ function XrayResult() {
     setShowFullList(!showFullList);
   };
 
+  const handleImageClick = (imageSrc) => {
+    setFullImageSrc(imageSrc);
+    setIsImageModalOpen(true);
+  };
+
   return (
     <div>
       <Navbar />
@@ -211,29 +226,41 @@ function XrayResult() {
         </div>
 
         <div className="flex justify-between items-center mb-6">
-        <p className="text-gray-600">
-  {/* Display Dental requests if user is a dentist and dental records count is non-negative */}
-  {userRole === "dentist" && filteredXrayRecords.filter(record => record.xrayType === "dental").length >= 0 && (
-    <>
-      <span className="font-bold text-4xl text-custom-red">
-        {filteredXrayRecords.filter(record => record.xrayType === "dental").length}
-      </span>{" "}
-      Dental records
-    </>
-  )}
+          <p className="text-gray-600">
+            {/* Display Dental requests if user is a dentist and dental records count is non-negative */}
+            {userRole === "dentist" &&
+              filteredXrayRecords.filter(
+                (record) => record.xrayType === "dental"
+              ).length >= 0 && (
+                <>
+                  <span className="font-bold text-4xl text-custom-red">
+                    {
+                      filteredXrayRecords.filter(
+                        (record) => record.xrayType === "dental"
+                      ).length
+                    }
+                  </span>{" "}
+                  Dental records
+                </>
+              )}
 
-  {/* Display Medical requests if user is not a dentist and medical records count is non-negative */}
-  {userRole !== "dentist" && filteredXrayRecords.filter(record => record.xrayType === "medical").length >= 0 && (
-    <>
-      <span className="font-bold text-4xl text-custom-red">
-        {filteredXrayRecords.filter(record => record.xrayType === "medical").length}
-      </span>{" "}
-      Medical records
-    </>
-  )}
-</p>
-
-          
+            {/* Display Medical requests if user is not a dentist and medical records count is non-negative */}
+            {userRole !== "dentist" &&
+              filteredXrayRecords.filter(
+                (record) => record.xrayType === "medical"
+              ).length >= 0 && (
+                <>
+                  <span className="font-bold text-4xl text-custom-red">
+                    {
+                      filteredXrayRecords.filter(
+                        (record) => record.xrayType === "medical"
+                      ).length
+                    }
+                  </span>{" "}
+                  Medical records
+                </>
+              )}
+          </p>
 
           <div className="flex items-center space-x-4">
             <div className="relative">
@@ -358,6 +385,36 @@ function XrayResult() {
                 </tbody>
               </table>
             </div>
+            <div className="flex justify-between items-center mt-4">
+              <div>
+                Page <span className="text-custom-red">{currentPage}</span> of{" "}
+                {totalPages}
+              </div>
+              <div>
+                <button
+                  onClick={paginatePrev}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 mr-2 rounded-lg border ${
+                    currentPage === 1
+                      ? "bg-gray-300"
+                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                  }`}
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={paginateNext}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 rounded-lg border ${
+                    currentPage === totalPages
+                      ? "bg-gray-300"
+                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                  }`}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
         ) : (
           <div>
@@ -460,32 +517,36 @@ function XrayResult() {
                   </div>
 
                   {/* Diagnosis input */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700">
-                      Interpretation
-                    </label>
-                    <textarea
-                      name="diagnosis" // Ensure the name attribute is present
-                      className="w-full px-3 py-2 border rounded"
-                      rows="4"
-                      placeholder="Enter a diagnosis..."
-                      value={formData.diagnosis}
-                      onChange={handleInputChange}
-                      readOnly={userRole === "radiologic technologist"} // Set read-only if role is radiologic technologist
-                    />
+                  <div className="flex mb-4 ">
+                    {/* X-ray Result Image */}
+                    <div className="w-1/5">
+                      <label className="block text-gray-700">
+                        X-ray Result
+                      </label>
+                      <img
+                        src={`${formData.imageFile}`}
+                        alt="X-ray"
+                        className="w-32 h-32 object-cover cursor-pointer"
+                        onClick={() => handleImageClick(formData.imageFile)}
+                      />
+                    </div>
+                    {/* Diagnosis (Interpretation) Textarea */}
+                    <div className="w-full">
+                      <label className="block text-gray-700">
+                        Interpretation
+                      </label>
+                      <textarea
+                        name="diagnosis"
+                        className="w-full px-3 py-2 border rounded"
+                        rows="4"
+                        placeholder="Enter an interpretation..."
+                        value={formData.diagnosis}
+                        onChange={handleInputChange}
+                        readOnly={userRole === "radiologic technologist"}
+                      />
+                    </div>
                   </div>
                 </form>
-
-                {formData.imageFile && (
-                  <div className="mb-4">
-                    <label className="block text-gray-700">Xray - Result</label>
-                    <img
-                      src={`${formData.imageFile}`} // Assuming image is stored on the server
-                      alt="X-ray"
-                      className="w-full h-auto"
-                    />
-                  </div>
-                )}
               </div>
 
               <div className="flex justify-end space-x-4 mt-4">
@@ -506,6 +567,24 @@ function XrayResult() {
                   </button>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+
+        {isImageModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+            <div className="relative bg-white p-6 rounded-lg max-w-3xl w-full h-[95vh] shadow-lg overflow-y-auto">
+              <button
+                onClick={() => setIsImageModalOpen(false)}
+                className="absolute top-4 right-4 text-custom-red text-2xl font-bold cursor-pointer"
+              >
+                &times;
+              </button>
+              <img
+                src={fullImageSrc}
+                alt="Full-size X-ray"
+                className="w-full h-full object-contain"
+              />
             </div>
           </div>
         )}

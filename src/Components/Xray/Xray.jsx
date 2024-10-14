@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { BiSearch } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
@@ -25,36 +25,43 @@ function Xray() {
     diagnosis: "",
     imageFile: "",
   });
-
-  useEffect(() => {
-    fetchXrayRecords();
-  }, []);
-
-  useEffect(() => {
-    // Retrieve the role from localStorage
-    const storedRole = localStorage.getItem("role");
-    if (storedRole) {
-      setUserRole(storedRole);
-    }
-  }, []);
-
-  const fetchXrayRecords = () => {
+  const fetchXrayRecords = useCallback(() => {
     axios
       .get("http://localhost:3001/api/xrayResults")
       .then((response) => {
-        // Filter records where xrayResult is "pending"
-        const pendingRecords = response.data.filter(
-          (record) => record.xrayResult === "pending"
-        );
-        const sortedRecords = pendingRecords.sort(
+        const filteredRecords = response.data.filter((record) => {
+          return (
+            record.xrayResult === "pending" &&
+            ((userRole === "radiologist" && record.xrayType === "medical") ||
+              (userRole === "radiologic technologist" &&
+                record.xrayType === "medical") ||
+              (userRole === "dentist" && record.xrayType === "dental"))
+          );
+        });
+
+        const sortedRecords = filteredRecords.sort(
           (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
         );
+
         setXrayRecords(sortedRecords);
       })
       .catch((error) => {
         console.error("There was an error fetching the X-ray records!", error);
       });
-  };
+  }, [userRole]);
+
+  useEffect(() => {
+    if (userRole) {
+      fetchXrayRecords();
+    }
+  }, [userRole, fetchXrayRecords]);
+
+  useEffect(() => {
+    const storedRole = localStorage.getItem("role");
+    if (storedRole) {
+      setUserRole(storedRole);
+    }
+  }, []);
 
   const getAge = (birthdate) => {
     const today = new Date();
@@ -366,10 +373,41 @@ function Xray() {
                         </tr>
                       );
                     }
-                    return null; // If the xrayType does not match the user role, skip this row
+                    return null;
                   })}
                 </tbody>
               </table>
+            </div>
+
+            <div className="flex justify-between items-center mt-4">
+              <div>
+                Page <span className="text-custom-red">{currentPage}</span> of{" "}
+                {totalPages}
+              </div>
+              <div>
+                <button
+                  onClick={paginatePrev}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 mr-2 rounded-lg border ${
+                    currentPage === 1
+                      ? "bg-gray-300"
+                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                  }`}
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={paginateNext}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 rounded-lg border ${
+                    currentPage === totalPages
+                      ? "bg-gray-300"
+                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                  }`}
+                >
+                  Next
+                </button>
+              </div>
             </div>
           </div>
         ) : (
