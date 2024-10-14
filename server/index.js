@@ -941,50 +941,49 @@ app.put(
   "/api/xrayResults/:id",
   uploadd.single("imageFile"),
   async (req, res) => {
-    console.log(req.body); // Log the request body to check if all fields are received
-    console.log(req.file); // Log the uploaded file
-
     const { XrayNo, diagnosis, patientId, clinicId } = req.body;
-    const imageFile = req.file ? req.file.filename : ""; // Check if file exists
+    const imageFile = req.file ? req.file.filename : ""; // Check if a new file was uploaded
 
-    // Find the existing record by ID
-    const existingRecord = await XrayModel.findById(req.params.id);
-    if (!existingRecord) {
-      return res
-        .status(400)
-        .json({
+    try {
+      // Find the existing record by ID
+      const existingRecord = await XrayModel.findById(req.params.id);
+      if (!existingRecord) {
+        return res.status(400).json({
           success: false,
           message: "No matching record found for the given patient and clinic.",
         });
+      }
+
+      // Update fields
+      existingRecord.XrayNo = XrayNo;
+      existingRecord.diagnosis = diagnosis || "";
+
+      // Only update imageFile if a new image is uploaded
+      if (imageFile) {
+        const imageUrl = `http://localhost:3001/xrayResultUpload/${imageFile}`;
+        existingRecord.imageFile = imageUrl;
+      }
+
+      // Set xrayResult to 'done'
+      existingRecord.xrayResult = "done";
+
+      // Save the updated record
+      const updatedXray = await existingRecord.save();
+      console.log("Updated X-ray record:", updatedXray); // Log the updated record
+
+      // Return success and include the imageFile for preview
+      return res.json({
+        success: true,
+        updatedRecord: updatedXray,
+        imageFile: existingRecord.imageFile, // Return the existing or new image URL for preview
+      });
+    } catch (error) {
+      console.error("Error updating X-ray record:", error);
+      res.status(500).json({ message: "Error updating X-ray record", error });
     }
-
-    // Update the existing record
-    existingRecord.XrayNo = XrayNo;
-    existingRecord.diagnosis = diagnosis || ""; // Update diagnosis if provided (only for radiologic technologists)
-
-    // Save the image URL with the desired format
-    const imageUrl = `http://localhost:3001/xrayResultUpload/${imageFile}`;
-    existingRecord.imageFile = imageUrl;
-
-    // Set the xrayResult status based on whether the diagnosis is provided (only for radiologic technologists)
-    if (diagnosis && diagnosis.trim()) {
-      existingRecord.xrayResult = "done"; // If diagnosis is provided, set to done
-    } else {
-      existingRecord.xrayResult = "pending"; // If diagnosis is empty, set to pending
-    }
-
-    // Save the updated record
-    const updatedXray = await existingRecord.save();
-    console.log("Updated X-ray record:", updatedXray); // Log the updated record
-
-    // Return success and include the imageFile for preview
-    return res.json({
-      success: true,
-      updatedRecord: updatedXray,
-      imageFile: imageUrl, // Return the image URL for preview
-    });
   }
 );
+
 
 module.exports = router;
 

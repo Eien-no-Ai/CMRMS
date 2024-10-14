@@ -8,7 +8,6 @@ const XraySchema = new mongoose.Schema({
   xrayDescription: { type: String, default: "" },
   xrayResult: { type: String, default: "" },
   isCreatedAt: { type: Date, default: Date.now },
-
   diagnosis: { type: String, default: "" },
   imageFile: { type: String, default: "" },
 });

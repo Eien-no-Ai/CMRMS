@@ -211,12 +211,29 @@ function XrayResult() {
         </div>
 
         <div className="flex justify-between items-center mb-6">
-          <p className="text-gray-600">
-            <span className="font-bold text-4xl text-custom-red">
-              {filteredXrayRecords.length}
-            </span>{" "}
-            records
-          </p>
+        <p className="text-gray-600">
+  {/* Display Dental requests if user is a dentist and dental records count is non-negative */}
+  {userRole === "dentist" && filteredXrayRecords.filter(record => record.xrayType === "dental").length >= 0 && (
+    <>
+      <span className="font-bold text-4xl text-custom-red">
+        {filteredXrayRecords.filter(record => record.xrayType === "dental").length}
+      </span>{" "}
+      Dental records
+    </>
+  )}
+
+  {/* Display Medical requests if user is not a dentist and medical records count is non-negative */}
+  {userRole !== "dentist" && filteredXrayRecords.filter(record => record.xrayType === "medical").length >= 0 && (
+    <>
+      <span className="font-bold text-4xl text-custom-red">
+        {filteredXrayRecords.filter(record => record.xrayType === "medical").length}
+      </span>{" "}
+      Medical records
+    </>
+  )}
+</p>
+
+          
 
           <div className="flex items-center space-x-4">
             <div className="relative">
@@ -253,115 +270,93 @@ function XrayResult() {
                 </thead>
 
                 <tbody>
-                  {currentXrayRecords.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan="5"
-                        className="py-4 text-center text-gray-500"
-                      >
-                        No X-ray records found.
-                      </td>
-                    </tr>
-                  ) : (
-                    currentXrayRecords.map((record) => {
-                      // Conditional rendering based on xrayType and userRole
-                      if (
-                        (record.xrayType === "medical" &&
-                          (userRole === "radiologist" ||
-                            userRole === "radiologic technologist")) ||
-                        (record.xrayType === "dental" && userRole === "dentist")
-                      ) {
-                        return (
-                          <tr key={record._id} className="border-b">
-                            <td className="py-4 px-4">
-                              {record.patient ? (
-                                <>
-                                  <p className="font-semibold">
-                                    {record.patient.lastname},{" "}
-                                    {record.patient.firstname}
-                                  </p>
-                                  <p className="text-sm text-gray-500">
-                                    {new Date(
-                                      record.isCreatedAt
-                                    ).toLocaleString()}
-                                  </p>
-                                </>
-                              ) : (
-                                <p className="text-sm text-gray-500">
-                                  No patient data
+                  {/* Check for dental and medical records separately */}
+                  {userRole === "dentist" &&
+                    currentXrayRecords.filter(
+                      (record) => record.xrayType === "dental"
+                    ).length === 0 && (
+                      <tr>
+                        <td
+                          colSpan="5"
+                          className="py-4 text-center text-gray-500"
+                        >
+                          No Dental X-ray records found.
+                        </td>
+                      </tr>
+                    )}
+                  {userRole !== "dentist" &&
+                    currentXrayRecords.filter(
+                      (record) => record.xrayType === "medical"
+                    ).length === 0 && (
+                      <tr>
+                        <td
+                          colSpan="5"
+                          className="py-4 text-center text-gray-500"
+                        >
+                          No Medical X-ray records found.
+                        </td>
+                      </tr>
+                    )}
+
+                  {/* Display records if available */}
+                  {currentXrayRecords.map((record) => {
+                    // Conditional rendering based on xrayType and userRole
+                    if (
+                      (record.xrayType === "medical" &&
+                        (userRole === "radiologist" ||
+                          userRole === "radiologic technologist")) ||
+                      (record.xrayType === "dental" && userRole === "dentist")
+                    ) {
+                      return (
+                        <tr key={record._id} className="border-b">
+                          <td className="py-4">
+                            {record.patient ? (
+                              <>
+                                <p className="font-semibold">
+                                  {record.patient.lastname},{" "}
+                                  {record.patient.firstname}
                                 </p>
-                              )}
-                            </td>
-                            <td className="py-4 px-4">
-                              <p className="font-semibold">
-                                {record.xrayType || "No test data available"}
+                                <p className="text-sm text-gray-500">
+                                  {new Date(
+                                    record.isCreatedAt
+                                  ).toLocaleString()}
+                                </p>
+                              </>
+                            ) : (
+                              <p className="text-sm text-gray-500">
+                                No patient data
                               </p>
-                            </td>
-                            <td className="py-4 px-4">
-                              <p>
-                                {record.xrayDescription ||
-                                  "No description available"}
-                              </p>
-                            </td>
-                            <td className="py-4 px-4">
-                              <p>{record.xrayResult || "pending"}</p>
-                            </td>
-                            <td className="py-4 px-4">
-                              {record.xrayResult === "pending" ? (
-                                <button
-                                  className="text-custom-red hover:underline"
-                                  onClick={() => handleAddResult(record)}
-                                >
-                                  Add Result
-                                </button>
-                              ) : (
-                                <button
-                                  className="text-custom-red hover:underline"
-                                  onClick={() => handleAddResult(record)}
-                                >
-                                  View Result
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      }
-                      return null; // If the xrayType does not match the user role, skip this row
-                    })
-                  )}
+                            )}
+                          </td>
+                          <td className="py-4">
+                            <p className="font-semibold">
+                              {record.xrayType || "No test data available"}
+                            </p>
+                          </td>
+                          <td className="py-4">
+                            <p>
+                              {record.xrayDescription ||
+                                "No description available"}
+                            </p>
+                          </td>
+                          <td className="py-4">
+                            <p>{record.xrayResult || "pending"}</p>
+                          </td>
+                          <td className="py-4">
+                            <button
+                              className="text-custom-red hover:underline"
+                              onClick={() => handleAddResult(record)}
+                            >
+                              View
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    }
+                    return null; // If the xrayType does not match the user role, skip this row
+                  })}
                 </tbody>
               </table>
-            </div>
-
-            <div className="flex justify-between items-center mt-4">
-              <div>
-                Page <span className="text-custom-red">{currentPage}</span> of{" "}
-                {totalPages}
-              </div>
-              <div>
-                <button
-                  onClick={paginatePrev}
-                  disabled={currentPage === 1}
-                  className={`px-4 py-2 mr-2 rounded-lg border ${
-                    currentPage === 1
-                      ? "bg-gray-300"
-                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                  }`}
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={paginateNext}
-                  disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg border ${
-                    currentPage === totalPages
-                      ? "bg-gray-300"
-                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                  }`}
-                >
-                  Next
-                </button>
-              </div>
             </div>
           </div>
         ) : (
@@ -401,6 +396,7 @@ function XrayResult() {
                         value={formData.XrayNo}
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 border rounded"
+                        readOnly
                       />
                     </div>
                     <div className="w-1/4">
@@ -411,6 +407,7 @@ function XrayResult() {
                         value={formData.date}
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 border rounded"
+                        readOnly
                       />
                     </div>
                   </div>
@@ -464,7 +461,9 @@ function XrayResult() {
 
                   {/* Diagnosis input */}
                   <div className="mb-4">
-                    <label className="block text-gray-700">Diagnosis</label>
+                    <label className="block text-gray-700">
+                      Interpretation
+                    </label>
                     <textarea
                       name="diagnosis" // Ensure the name attribute is present
                       className="w-full px-3 py-2 border rounded"
@@ -472,6 +471,7 @@ function XrayResult() {
                       placeholder="Enter a diagnosis..."
                       value={formData.diagnosis}
                       onChange={handleInputChange}
+                      readOnly={userRole === "radiologic technologist"} // Set read-only if role is radiologic technologist
                     />
                   </div>
                 </form>
@@ -497,15 +497,14 @@ function XrayResult() {
                     ? "Cancel"
                     : "Close"}
                 </button>
-
-                {selectedRecord?.xrayResult === "pending" ? (
+                {userRole === "radiologist" && (
                   <button
                     onClick={handleSubmitResult}
                     className="px-4 py-2 bg-custom-red text-white rounded-md"
                   >
-                    Submit
+                    Save
                   </button>
-                ) : null}
+                )}
               </div>
             </div>
           </div>
