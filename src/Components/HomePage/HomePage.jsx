@@ -82,7 +82,8 @@ const Dashboard = () => {
       "junior medtech": ["Laboratory Records"],
       "senior medtech": ["Laboratory Records"],
       "radiologic technologist": ["X-Ray Records"],
-      "radiologist": ["X-Ray Records"]
+      "radiologist": ["X-Ray Records"],
+      "dentist": ["X-Ray Records"]
     };
   
     // Check if the userRole exists in the mapping and get the records it can access
