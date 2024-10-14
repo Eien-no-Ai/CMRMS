@@ -91,6 +91,12 @@ function Xray() {
   };
 
   const handleSubmitResult = async () => {
+    if (userRole === "radiologic technologist") {
+      if (!formData.XrayNo || !imageFile) {
+        alert("Both XrayNo and imageFile are required to submit.");
+        return;
+      }
+    }
     // Ensure selectedRecord exists and has an _id
     if (!selectedRecord || !selectedRecord._id) {
       console.error(
@@ -255,10 +261,7 @@ function Xray() {
                 <tbody>
                   {currentXrayRecords.length === 0 ? (
                     <tr>
-                      <td
-                        colSpan="5"
-                        className="py-4 text-center text-gray-500"
-                      >
+                      <td colSpan="5" className="py-4 text-center text-gray-500">
                         No X-ray records found.
                       </td>
                     </tr>
@@ -267,66 +270,139 @@ function Xray() {
                       // Conditional rendering based on xrayType and userRole
                       if (
                         (record.xrayType === "medical" &&
-                          (userRole === "radiologist" ||
-                            userRole === "radiologic technologist")) ||
+                          (userRole === "radiologist" || userRole === "radiologic technologist")) ||
                         (record.xrayType === "dental" && userRole === "dentist")
                       ) {
-                        return (
-                          <tr key={record._id} className="border-b">
-                            <td className="py-4 px-4">
-                              {record.patient ? (
-                                <>
-                                  <p className="font-semibold">
-                                    {record.patient.lastname},{" "}
-                                    {record.patient.firstname}
-                                  </p>
-                                  <p className="text-sm text-gray-500">
-                                    {new Date(
-                                      record.isCreatedAt
-                                    ).toLocaleString()}
-                                  </p>
-                                </>
-                              ) : (
-                                <p className="text-sm text-gray-500">
-                                  No patient data
+                        // Radiologist: Show only if both XrayNo and imageFile exist
+                        if (userRole === "radiologist" && record.XrayNo && record.imageFile) {
+                          return (
+                            <tr key={record._id} className="border-b">
+                              <td className="py-4 px-4">
+                                {record.patient ? (
+                                  <>
+                                    <p className="font-semibold">
+                                      {record.patient.lastname}, {record.patient.firstname}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      {new Date(record.isCreatedAt).toLocaleString()}
+                                    </p>
+                                  </>
+                                ) : (
+                                  <p className="text-sm text-gray-500">No patient data</p>
+                                )}
+                              </td>
+                              <td className="py-4 px-4">
+                                <p className="font-semibold">
+                                  {record.xrayType || "No test data available"}
                                 </p>
-                              )}
-                            </td>
-                            <td className="py-4 px-4">
-                              <p className="font-semibold">
-                                {record.xrayType || "No test data available"}
-                              </p>
-                            </td>
-                            <td className="py-4 px-4">
-                              <p>
-                                {record.xrayDescription ||
-                                  "No description available"}
-                              </p>
-                            </td>
-                            <td className="py-4 px-4">
-                              <p>{record.xrayResult || "pending"}</p>
-                            </td>
-                            <td className="py-4 px-4">
-                              {record.xrayResult === "pending" ? (
+                              </td>
+                              <td className="py-4 px-4">
+                                <p>{record.xrayDescription || "No description available"}</p>
+                              </td>
+                              <td className="py-4 px-4">
+                                <p>{record.xrayResult || "pending"}</p>
+                              </td>
+                              <td className="py-4 px-4">
                                 <button
                                   className="text-custom-red hover:underline"
                                   onClick={() => handleAddResult(record)}
                                 >
-                                  Add Result
+                                  {record.xrayResult === "pending"
+                                    ? "Add Result"
+                                    : "View Result"}
                                 </button>
-                              ) : (
+                              </td>
+                            </tr>
+                          );
+                        }
+
+                        // Radiologic Technologist: Show if XrayNo or imageFile is missing
+                        if (userRole === "radiologic technologist" && (!record.XrayNo || !record.imageFile)) {
+                          return (
+                            <tr key={record._id} className="border-b">
+                              <td className="py-4 px-4">
+                                {record.patient ? (
+                                  <>
+                                    <p className="font-semibold">
+                                      {record.patient.lastname}, {record.patient.firstname}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      {new Date(record.isCreatedAt).toLocaleString()}
+                                    </p>
+                                  </>
+                                ) : (
+                                  <p className="text-sm text-gray-500">No patient data</p>
+                                )}
+                              </td>
+                              <td className="py-4 px-4">
+                                <p className="font-semibold">
+                                  {record.xrayType || "No test data available"}
+                                </p>
+                              </td>
+                              <td className="py-4 px-4">
+                                <p>{record.xrayDescription || "No description available"}</p>
+                              </td>
+                              <td className="py-4 px-4">
+                                <p>{record.xrayResult || "pending"}</p>
+                              </td>
+                              <td className="py-4 px-4">
+                                {/* Button only visible for Radiologic Technologist */}
                                 <button
                                   className="text-custom-red hover:underline"
                                   onClick={() => handleAddResult(record)}
                                 >
-                                  View Result
+                                  {record.xrayResult === "pending"
+                                    ? "Add Result"
+                                    : "View Result"}
                                 </button>
-                              )}
-                            </td>
-                          </tr>
-                        );
+                              </td>
+                            </tr>
+                          );
+                        }
+
+                        // Dentist: Show all records with xrayType === "dental"
+                        if (userRole === "dentist" && record.xrayType === "dental") {
+                          return (
+                            <tr key={record._id} className="border-b">
+                              <td className="py-4 px-4">
+                                {record.patient ? (
+                                  <>
+                                    <p className="font-semibold">
+                                      {record.patient.lastname}, {record.patient.firstname}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      {new Date(record.isCreatedAt).toLocaleString()}
+                                    </p>
+                                  </>
+                                ) : (
+                                  <p className="text-sm text-gray-500">No patient data</p>
+                                )}
+                              </td>
+                              <td className="py-4 px-4">
+                                <p className="font-semibold">
+                                  {record.xrayType || "No test data available"}
+                                </p>
+                              </td>
+                              <td className="py-4 px-4">
+                                <p>{record.xrayDescription || "No description available"}</p>
+                              </td>
+                              <td className="py-4 px-4">
+                                <p>{record.xrayResult || "pending"}</p>
+                              </td>
+                              <td className="py-4 px-4">
+                                <button
+                                  className="text-custom-red hover:underline"
+                                  onClick={() => handleAddResult(record)}
+                                >
+                                  {record.xrayResult === "pending" ? "Add Result" : "View Result"}
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        }
                       }
-                      return null; // If the xrayType does not match the user role, skip this row
+
+                      return null; // If no matching condition is met, skip the row
                     })
                   )}
                 </tbody>
@@ -383,133 +459,173 @@ function Xray() {
           </div>
         )}
 
-        {/* Modal for adding result */}
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
-              <h2 className="text-xl font-semibold mb-4">Result Form</h2>
+          {isModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
+                <h2 className="text-xl font-semibold mb-4">Result Form</h2>
 
-              {/* Conditional rendering based on the xrayResult */}
-              <form className="flex-grow">
-                {/* Input Fields for Pending Status */}
-                <div className="flex mb-4">
-                  <div className="w-3/4 mr-2">
-                    <label className="block text-gray-700">Xray No.</label>
-                    <input
-                      type="text"
-                      name="XrayNo"
-                      value={formData.XrayNo}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border rounded"
-                    />
+                {/* Conditional Rendering for Preview and Input */}
+                {formData.XrayNo && formData.imageFile ? (
+                  // Preview Mode (when XrayNo and imageFile are not empty)
+                  <div>
+                    {/* Display X-ray and patient details */}
+                    <div className="mb-4">
+                      <p><strong>X-ray No.:</strong> {formData.XrayNo}</p>
+                      <p><strong>Date:</strong> {formData.date}</p>
+                    </div>
+                    <div className="mb-4">
+                      <p><strong>Name:</strong> {formData.name}</p>
+                      <p><strong>Age:</strong> {formData.age}</p>
+                      <p><strong>Sex:</strong> {formData.sex}</p>
+                      <p><strong>Course/Dept.:</strong> {formData.courseDept}</p>
+                    </div>
+
+                    {/* Image Preview */}
+                    {formData.imageFile && (
+                      <div className="mb-4">
+                        <img
+                          src={`${formData.imageFile}`}  // Assuming image is stored on the server
+                          alt="X-ray"
+                          className="w-full h-auto"
+                        />
+                      </div>
+                    )}
+
+                    {/* Diagnosis Field Logic */}
+                    {userRole === "radiologist" && (
+                      <div className="mb-4">
+                        <label className="block font-semibold mb-2">Diagnosis:</label>
+                        <input
+                          type="text"
+                          name="diagnosis"
+                          value={formData.diagnosis}
+                          onChange={handleInputChange}
+                          className="px-4 py-2 w-full border border-gray-300 rounded"
+                        />
+                      </div>
+                    )}
                   </div>
-                  <div className="w-1/4">
-                    <label className="block text-gray-700">Date</label>
-                    <input
-                      type="date"
-                      name="date"
-                      value={formData.date}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border rounded"
-                    />
-                  </div>
-                </div>
+                ) : (
+                  // Add Result Form (when XrayNo or imageFile are empty)
+                  <form className="flex-grow">
+                    <div className="flex mb-4">
+                      <div className="w-3/4 mr-2">
+                        <label className="block text-gray-700">Xray No.</label>
+                        <input
+                          type="text"
+                          name="XrayNo"
+                          value={formData.XrayNo}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 border rounded"
+                        />
+                      </div>
+                      <div className="w-1/4">
+                        <label className="block text-gray-700">Date</label>
+                        <input
+                          type="date"
+                          name="date"
+                          value={formData.date}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 border rounded"
+                        />
+                      </div>
+                    </div>
 
-                <div className="flex mb-4">
-                  <div className="w-1/2 mr-2">
-                    <label className="block text-gray-700">Name</label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      readOnly
-                      className="w-full px-3 py-2 border rounded bg-gray-100"
-                    />
-                  </div>
-                  <div className="w-1/4 mr-2">
-                    <label className="block text-gray-700">Age</label>
-                    <input
-                      type="text"
-                      name="age"
-                      value={formData.age}
-                      readOnly
-                      className="w-full px-3 py-2 border rounded bg-gray-100"
-                    />
-                  </div>
-                  <div className="w-1/4">
-                    <label className="block text-gray-700">Sex</label>
-                    <input
-                      type="text"
-                      name="sex"
-                      value={formData.sex}
-                      readOnly
-                      className="w-full px-3 py-2 border rounded bg-gray-100"
-                    />
-                  </div>
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700">
-                    {formData.patientType === "Student"
-                      ? "Course/Dept."
-                      : "Position"}
-                  </label>
-                  <input
-                    type="text"
-                    name="courseDept"
-                    value={formData.courseDept}
-                    readOnly
-                    className="w-full px-3 py-2 border rounded bg-gray-100"
-                  />
-                </div>
+                    <div className="flex mb-4">
+                      <div className="w-1/2 mr-2">
+                        <label className="block text-gray-700">Name</label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          readOnly
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                        />
+                      </div>
+                      <div className="w-1/4 mr-2">
+                        <label className="block text-gray-700">Age</label>
+                        <input
+                          type="text"
+                          name="age"
+                          value={formData.age}
+                          readOnly
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                        />
+                      </div>
+                      <div className="w-1/4">
+                        <label className="block text-gray-700">Sex</label>
+                        <input
+                          type="text"
+                          name="sex"
+                          value={formData.sex}
+                          readOnly
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                        />
+                      </div>
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-gray-700">
+                        {formData.patientType === "Student" ? "Course/Dept." : "Position"}
+                      </label>
+                      <input
+                        type="text"
+                        name="courseDept"
+                        value={formData.courseDept}
+                        readOnly
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                      />
+                    </div>
 
-                {/* Image Upload */}
-                <div className="mb-4">
-                  <label className="block text-gray-700">
-                    Upload X-ray Image
-                  </label>
-                  <input
-                    type="file"
-                    onChange={handleImageChange}
-                    className="w-full px-3 py-2 border rounded"
-                  />
-                </div>
+                    {/* Image Upload */}
+                    <div className="mb-4">
+                      <label className="block text-gray-700">Upload X-ray Image</label>
+                      <input
+                        type="file"
+                        onChange={handleImageChange}
+                        className="w-full px-3 py-2 border rounded"
+                      />
+                    </div>
 
-                {/* Diagnosis input */}
-                <div className="mb-4">
-                  <label className="block text-gray-700">Diagnosis</label>
-                  <textarea
-                    name="diagnosis" // Ensure the name attribute is present
-                    className="w-full px-3 py-2 border rounded"
-                    rows="4"
-                    placeholder="Enter a diagnosis..."
-                    value={formData.diagnosis}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </form>
+                    {userRole === "dentist" && (
+                      <div className="mb-4">
+                        <label className="block text-gray-700">Diagnosis</label>
+                        <input
+                          type="text"
+                          name="diagnosis"
+                          value={formData.diagnosis}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 border rounded"
+                        />
+                      </div>
+                    )}
+                  </form>
+                )}
 
-              <div className="flex justify-end space-x-4 mt-4">
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-gray-500 text-white rounded-md"
-                >
-                  {selectedRecord?.xrayResult === "pending"
-                    ? "Cancel"
-                    : "Close"}
-                </button>
+                {/* Close/Cancel and Submit Buttons */}
+                <div className="flex justify-end space-x-4 mt-4">
+                  {/* Close/Cancel Button */}
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                  >
+                    {formData.XrayNo && formData.imageFile ? "Close" : "Cancel"}
+                  </button>
 
-                {selectedRecord?.xrayResult === "pending" ? (
+                  {/* Submit Button */}
                   <button
                     onClick={handleSubmitResult}
                     className="px-4 py-2 bg-custom-red text-white rounded-md"
                   >
-                    Submit
+                    {formData.XrayNo && formData.imageFile ? (
+                      userRole.role === "radiologist" ? "Add Diagnosis" : "Submit"
+                    ) : (
+                      "Submit"
+                    )}
                   </button>
-                ) : null}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
     </div>
   );
