@@ -165,8 +165,8 @@ function Laboratory() {
             patientData.patientType === "Student"
               ? patientData.course
               : patientData.position || "",
-          date: new Date().toLocaleDateString(),
-          age: getAge(patientData.birthdate),
+              date: new Date().toISOString().split("T")[0],
+              age: getAge(patientData.birthdate),
           sex: patientData.sex || "",
           patientType: patientData.patientType,
         });
@@ -594,7 +594,7 @@ function Laboratory() {
                 <div className="w-1/4">
                   <label className="block text-gray-700">Date</label>
                   <input
-                    type="text"
+                    type="date"
                     name="date"
                     value={formData.date}
                     onChange={handleInputChange}

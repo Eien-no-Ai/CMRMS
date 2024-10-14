@@ -207,7 +207,7 @@ function XrayResult() {
       <Navbar />
       <div className="p-6 pt-20 bg-gray-100 min-h-screen">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl font-semibold">X-ray Requests</h1>
+          <h1 className="text-3xl font-semibold">X-ray Records</h1>
         </div>
 
         <div className="flex justify-between items-center mb-6">
@@ -215,7 +215,7 @@ function XrayResult() {
             <span className="font-bold text-4xl text-custom-red">
               {filteredXrayRecords.length}
             </span>{" "}
-            requests
+            records
           </p>
 
           <div className="flex items-center space-x-4">
@@ -377,7 +377,7 @@ function XrayResult() {
                 onClick={toggleListVisibility}
                 className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
               >
-                Load All X-ray Requests
+                Load All X-ray Records
               </button>
             </div>
           </div>
