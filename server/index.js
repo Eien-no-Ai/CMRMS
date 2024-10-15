@@ -861,7 +861,13 @@ app.post("/api/xrayResults", async (req, res) => {
       .json({ success: false, message: "Invalid patient ID" });
   }
 
-  XrayModel.create(xrayResults)
+  // Add ORNumber to the new X-ray record
+  const newXrayRecord = {
+    ORNumber: xrayResults.ORNumber, // Include ORNumber here
+    ...xrayResults,
+  };
+
+  XrayModel.create(newXrayRecord)
     .then((xrayRequest) =>
       res.json({
         success: true,
@@ -877,6 +883,7 @@ app.post("/api/xrayResults", async (req, res) => {
       })
     );
 });
+
 
 // GET endpoint to fetch all X-ray records
 app.get("/api/xrayResults", async (req, res) => {
@@ -941,7 +948,7 @@ app.put(
   "/api/xrayResults/:id",
   uploadd.single("imageFile"),
   async (req, res) => {
-    const { XrayNo, diagnosis, patientId, clinicId } = req.body;
+    const { patientId, clinicId, ORNumber, XrayNo, diagnosis,   } = req.body;
     const imageFile = req.file ? req.file.filename : ""; // Check if a new file was uploaded
 
     try {
@@ -955,6 +962,7 @@ app.put(
       }
 
       // Update fields
+      existingRecord.ORNumber = ORNumber; // Update ORNumber here
       existingRecord.XrayNo = XrayNo;
       existingRecord.diagnosis = diagnosis || "";
 
@@ -983,6 +991,7 @@ app.put(
     }
   }
 );
+
 
 
 module.exports = router;

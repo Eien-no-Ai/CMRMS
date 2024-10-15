@@ -2401,7 +2401,7 @@ function PatientsProfile() {
                 </select>
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium">Description</label>
+                <label className="block text-sm font-medium">X-Ray Examination</label>
                 <textarea
                   name="xrayDescription"
                   value={newXrayRecord.xrayDescription || ""}

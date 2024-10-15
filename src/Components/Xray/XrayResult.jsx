@@ -17,6 +17,7 @@ function XrayResult() {
   const [fullImageSrc, setFullImageSrc] = useState("");
 
   const [formData, setFormData] = useState({
+    ORNumber: "",
     XrayNo: "",
     date: "",
     name: "",
@@ -87,6 +88,7 @@ function XrayResult() {
 
     // Set formData to include the necessary fields, pulling values from selectedRecord
     setFormData({
+      ORNumber: record.ORNumber || "",
       XrayNo: record.XrayNo || "", // Use record's XrayNo if available
       date: new Date().toISOString().split("T")[0],
       name: `${record.patient.lastname}, ${record.patient.firstname}`,
@@ -111,6 +113,7 @@ function XrayResult() {
 
     // Prepare the form data to send via axios
     const formDataToSubmit = new FormData();
+    formDataToSubmit.append("ORNumber", formData.ORNumber);
     formDataToSubmit.append("XrayNo", formData.XrayNo);
     formDataToSubmit.append("diagnosis", formData.diagnosis);
     formDataToSubmit.append("patientId", selectedRecord.patient._id);
@@ -439,98 +442,114 @@ function XrayResult() {
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
+              {/* Form Title */}
               <h2 className="text-xl font-semibold mb-4">Result Form</h2>
 
-              <div className="flex flex-col mb-4">
-                <form className="flex-grow">
-                  {/* Input Fields for Pending Status */}
-                  <div className="flex mb-4">
-                    <div className="w-3/4 mr-2">
-                      <label className="block text-gray-700">Xray No.</label>
-                      <input
-                        type="text"
-                        name="XrayNo"
-                        value={formData.XrayNo}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border rounded"
-                        readOnly
-                      />
-                    </div>
-                    <div className="w-1/4">
-                      <label className="block text-gray-700">Date</label>
-                      <input
-                        type="date"
-                        name="date"
-                        value={formData.date}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border rounded"
-                        readOnly
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex mb-4">
-                    <div className="w-1/2 mr-2">
-                      <label className="block text-gray-700">Name</label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        readOnly
-                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                      />
-                    </div>
-                    <div className="w-1/4 mr-2">
-                      <label className="block text-gray-700">Age</label>
-                      <input
-                        type="text"
-                        name="age"
-                        value={formData.age}
-                        readOnly
-                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                      />
-                    </div>
-                    <div className="w-1/4">
-                      <label className="block text-gray-700">Sex</label>
-                      <input
-                        type="text"
-                        name="sex"
-                        value={formData.sex}
-                        readOnly
-                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                      />
-                    </div>
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-gray-700">
-                      {formData.patientType === "student"
-                        ? "Course/Dept."
-                        : "Position"}
-                    </label>
-                    <input
-                      type="text"
-                      name="courseDept"
-                      value={formData.courseDept}
-                      readOnly
-                      className="w-full px-3 py-2 border rounded bg-gray-100"
+              {/* Main Form Content */}
+              <div className="flex-grow flex flex-col mb-4">
+                <form className="flex flex-row items-start gap-4">
+                  {/* X-ray Result Image - Left Side */}
+                  <div className="w-1/2">
+                    <label className="block text-gray-700">X-ray Result</label>
+                    <img
+                      src={`${formData.imageFile}`}
+                      alt="X-ray"
+                      className="w-auto h-full object-cover cursor-pointer"
+                      onClick={() => handleImageClick(formData.imageFile)}
                     />
                   </div>
 
-                  {/* Diagnosis input */}
-                  <div className="flex mb-4 ">
-                    {/* X-ray Result Image */}
-                    <div className="w-1/5">
+                  {/* Details Section - Right Side */}
+                  <div className="w-1/2">
+                    {/* Xray No. and Date */}
+                    <div className="flex mb-4">
+                      <div className="w-1/3 mr-2">
+                        <label className="block text-gray-700">OR No.</label>
+                        <input
+                          type="text"
+                          name="XrayNo"
+                          value={formData.ORNumber}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 border rounded"
+                          readOnly
+                        />
+                      </div>
+                      <div className="w-1/3 mr-2">
+                        <label className="block text-gray-700">Case No.</label>
+                        <input
+                          type="text"
+                          name="XrayNo"
+                          value={formData.XrayNo}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 border rounded"
+                          readOnly
+                        />
+                      </div>
+
+                      <div className="w-1/3">
+                        <label className="block text-gray-700">Date</label>
+                        <input
+                          type="date"
+                          name="date"
+                          value={formData.date}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-2 border rounded"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+
+                    {/* Name, Age, and Sex */}
+                    <div className="flex mb-4">
+                      <div className="w-1/2 mr-2">
+                        <label className="block text-gray-700">Name</label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          readOnly
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                        />
+                      </div>
+                      <div className="w-1/4 mr-2">
+                        <label className="block text-gray-700">Age</label>
+                        <input
+                          type="text"
+                          name="age"
+                          value={formData.age}
+                          readOnly
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                        />
+                      </div>
+                      <div className="w-1/4">
+                        <label className="block text-gray-700">Sex</label>
+                        <input
+                          type="text"
+                          name="sex"
+                          value={formData.sex}
+                          readOnly
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Course/Dept. or Position */}
+                    <div className="mb-4">
                       <label className="block text-gray-700">
-                        X-ray Result
+                        {formData.patientType === "student"
+                          ? "Course/Dept."
+                          : "Position"}
                       </label>
-                      <img
-                        src={`${formData.imageFile}`}
-                        alt="X-ray"
-                        className="w-32 h-32 object-cover cursor-pointer"
-                        onClick={() => handleImageClick(formData.imageFile)}
+                      <input
+                        type="text"
+                        name="courseDept"
+                        value={formData.courseDept}
+                        readOnly
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
                       />
                     </div>
-                    {/* Diagnosis (Interpretation) Textarea */}
+
+                    {/* Diagnosis (Interpretation) */}
                     <div className="w-full">
                       <label className="block text-gray-700">
                         Interpretation
@@ -549,6 +568,7 @@ function XrayResult() {
                 </form>
               </div>
 
+              {/* Close and Save Buttons */}
               <div className="flex justify-end space-x-4 mt-4">
                 <button
                   onClick={() => setIsModalOpen(false)}
@@ -573,17 +593,23 @@ function XrayResult() {
 
         {isImageModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-            <div className="relative bg-white p-6 rounded-lg max-w-3xl w-full h-[95vh] shadow-lg overflow-y-auto">
+            <div
+              className="relative bg-white p-6 rounded-lg shadow-lg overflow-hidden flex justify-center items-center"
+              style={{ maxHeight: "90vh", maxWidth: "90vw" }}
+            >
+              {/* Close Button */}
               <button
                 onClick={() => setIsImageModalOpen(false)}
                 className="absolute top-4 right-4 text-custom-red text-2xl font-bold cursor-pointer"
               >
                 &times;
               </button>
+
+              {/* Full-size Image */}
               <img
                 src={fullImageSrc}
                 alt="Full-size X-ray"
-                className="w-full h-full object-contain"
+                className="object-contain max-h-[90vh] max-w-full"
               />
             </div>
           </div>

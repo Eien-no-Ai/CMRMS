@@ -15,6 +15,7 @@ function Xray() {
   const [imageFile, setImageFile] = useState(null);
 
   const [formData, setFormData] = useState({
+    ORNumber: "",
     XrayNo: "",
     date: "",
     name: "",
@@ -84,6 +85,7 @@ function Xray() {
 
     // Set formData to include the necessary fields, pulling values from selectedRecord
     setFormData({
+      ORNumber: record.ORNumber || "",
       XrayNo: record.XrayNo || "", // Use record's XrayNo if available
       date: new Date().toISOString().split("T")[0],
       name: `${record.patient.lastname}, ${record.patient.firstname}`,
@@ -108,6 +110,7 @@ function Xray() {
 
     // Prepare the form data to send via axios
     const formDataToSubmit = new FormData();
+    formDataToSubmit.append("ORNumber", formData.ORNumber);
     formDataToSubmit.append("XrayNo", formData.XrayNo);
     formDataToSubmit.append("diagnosis", formData.diagnosis);
     formDataToSubmit.append("patientId", selectedRecord.patient._id);
@@ -429,18 +432,29 @@ function Xray() {
           </div>
         )}
 
-        {/* Modal for adding result */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
               <h2 className="text-xl font-semibold mb-4">Result Form</h2>
 
-              {/* Conditional rendering based on the xrayResult */}
+              {/* Main Form Content */}
               <form className="flex-grow">
-                {/* Input Fields for Pending Status */}
                 <div className="flex mb-4">
                   <div className="w-3/4 mr-2">
-                    <label className="block text-gray-700">Xray No.</label>
+                    <label className="block text-gray-700">OR No.</label>
+                    <input
+                      type="text"
+                      name="ORNumber" // Changed name to match the formData key
+                      value={formData.ORNumber} // Keep this as is
+                      onChange={(e) =>
+                        handleInputChange(e, null, null, null, "ORNumber")
+                      } // Adjusted the onChange handler
+                      className="w-full px-3 py-2 border rounded"
+                    />
+                  </div>
+
+                  <div className="w-3/4 mr-2">
+                    <label className="block text-gray-700">Case No.</label>
                     <input
                       type="text"
                       name="XrayNo"
@@ -449,6 +463,7 @@ function Xray() {
                       className="w-full px-3 py-2 border rounded"
                     />
                   </div>
+
                   <div className="w-1/4">
                     <label className="block text-gray-700">Date</label>
                     <input
@@ -460,6 +475,8 @@ function Xray() {
                     />
                   </div>
                 </div>
+
+                {/* Conditionally Render Other Fields */}
 
                 <div className="flex mb-4">
                   <div className="w-1/2 mr-2">
@@ -493,6 +510,7 @@ function Xray() {
                     />
                   </div>
                 </div>
+
                 <div className="mb-4">
                   <label className="block text-gray-700">
                     {formData.patientType === "Student"
@@ -507,37 +525,41 @@ function Xray() {
                     className="w-full px-3 py-2 border rounded bg-gray-100"
                   />
                 </div>
+                {formData.ORNumber && (
+                  <>
+                    {/* Image Upload */}
+                    <div className="mb-4">
+                      <label className="block text-gray-700">
+                        Upload X-ray Image
+                      </label>
+                      <input
+                        type="file"
+                        onChange={handleImageChange}
+                        className="w-full px-3 py-2 border rounded"
+                      />
+                    </div>
 
-                {/* Image Upload */}
-                <div className="mb-4">
-                  <label className="block text-gray-700">
-                    Upload X-ray Image
-                  </label>
-                  <input
-                    type="file"
-                    onChange={handleImageChange}
-                    className="w-full px-3 py-2 border rounded"
-                  />
-                </div>
-
-                {/* Diagnosis input - only visible if userRole is 'radiologist' */}
-                {userRole === "dentist" && (
-                  <div className="mb-4">
-                    <label className="block text-gray-700">
-                      Interpretation
-                    </label>
-                    <textarea
-                      name="diagnosis" // Ensure the name attribute is present
-                      className="w-full px-3 py-2 border rounded"
-                      rows="4"
-                      placeholder="Enter a diagnosis..."
-                      value={formData.diagnosis}
-                      onChange={handleInputChange}
-                    />
-                  </div>
+                    {/* Diagnosis Input - only visible if userRole is 'dentist' */}
+                    {userRole === "dentist" && (
+                      <div className="mb-4">
+                        <label className="block text-gray-700">
+                          Interpretation
+                        </label>
+                        <textarea
+                          name="diagnosis"
+                          className="w-full px-3 py-2 border rounded"
+                          rows="4"
+                          placeholder="Enter a diagnosis..."
+                          value={formData.diagnosis}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    )}
+                  </>
                 )}
               </form>
 
+              {/* Close and Submit Buttons */}
               <div className="flex justify-end space-x-4 mt-4">
                 <button
                   onClick={() => setIsModalOpen(false)}
@@ -548,14 +570,14 @@ function Xray() {
                     : "Close"}
                 </button>
 
-                {selectedRecord?.xrayResult === "pending" ? (
+                {selectedRecord?.xrayResult === "pending" && (
                   <button
                     onClick={handleSubmitResult}
                     className="px-4 py-2 bg-custom-red text-white rounded-md"
                   >
                     Submit
                   </button>
-                ) : null}
+                )}
               </div>
             </div>
           </div>

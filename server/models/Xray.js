@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 
 const XraySchema = new mongoose.Schema({
-  XrayNo: { type: String, default: "" },
   patient: { type: mongoose.Schema.Types.ObjectId, ref: 'patients', required: true },
   clinicId: { type: mongoose.Schema.Types.ObjectId, ref: 'clinics', },
+  ORNumber: { type: String, default: "" },
+  XrayNo: { type: String, default: "" },
   xrayType: { type: String, default: ""  },
   xrayDescription: { type: String, default: "" },
   xrayResult: { type: String, default: "" },
