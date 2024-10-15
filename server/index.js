@@ -8,6 +8,7 @@ const PatientModel = require("./models/Patient");
 const LaboratoryModel = require("./models/Laboratory");
 const LaboratoryResultsModel = require("./models/LaboratoryResults");
 const PhysicalTherapyModel = require("./models/PhysicalTherapy");
+const PackageModel = require("./models/Package");
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -17,6 +18,51 @@ mongoose.connect(
   "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee"
 );
 
+app.post("/api/packages", async (req, res) => {
+  const { name, bloodChemistry, hematology, clinicalMicroscopyParasitology, bloodBankingSerology, microbiology, xrayType } = req.body;
+
+  const newPackage = new PackageModel({
+    name,
+    bloodChemistry,
+    hematology,
+    clinicalMicroscopyParasitology,
+    bloodBankingSerology,
+    microbiology,
+    xrayType,
+  });
+
+  try {
+    const savedPackage = await newPackage.save();
+    res.status(201).json(savedPackage);
+  } catch (error) {
+    console.error("Error creating package:", error);
+    res.status(400).json({ message: "Error creating package" });
+  }
+});
+
+
+app.get("/api/packages", async (req, res) => {
+  try {
+    const packages = await PackageModel.find();
+    res.json(packages);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching packages" });
+  }
+});
+
+app.get("/api/packages/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const package = await PackageModel
+      .findById(id);
+    res.json(package);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching package" });
+  }
+});
 // P H Y S I C A L   T H E R A P Y   R E C O R D S
 
 app.post("/api/physicalTherapy", async (req, res) => {
@@ -49,9 +95,7 @@ app.post("/api/physicalTherapy", async (req, res) => {
 // GET endpoint to fetch all Physical Therapy records
 app.get("/api/physicalTherapy", async (req, res) => {
   try {
-    const physicalTherapyRecords = await PhysicalTherapyModel.find().populate(
-      "patient"
-    ); // Populating patient data
+    const physicalTherapyRecords = await PhysicalTherapyModel.find().populate("patient"); // Populating patient data
     res.json(physicalTherapyRecords);
   } catch (error) {
     res.status(500).json({ message: "Error fetching X-ray records", error });
@@ -70,46 +114,62 @@ app.get("/api/physicalTherapy/:patientId", async (req, res) => {
   }
 
   try {
-    const physicalTherapyRecords = await PhysicalTherapyModel.find({
-      patient: patientId,
-    }).populate("patient");
+    const physicalTherapyRecords = await PhysicalTherapyModel.find({ patient: patientId }).populate(
+      "patient"
+    );
     res.json(physicalTherapyRecords);
   } catch (error) {
     console.error("Error fetching Physical Therapy records:", error);
-    res
-      .status(500)
-      .json({ message: "Error fetching Physical Therapy records", error });
+    res.status(500).json({ message: "Error fetching Physical Therapy records", error });
   }
 });
 
-const fs = require("fs");
-const path = require("path");
+app.put("/api/physicalTherapy/:id", async (req, res) => {
+  const { id } = req.params;
+  const updatedData = req.body;
+
+  try {
+    const updatedRecord = await PhysicalTherapyModel.findByIdAndUpdate(id, updatedData, { new: true });
+    if (updatedRecord) {
+      res.json({ success: true, message: "Record updated successfully", updatedRecord });
+    }
+    else {
+      res.status(404).json({ message: "Record not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error updating record", error: error.message });
+  }
+}
+);
+
+const fs = require('fs');
+const path = require('path');
 
 // Define the uploads directory path
-const uploadsDir = path.join(__dirname, "uploads");
+const uploadsDir = path.join(__dirname, 'uploads');
 
 // Check if the uploads directory exists, create it if it doesn't
 if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-  console.log("Uploads directory created at:", uploadsDir);
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    console.log('Uploads directory created at:', uploadsDir);
 } else {
-  console.log("Uploads directory already exists:", uploadsDir);
+    console.log('Uploads directory already exists:', uploadsDir);
 }
 const multer = require("multer");
 
 // Serve static files from 'uploads' directory
-app.use("/uploads", express.static("uploads"));
+app.use('/uploads', express.static('uploads'));
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Make sure the 'uploads/' directory exists
+    cb(null, 'uploads/'); // Make sure the 'uploads/' directory exists
   },
   filename: async (req, file, cb) => {
     try {
       const { id } = req.params;
 
       // Fetch employee details to get the last name
-      const employee = await EmployeeModel.findById(id).select("lastname"); // Ensure 'lastname' is correct
+      const employee = await EmployeeModel.findById(id).select('lastname'); // Ensure 'lastname' is correct
 
       console.log("Fetched Employee:", employee);
 
@@ -119,62 +179,57 @@ const storage = multer.diskStorage({
 
       // Use employee's last name as the filename, append timestamp to avoid conflicts
       const uniqueSuffix = Date.now();
-      const filename = `${employee.lastname}-${uniqueSuffix}${path.extname(
-        file.originalname
-      )}`;
+      const filename = `${employee.lastname}-${uniqueSuffix}${path.extname(file.originalname)}`;
 
       cb(null, filename); // Set the generated filename
     } catch (error) {
       console.error("Error fetching employee for filename:", error);
       cb(error, false); // Handle error during filename generation
     }
-  },
+  }
 });
 
 const upload = multer({ storage });
 
 // API endpoint to upload signature
-app.post(
-  "/api/upload-signature/user/:id",
-  upload.single("signature"),
-  async (req, res) => {
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-
-    try {
-      const { id } = req.params;
-
-      // Find the employee by id and update the signature field with the new filename
-      const employee = await EmployeeModel.findByIdAndUpdate(
-        id,
-        { signature: req.file.filename }, // Store the generated filename based on the last name
-        { new: true } // Return the updated employee
-      );
-
-      if (!employee) {
-        return res.status(404).json({ message: "Employee not found" });
-      }
-
-      return res.json({
-        message: "Signature uploaded successfully",
-        signature: req.file.filename, // Return the updated signature filename
-      });
-    } catch (error) {
-      console.error("Error during signature upload:", error);
-      return res
-        .status(500)
-        .json({ message: "Server error while uploading signature" });
-    }
+app.post('/api/upload-signature/user/:id', upload.single('signature'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
   }
-);
+
+  try {
+    const { id } = req.params;
+
+    // Find the employee by id and update the signature field with the new filename
+    const employee = await EmployeeModel.findByIdAndUpdate(
+      id,
+      { signature: req.file.filename }, // Store the generated filename based on the last name
+      { new: true } // Return the updated employee
+    );
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    return res.json({
+      message: "Signature uploaded successfully",
+      signature: req.file.filename, // Return the updated signature filename
+    });
+  } catch (error) {
+    console.error("Error during signature upload:", error);
+    return res.status(500).json({ message: "Server error while uploading signature" });
+  }
+});
+
 
 // API endpoint to fetch the signature
-app.get("/api/signature/user/:id", async (req, res) => {
+app.get('/api/signature/user/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    const employee = await EmployeeModel.findById(id).select("signature"); // Select only the signature field
+    const employee = await EmployeeModel
+      .findById(id)
+      .select('signature'); // Select only the signature field
 
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
@@ -186,31 +241,27 @@ app.get("/api/signature/user/:id", async (req, res) => {
     return res.json({ signature: signatureUrl }); // Return the full URL
   } catch (error) {
     console.error("Error fetching signature:", error);
-    return res
-      .status(500)
-      .json({ message: "Server error while fetching signature" });
+    return res.status(500).json({ message: "Server error while fetching signature" });
   }
 });
 
-app.post("/api/laboratory-results", async (req, res) => {
+app.post('/api/laboratory-results', async (req, res) => {
   const {
-    ORNumber,
     labNumber,
     patient,
     clinicId,
-    laboratoryId, // Accept laboratoryId in the request
+    laboratoryId,  // Accept laboratoryId in the request
     Hematology,
     clinicalMicroscopyParasitology,
-    bloodBankingSerology,
+    bloodBankingSerology
   } = req.body;
 
   try {
     const labResults = await LaboratoryResultsModel.create({
-      ORNumber,
       labNumber,
       patient,
       clinicId,
-      laboratoryId, // Save laboratoryId in the database
+      laboratoryId,  // Save laboratoryId in the database
       Hematology,
       clinicalMicroscopyParasitology,
       bloodBankingSerology,
@@ -227,12 +278,12 @@ app.post("/api/laboratory-results", async (req, res) => {
 });
 
 // Endpoint to get lab results by ID
-app.get("/api/laboratory-results/:id", async (req, res) => {
+app.get('/api/laboratory-results/:id', async (req, res) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ message: "Invalid ID format" });
   }
-
+  
   try {
     const labResult = await LaboratoryResultsModel.findById(id);
     if (!labResult) {
@@ -241,47 +292,34 @@ app.get("/api/laboratory-results/:id", async (req, res) => {
     res.json(labResult);
   } catch (error) {
     console.error("Error fetching laboratory result:", error);
-    res
-      .status(500)
-      .json({ message: "Error fetching laboratory result", error });
+    res.status(500).json({ message: "Error fetching laboratory result", error });
   }
 });
 
 // Endpoint to get lab result by laboratory request ID
-app.get(
-  "/api/laboratory-results/by-request/:laboratoryId",
-  async (req, res) => {
-    const { laboratoryId } = req.params;
+app.get('/api/laboratory-results/by-request/:laboratoryId', async (req, res) => {
+  const { laboratoryId } = req.params;
 
-    // Validate laboratoryId format
-    if (!mongoose.Types.ObjectId.isValid(laboratoryId)) {
-      return res
-        .status(400)
-        .json({ message: "Invalid laboratory request ID format" });
-    }
-
-    try {
-      // Find lab result by laboratory request ID
-
-      const labResult = await LaboratoryResultsModel.findOne({
-        laboratoryId,
-      }).populate("patient");
-      if (!labResult) {
-        return res
-          .status(404)
-          .json({
-            message: "No laboratory result found for the given request ID",
-          });
-      }
-      res.json(labResult);
-    } catch (error) {
-      console.error("Error fetching laboratory result by request ID:", error);
-      res
-        .status(500)
-        .json({ message: "Error fetching laboratory result", error });
-    }
+  // Validate laboratoryId format
+  if (!mongoose.Types.ObjectId.isValid(laboratoryId)) {
+    return res.status(400).json({ message: "Invalid laboratory request ID format" });
   }
-);
+
+  try {
+    // Find lab result by laboratory request ID
+
+    const labResult = await LaboratoryResultsModel.findOne({ laboratoryId }).populate(
+      "patient"
+    );
+    if (!labResult) {
+      return res.status(404).json({ message: "No laboratory result found for the given request ID" });
+    }
+    res.json(labResult);
+  } catch (error) {
+    console.error("Error fetching laboratory result by request ID:", error);
+    res.status(500).json({ message: "Error fetching laboratory result", error });
+  }
+});
 
 // // POST endpoint to save a lab request
 // app.post("/api/laboratory-results", async (req, res) => {
@@ -629,9 +667,7 @@ app.post("/add-patient", (req, res) => {
       res.status(201).json({ message: "Patient added successfully", patient })
     )
     .catch((err) =>
-      res
-        .status(500)
-        .json({ message: "Error adding patient", error: err.message })
+      res.status(500).json({ message: "Error adding patient", error: err.message })
     );
 });
 
@@ -692,19 +728,23 @@ app.put("/patients/:id", (req, res) => {
 
 // POST endpoint to save a lab request
 app.post("/api/laboratory", async (req, res) => {
-  const labData = req.body; // Expecting the form data in the request body
-  LaboratoryModel.create(labData)
-    .then((labRequest) =>
-      res.json({
-        message: "Laboratory request created successfully",
-        labRequest,
-      })
-    )
-    .catch((err) =>
-      res
-        .status(500)
-        .json({ message: "Error creating laboratory request", error: err })
-    );
+  try {
+    const labData = req.body; // Expecting the form data in the request body
+
+    // Validate labData if necessary (add your validation logic here)
+    
+    const labRequest = await LaboratoryModel.create(labData);
+    res.json({
+      message: "Laboratory request created successfully",
+      labRequest,
+    });
+  } catch (err) {
+    console.error("Error creating laboratory request:", err); // Log the error
+    res.status(500).json({
+      message: "Error creating laboratory request",
+      error: err.message, // Include error message in the response
+    });
+  }
 });
 
 // GET endpoint to fetch lab records
@@ -716,7 +756,7 @@ app.get("/api/laboratory", async (req, res) => {
     if (clinicId) {
       query.clinicId = clinicId; // Filter lab records by clinicId
     }
-
+    
     const labRecords = await LaboratoryModel.find(query).populate("patient");
     res.json(labRecords);
   } catch (error) {
@@ -741,6 +781,7 @@ app.get("/api/laboratory/:patientId", async (req, res) => {
   }
 });
 
+
 // PUT endpoint to update labResult in Laboratory
 app.put("/api/laboratory/:id", async (req, res) => {
   const { id } = req.params;
@@ -754,19 +795,15 @@ app.put("/api/laboratory/:id", async (req, res) => {
     );
 
     if (updatedLab) {
-      res.json({
-        message: "Laboratory status updated successfully",
-        updatedLab,
-      });
+      res.json({ message: "Laboratory status updated successfully", updatedLab });
     } else {
       res.status(404).json({ message: "Laboratory not found" });
     }
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating laboratory status", error });
+    res.status(500).json({ message: "Error updating laboratory status", error });
   }
 });
+
 
 // C L I N I C A L   R E C O R D S
 
@@ -802,26 +839,14 @@ app.put("/api/clinicalRecords/:id", async (req, res) => {
   const updatedData = req.body;
 
   try {
-    const updatedRecord = await ClinicModel.findByIdAndUpdate(id, updatedData, {
-      new: true,
-    });
+    const updatedRecord = await ClinicModel.findByIdAndUpdate(id, updatedData, { new: true });
     if (updatedRecord) {
-      res.json({
-        success: true,
-        message: "Record updated successfully",
-        updatedRecord,
-      });
+      res.json({ success: true, message: "Record updated successfully", updatedRecord });
     } else {
       res.status(404).json({ message: "Record not found" });
     }
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error updating record",
-        error: error.message,
-      });
+    res.status(500).json({ success: false, message: "Error updating record", error: error.message });
   }
 });
 
@@ -839,9 +864,7 @@ app.get("/api/clinicalRecords", async (req, res) => {
 app.get("/api/clinicalRecords/:patientId", async (req, res) => {
   const { patientId } = req.params;
   try {
-    const clinicalRecords = await ClinicModel.find({
-      patient: patientId,
-    }).populate("createdBy"); // Populate employee details
+    const clinicalRecords = await ClinicModel.find({ patient: patientId }).populate('createdBy'); // Populate employee details
     res.json(clinicalRecords);
   } catch (error) {
     res.status(500).json({ message: "Error fetching clinical records", error });
@@ -933,6 +956,8 @@ const storagee = multer.diskStorage({
   filename: (req, file, cb) => {
     const originalName = file.originalname;
     const extension = originalName.split(".").pop(); // Extract the file extension
+    // const filename = ${req.body.XrayNo}_${Date.now()}.${extension};
+    // cb(null, filename);
     const filename = `${req.body.XrayNo}_${Date.now()}.${extension}`;
     cb(null, filename);
   },
@@ -991,10 +1016,6 @@ app.put(
     }
   }
 );
-
-
-
-module.exports = router;
 
 //console log
 app.listen(3001, () => {

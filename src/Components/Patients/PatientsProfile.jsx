@@ -13,6 +13,7 @@ function PatientsProfile() {
   const [patient, setPatient] = useState(null);
   const [selectedTab, setSelectedTab] = useState("clinical");
   const [showRequestOptions, setShowRequestOptions] = useState(false);
+  const [showPackageOptions, setShowPackageOptions] = useState(false);
   const [isLabModalOpen, setIsLabModalOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [isNewRecordModalOpen, setIsNewRecordModalOpen] = useState(false);
@@ -20,6 +21,8 @@ function PatientsProfile() {
   const [physicalTherapyRecords, setPhysicalTherapyRecords] = useState([]);
   const [newTherapyRecord, setNewTherapyRecord] = useState({
     date: new Date().toLocaleDateString(),
+    Diagnosis: "",
+    Precautions: "",
     SOAPSummary: "",
   });
   const [newRecord, setNewRecord] = useState({
@@ -180,6 +183,8 @@ function PatientsProfile() {
         fetchPhysicalTherapyRecords();
         setNewTherapyRecord({
           SOAPSummary: "",
+          Diagnosis: "",
+          Precautions: "",
         });
       }
     } catch (error) {
@@ -200,7 +205,7 @@ function PatientsProfile() {
     const tableData = displayedRecords.map((record) => [
       new Date(record.isCreatedAt).toLocaleString(),
       record.SOAPSummary,
-      record.physicalTherapyResult,
+      record.Diagnosis,
     ]);
 
     // Generate the table using autoTable
@@ -330,14 +335,16 @@ function PatientsProfile() {
     const handleClickOutside = (event) => {
       if (
         showRequestOptions &&
+        showPackageOptions &&
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target)
       ) {
         setShowRequestOptions(false);
+        setShowPackageOptions(false);
       }
     };
 
-    if (showRequestOptions) {
+    if (showRequestOptions || showPackageOptions) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -346,7 +353,7 @@ function PatientsProfile() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showRequestOptions]);
+  }, [showRequestOptions || showPackageOptions]);
 
   const handleTabChange = (tab) => {
     setSelectedTab(tab);
@@ -354,6 +361,10 @@ function PatientsProfile() {
 
   const handleMakeRequest = () => {
     setShowRequestOptions((prev) => !prev);
+  };
+
+  const handleAddPackage = () => {
+    setShowPackageOptions((prev) => !prev);
   };
 
   const handleLabModalOpen = (record) => {
@@ -578,6 +589,97 @@ function PatientsProfile() {
     setisFamilyPersonalModalOpen(false);
   };
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState({
+    bloodChemistry: [],
+    hematology: [],
+    clinicalMicroscopyParasitology: [],
+    bloodBankingSerology: [],
+    microbiology: [],
+  });
+  
+  const [packages, setPackages] = useState([]);
+  
+  const handlePackageClick = async (packageId) => {
+    try {
+      // Fetch the selected package details
+      const response = await axios.get(`http://localhost:3001/api/packages/${packageId}`);
+      const pkg = response.data;
+      console.log("Selected package:", pkg);
+  
+      setSelectedPackage(pkg); // Assuming pkg has the structure you expect
+      setIsModalOpen(true);
+  
+      // Remove _id from the package before sending to lab and xray endpoints, but keep packageId
+      const { _id, ...pkgWithoutId } = pkg;
+  
+      // Create lab request with packageId included
+      const labResponse = await axios.post("http://localhost:3001/api/laboratory", {
+        ...pkgWithoutId,   // Exclude the _id
+        patient: id,       // Pass the patient ID
+        packageId: _id,    // Include packageId
+        labResult: "pending",
+      });
+  
+      if (labResponse.data.success) {
+        console.log("Lab request created successfully:", labResponse.data);
+        fetchLabRecords();
+      } else {
+        console.error("Error creating lab request:", labResponse.data);
+      }
+  
+      // Create x-ray request with packageId included
+      const xrayResponse = await axios.post("http://localhost:3001/api/xrayResults", {
+        ...pkgWithoutId,   // Exclude the _id
+        patient: id,       // Pass the patient ID
+        packageId: _id,    // Include packageId
+        xrayResult: "pending",
+      });
+  
+      if (xrayResponse.data.success) {
+        console.log("X-ray request created successfully:", xrayResponse.data);
+        fetchXrayRecords();
+      }
+  
+    } catch (error) {
+      console.error("Error fetching package or creating requests:", error);
+      alert("Failed to fetch package or create requests. Please try again.");
+    }
+  };
+  
+  
+  // Fetching packages when component mounts
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/api/packages");
+        setPackages(response.data); // Set the fetched packages to state
+      } catch (error) {
+        console.error("Error fetching packages:", error);
+        alert("Failed to fetch packages. Please try again.");
+      }
+    };
+  
+    fetchPackages(); // Fetch packages when the component mounts
+  }, []);
+  
+  // const renderLabTests = (testName, tests) => {
+  //   // Check if tests is undefined, null, or not an array
+  //   if (!tests || !Array.isArray(tests)) {
+  //     return <p>No tests available for {testName}</p>; // Handle undefined cases
+  //   }
+  
+  //   return (
+  //     <div>
+  //       <p className="font-semibold">{testName}</p>
+  //       <ul className="list-disc list-inside">
+  //         {tests.map((test, index) => (
+  //           <li key={index}>{test}</li>
+  //         ))}
+  //       </ul>
+  //     </div>
+  //   );
+  // };
   return (
     <div>
       <Navbar />
@@ -635,12 +737,7 @@ function PatientsProfile() {
                       >
                         Check Up
                       </button>
-                      {/* <button
-                          className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
-                          onClick={handleNewTherapyRecordOpen}
-                        >
-                          New Physical Theraphy Record
-                        </button> */}
+                      
                       {/* <button
                           className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                           onClick={handleGenerateReport}
@@ -669,9 +766,37 @@ function PatientsProfile() {
                             >
                               X-ray
                             </button>
+                            {/* <button
+                            className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                              onClick={handleNewTherapyRecordOpen}
+                            >
+                              Physical Theraphy 
+                           </button> */}
                           </div>
                         )}
                       </div>
+                      <div className="relative" ref={dropdownRef}>
+                      <button
+                        className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
+                        onClick={handleAddPackage}
+                      >
+                        Packages
+                      </button>
+                      {showPackageOptions && (
+                        <div className="absolute mt-2 bg-white border rounded-lg shadow-lg">
+                          {packages.map((pkg) => (
+                            <button
+                              key={pkg._id}
+                              className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                              onClick={() => handlePackageClick(pkg._id)}
+                            >
+                              {pkg.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
                     </div>
                   </div>
 
@@ -1286,9 +1411,10 @@ function PatientsProfile() {
                 >
                   X-ray Records
                 </button>
+                {(role === "physical therapist" || role === "special trainee") && (
                 <button
                   className={`${
-                    selectedTab === "physical therapy"
+                    selectedTab === "physical therapy" 
                       ? "text-custom-red font-semibold"
                       : ""
                   }`}
@@ -1296,6 +1422,7 @@ function PatientsProfile() {
                 >
                   Physical Therapy Records
                 </button>
+                )}
               </div>
             </div>
 
@@ -1432,8 +1559,6 @@ function PatientsProfile() {
                   ))}
 
                 {selectedTab === "physical therapy" &&
-                  (role === "special trainee" ||
-                    role === "physical therapist") &&
                   (displayedRecords.length > 0 ? (
                     displayedRecords.map((records, index) => (
                       <li
@@ -1445,6 +1570,7 @@ function PatientsProfile() {
                             {new Date(records.isCreatedAt).toLocaleString()}
                           </p>
                           <p className="font-semibold">{records.SOAPSummary}</p>
+                          <p className="text-gray-500">{records.Diagnosis}</p>
                         </div>
                         <div className="text-gray-500">
                           {records.physicalTherapyResult}
@@ -1463,20 +1589,20 @@ function PatientsProfile() {
         </div>
       </div>
       {isNewTherapyRecordModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white py-2 px-6 rounded-lg w-full max-w-md shadow-lg">
+         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
             <h2 className="text-lg font-bold mb-4 text-center">
               New Physical Therapy Record
             </h2>
             <form onSubmit={handleNewTherapySubmit}>
               <div className="mb-4">
                 <label className="block text-sm font-medium">
-                  SOAP SUMMARY
+                  Diagnosis
                 </label>
                 <input
                   type="text"
-                  name="SOAPSummary"
-                  value={newTherapyRecord.SOAPSummary}
+                  name="Diagnosis"
+                  value={newTherapyRecord.Diagnosis}
                   onChange={handleNewTherapyRecordChange}
                   required
                   className="border rounded-lg w-full p-2 mt-1"
@@ -1864,7 +1990,16 @@ function PatientsProfile() {
           </div>
         </div>
       )}
-
+      {/* { isModalOpen && selectedPackage && (
+        <div>
+          {renderLabTests("Blood Chemistry", selectedPackage.bloodChemistry)}
+          {renderLabTests("Hematology", selectedPackage.hematology)}
+          {renderLabTests("Clinical Microscopy & Parasitology", selectedPackage.clinicalMicroscopyParasitology)}
+          {renderLabTests("Blood Banking & Serology", selectedPackage.bloodBankingSerology)}
+          {renderLabTests("Microbiology", selectedPackage.microbiology)}
+          <p className="font-semibold">X-ray</p>
+        </div>
+      )} */}
       {isTreatmentModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
@@ -2401,7 +2536,7 @@ function PatientsProfile() {
                 </select>
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium">X-Ray Examination</label>
+                <label className="block text-sm font-medium">Description</label>
                 <textarea
                   name="xrayDescription"
                   value={newXrayRecord.xrayDescription || ""}
