@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const LaboratorySchema = new mongoose.Schema({
     patient: { type: mongoose.Schema.Types.ObjectId, ref: 'patients', required: true },
     clinicId: { type: mongoose.Schema.Types.ObjectId, ref: 'clinics', },
+    packageId: { type: mongoose.Schema.Types.ObjectId, ref: 'packages', },
     bloodChemistry: {
         bloodSugar: { type: String, default: "" },
         bloodUreaNitrogen: { type: String, default: "" },

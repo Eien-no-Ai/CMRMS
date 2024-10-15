@@ -8,6 +8,7 @@ const PatientModel = require("./models/Patient");
 const LaboratoryModel = require("./models/Laboratory");
 const LaboratoryResultsModel = require("./models/LaboratoryResults");
 const PhysicalTherapyModel = require("./models/PhysicalTherapy");
+const PackageModel = require("./models/Package");
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -17,6 +18,51 @@ mongoose.connect(
   "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee"
 );
 
+app.post("/api/packages", async (req, res) => {
+  const { name, bloodChemistry, hematology, clinicalMicroscopyParasitology, bloodBankingSerology, microbiology, xrayType } = req.body;
+
+  const newPackage = new PackageModel({
+    name,
+    bloodChemistry,
+    hematology,
+    clinicalMicroscopyParasitology,
+    bloodBankingSerology,
+    microbiology,
+    xrayType,
+  });
+
+  try {
+    const savedPackage = await newPackage.save();
+    res.status(201).json(savedPackage);
+  } catch (error) {
+    console.error("Error creating package:", error);
+    res.status(400).json({ message: "Error creating package" });
+  }
+});
+
+
+app.get("/api/packages", async (req, res) => {
+  try {
+    const packages = await PackageModel.find();
+    res.json(packages);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching packages" });
+  }
+});
+
+app.get("/api/packages/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const package = await PackageModel
+      .findById(id);
+    res.json(package);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching package" });
+  }
+});
 // P H Y S I C A L   T H E R A P Y   R E C O R D S
 
 app.post("/api/physicalTherapy", async (req, res) => {
@@ -682,19 +728,23 @@ app.put("/patients/:id", (req, res) => {
 
 // POST endpoint to save a lab request
 app.post("/api/laboratory", async (req, res) => {
-  const labData = req.body; // Expecting the form data in the request body
-  LaboratoryModel.create(labData)
-    .then((labRequest) =>
-      res.json({
-        message: "Laboratory request created successfully",
-        labRequest,
-      })
-    )
-    .catch((err) =>
-      res
-        .status(500)
-        .json({ message: "Error creating laboratory request", error: err })
-    );
+  try {
+    const labData = req.body; // Expecting the form data in the request body
+
+    // Validate labData if necessary (add your validation logic here)
+    
+    const labRequest = await LaboratoryModel.create(labData);
+    res.json({
+      message: "Laboratory request created successfully",
+      labRequest,
+    });
+  } catch (err) {
+    console.error("Error creating laboratory request:", err); // Log the error
+    res.status(500).json({
+      message: "Error creating laboratory request",
+      error: err.message, // Include error message in the response
+    });
+  }
 });
 
 // GET endpoint to fetch lab records
@@ -834,7 +884,13 @@ app.post("/api/xrayResults", async (req, res) => {
       .json({ success: false, message: "Invalid patient ID" });
   }
 
-  XrayModel.create(xrayResults)
+  // Add ORNumber to the new X-ray record
+  const newXrayRecord = {
+    ORNumber: xrayResults.ORNumber, // Include ORNumber here
+    ...xrayResults,
+  };
+
+  XrayModel.create(newXrayRecord)
     .then((xrayRequest) =>
       res.json({
         success: true,
@@ -850,6 +906,7 @@ app.post("/api/xrayResults", async (req, res) => {
       })
     );
 });
+
 
 // GET endpoint to fetch all X-ray records
 app.get("/api/xrayResults", async (req, res) => {
@@ -883,6 +940,82 @@ app.get("/api/xrayResults/:patientId", async (req, res) => {
     res.status(500).json({ message: "Error fetching X-ray records", error });
   }
 });
+
+const router = express.Router();
+// Ensure the folder exists or create it
+const xrayResultUploadPath = path.join(__dirname, "./xrayResultUpload");
+if (!fs.existsSync(xrayResultUploadPath)) {
+  fs.mkdirSync(xrayResultUploadPath, { recursive: true }); // Create the folder if it doesn't exist
+}
+
+// Multer storage setup
+const storagee = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./xrayResultUpload/"); // Folder where files will be uploaded
+  },
+  filename: (req, file, cb) => {
+    const originalName = file.originalname;
+    const extension = originalName.split(".").pop(); // Extract the file extension
+    // const filename = ${req.body.XrayNo}_${Date.now()}.${extension};
+    // cb(null, filename);
+    const filename = `${req.body.XrayNo}_${Date.now()}.${extension}`;
+    cb(null, filename);
+  },
+});
+app.use(
+  "/xrayResultUpload",
+  express.static(path.join(__dirname, "xrayResultUpload"))
+);
+const uploadd = multer({ storage: storagee });
+
+// API endpoint to handle PUT request for updating X-ray results
+app.put(
+  "/api/xrayResults/:id",
+  uploadd.single("imageFile"),
+  async (req, res) => {
+    const { patientId, clinicId, ORNumber, XrayNo, diagnosis,   } = req.body;
+    const imageFile = req.file ? req.file.filename : ""; // Check if a new file was uploaded
+
+    try {
+      // Find the existing record by ID
+      const existingRecord = await XrayModel.findById(req.params.id);
+      if (!existingRecord) {
+        return res.status(400).json({
+          success: false,
+          message: "No matching record found for the given patient and clinic.",
+        });
+      }
+
+      // Update fields
+      existingRecord.ORNumber = ORNumber; // Update ORNumber here
+      existingRecord.XrayNo = XrayNo;
+      existingRecord.diagnosis = diagnosis || "";
+
+      // Only update imageFile if a new image is uploaded
+      if (imageFile) {
+        const imageUrl = `http://localhost:3001/xrayResultUpload/${imageFile}`;
+        existingRecord.imageFile = imageUrl;
+      }
+
+      // Set xrayResult to 'done'
+      existingRecord.xrayResult = "done";
+
+      // Save the updated record
+      const updatedXray = await existingRecord.save();
+      console.log("Updated X-ray record:", updatedXray); // Log the updated record
+
+      // Return success and include the imageFile for preview
+      return res.json({
+        success: true,
+        updatedRecord: updatedXray,
+        imageFile: existingRecord.imageFile, // Return the existing or new image URL for preview
+      });
+    } catch (error) {
+      console.error("Error updating X-ray record:", error);
+      res.status(500).json({ message: "Error updating X-ray record", error });
+    }
+  }
+);
 
 //console log
 app.listen(3001, () => {
