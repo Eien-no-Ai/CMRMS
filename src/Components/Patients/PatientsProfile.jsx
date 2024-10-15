@@ -17,7 +17,8 @@ function PatientsProfile() {
   const [isLabModalOpen, setIsLabModalOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [isNewRecordModalOpen, setIsNewRecordModalOpen] = useState(false);
-  const [isNewTherapyRecordModalOpen, setIsNewTherapyRecordModalOpen] = useState(false);
+  const [isNewTherapyRecordModalOpen, setIsNewTherapyRecordModalOpen] =
+    useState(false);
   const [physicalTherapyRecords, setPhysicalTherapyRecords] = useState([]);
   const [newTherapyRecord, setNewTherapyRecord] = useState({
     date: new Date().toLocaleDateString(),
@@ -331,30 +332,51 @@ function PatientsProfile() {
     setIsNewXrayModalOpen(false);
   };
 
+  const requestDropdownRef = useRef(null); // For showRequestOptions dropdown
+  const packageDropdownRef = useRef(null); // For showPackageOptions dropdown
+  
+  // Hook for handling outside click for showRequestOptions
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutsideRequest = (event) => {
       if (
         showRequestOptions &&
-        showPackageOptions &&
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target)
+        requestDropdownRef.current &&
+        !requestDropdownRef.current.contains(event.target)
       ) {
         setShowRequestOptions(false);
+      }
+    };
+  
+    if (showRequestOptions) {
+      document.addEventListener("mousedown", handleClickOutsideRequest);
+    }
+  
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideRequest);
+    };
+  }, [showRequestOptions]);
+  
+  // Hook for handling outside click for showPackageOptions
+  useEffect(() => {
+    const handleClickOutsidePackage = (event) => {
+      if (
+        showPackageOptions &&
+        packageDropdownRef.current &&
+        !packageDropdownRef.current.contains(event.target)
+      ) {
         setShowPackageOptions(false);
       }
     };
-
-    if (showRequestOptions || showPackageOptions) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
+  
+    if (showPackageOptions) {
+      document.addEventListener("mousedown", handleClickOutsidePackage);
     }
-
+  
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutsidePackage);
     };
-  }, [showRequestOptions || showPackageOptions]);
-
+  }, [showPackageOptions]);
+  
   const handleTabChange = (tab) => {
     setSelectedTab(tab);
   };
@@ -578,7 +600,8 @@ function PatientsProfile() {
     setIsMedicalModalOpen(false);
   };
 
-  const [isFamilyPersonalModalOpen, setisFamilyPersonalModalOpen] = useState(false);
+  const [isFamilyPersonalModalOpen, setisFamilyPersonalModalOpen] =
+    useState(false);
 
   const handleFamilyPersonalOpen = () => {
     setisFamilyPersonalModalOpen(true);
@@ -597,57 +620,69 @@ function PatientsProfile() {
     bloodBankingSerology: [],
     microbiology: [],
   });
-  
+
   const [packages, setPackages] = useState([]);
-  
+
   const handlePackageClick = async (packageId) => {
     try {
-      // Fetch the selected package details
-      const response = await axios.get(`http://localhost:3001/api/packages/${packageId}`);
+      const response = await axios.get(
+        `http://localhost:3001/api/packages/${packageId}`
+      );
       const pkg = response.data;
       console.log("Selected package:", pkg);
-  
-      setSelectedPackage(pkg); // Assuming pkg has the structure you expect
+
+      setSelectedPackage(pkg);
       setIsModalOpen(true);
-  
-      // Remove _id from the package before sending to lab and xray endpoints, but keep packageId
-      const { _id, ...pkgWithoutId } = pkg;
-  
-      // Create lab request with packageId included
-      const labResponse = await axios.post("http://localhost:3001/api/laboratory", {
-        ...pkgWithoutId,   // Exclude the _id
-        patient: id,       // Pass the patient ID
-        packageId: _id,    // Include packageId
-        labResult: "pending",
-      });
-  
-      if (labResponse.data.success) {
-        console.log("Lab request created successfully:", labResponse.data);
+
+      const { _id, isCreatedAt, ...pkgWithoutIdAndCreatedAt } = pkg;
+
+      // Create lab request
+      const labResponse = await axios.post(
+        "http://localhost:3001/api/laboratory",
+        {
+          ...pkgWithoutIdAndCreatedAt,
+          patient: id,
+          packageId: _id,
+          labResult: "pending",
+        }
+      );
+
+      if (
+        labResponse.data &&
+        labResponse.data.message === "Laboratory request created successfully"
+      ) {
+        console.log(
+          "Lab request created successfully:",
+          labResponse.data.labRequest
+        );
         fetchLabRecords();
       } else {
-        console.error("Error creating lab request:", labResponse.data);
+        console.error("Unexpected response structure:", labResponse.data);
       }
-  
-      // Create x-ray request with packageId included
-      const xrayResponse = await axios.post("http://localhost:3001/api/xrayResults", {
-        ...pkgWithoutId,   // Exclude the _id
-        patient: id,       // Pass the patient ID
-        packageId: _id,    // Include packageId
-        xrayResult: "pending",
-      });
-  
-      if (xrayResponse.data.success) {
+
+      // Create x-ray request
+      const xrayResponse = await axios.post(
+        "http://localhost:3001/api/xrayResults",
+        {
+          ...pkgWithoutIdAndCreatedAt,
+          patient: id,
+          packageId: _id,
+          xrayResult: "pending",
+        }
+      );
+
+      if (xrayResponse.data && xrayResponse.data.success) {
         console.log("X-ray request created successfully:", xrayResponse.data);
         fetchXrayRecords();
+      } else {
+        console.error("Unexpected response structure:", xrayResponse.data);
       }
-  
     } catch (error) {
       console.error("Error fetching package or creating requests:", error);
       alert("Failed to fetch package or create requests. Please try again.");
     }
   };
-  
-  
+
   // Fetching packages when component mounts
   useEffect(() => {
     const fetchPackages = async () => {
@@ -659,16 +694,16 @@ function PatientsProfile() {
         alert("Failed to fetch packages. Please try again.");
       }
     };
-  
+
     fetchPackages(); // Fetch packages when the component mounts
   }, []);
-  
+
   // const renderLabTests = (testName, tests) => {
   //   // Check if tests is undefined, null, or not an array
   //   if (!tests || !Array.isArray(tests)) {
   //     return <p>No tests available for {testName}</p>; // Handle undefined cases
   //   }
-  
+
   //   return (
   //     <div>
   //       <p className="font-semibold">{testName}</p>
@@ -731,41 +766,44 @@ function PatientsProfile() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                      <button
-                        className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
-                        onClick={handleNewRecordOpen}
-                      >
-                        Check Up
-                      </button>
-                      
                       {/* <button
                           className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                           onClick={handleGenerateReport}
                         >
                           Generate Report
                         </button> */}
-                      <div className="relative" ref={dropdownRef}>
+                      <div className="relative" ref={requestDropdownRef}>
                         <button
                           className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                           onClick={handleMakeRequest}
                         >
-                          Make a Request
+                          Transcation Type
                         </button>
                         {/* Request options */}
                         {showRequestOptions && (
                           <div className="absolute mt-2 bg-white border rounded-lg shadow-lg">
                             <button
                               className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                              onClick={handleNewRecordOpen}
+                            >
+                              Regular Check Up
+                            </button>
+                            <button className="block w-full px-4 py-2 text-left hover:bg-gray-100">
+                              Vaccines
+                            </button>
+                            {/* <button
+                              className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                               onClick={handleLabModalOpen} // Open modal here
                             >
                               Laboratory
                             </button>
+
                             <button
                               className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                               onClick={handleNewXrayModalOpen}
                             >
                               X-ray
-                            </button>
+                            </button> */}
                             {/* <button
                             className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                               onClick={handleNewTherapyRecordOpen}
@@ -775,28 +813,27 @@ function PatientsProfile() {
                           </div>
                         )}
                       </div>
-                      <div className="relative" ref={dropdownRef}>
-                      <button
-                        className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
-                        onClick={handleAddPackage}
-                      >
-                        Packages
-                      </button>
-                      {showPackageOptions && (
-                        <div className="absolute mt-2 bg-white border rounded-lg shadow-lg">
-                          {packages.map((pkg) => (
-                            <button
-                              key={pkg._id}
-                              className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                              onClick={() => handlePackageClick(pkg._id)}
-                            >
-                              {pkg.name}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
+                      <div className="relative" ref={packageDropdownRef}>
+                        <button
+                          className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
+                          onClick={handleAddPackage}
+                        >
+                          Packages
+                        </button>
+                        {showPackageOptions && (
+                          <div className="absolute mt-2 bg-white border rounded-lg shadow-lg">
+                            {packages.map((pkg) => (
+                              <button
+                                key={pkg._id}
+                                className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                                onClick={() => handlePackageClick(pkg._id)}
+                              >
+                                {pkg.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -870,7 +907,7 @@ function PatientsProfile() {
                   >
                     Medical
                   </button>
-                  
+
                   <button
                     className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                     onClick={handleFamilyPersonalOpen}
@@ -1411,17 +1448,18 @@ function PatientsProfile() {
                 >
                   X-ray Records
                 </button>
-                {(role === "physical therapist" || role === "special trainee") && (
-                <button
-                  className={`${
-                    selectedTab === "physical therapy" 
-                      ? "text-custom-red font-semibold"
-                      : ""
-                  }`}
-                  onClick={() => handleTabChange("physical therapy")}
-                >
-                  Physical Therapy Records
-                </button>
+                {(role === "physical therapist" ||
+                  role === "special trainee") && (
+                  <button
+                    className={`${
+                      selectedTab === "physical therapy"
+                        ? "text-custom-red font-semibold"
+                        : ""
+                    }`}
+                    onClick={() => handleTabChange("physical therapy")}
+                  >
+                    Physical Therapy Records
+                  </button>
                 )}
               </div>
             </div>
@@ -1589,16 +1627,14 @@ function PatientsProfile() {
         </div>
       </div>
       {isNewTherapyRecordModalOpen && (
-         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
             <h2 className="text-lg font-bold mb-4 text-center">
               New Physical Therapy Record
             </h2>
             <form onSubmit={handleNewTherapySubmit}>
               <div className="mb-4">
-                <label className="block text-sm font-medium">
-                  Diagnosis
-                </label>
+                <label className="block text-sm font-medium">Diagnosis</label>
                 <input
                   type="text"
                   name="Diagnosis"

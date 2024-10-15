@@ -138,7 +138,7 @@ function App() {
            <Route
             path="/xray/records"
             element={
-              <PrivateRoute allowedRoles={['radiologic technologist', 'radiologist', 'dentist']}>
+              <PrivateRoute allowedRoles={['radiologic technologist', 'radiologist', 'dentist', 'doctor']}>
                 <XrayResult />
               </PrivateRoute>
             }

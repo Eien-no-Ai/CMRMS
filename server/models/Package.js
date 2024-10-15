@@ -45,6 +45,7 @@ const PackageSchema = new mongoose.Schema({
     KOH: { type: String, default: "" },
   },
   xrayType: { type: String, default: "" },
+  xrayDescription: { type: String, default: "" },
   isCreatedAt: { type: Date, default: Date.now },
 });
 

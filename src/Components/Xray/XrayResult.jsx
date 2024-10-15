@@ -33,15 +33,24 @@ function XrayResult() {
     axios
       .get("http://localhost:3001/api/xrayResults")
       .then((response) => {
-        const filteredRecords = response.data.filter((record) => {
-          return (
-            record.xrayResult === "done" &&
-            ((userRole === "radiologist" && record.xrayType === "medical") ||
-              (userRole === "radiologic technologist" &&
-                record.xrayType === "medical") ||
-              (userRole === "dentist" && record.xrayType === "dental"))
+        // If userRole is 'doctor', display all records
+        let filteredRecords;
+        if (userRole === "doctor") {
+          filteredRecords = response.data.filter(
+            (record) => record.xrayResult === "done"
           );
-        });
+        } else {
+          // Filter records based on user role and X-ray type
+          filteredRecords = response.data.filter((record) => {
+            return (
+              record.xrayResult === "done" &&
+              ((userRole === "radiologist" && record.xrayType === "medical") ||
+                (userRole === "radiologic technologist" &&
+                  record.xrayType === "medical") ||
+                (userRole === "dentist" && record.xrayType === "dental"))
+            );
+          });
+        }
 
         const sortedRecords = filteredRecords.sort(
           (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
@@ -230,6 +239,16 @@ function XrayResult() {
 
         <div className="flex justify-between items-center mb-6">
           <p className="text-gray-600">
+            {/* Display total X-ray requests if user is a doctor */}
+            {userRole === "doctor" && filteredXrayRecords.length >= 0 && (
+              <>
+                <span className="font-bold text-4xl text-custom-red">
+                  {filteredXrayRecords.length}
+                </span>{" "}
+                records
+              </>
+            )}
+
             {/* Display Dental requests if user is a dentist and dental records count is non-negative */}
             {userRole === "dentist" &&
               filteredXrayRecords.filter(
@@ -249,6 +268,7 @@ function XrayResult() {
 
             {/* Display Medical requests if user is not a dentist and medical records count is non-negative */}
             {userRole !== "dentist" &&
+              userRole !== "doctor" &&
               filteredXrayRecords.filter(
                 (record) => record.xrayType === "medical"
               ).length >= 0 && (
@@ -330,8 +350,8 @@ function XrayResult() {
 
                   {/* Display records if available */}
                   {currentXrayRecords.map((record) => {
-                    // Conditional rendering based on xrayType and userRole
                     if (
+                      userRole === "doctor" ||
                       (record.xrayType === "medical" &&
                         (userRole === "radiologist" ||
                           userRole === "radiologic technologist")) ||
