@@ -5,8 +5,6 @@ import Navbar from "../Navbar/Navbar";
 import { FaXRay } from "react-icons/fa6";
 import { SlChemistry } from "react-icons/sl";
 import { GiBiceps } from "react-icons/gi";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
 
 function PatientsProfile() {
   const { id } = useParams();
@@ -15,7 +13,6 @@ function PatientsProfile() {
   const [showRequestOptions, setShowRequestOptions] = useState(false);
   const [showPackageOptions, setShowPackageOptions] = useState(false);
   const [isLabModalOpen, setIsLabModalOpen] = useState(false);
-  const dropdownRef = useRef(null);
   const [isNewRecordModalOpen, setIsNewRecordModalOpen] = useState(false);
   const [isNewTherapyRecordModalOpen, setIsNewTherapyRecordModalOpen] =
     useState(false);
@@ -193,33 +190,6 @@ function PatientsProfile() {
     }
   };
 
-  const handleGenerateReport = () => {
-    const pdf = new jsPDF();
-
-    // Set the title of the report
-    pdf.text("Physical Therapy Report", 20, 20);
-
-    // Table headers
-    const headers = ["Date", "SOAP Summary", "Physical Therapy Result"];
-
-    // Table data
-    const tableData = displayedRecords.map((record) => [
-      new Date(record.isCreatedAt).toLocaleString(),
-      record.SOAPSummary,
-      record.Diagnosis,
-    ]);
-
-    // Generate the table using autoTable
-    pdf.autoTable({
-      head: [headers],
-      body: tableData,
-      startY: 30, // Start table below the title
-    });
-
-    // Save the PDF with a dynamic filename
-    pdf.save("Physical_Therapy_Report.pdf");
-  };
-
   const handleNewRecordOpen = () => {
     setIsNewRecordModalOpen(true);
   };
@@ -334,7 +304,7 @@ function PatientsProfile() {
 
   const requestDropdownRef = useRef(null); // For showRequestOptions dropdown
   const packageDropdownRef = useRef(null); // For showPackageOptions dropdown
-  
+
   // Hook for handling outside click for showRequestOptions
   useEffect(() => {
     const handleClickOutsideRequest = (event) => {
@@ -346,16 +316,16 @@ function PatientsProfile() {
         setShowRequestOptions(false);
       }
     };
-  
+
     if (showRequestOptions) {
       document.addEventListener("mousedown", handleClickOutsideRequest);
     }
-  
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutsideRequest);
     };
   }, [showRequestOptions]);
-  
+
   // Hook for handling outside click for showPackageOptions
   useEffect(() => {
     const handleClickOutsidePackage = (event) => {
@@ -367,16 +337,16 @@ function PatientsProfile() {
         setShowPackageOptions(false);
       }
     };
-  
+
     if (showPackageOptions) {
       document.addEventListener("mousedown", handleClickOutsidePackage);
     }
-  
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutsidePackage);
     };
   }, [showPackageOptions]);
-  
+
   const handleTabChange = (tab) => {
     setSelectedTab(tab);
   };
@@ -634,7 +604,7 @@ function PatientsProfile() {
       setSelectedPackage(pkg);
       setIsModalOpen(true);
 
-      const { _id, isCreatedAt, ...pkgWithoutIdAndCreatedAt } = pkg;
+      const { _id, isCreatedAt, xrayType, ...pkgWithoutIdAndCreatedAt } = pkg;
 
       // Create lab request
       const labResponse = await axios.post(
@@ -660,23 +630,68 @@ function PatientsProfile() {
         console.error("Unexpected response structure:", labResponse.data);
       }
 
-      // Create x-ray request
-      const xrayResponse = await axios.post(
-        "http://localhost:3001/api/xrayResults",
-        {
-          ...pkgWithoutIdAndCreatedAt,
-          patient: id,
-          packageId: _id,
-          xrayResult: "pending",
-        }
-      );
+      // Check if package includes both Medical and Dental X-ray
+      if (xrayType === "medical, dental") {
+        // Send request for Medical X-ray with xrayDescription
+        const medicalXrayResponse = await axios.post(
+          "http://localhost:3001/api/xrayResults",
+          {
+            ...pkgWithoutIdAndCreatedAt,
+            patient: id,
+            packageId: _id,
+            xrayType: "medical",
+            xrayDescription: pkgWithoutIdAndCreatedAt.xrayDescription,
+            xrayResult: "pending",
+          }
+        );
 
-      if (xrayResponse.data && xrayResponse.data.success) {
-        console.log("X-ray request created successfully:", xrayResponse.data);
-        fetchXrayRecords();
+        if (medicalXrayResponse.data && medicalXrayResponse.data.success) {
+          console.log(
+            "Medical X-ray request created successfully:",
+            medicalXrayResponse.data
+          );
+        }
+
+        // Send request for Dental X-ray with "Panoramic" description
+        const dentalXrayResponse = await axios.post(
+          "http://localhost:3001/api/xrayResults",
+          {
+            ...pkgWithoutIdAndCreatedAt,
+            patient: id,
+            packageId: _id,
+            xrayType: "dental",
+            xrayDescription: "Panoramic",
+            xrayResult: "pending",
+          }
+        );
+
+        if (dentalXrayResponse.data && dentalXrayResponse.data.success) {
+          console.log(
+            "Dental X-ray request created successfully:",
+            dentalXrayResponse.data
+          );
+        }
       } else {
-        console.error("Unexpected response structure:", xrayResponse.data);
+        // Create a single X-ray request if only one type is present
+        const xrayResponse = await axios.post(
+          "http://localhost:3001/api/xrayResults",
+          {
+            ...pkgWithoutIdAndCreatedAt,
+            patient: id,
+            packageId: _id,
+            xrayType: xrayType,
+            xrayDescription: pkgWithoutIdAndCreatedAt.xrayDescription || "",
+            xrayResult: "pending",
+          }
+        );
+
+        if (xrayResponse.data && xrayResponse.data.success) {
+          console.log("X-ray request created successfully:", xrayResponse.data);
+        }
       }
+
+      // Fetch the latest X-ray records after request(s) completion
+      fetchXrayRecords();
     } catch (error) {
       console.error("Error fetching package or creating requests:", error);
       alert("Failed to fetch package or create requests. Please try again.");
@@ -715,6 +730,7 @@ function PatientsProfile() {
   //     </div>
   //   );
   // };
+
   return (
     <div>
       <Navbar />
@@ -821,7 +837,7 @@ function PatientsProfile() {
                           Packages
                         </button>
                         {showPackageOptions && (
-                          <div className="absolute mt-2 bg-white border rounded-lg shadow-lg">
+                          <div className="absolute mt-2 w-full bg-white border rounded-lg shadow-lg">
                             {packages.map((pkg) => (
                               <button
                                 key={pkg._id}
@@ -1426,7 +1442,7 @@ function PatientsProfile() {
                   }`}
                   onClick={() => handleTabChange("clinical")}
                 >
-                  Clinical Records
+                  Consultation Records
                 </button>
                 <button
                   className={`${
@@ -1461,52 +1477,59 @@ function PatientsProfile() {
                     Physical Therapy Records
                   </button>
                 )}
+                <button
+                  className={`${
+                    selectedTab === "package"
+                      ? "text-custom-red font-semibold"
+                      : ""
+                  }`}
+                  onClick={() => handleTabChange("package")}
+                >
+                  Package Records
+                </button>
               </div>
             </div>
 
             {/* Scrollable section */}
             <div className="mt-4 max-h-72 overflow-y-auto">
               <ul className="space-y-4">
+                {/* Clinical Records */}
                 {selectedTab === "clinical" &&
                   (displayedRecords.length > 0 ? (
-                    <ul className="space-y-4">
-                      {displayedRecords.map((records, index) => (
-                        <li
-                          key={index}
-                          className="flex justify-between items-center p-4 bg-gray-100 rounded-lg"
+                    displayedRecords.map((records, index) => (
+                      <li
+                        key={index}
+                        className="flex justify-between items-center p-4 bg-gray-100 rounded-lg"
+                      >
+                        <div className="flex-1">
+                          <p className="text-gray-500 text-sm">
+                            {new Date(records.isCreatedAt).toLocaleString()}
+                          </p>
+                          <p className="font-semibold">{records.complaints}</p>
+                        </div>
+                        <div className="flex-1 text-gray-500">
+                          {records.treatments.length > 20
+                            ? `${records.treatments.substring(0, 20)}...`
+                            : records.treatments}
+                          {records.emergencyTreatment && (
+                            <p className="text-custom-red italic">
+                              Emergency: {records.emergencyTreatment}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex-1 text-gray-500">
+                          {records.diagnosis.length > 20
+                            ? `${records.diagnosis.substring(0, 20)}...`
+                            : records.diagnosis}
+                        </div>
+                        <button
+                          className="text-custom-red"
+                          onClick={() => handleViewRecord(records)}
                         >
-                          <div className="flex-1">
-                            <p className="text-gray-500 text-sm">
-                              {new Date(records.isCreatedAt).toLocaleString()}
-                            </p>
-                            <p className="font-semibold">
-                              {records.complaints}
-                            </p>
-                          </div>
-                          <div className="flex-1 text-gray-500">
-                            {records.treatments.length > 20
-                              ? `${records.treatments.substring(0, 20)}...`
-                              : records.treatments}
-                            {records.emergencyTreatment && (
-                              <p className="text-custom-red italic">
-                                Emergency: {records.emergencyTreatment}
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex-1 text-gray-500">
-                            {records.diagnosis.length > 20
-                              ? `${records.diagnosis.substring(0, 20)}...`
-                              : records.diagnosis}
-                          </div>
-                          <button
-                            className="text-custom-red"
-                            onClick={() => handleViewRecord(records)}
-                          >
-                            View
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+                          View
+                        </button>
+                      </li>
+                    ))
                   ) : (
                     <p className="text-center text-gray-500 py-4">
                       No clinical records found.
@@ -1596,6 +1619,7 @@ function PatientsProfile() {
                     </p>
                   ))}
 
+                {/* Physical Therapy Records */}
                 {selectedTab === "physical therapy" &&
                   (displayedRecords.length > 0 ? (
                     displayedRecords.map((records, index) => (
@@ -1621,6 +1645,89 @@ function PatientsProfile() {
                       No Physical Therapy records available.
                     </p>
                   ))}
+
+      {/* Package Records */}
+{selectedTab === "package" &&
+  (packages.length > 0 ? (
+    packages.map((records, index) => {
+      // Log the entire records object to examine its structure
+      console.log("Current Record:", records);
+
+      // Collect all lab tests with values
+      const allTests = [
+        ...Object.entries(records.bloodChemistry || {})
+          .filter(([_, value]) => value)
+          .map(([key]) => key),
+        ...Object.entries(records.hematology || {})
+          .filter(([_, value]) => value)
+          .map(([key]) => key),
+        ...Object.entries(records.clinicalMicroscopyParasitology || {})
+          .filter(([_, value]) => value)
+          .map(([key]) => key),
+        ...Object.entries(records.bloodBankingSerology || {})
+          .filter(([_, value]) => value)
+          .map(([key]) => key),
+        ...Object.entries(records.microbiology || {})
+          .filter(([_, value]) => value)
+          .map(([key]) => key),
+      ].join(", ");
+
+      // Attempt to gather x-ray details
+      let xrayDetails = "No X-ray Data";
+      if (records.xrayRequest && Array.isArray(records.xrayRequest) && records.xrayRequest.length > 0) {
+        xrayDetails = records.xrayRequest
+          .map((xray) => {
+            // Log each x-ray item to verify its structure
+            console.log("X-ray Entry:", xray);
+            return (xray.xrayType || "N/A") + " - " + (xray.xrayDescription || "N/A");
+          })
+          .filter((detail) => detail !== "N/A - N/A") // Remove empty entries
+          .join(", ");
+      }
+
+      console.log("Compiled X-ray Details:", xrayDetails); // Log final x-ray details
+
+      return (
+        <li
+          key={index}
+          className="grid grid-cols-4 gap-4 items-center p-4 bg-gray-100 rounded-lg"
+        >
+          {/* Date and Package Name */}
+          <div className="col-span-1">
+            <p className="text-gray-500 text-sm">
+              {new Date(records.isCreatedAt).toLocaleString()}
+            </p>
+            <p className="font-semibold">{records.name}</p>
+          </div>
+
+          {/* Display Lab Tests */}
+          <div className="col-span-1">
+            <p className="text-gray-500">
+              {allTests || "No Lab Test Data"}
+            </p>
+          </div>
+
+          {/* Display X-ray Details */}
+          <div className="col-span-1">
+            <p className="text-gray-500">{records.xrayType}</p>
+          </div>
+
+          {/* Lab Result Status and View Button */}
+          <div className="col-span-1 flex justify-between items-center">
+            <p className="text-gray-500">
+              {records.labResult || "Pending"}
+            </p>
+            <button className="text-custom-red">View</button>
+          </div>
+        </li>
+      );
+    })
+  ) : (
+    <p className="text-center text-gray-500 py-4">
+      No Package records available.
+    </p>
+  ))}
+
               </ul>
             </div>
           </div>

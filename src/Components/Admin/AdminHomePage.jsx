@@ -370,18 +370,12 @@ function AdminHomePage() {
                               <option value="nurse">Nurse</option>
                               <option value="doctor">Doctor</option>
                               <option value="pathologist">Pathologist</option>
-                              <option value="junior medtech">
-                                Junior MedTech
-                              </option>
-                              <option value="senior medtech">
-                                Senior MedTech
-                              </option>
-                              <option value="radiologic technologist">
-                                Radiologic Technologist
-                              </option>
+                              <option value="junior medtech">Junior MedTech</option>
+                              <option value="senior medtech">Senior MedTech</option>
+                              <option value="radiologic technologist">Radiologic Technologist</option>
                               <option value="radiologist">Radiologist</option>
+                              <option value="dentist">Dentist</option> 
                               <option value="admin">Admin</option>
-                              <option value="dentist">Dentist</option>
                             </>
                           )}
                         </select>

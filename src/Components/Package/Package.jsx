@@ -135,17 +135,17 @@ const Package = () => {
         xrayType: newXrayRecord.xrayType,
         xrayDescription: newXrayRecord.xrayDescription, // Add xrayDescription here
       };
-  
+
       // Send POST request to the API
       const response = await axios.post(
         "http://localhost:3001/api/packages",
         packageData
       );
-  
+
       console.log("Package created successfully:", response.data);
       setPackages((prevPackages) => [...prevPackages, response.data]); // Update packages state with the new package
       setIsPackageModalOpen(false); // Close the modal after submission
-  
+
       // Reset form fields
       setAddPackage("");
       setFormData({
@@ -194,17 +194,7 @@ const Package = () => {
       alert("Failed to create package. Please try again.");
     }
   };
-  
 
-  // Function to render the lab tests for each category
-  const renderLabTests = (category, tests) => (
-    <>
-      <p className="font-semibold">{category}</p>
-      {Object.entries(tests).map(([testName, testValue]) => (
-        <p key={testName}>{testValue}</p> // Display each test value
-      ))}
-    </>
-  );
 
   const [currentPage, setCurrentPage] = useState(1);
   const packagesPerPage = 4;
@@ -314,7 +304,10 @@ const Package = () => {
                 <tbody>
                   {currentPackages.length === 0 ? (
                     <tr>
-                      <td colSpan="4" className="py-4 text-center text-gray-500">
+                      <td
+                        colSpan="4"
+                        className="py-4 text-center text-gray-500"
+                      >
                         No packages found.
                       </td>
                     </tr>
@@ -324,7 +317,8 @@ const Package = () => {
                         <td className="py-4">
                           <p className="font-semibold">{pkg.name}</p>
                           <p className="text-sm text-gray-500">
-                            Created: {new Date(pkg.isCreatedAt).toLocaleString()}
+                            Created:{" "}
+                            {new Date(pkg.isCreatedAt).toLocaleString()}
                           </p>
                         </td>
                         <td className="py-4">
@@ -393,8 +387,8 @@ const Package = () => {
             </div>
           </div>
         )}
-         {/* Laboratory Request Form Modal */}
-         {isPackageModalOpen && (
+        {/* Laboratory Request Form Modal */}
+        {isPackageModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div className="bg-white py-4 px-6 rounded-lg w-full max-w-4xl max-h-[85vh] shadow-lg overflow-y-auto">
               <h2 className="text-lg font-bold mb-6 text-center">Package</h2>
@@ -548,7 +542,10 @@ const Package = () => {
                     onChange={(e) =>
                       setNewXrayRecord((prev) => ({
                         ...prev,
-                        xrayType: e.target.value,
+                        xrayType:
+                          e.target.value === "both"
+                            ? "medical, dental"
+                            : e.target.value,
                       }))
                     }
                     className="border rounded-lg w-full p-2 mb-4"
@@ -558,6 +555,7 @@ const Package = () => {
                     </option>
                     <option value="medical">Medical X-Ray</option>
                     <option value="dental">Dental X-ray</option>
+                    <option value="both">Both</option>
                   </select>
                   <label className="block text-sm font-medium">
                     Description
