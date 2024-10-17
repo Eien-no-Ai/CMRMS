@@ -1,11 +1,19 @@
-// models/Package.js
 const mongoose = require("mongoose");
 
+// Schema to keep track of auto-incremented package number
+const CounterSchema = new mongoose.Schema({
+  id: { type: String, required: true }, // `id` is a string identifier for the counter
+  seq: { type: Number, default: 0 }, // `seq` is the counter value
+});
+
+const Counter = mongoose.model("Counter", CounterSchema);
+
 const PackageSchema = new mongoose.Schema({
+  packageNumber: { type: Number, unique: true },
   name: { type: String },
-  patient: { type: mongoose.Schema.Types.ObjectId, ref: 'patients', },
-  clinicId: { type: mongoose.Schema.Types.ObjectId, ref: 'clinics', },
-  laboratoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'laboratory'},
+  patient: { type: mongoose.Schema.Types.ObjectId, ref: "patients" },
+  clinicId: { type: mongoose.Schema.Types.ObjectId, ref: "clinics" },
+  laboratoryId: { type: mongoose.Schema.Types.ObjectId, ref: "laboratory" },
   bloodChemistry: {
     bloodSugar: { type: String, default: "" },
     bloodUreaNitrogen: { type: String, default: "" },
@@ -47,6 +55,26 @@ const PackageSchema = new mongoose.Schema({
   xrayType: { type: String, default: "" },
   xrayDescription: { type: String, default: "" },
   isCreatedAt: { type: Date, default: Date.now },
+});
+
+// Middleware for auto-incrementing packageNumber
+PackageSchema.pre("save", async function (next) {
+  const doc = this;
+  if (doc.isNew) {
+    try {
+      const counter = await Counter.findOneAndUpdate(
+        { id: "packageNumber" }, // Use `findOneAndUpdate` to search for `id` field
+        { $inc: { seq: 1 } },
+        { new: true, upsert: true } // Create a new counter if it doesn't exist
+      );
+      doc.packageNumber = counter.seq * 1000;
+      next();
+    } catch (error) {
+      next(error);
+    }
+  } else {
+    next();
+  }
 });
 
 const PackageModel = mongoose.model("packages", PackageSchema);

@@ -809,13 +809,16 @@ app.get("/api/laboratory", async (req, res) => {
   }
 });
 
-// GET endpoint to fetch lab records for a specific patient
+// GET endpoint to fetch lab records for a specific patient with package details
 app.get("/api/laboratory/:patientId", async (req, res) => {
   const { patientId } = req.params;
   try {
     const labRecords = await LaboratoryModel.find({
       patient: patientId,
-    }).populate("patient");
+    })
+      .populate("patient")
+      .populate("packageId");
+
     res.json(labRecords);
   } catch (error) {
     res
@@ -1018,6 +1021,7 @@ const storagee = multer.diskStorage({
     cb(null, filename);
   },
 });
+
 app.use(
   "/xrayResultUpload",
   express.static(path.join(__dirname, "xrayResultUpload"))

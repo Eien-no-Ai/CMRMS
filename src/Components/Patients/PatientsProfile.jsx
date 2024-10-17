@@ -592,6 +592,7 @@ function PatientsProfile() {
   });
 
   const [packages, setPackages] = useState([]);
+  const [packageClickCount, setPackageClickCount] = useState(0);
 
   const handlePackageClick = async (packageId) => {
     try {
@@ -604,15 +605,25 @@ function PatientsProfile() {
       setSelectedPackage(pkg);
       setIsModalOpen(true);
 
-      const { _id, isCreatedAt, xrayType, ...pkgWithoutIdAndCreatedAt } = pkg;
+      const {
+        _id,
+        isCreatedAt,
+        xrayType,
+        packageNumber,
+        ...pkgWithoutIdAndCreatedAt
+      } = pkg;
 
-      // Create lab request
+      // Calculate the updated package number based on the click count
+      const updatedPackageNumber = packageNumber + packageClickCount + 1;
+
+      // Create lab request with the updated package number
       const labResponse = await axios.post(
         "http://localhost:3001/api/laboratory",
         {
           ...pkgWithoutIdAndCreatedAt,
           patient: id,
           packageId: _id,
+          packageNumber: updatedPackageNumber, // Use updated package number
           labResult: "pending",
         }
       );
@@ -639,6 +650,7 @@ function PatientsProfile() {
             ...pkgWithoutIdAndCreatedAt,
             patient: id,
             packageId: _id,
+            packageNumber: updatedPackageNumber, // Use updated package number
             xrayType: "medical",
             xrayDescription: pkgWithoutIdAndCreatedAt.xrayDescription,
             xrayResult: "pending",
@@ -659,6 +671,7 @@ function PatientsProfile() {
             ...pkgWithoutIdAndCreatedAt,
             patient: id,
             packageId: _id,
+            packageNumber: updatedPackageNumber, // Use updated package number
             xrayType: "dental",
             xrayDescription: "Panoramic",
             xrayResult: "pending",
@@ -679,6 +692,7 @@ function PatientsProfile() {
             ...pkgWithoutIdAndCreatedAt,
             patient: id,
             packageId: _id,
+            packageNumber: updatedPackageNumber, // Use updated package number
             xrayType: xrayType,
             xrayDescription: pkgWithoutIdAndCreatedAt.xrayDescription || "",
             xrayResult: "pending",
@@ -689,6 +703,9 @@ function PatientsProfile() {
           console.log("X-ray request created successfully:", xrayResponse.data);
         }
       }
+
+      // Increment the counter after the requests are processed
+      setPackageClickCount((prevCount) => prevCount + 1);
 
       // Fetch the latest X-ray records after request(s) completion
       fetchXrayRecords();
@@ -730,6 +747,24 @@ function PatientsProfile() {
   //     </div>
   //   );
   // };
+
+  const combinedRecords = {};
+
+  laboratoryRecords.forEach((record) => {
+    const packageNumber = record.packageNumber;
+    if (!combinedRecords[packageNumber]) {
+      combinedRecords[packageNumber] = { labRecords: [], xrayRecords: [] };
+    }
+    combinedRecords[packageNumber].labRecords.push(record);
+  });
+
+  xrayRecords.forEach((record) => {
+    const packageNumber = record.packageNumber;
+    if (!combinedRecords[packageNumber]) {
+      combinedRecords[packageNumber] = { labRecords: [], xrayRecords: [] };
+    }
+    combinedRecords[packageNumber].xrayRecords.push(record);
+  });
 
   return (
     <div>
@@ -1646,88 +1681,109 @@ function PatientsProfile() {
                     </p>
                   ))}
 
-      {/* Package Records */}
-{selectedTab === "package" &&
-  (packages.length > 0 ? (
-    packages.map((records, index) => {
-      // Log the entire records object to examine its structure
-      console.log("Current Record:", records);
+                {selectedTab === "package" &&
+                  (Object.keys(combinedRecords).length > 0 ? (
+                    Object.entries(combinedRecords).map(
+                      ([packageNumber, records], index) => (
+                        <li
+                          key={index}
+                          className="grid grid-cols-3 gap-4 items-center p-4 bg-gray-100 rounded-lg"
+                        >
+                          <div className="col-span-1">
+                            <p className="text-gray-500 text-sm">
+                              {new Date(
+                                records.labRecords[0]?.isCreatedAt ||
+                                  records.xrayRecords[0]?.isCreatedAt
+                              ).toLocaleString() || "Invalid Date"}
+                            </p>
+                            <p className="font-semibold">
+                              {records.labRecords[0]?.packageId?.name || "N/A"}
+                            </p>
+                            <p className="text-gray-600 text-xs">
+                              Package No: {packageNumber}
+                            </p>
+                          </div>
 
-      // Collect all lab tests with values
-      const allTests = [
-        ...Object.entries(records.bloodChemistry || {})
-          .filter(([_, value]) => value)
-          .map(([key]) => key),
-        ...Object.entries(records.hematology || {})
-          .filter(([_, value]) => value)
-          .map(([key]) => key),
-        ...Object.entries(records.clinicalMicroscopyParasitology || {})
-          .filter(([_, value]) => value)
-          .map(([key]) => key),
-        ...Object.entries(records.bloodBankingSerology || {})
-          .filter(([_, value]) => value)
-          .map(([key]) => key),
-        ...Object.entries(records.microbiology || {})
-          .filter(([_, value]) => value)
-          .map(([key]) => key),
-      ].join(", ");
+                          <div className="col-span-1">
+                            <p className="text-gray-500">
+                              {records.labRecords.length > 0
+                                ? records.labRecords
+                                    .flatMap((record) =>
+                                      // Extract only values from bloodChemistry and hematology
+                                      [
+                                        // Extract all values from each category and filter empty values
+                                        ...Object.values(
+                                          record.bloodChemistry || {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.hematology || {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.clinicalMicroscopyParasitology ||
+                                            {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.bloodBankingSerology || {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.microbiology || {}
+                                        ).filter((value) => value),
+                                      ]
+                                    )
+                                    .join(", ") || "No test data available"
+                                : "No Lab Tests Available"}
+                            </p>
+                          </div>
 
-      // Attempt to gather x-ray details
-      let xrayDetails = "No X-ray Data";
-      if (records.xrayRequest && Array.isArray(records.xrayRequest) && records.xrayRequest.length > 0) {
-        xrayDetails = records.xrayRequest
-          .map((xray) => {
-            // Log each x-ray item to verify its structure
-            console.log("X-ray Entry:", xray);
-            return (xray.xrayType || "N/A") + " - " + (xray.xrayDescription || "N/A");
-          })
-          .filter((detail) => detail !== "N/A - N/A") // Remove empty entries
-          .join(", ");
-      }
+                          <div className="col-span-1 flex justify-between items-center">
+                            <p className="text-gray-500">
+                              {records.xrayRecords.length > 0
+                                ? records.xrayRecords.map((record, idx) => (
+                                    <span key={idx}>
+                                      {record.xrayType}
+                                      {idx < records.xrayRecords.length - 1 &&
+                                        ", "}{" "}
+                                    </span>
+                                  ))
+                                : "No X-ray Data"}
+                            </p>
+                            <button className="text-custom-red">View</button>
+                          </div>
+                        </li>
+                      )
+                    )
+                  ) : (
+                    <p className="text-center text-gray-500 py-4">
+                      No Package records available.
+                    </p>
+                  ))}
 
-      console.log("Compiled X-ray Details:", xrayDetails); // Log final x-ray details
-
-      return (
-        <li
-          key={index}
-          className="grid grid-cols-4 gap-4 items-center p-4 bg-gray-100 rounded-lg"
-        >
-          {/* Date and Package Name */}
-          <div className="col-span-1">
-            <p className="text-gray-500 text-sm">
-              {new Date(records.isCreatedAt).toLocaleString()}
-            </p>
-            <p className="font-semibold">{records.name}</p>
-          </div>
-
-          {/* Display Lab Tests */}
-          <div className="col-span-1">
-            <p className="text-gray-500">
-              {allTests || "No Lab Test Data"}
-            </p>
-          </div>
-
-          {/* Display X-ray Details */}
-          <div className="col-span-1">
-            <p className="text-gray-500">{records.xrayType}</p>
-          </div>
-
-          {/* Lab Result Status and View Button */}
-          <div className="col-span-1 flex justify-between items-center">
-            <p className="text-gray-500">
-              {records.labResult || "Pending"}
-            </p>
-            <button className="text-custom-red">View</button>
-          </div>
-        </li>
-      );
-    })
-  ) : (
-    <p className="text-center text-gray-500 py-4">
-      No Package records available.
-    </p>
-  ))}
-
+                {/* Physical Therapy Records */}
+                {selectedTab === "physical therapy" &&
+                  (displayedRecords.length > 0 ? (
+                    displayedRecords.map((records, index) => (
+                      <li
+                        key={index}
+                        className="flex justify-between items-center p-4 bg-gray-100 rounded-lg"
+                      >
+                        <div>
+                          <p className="text-gray-500 text-sm">
+                            {new Date(records.isCreatedAt).toLocaleString()}
+                          </p>
+                          <p className="font-semibold">{records.SOAPSummary}</p>
+                          <p className="text-gray-500">{records.Diagnosis}</p>
+                        </div>
+                        <div className="text-gray-500">
+                          {records.physicalTherapyResult}
+                        </div>
+                        <button className="text-custom-red">Edit</button>
+                      </li>
+                    ))
+                  ) : (
+                    <p className="text-center text-gray-500 py-4">
+                      No Physical Therapy records available.
+                    </p>
+                  ))}
               </ul>
             </div>
           </div>
