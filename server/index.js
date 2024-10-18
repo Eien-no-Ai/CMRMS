@@ -321,6 +321,7 @@ app.get("/api/signature/user/:id", async (req, res) => {
 
 app.post("/api/laboratory-results", async (req, res) => {
   const {
+    ORNumber,
     labNumber,
     patient,
     clinicId,
@@ -332,6 +333,7 @@ app.post("/api/laboratory-results", async (req, res) => {
 
   try {
     const labResults = await LaboratoryResultsModel.create({
+      ORNumber,
       labNumber,
       patient,
       clinicId,
@@ -817,8 +819,6 @@ app.put("/patients/:id", (req, res) => {
 app.post("/api/laboratory", async (req, res) => {
   try {
     const labData = req.body; // Expecting the form data in the request body
-
-    // Validate labData if necessary (add your validation logic here)
 
     const labRequest = await LaboratoryModel.create(labData);
     res.json({

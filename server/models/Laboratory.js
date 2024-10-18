@@ -9,6 +9,7 @@ const LaboratorySchema = new mongoose.Schema({
   clinicId: { type: mongoose.Schema.Types.ObjectId, ref: "clinics" },
   packageId: { type: mongoose.Schema.Types.ObjectId, ref: "packages" },
   packageNumber: { type: Number },
+  ORNumber: { type: String, default: "" },
   bloodChemistry: {
     bloodSugar: { type: String, default: "" },
     bloodUreaNitrogen: { type: String, default: "" },

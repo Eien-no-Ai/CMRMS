@@ -5,6 +5,7 @@ import Navbar from "../Navbar/Navbar";
 import { FaXRay } from "react-icons/fa6";
 import { SlChemistry } from "react-icons/sl";
 import { GiBiceps } from "react-icons/gi";
+import { BiChevronDown } from "react-icons/bi";
 
 function PatientsProfile() {
   const { id } = useParams();
@@ -13,6 +14,10 @@ function PatientsProfile() {
   const [showRequestOptions, setShowRequestOptions] = useState(false);
   const [showPackageOptions, setShowPackageOptions] = useState(false);
   const [isLabModalOpen, setIsLabModalOpen] = useState(false);
+  const [isHematologyVisible, setHematologyVisible] = useState(false);
+  const [isClinicalMicroscopyVisible, setClinicalMicroscopyVisible] =
+    useState(false);
+  const [isSerologyVisible, setSerologyVisible] = useState(false);
   const [isNewRecordModalOpen, setIsNewRecordModalOpen] = useState(false);
   const [isNewTherapyRecordModalOpen, setIsNewTherapyRecordModalOpen] =
     useState(false);
@@ -797,11 +802,11 @@ function PatientsProfile() {
     },
     malaria: {
       hasMalaria: null, // Radio buttons - Yes/No
-      lastAttackDate: '', // Malaria attack details
+      lastAttackDate: "", // Malaria attack details
     },
     operations: {
       undergoneOperation: null, // Radio buttons - Yes/No
-      listOperations: '', // Details of operations
+      listOperations: "", // Details of operations
     },
     signature: {
       fileName: null,
@@ -820,30 +825,30 @@ function PatientsProfile() {
       },
       allergies: {
         hasAllergies: null, // Radio buttons - Yes/No/Not Sure
-        allergyList: '', // List of allergies
+        allergyList: "", // List of allergies
       },
     },
     personalHistory: {
-      tobaccoUse:{
+      tobaccoUse: {
         usesTobacco: null, // Radio buttons - Yes/No
-        sticksPerDay: '', // Number of sticks per day
+        sticksPerDay: "", // Number of sticks per day
         quitSmoking: null, // Radio buttons - Yes/No
-        quitWhen: '', // Reason for quitting
+        quitWhen: "", // Reason for quitting
       },
       alcoholUse: {
         drinksAlcohol: null, // Radio buttons - Yes/No
-        drinksPerDay: '',
+        drinksPerDay: "",
         quitDrinking: null, // Radio buttons - Yes/No
-        quitWhen: '',
-    },
-    forWomen: {
+        quitWhen: "",
+      },
+      forWomen: {
         pregnant: null, // Radio buttons - Yes/No
-        months: '', // Number of months pregnant
-        lastMenstrualPeriod:  '', // Date of last menstrual period
+        months: "", // Number of months pregnant
+        lastMenstrualPeriod: "", // Date of last menstrual period
         abortionOrMiscarriage: null, // Radio buttons - Abortion/Miscarriage
         dysmenorrhea: null, // Radio buttons - Yes/No
+      },
     },
-  },
   });
 
   // FAMILY HISTORY FUNCTIONS
@@ -859,10 +864,10 @@ function PatientsProfile() {
       },
     }));
   };
-  
+
   const handleHistoryFamRadioChange = (section, field, subfield, e) => {
     const value = e.target.value; // Get the value directly
-    console.log('Changing value:', value); // Debugging line
+    console.log("Changing value:", value); // Debugging line
     setMedicalHistory((prevState) => ({
       ...prevState,
       [section]: {
@@ -874,7 +879,7 @@ function PatientsProfile() {
       },
     }));
   };
-  
+
   const handleHistoryFamInputChange = (section, field, subfield, value) => {
     setMedicalHistory((prevState) => ({
       ...prevState,
@@ -887,7 +892,7 @@ function PatientsProfile() {
       },
     }));
   };
-  
+
   // MEDICAL HISTORY FUNCTIONS
   const handleCheckboxChange = (section, field) => {
     setMedicalHistory((prevData) => ({
@@ -901,7 +906,7 @@ function PatientsProfile() {
 
   const handleHistoryRadioChange = (section, field, e) => {
     const value = e.target.value; // Get the value directly
-    console.log('Changing value:', value); // Debugging line
+    console.log("Changing value:", value); // Debugging line
     setMedicalHistory((prevState) => ({
       ...prevState,
       [section]: {
@@ -923,7 +928,7 @@ function PatientsProfile() {
 
   // PERSONAL HISTORY FUNCTIONS
   const handleTobaccoChange = (field, value) => {
-    console.log('Changing value:', value); // Debugging line
+    console.log("Changing value:", value); // Debugging line
     setMedicalHistory((prev) => ({
       ...prev,
       personalHistory: {
@@ -935,7 +940,7 @@ function PatientsProfile() {
       },
     }));
   };
-  
+
   const handleAlcoholChange = (field, value) => {
     setMedicalHistory((prev) => ({
       ...prev,
@@ -948,7 +953,7 @@ function PatientsProfile() {
       },
     }));
   };
-  
+
   const handleWomenHealthChange = (field, value) => {
     setMedicalHistory((prev) => ({
       ...prev,
@@ -961,7 +966,6 @@ function PatientsProfile() {
       },
     }));
   };
-  
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -1005,11 +1009,11 @@ function PatientsProfile() {
     },
     malaria: {
       hasMalaria: null,
-      lastAttackDate: '',
+      lastAttackDate: "",
     },
     operations: {
       undergoneOperation: null,
-      listOperations: '',
+      listOperations: "",
     },
     signature: {
       fileName: null,
@@ -1027,27 +1031,27 @@ function PatientsProfile() {
       },
       allergies: {
         hasAllergies: null,
-        allergyList: '',
+        allergyList: "",
       },
     },
     personalHistory: {
       tobaccoUse: {
         usesTobacco: null,
-        sticksPerDay: '',
+        sticksPerDay: "",
         quitSmoking: null,
-        quitWhen: '',
+        quitWhen: "",
       },
       alcoholUse: {
         drinksAlcohol: null,
-        drinksPerDay: '',
+        drinksPerDay: "",
         quitDrinking: null,
-        quitWhen: '',
+        quitWhen: "",
       },
     },
     forWomen: {
       pregnant: null,
-      months: '',
-      lastMenstrualPeriod: '',
+      months: "",
+      lastMenstrualPeriod: "",
       abortionOrMiscarriage: null,
       dysmenorrhea: null,
     },
@@ -1057,22 +1061,85 @@ function PatientsProfile() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `http://localhost:3001/api/medical-history`,{
+        `http://localhost:3001/api/medical-history`,
+        {
           patient: id,
           ...medicalHistory,
         }
       );
-      console.log('Medical history saved successfully:', response.data);
+      console.log("Medical history saved successfully:", response.data);
       if (response.status === 200) {
         handleMedicalClose();
         setMedicalHistory({
           ...initialMedicalHistory,
         });
-          
       }
     } catch (error) {
       console.error("Error adding medical history:", error);
     }
+  };
+  const [selectedXrayRecord, setSelectedXrayRecord] = useState(null);
+
+  const [isXrayDetailModalOpen, setIsXrayDetailModalOpen] = useState(false);
+  const handleXrayView = (xray) => {
+    setSelectedXrayRecord(xray);
+    setIsXrayDetailModalOpen(true);
+  };
+
+  const handleXrayModalClose = () => {
+    setIsXrayDetailModalOpen(false);
+    setSelectedXrayRecord(null); // Clear the current selection
+  };
+
+  const [labDetails, setLabDetails] = useState(null);
+  const [isLabResultModalOpen, setIsLabResultModalOpen] = useState(false);
+
+  const fetchLabResultByRequestId = async (laboratoryId) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/laboratory-results/by-request/${laboratoryId}`
+      );
+      if (response.status === 200 && response.data) {
+        setLabDetails(response.data); // Set lab details
+        setIsLabResultModalOpen(true); // Open the modal
+      } else {
+        alert("No laboratory result found for this request ID.");
+      }
+    } catch (error) {
+      console.error("Error fetching laboratory result by request ID:", error);
+      alert(
+        "Failed to load laboratory result. Please check the request ID and try again."
+      );
+    }
+  };
+
+  const openLabResultModal = (laboratoryId) => {
+    fetchLabResultByRequestId(laboratoryId);
+  };
+
+  const closeLabResultModal = () => {
+    setLabDetails(null);
+    setIsLabResultModalOpen(false);
+  };
+
+  const toggleHematologyVisibility = () =>
+    setHematologyVisible(!isHematologyVisible);
+  const toggleClinicalMicroscopyVisibility = () =>
+    setClinicalMicroscopyVisible(!isClinicalMicroscopyVisible);
+  const toggleSerologyVisibility = () => setSerologyVisible(!isSerologyVisible);
+
+  const getAge = (birthdate) => {
+    const today = new Date();
+    const birthDate = new Date(birthdate);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    return age;
   };
 
   return (
@@ -1267,7 +1334,7 @@ function PatientsProfile() {
                   >
                     Medical
                   </button>
-                  
+
                   <button
                     className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                     onClick={handleFamilyPersonalOpen}
@@ -1293,183 +1360,352 @@ function PatientsProfile() {
                   </label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.noseThroatDisorders}
-                      onChange={(e) => handleCheckboxChange('conditions', 'noseThroatDisorders',e)} 
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.noseThroatDisorders}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "noseThroatDisorders",
+                            e
+                          )
+                        }
                       />
-                      1. Nose or
-                      throat disorders
+                      1. Nose or throat disorders
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.hernia}
-                      onChange={(e) => handleCheckboxChange('conditions', 'hernia',e)}
-                      /> 14. Hernia
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.hernia}
+                        onChange={(e) =>
+                          handleCheckboxChange("conditions", "hernia", e)
+                        }
+                      />{" "}
+                      14. Hernia
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.earTrouble}
-                      onChange={(e) => handleCheckboxChange('conditions', 'earTrouble',e)}
-                      /> 2. Ear trouble
-                      / deafness
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.earTrouble}
+                        onChange={(e) =>
+                          handleCheckboxChange("conditions", "earTrouble", e)
+                        }
+                      />{" "}
+                      2. Ear trouble / deafness
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.rheumatismJointPain}
-                      onChange={(e) => handleCheckboxChange('conditions', 'rheumatismJointPain',e)}
-                      /> 15. Rheumatism,
-                      joint or back pain
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.rheumatismJointPain}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "rheumatismJointPain",
+                            e
+                          )
+                        }
+                      />{" "}
+                      15. Rheumatism, joint or back pain
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.asthma}
-                      onChange={(e) => handleCheckboxChange('conditions', 'asthma',e)}
-                      /> 3. Asthma
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.asthma}
+                        onChange={(e) =>
+                          handleCheckboxChange("conditions", "asthma", e)
+                        }
+                      />{" "}
+                      3. Asthma
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.eyeDisorders}
-                      onChange={(e) => handleCheckboxChange('conditions', 'eyeDisorders',e)}
-                      /> 16. Eye
-                      disorders
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.eyeDisorders}
+                        onChange={(e) =>
+                          handleCheckboxChange("conditions", "eyeDisorders", e)
+                        }
+                      />{" "}
+                      16. Eye disorders
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.tuberculosis}
-                      onChange={(e) => handleCheckboxChange('conditions', 'tuberculosis',e)}
-                      /> 4. Tuberculosis
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.tuberculosis}
+                        onChange={(e) =>
+                          handleCheckboxChange("conditions", "tuberculosis", e)
+                        }
+                      />{" "}
+                      4. Tuberculosis
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.stomachPainUlcer}
-                      onChange={(e) => handleCheckboxChange('conditions', 'stomachPainUlcer',e)}
-                      /> 17. Stomach
-                      pain / ulcer
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.stomachPainUlcer}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "stomachPainUlcer",
+                            e
+                          )
+                        }
+                      />{" "}
+                      17. Stomach pain / ulcer
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.lungDiseases}
-                      onChange={(e) => handleCheckboxChange('conditions', 'lungDiseases',e)}
-                      /> 5. Other lung
-                      diseases
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.lungDiseases}
+                        onChange={(e) =>
+                          handleCheckboxChange("conditions", "lungDiseases", e)
+                        }
+                      />{" "}
+                      5. Other lung diseases
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.abdominalDisorders}
-                      onChange={(e) => handleCheckboxChange('conditions', 'abdominalDisorders',e)}
-                      /> 18. Other
-                      abdominal disorders
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.abdominalDisorders}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "abdominalDisorders",
+                            e
+                          )
+                        }
+                      />{" "}
+                      18. Other abdominal disorders
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.highBloodPressure}
-                      onChange={(e) => handleCheckboxChange('conditions', 'highBloodPressure',e)}
-                      /> 6. High Blood
-                      Pressure
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.highBloodPressure}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "highBloodPressure",
+                            e
+                          )
+                        }
+                      />{" "}
+                      6. High Blood Pressure
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.kidneyBladderDiseases}
-                      onChange={(e) => handleCheckboxChange('conditions', 'kidneyBladderDiseases',e)}
-                      /> 19. Kidney or
-                      bladder diseases
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={
+                          medicalHistory.conditions.kidneyBladderDiseases
+                        }
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "kidneyBladderDiseases",
+                            e
+                          )
+                        }
+                      />{" "}
+                      19. Kidney or bladder diseases
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.heartDiseases}
-                      onChange={(e) => handleCheckboxChange('conditions', 'heartDiseases',e)}
-                      /> 7. Heart
-                      diseases
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.heartDiseases}
+                        onChange={(e) =>
+                          handleCheckboxChange("conditions", "heartDiseases", e)
+                        }
+                      />{" "}
+                      7. Heart diseases
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.std}
-                      onChange={(e) => handleCheckboxChange('conditions', 'std',e)}
-                      /> 20. Sexually
-                      Transmitted Disease
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.std}
+                        onChange={(e) =>
+                          handleCheckboxChange("conditions", "std", e)
+                        }
+                      />{" "}
+                      20. Sexually Transmitted Disease
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.rheumaticFever}
-                      onChange={(e) => handleCheckboxChange('conditions', 'rheumaticFever',e)}
-                      /> 8. Rheumatic
-                      Fever
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.rheumaticFever}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "rheumaticFever",
+                            e
+                          )
+                        }
+                      />{" "}
+                      8. Rheumatic Fever
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.familialDisorder}
-                      onChange={(e) => handleCheckboxChange('conditions', 'familialDisorder',e)}
-                      /> 21. Genetic or
-                      Familial disorder
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.familialDisorder}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "familialDisorder",
+                            e
+                          )
+                        }
+                      />{" "}
+                      21. Genetic or Familial disorder
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.diabetesMellitus}
-                      onChange={(e) => handleCheckboxChange('conditions', 'diabetesMellitus',e)}
-                      /> 9. Diabetes
-                      Mellitus
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.diabetesMellitus}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "diabetesMellitus",
+                            e
+                          )
+                        }
+                      />{" "}
+                      9. Diabetes Mellitus
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.tropicalDiseases}
-                      onChange={(e) => handleCheckboxChange('conditions', 'tropicalDiseases',e)}
-                      /> 22. Tropical
-                      Diseases
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.tropicalDiseases}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "tropicalDiseases",
+                            e
+                          )
+                        }
+                      />{" "}
+                      22. Tropical Diseases
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.endocrineDisorder}
-                      onChange={(e) => handleCheckboxChange('conditions', 'endocrineDisorder',e)}
-                      /> 10. Endocrine
-                      Disorder
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.endocrineDisorder}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "endocrineDisorder",
+                            e
+                          )
+                        }
+                      />{" "}
+                      10. Endocrine Disorder
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.chronicCough}
-                      onChange={(e) => handleCheckboxChange('conditions', 'chronicCough',e)}
-                      /> 23. Chronic
-                      cough
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.chronicCough}
+                        onChange={(e) =>
+                          handleCheckboxChange("conditions", "chronicCough", e)
+                        }
+                      />{" "}
+                      23. Chronic cough
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.cancerTumor}
-                      onChange={(e) => handleCheckboxChange('conditions', 'cancerTumor',e)}
-                      /> 11. Cancer /
-                      Tumor
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.cancerTumor}
+                        onChange={(e) =>
+                          handleCheckboxChange("conditions", "cancerTumor", e)
+                        }
+                      />{" "}
+                      11. Cancer / Tumor
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.faintingSeizures}
-                      onChange={(e) => handleCheckboxChange('conditions', 'faintingSeizures',e)}
-                      /> 24. Fainting
-                      spells, fits or seizures
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.faintingSeizures}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "faintingSeizures",
+                            e
+                          )
+                        }
+                      />{" "}
+                      24. Fainting spells, fits or seizures
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.mentalDisorder}
-                      onChange={(e) => handleCheckboxChange('conditions', 'mentalDisorder',e)}
-                      /> 12. Mental
-                      Disorder / Depression
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.mentalDisorder}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "mentalDisorder",
+                            e
+                          )
+                        }
+                      />{" "}
+                      12. Mental Disorder / Depression
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.frequentHeadache}
-                      onChange={(e) => handleCheckboxChange('conditions', 'frequentHeadache',e)}
-                      /> 25. Frequent
-                      headache
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.frequentHeadache}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "frequentHeadache",
+                            e
+                          )
+                        }
+                      />{" "}
+                      25. Frequent headache
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.headNeckInjury}
-                      onChange={(e) => handleCheckboxChange('conditions', 'headNeckInjury',e)}
-                      /> 13. Head or
-                      neck injury
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.headNeckInjury}
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            "conditions",
+                            "headNeckInjury",
+                            e
+                          )
+                        }
+                      />{" "}
+                      13. Head or neck injury
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.conditions.dizziness}
-                      onChange={(e) => handleCheckboxChange('conditions', 'dizziness',e)}
-                      /> 26. Dizziness
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.conditions.dizziness}
+                        onChange={(e) =>
+                          handleCheckboxChange("conditions", "dizziness", e)
+                        }
+                      />{" "}
+                      26. Dizziness
                     </label>
                   </div>
 
@@ -1477,18 +1713,28 @@ function PatientsProfile() {
                     <p className="text-sm font-medium">Do you have Malaria?</p>
                     <div className="flex space-x-4 mt-2">
                       <label>
-                        <input type="radio" name="hasMalaria" className="mr-2" 
-                        value="Yes" // Set the value to "Yes"
-                        checked={medicalHistory.malaria.hasMalaria === 'Yes'} // Check if the value is "Yes"
-                        onChange={(e) => handleHistoryRadioChange('malaria', 'hasMalaria', e)} // Pass the entire event object
+                        <input
+                          type="radio"
+                          name="hasMalaria"
+                          className="mr-2"
+                          value="Yes" // Set the value to "Yes"
+                          checked={medicalHistory.malaria.hasMalaria === "Yes"} // Check if the value is "Yes"
+                          onChange={(e) =>
+                            handleHistoryRadioChange("malaria", "hasMalaria", e)
+                          } // Pass the entire event object
                         />
                         Yes
                       </label>
                       <label>
-                        <input type="radio" name="hasMalaria" className="mr-2" 
-                        value="No" // Set the value to "No"
-                        checked={medicalHistory.malaria.hasMalaria === 'No'} // Check if the value is "No"
-                        onChange={(e) => handleHistoryRadioChange('malaria', 'hasMalaria', e)} // Pass the entire event object
+                        <input
+                          type="radio"
+                          name="hasMalaria"
+                          className="mr-2"
+                          value="No" // Set the value to "No"
+                          checked={medicalHistory.malaria.hasMalaria === "No"} // Check if the value is "No"
+                          onChange={(e) =>
+                            handleHistoryRadioChange("malaria", "hasMalaria", e)
+                          } // Pass the entire event object
                         />
                         No
                       </label>
@@ -1497,7 +1743,13 @@ function PatientsProfile() {
                       placeholder="Please date the last attack."
                       className="textarea mt-2 border rounded-md p-2 w-full col-span-3"
                       value={medicalHistory.malaria.lastAttackDate}
-                      onChange={(e) => handleHistoryInputChange('malaria', 'lastAttackDate', e.target.value)}
+                      onChange={(e) =>
+                        handleHistoryInputChange(
+                          "malaria",
+                          "lastAttackDate",
+                          e.target.value
+                        )
+                      }
                     ></textarea>
                   </div>
 
@@ -1507,18 +1759,42 @@ function PatientsProfile() {
                     </p>
                     <div className="flex space-x-4 mt-2">
                       <label>
-                        <input type="radio" name="undergoneOperation" className="mr-2" 
-                        value="Yes" // Set the value to "Yes"
-                        checked={medicalHistory.operations.undergoneOperation === 'Yes'}
-                        onChange={(e) => handleHistoryRadioChange('operations', 'undergoneOperation', e)}
+                        <input
+                          type="radio"
+                          name="undergoneOperation"
+                          className="mr-2"
+                          value="Yes" // Set the value to "Yes"
+                          checked={
+                            medicalHistory.operations.undergoneOperation ===
+                            "Yes"
+                          }
+                          onChange={(e) =>
+                            handleHistoryRadioChange(
+                              "operations",
+                              "undergoneOperation",
+                              e
+                            )
+                          }
                         />
                         Yes
                       </label>
                       <label>
-                        <input type="radio" name="undergoneOperation" className="mr-2" 
-                        value="No" // Set the value to "Yes"
-                        checked={medicalHistory.operations.undergoneOperation === 'No'}
-                        onChange={(e) => handleHistoryRadioChange('operations', 'undergoneOperation', e)}
+                        <input
+                          type="radio"
+                          name="undergoneOperation"
+                          className="mr-2"
+                          value="No" // Set the value to "Yes"
+                          checked={
+                            medicalHistory.operations.undergoneOperation ===
+                            "No"
+                          }
+                          onChange={(e) =>
+                            handleHistoryRadioChange(
+                              "operations",
+                              "undergoneOperation",
+                              e
+                            )
+                          }
                         />
                         No
                       </label>
@@ -1527,7 +1803,13 @@ function PatientsProfile() {
                       placeholder="Please list them."
                       className="textarea mt-2 border rounded-md p-2 w-full col-span-3"
                       value={medicalHistory.operations.listOperations}
-                      onChange={(e) => handleHistoryInputChange('operations', 'listOperations', e.target.value)}
+                      onChange={(e) =>
+                        handleHistoryInputChange(
+                          "operations",
+                          "listOperations",
+                          e.target.value
+                        )
+                      }
                     ></textarea>
                   </div>
 
@@ -1610,47 +1892,121 @@ function PatientsProfile() {
                       <input
                         type="checkbox"
                         className="mr-2"
-                        checked={medicalHistory.familyHistory.diseases.heartDisease} // Ensure it's never undefined
-                        onChange={(e) => handleCheckboxFamChange('familyHistory', 'diseases', 'heartDisease',e)}
+                        checked={
+                          medicalHistory.familyHistory.diseases.heartDisease
+                        } // Ensure it's never undefined
+                        onChange={(e) =>
+                          handleCheckboxFamChange(
+                            "familyHistory",
+                            "diseases",
+                            "heartDisease",
+                            e
+                          )
+                        }
                       />
                       1. Heart Disease
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.familyHistory.diseases.hypertension}
-                      onChange={(e) => handleCheckboxFamChange('familyHistory', 'diseases', 'hypertension',e)}
-                      /> 5. Hypertension
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={
+                          medicalHistory.familyHistory.diseases.hypertension
+                        }
+                        onChange={(e) =>
+                          handleCheckboxFamChange(
+                            "familyHistory",
+                            "diseases",
+                            "hypertension",
+                            e
+                          )
+                        }
+                      />{" "}
+                      5. Hypertension
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.familyHistory.diseases.tuberculosis}
-                      onChange={(e) => handleCheckboxFamChange('familyHistory', 'diseases', 'tuberculosis',e)}
-                      /> 2. Tuberculosis
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={
+                          medicalHistory.familyHistory.diseases.tuberculosis
+                        }
+                        onChange={(e) =>
+                          handleCheckboxFamChange(
+                            "familyHistory",
+                            "diseases",
+                            "tuberculosis",
+                            e
+                          )
+                        }
+                      />{" "}
+                      2. Tuberculosis
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.familyHistory.diseases.diabetes}
-                      onChange={(e) => handleCheckboxFamChange('familyHistory', 'diseases', 'diabetes',e)}
-                      /> 6. Diabetes
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.familyHistory.diseases.diabetes}
+                        onChange={(e) =>
+                          handleCheckboxFamChange(
+                            "familyHistory",
+                            "diseases",
+                            "diabetes",
+                            e
+                          )
+                        }
+                      />{" "}
+                      6. Diabetes
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.familyHistory.diseases.kidneyDisease}
-                      onChange={(e) => handleCheckboxFamChange('familyHistory', 'diseases', 'kidneyDisease',e)}
-                      /> 3. Kidney
-                      Disease (UTI, Etc.)
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={
+                          medicalHistory.familyHistory.diseases.kidneyDisease
+                        }
+                        onChange={(e) =>
+                          handleCheckboxFamChange(
+                            "familyHistory",
+                            "diseases",
+                            "kidneyDisease",
+                            e
+                          )
+                        }
+                      />{" "}
+                      3. Kidney Disease (UTI, Etc.)
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.familyHistory.diseases.cancer}
-                      onChange={(e) => handleCheckboxFamChange('familyHistory', 'diseases', 'cancer',e)}
-                      /> 7. Cancer
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.familyHistory.diseases.cancer}
+                        onChange={(e) =>
+                          handleCheckboxFamChange(
+                            "familyHistory",
+                            "diseases",
+                            "cancer",
+                            e
+                          )
+                        }
+                      />{" "}
+                      7. Cancer
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" 
-                      checked={medicalHistory.familyHistory.diseases.asthma}
-                      onChange={(e) => handleCheckboxFamChange('familyHistory', 'diseases', 'asthma',e)}
-                      /> 4. Asthma
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.familyHistory.diseases.asthma}
+                        onChange={(e) =>
+                          handleCheckboxFamChange(
+                            "familyHistory",
+                            "diseases",
+                            "asthma",
+                            e
+                          )
+                        }
+                      />{" "}
+                      4. Asthma
                     </label>
                   </div>
 
@@ -1660,26 +2016,65 @@ function PatientsProfile() {
                     </p>
                     <div className="flex space-x-4 mt-2">
                       <label>
-                        <input type="radio" name="allergies" className="mr-2" 
-                        value="Yes" // Set the value to "Yes"
-                        checked={medicalHistory.familyHistory.allergies.hasAllergies === 'Yes'} // Check if the value is "Yes"
-                        onChange={(e) => handleHistoryFamRadioChange('familyHistory', 'allergies', 'hasAllergies', e)} // Pass the entire event object
+                        <input
+                          type="radio"
+                          name="allergies"
+                          className="mr-2"
+                          value="Yes" // Set the value to "Yes"
+                          checked={
+                            medicalHistory.familyHistory.allergies
+                              .hasAllergies === "Yes"
+                          } // Check if the value is "Yes"
+                          onChange={(e) =>
+                            handleHistoryFamRadioChange(
+                              "familyHistory",
+                              "allergies",
+                              "hasAllergies",
+                              e
+                            )
+                          } // Pass the entire event object
                         />
                         Yes
                       </label>
                       <label>
-                        <input type="radio" name="allergies" className="mr-2" 
-                        value="No" // Set the value to "No"
-                        checked={medicalHistory.familyHistory.allergies.hasAllergies === 'No'} // Check if the value is "No"
-                        onChange={(e) => handleHistoryFamRadioChange('familyHistory', 'allergies', 'hasAllergies', e)} // Pass the entire event object
+                        <input
+                          type="radio"
+                          name="allergies"
+                          className="mr-2"
+                          value="No" // Set the value to "No"
+                          checked={
+                            medicalHistory.familyHistory.allergies
+                              .hasAllergies === "No"
+                          } // Check if the value is "No"
+                          onChange={(e) =>
+                            handleHistoryFamRadioChange(
+                              "familyHistory",
+                              "allergies",
+                              "hasAllergies",
+                              e
+                            )
+                          } // Pass the entire event object
                         />
                         No
                       </label>
                       <label>
-                        <input type="radio" name="allergies" className="mr-2" 
-                        value="Not Sure" // Set the value to "Not Sure"
-                        checked={medicalHistory.familyHistory.allergies.hasAllergies === 'Not Sure'} // Check if the value is "Not Sure"
-                        onChange={(e) => handleHistoryFamRadioChange('familyHistory', 'allergies', 'hasAllergies', e)} // Pass the entire event object
+                        <input
+                          type="radio"
+                          name="allergies"
+                          className="mr-2"
+                          value="Not Sure" // Set the value to "Not Sure"
+                          checked={
+                            medicalHistory.familyHistory.allergies
+                              .hasAllergies === "Not Sure"
+                          } // Check if the value is "Not Sure"
+                          onChange={(e) =>
+                            handleHistoryFamRadioChange(
+                              "familyHistory",
+                              "allergies",
+                              "hasAllergies",
+                              e
+                            )
+                          } // Pass the entire event object
                         />
                         Not Sure
                       </label>
@@ -1688,7 +2083,14 @@ function PatientsProfile() {
                       placeholder="Please list them."
                       className="textarea mt-2 border rounded-md p-2 w-full col-span-3"
                       value={medicalHistory.familyHistory.allergies.allergyList}
-                      onChange={(e) => handleHistoryFamInputChange('familyHistory', 'allergies', 'allergyList', e.target.value)}
+                      onChange={(e) =>
+                        handleHistoryFamInputChange(
+                          "familyHistory",
+                          "allergies",
+                          "allergyList",
+                          e.target.value
+                        )
+                      }
                     ></textarea>
                   </div>
                 </div>
@@ -1703,10 +2105,15 @@ function PatientsProfile() {
                         them?
                       </label>
 
-                      <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                      onChange={(e) => handleTobaccoChange('usesTobacco', e.target.value)}
+                      <select
+                        className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        onChange={(e) =>
+                          handleTobaccoChange("usesTobacco", e.target.value)
+                        }
                       >
-                        <option value="" disabled selected>Select</option>
+                        <option value="" disabled selected>
+                          Select
+                        </option>
                         <option value="Yes">Yes</option>
                         <option value="No">No</option>
                       </select>
@@ -1720,7 +2127,9 @@ function PatientsProfile() {
                           type="number"
                           placeholder="Enter number"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                          onChange={(e) => handleTobaccoChange('sticksPerDay', e.target.value)}
+                          onChange={(e) =>
+                            handleTobaccoChange("sticksPerDay", e.target.value)
+                          }
                         />
                       </div>
 
@@ -1728,11 +2137,15 @@ function PatientsProfile() {
                         <label className="text-sm font-medium text-gray-700 w-1/2">
                           B. Quit smoking?
                         </label>
-                        <select 
-                        className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                        onChange={(e) => handleTobaccoChange('quitSmoking', e.target.value)}
+                        <select
+                          className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          onChange={(e) =>
+                            handleTobaccoChange("quitSmoking", e.target.value)
+                          }
                         >
-                          <option value="" disabled selected>Select</option>
+                          <option value="" disabled selected>
+                            Select
+                          </option>
                           <option value="Yes">Yes</option>
                           <option value="No">No</option>
                         </select>
@@ -1745,7 +2158,9 @@ function PatientsProfile() {
                         <input
                           type="date"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                          onChange={(e) => handleTobaccoChange('quitWhen', e.target.value)}
+                          onChange={(e) =>
+                            handleTobaccoChange("quitWhen", e.target.value)
+                          }
                         />
                       </div>
                     </div>
@@ -1757,11 +2172,15 @@ function PatientsProfile() {
                         Do you drink alcoholic beverages?
                       </label>
 
-                      <select 
-                      className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                      onChange={(e) => handleAlcoholChange('drinksAlcohol', e.target.value)}
+                      <select
+                        className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        onChange={(e) =>
+                          handleAlcoholChange("drinksAlcohol", e.target.value)
+                        }
                       >
-                        <option value="" disabled selected>Select</option>
+                        <option value="" disabled selected>
+                          Select
+                        </option>
                         <option value="Yes">Yes</option>
                         <option value="No">No</option>
                       </select>
@@ -1775,7 +2194,9 @@ function PatientsProfile() {
                           type="text"
                           placeholder="Enter amount"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                          onChange={(e) => handleAlcoholChange('drinksPerDay', e.target.value)}
+                          onChange={(e) =>
+                            handleAlcoholChange("drinksPerDay", e.target.value)
+                          }
                         />
                       </div>
 
@@ -1783,11 +2204,16 @@ function PatientsProfile() {
                         <label className="text-sm font-medium text-gray-700 w-1/2">
                           B. Quit drinking?
                         </label>
-                        <select 
-                        className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                        onChange={(e) => handleAlcoholChange('quitDrinking', e.target.value)}
+                        <select
+                          className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          onChange={(e) =>
+                            handleAlcoholChange("quitDrinking", e.target.value)
+                          }
                         >
-                          <option value="" disabled selected> Select</option>
+                          <option value="" disabled selected>
+                            {" "}
+                            Select
+                          </option>
                           <option value="Yes">Yes</option>
                           <option value="No">No</option>
                         </select>
@@ -1800,7 +2226,9 @@ function PatientsProfile() {
                         <input
                           type="date"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                          onChange={(e) => handleAlcoholChange('quitWhen', e.target.value)}
+                          onChange={(e) =>
+                            handleAlcoholChange("quitWhen", e.target.value)
+                          }
                         />
                       </div>
                     </div>
@@ -1819,11 +2247,15 @@ function PatientsProfile() {
                         A. Pregnant?
                       </label>
 
-                      <select 
-                      className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                      onChange={(e) => handleWomenHealthChange('pregnant', e.target.value)}
+                      <select
+                        className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        onChange={(e) =>
+                          handleWomenHealthChange("pregnant", e.target.value)
+                        }
                       >
-                        <option value="" disabled selected>Select</option>
+                        <option value="" disabled selected>
+                          Select
+                        </option>
                         <option value="Yes">Yes</option>
                         <option value="No">No</option>
                       </select>
@@ -1837,7 +2269,9 @@ function PatientsProfile() {
                           type="date"
                           placeholder="Enter amount"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                          onChange={(e) => handleWomenHealthChange('months', e.target.value)}
+                          onChange={(e) =>
+                            handleWomenHealthChange("months", e.target.value)
+                          }
                         />
                       </div>
 
@@ -1849,7 +2283,12 @@ function PatientsProfile() {
                           type="date"
                           placeholder="Enter amount"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                          onChange={(e) => handleWomenHealthChange('lastMenstrualPeriod', e.target.value)}
+                          onChange={(e) =>
+                            handleWomenHealthChange(
+                              "lastMenstrualPeriod",
+                              e.target.value
+                            )
+                          }
                         />
                       </div>
 
@@ -1857,11 +2296,18 @@ function PatientsProfile() {
                         <label className="text-sm font-medium text-gray-700 w-1/2">
                           D. Abortion/ Miscarriage?
                         </label>
-                        <select 
-                        className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                        onChange={(e) => handleWomenHealthChange('abortionOrMiscarriage', e.target.value)}
+                        <select
+                          className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          onChange={(e) =>
+                            handleWomenHealthChange(
+                              "abortionOrMiscarriage",
+                              e.target.value
+                            )
+                          }
                         >
-                          <option value="" disabled selected>Select</option>
+                          <option value="" disabled selected>
+                            Select
+                          </option>
                           <option value="Abortion">Abortion</option>
                           <option value="Miscarriage">Miscarriage</option>
                         </select>
@@ -1871,11 +2317,18 @@ function PatientsProfile() {
                           E. Dysmenorrhea?
                         </label>
 
-                        <select 
-                        className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                        onChange={(e) => handleWomenHealthChange('dysmenorrhea', e.target.value)}
+                        <select
+                          className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          onChange={(e) =>
+                            handleWomenHealthChange(
+                              "dysmenorrhea",
+                              e.target.value
+                            )
+                          }
                         >
-                          <option value="" disabled selected>Select</option>
+                          <option value="" disabled selected>
+                            Select
+                          </option>
                           <option value="Yes">Yes</option>
                           <option value="No">No</option>
                         </select>
@@ -2566,7 +3019,12 @@ function PatientsProfile() {
                               </div>
 
                               <div className="col-span-1 flex justify-end items-center">
-                                <button className="text-custom-red">
+                                <button
+                                  className="text-custom-red"
+                                  onClick={() =>
+                                    openLabResultModal(labTest._id)
+                                  }
+                                >
                                   View
                                 </button>
                               </div>
@@ -2582,6 +3040,7 @@ function PatientsProfile() {
                 </p>
               )}
             </div>
+
             {selectedXrayRecords && selectedXrayRecords.length > 0 ? (
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-4">
@@ -2611,7 +3070,12 @@ function PatientsProfile() {
                             </p>
                           </div>
                           <div className="col-span-1 flex justify-end items-center">
-                            <button className="text-custom-red">View</button>
+                            <button
+                              className="text-custom-red"
+                              onClick={() => handleXrayView(xray)}
+                            >
+                              View
+                            </button>
                           </div>
                         </li>
                       ))}
@@ -2623,6 +3087,1227 @@ function PatientsProfile() {
                 No X-ray records available for this record.
               </p>
             )}
+
+            {isLabResultModalOpen && labDetails && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
+                <h2 className="text-xl font-semibold mb-4">Result Form</h2>
+                <form className="flex-grow">
+                  <div className="flex mb-4">
+                  <div className="w-3/4 mr-2">
+                      <label className="block text-gray-700">OR No.</label>
+                      <input
+                        type="text"
+                        name="ORNumber" // Changed name to match the formData key
+                        value={labDetails.ORNumber || "N/A"}
+                        className="w-full px-3 py-2 border rounded"
+                      />
+                    </div>
+    
+                    <div className="w-3/4 mr-2">
+                      <label className="block text-gray-700">Lab No.</label>
+                      <input
+                        type="text"
+                        name="labNumber" // Changed name to match the formData key
+                        value={labDetails.labNumber || "N/A"}
+                        className="w-full px-3 py-2 border rounded"
+                        readOnly
+                      />
+                    </div>
+    
+                    <div className="w-1/4">
+                      <label className="block text-gray-700">Date</label>
+                      <input
+                        type="text"
+                        name="date"
+                        className="w-full px-3 py-2 border rounded"
+                        value={
+                          new Date(labDetails.isCreatedAt).toLocaleDateString() ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+                    </div>
+                  </div>
+    
+                  <div className="flex mb-4">
+                    <div className="w-1/2 mr-2">
+                      <label className="block text-gray-700">Name</label>
+                      <input
+                        type="text"
+                        name="name"
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                        value={
+                          labDetails.patient
+                            ? `${labDetails.patient.lastname}, ${labDetails.patient.firstname}`
+                            : "N/A"
+                        }
+                        readOnly
+                      />
+                    </div>
+                    <div className="w-1/4 mr-2">
+                      <label className="block text-gray-700">Age</label>
+                      <input
+                        type="text"
+                        name="age"
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                        value={
+                          labDetails.patient?.birthdate
+                            ? getAge(labDetails.patient.birthdate)
+                            : "N/A"
+                        }
+                        readOnly
+                      />
+                    </div>
+                    <div className="w-1/4">
+                      <label className="block text-gray-700">Sex</label>
+                      <input
+                        type="text"
+                        name="sex"
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                        value={labDetails.patient?.sex || "N/A"}
+                        readOnly
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700">
+                      Department/ Position
+                    </label>
+                    <input
+                      type="text"
+                      name="courseDept"
+                      className="w-full px-3 py-2 border rounded bg-gray-100"
+                      value={
+                        labDetails.patient
+                          ? labDetails.patient.patientType === "Student"
+                            ? labDetails.patient.course || "N/A" // Display course if patientType is student
+                            : labDetails.patient.position || "N/A" // Otherwise, display position
+                          : "N/A"
+                      }
+                      readOnly
+                    />
+                  </div>
+    
+                  {/* Hematology Section */}
+                  <div className="mb-0">
+                    <div
+                      className="flex items-center justify-between cursor-pointer"
+                      onClick={toggleHematologyVisibility}
+                    >
+                      <h3 className="text-lg font-semibold my-0 py-2">
+                        I. Hematology
+                      </h3>
+                      <BiChevronDown
+                        className={`transform transition-transform duration-300 ${
+                          isHematologyVisible ? "rotate-180" : ""
+                        }`}
+                        size={24}
+                      />
+                    </div>
+                    <div className="w-full h-px bg-gray-300 my-0"></div>
+    
+                    {isHematologyVisible && (
+                      <div className="grid grid-cols-3 gap-4 p-4">
+                        <div className="col-span-1 font-semibold">Tests</div>
+                        <div className="col-span-1 font-semibold">Result</div>
+                        <div className="col-span-1 font-semibold">
+                          Reference Range
+                        </div>
+    
+                        <div className="col-span-1">Red Blood Cell Count</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="redBloodCellCount"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={
+                              labDetails.Hematology?.redBloodCellCount || "N/A"
+                            }
+                            readOnly
+                          />
+                        </div>
+                        <div className="col-span-1">
+                          Male: 4.0 - 5.5 x10^12/L; Female: 3.5 - 5.0 x10^12/L
+                        </div>
+    
+                        <div className="col-span-1">Hemoglobin</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="hemoglobin"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={labDetails.Hematology?.Hemoglobin || "N/A"}
+                            readOnly
+                          />
+                        </div>
+                        <div className="col-span-1">
+                          Male: 140 - 180 g/L; Female: 120 - 180 g/L
+                        </div>
+    
+                        <div className="col-span-1">Hematocrit</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="hematocrit"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={labDetails.Hematology?.Hematocrit || "N/A"}
+                            readOnly
+                          />
+                        </div>
+                        <div className="col-span-1">
+                          Male: 0.40 - 0.54; Female: 0.37 - 0.47
+                        </div>
+    
+                        <div className="col-span-1">Leukocyte Count</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="leukocyteCount"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={labDetails.Hematology?.LeukocyteCount || "N/A"}
+                            readOnly
+                          />
+                        </div>
+                        <div className="col-span-1">5.0 - 10.0 x10^9/L</div>
+    
+                        <div className="col-span-1">Differential Count</div>
+                        <div className="col-span-1"></div>
+                        <div className="col-span-1"></div>
+    
+                        <div className="col-span-1 ml-9">Segmenters</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="segmenters"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={
+                              labDetails.Hematology?.DifferentialCount
+                                ?.segmenters || "N/A"
+                            }
+                            readOnly
+                          />
+                        </div>
+                        <div className="col-span-1">0.50 - 0.70</div>
+    
+                        <div className="col-span-1 ml-9">Lymphocytes</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="lymphocytes"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={
+                              labDetails.Hematology?.DifferentialCount
+                                ?.lymphocytes || "N/A"
+                            }
+                            readOnly
+                          />
+                        </div>
+                        <div className="col-span-1">0.20 - 0.40</div>
+    
+                        <div className="col-span-1 ml-9">Monocytes</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="monocytes"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={
+                              labDetails.Hematology?.DifferentialCount?.monocytes ||
+                              "N/A"
+                            }
+                            readOnly
+                          />
+                        </div>
+                        <div className="col-span-1">0.00 - 0.07</div>
+    
+                        <div className="col-span-1 ml-9">Eosinophils</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="eosinophils"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={
+                              labDetails.Hematology?.DifferentialCount
+                                ?.eosinophils || "N/A"
+                            }
+                            readOnly
+                          />
+                        </div>
+                        <div className="col-span-1">0.00 - 0.05</div>
+    
+                        <div className="col-span-1 ml-9">Basophils</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="basophils"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={
+                              labDetails.Hematology?.DifferentialCount?.basophils ||
+                              "N/A"
+                            }
+                            readOnly
+                          />
+                        </div>
+                        <div className="col-span-1">0.00 - 0.01</div>
+    
+                        <div className="col-span-1 ml-9">Total</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="total"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={
+                              labDetails.Hematology?.DifferentialCount?.total ||
+                              "N/A"
+                            }
+                            readOnly
+                          />
+                        </div>
+                        <div className="col-span-1"></div>
+    
+                        <div className="col-span-1">Platelet Count</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="plateletCount"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={labDetails.Hematology?.PlateletCount || "N/A"}
+                            readOnly
+                          />
+                        </div>
+                        <div className="col-span-1">150 - 400 x10^9/L</div>
+    
+                        <div className="col-span-1">Others</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="others"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={labDetails.Hematology?.others || "N/A"}
+                            readOnly
+                          />
+                        </div>
+                        <div className="col-span-1"></div>
+                      </div>
+                    )}
+                  </div>
+    
+                  <div
+                    className="flex items-center justify-between cursor-pointer"
+                    onClick={toggleClinicalMicroscopyVisibility}
+                  >
+                    <h3 className="text-lg font-semibold mb-0 py-2">
+                      II. Clinical Microscopy and Parasitology
+                    </h3>
+                    <BiChevronDown
+                      className={`transform transition-transform duration-300 ${
+                        isClinicalMicroscopyVisible ? "rotate-180" : ""
+                      }`}
+                      size={24}
+                    />
+                  </div>
+                  <div className="w-full h-px bg-gray-300 my-0"></div>
+    
+                  {isClinicalMicroscopyVisible && (
+                    <div className="grid grid-cols-6 gap-4 p-4">
+                      {/* Routine Urinalysis - Macroscopic Examination */}
+                      <label className="col-span-3 font-semibold">
+                        Routine Urinalysis
+                      </label>
+    
+                      <label className="col-span-1">LMP</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.LMP || "N/A"
+                        }
+                        readOnly
+                      />
+                      <h4 className="col-span-6 font-semibold">
+                        Macroscopic Examination
+                      </h4>
+                      <label className="col-span-1">Color</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.macroscopicExam?.color || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Appearance</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.macroscopicExam?.appearance ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      {/* Routine Urinalysis - Chemical Examination */}
+                      <h4 className="col-span-6 font-semibold mt-4">
+                        Chemical Examination
+                      </h4>
+                      <label className="col-span-1">Sugar</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.sugar || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Urobilinogen</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.urobilinogen || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Albumin</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.albumin || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Ketones</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.ketones || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Blood</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.blood || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Nitrite</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.nitrites || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Bilirubin</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.bilirubin || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Leukocyte</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.leukocytes || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Reaction</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.reaction || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Specific Gravity</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.specificGravity ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      {/* Routine Urinalysis - Microscopic Examination */}
+                      <h4 className="col-span-6 font-semibold mt-4">
+                        Microscopic Examination
+                      </h4>
+                      <label className="col-span-1">Pus Cells</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/hpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.pusCells || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Epithelial Cells</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/lpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.epithelialCells ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Red Blood Cells</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/hpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.RBC || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Mucus Threads</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/lpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.mucusThreads ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Bacteria</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/hpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.bacteria || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Crystals</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/lpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.crystals || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Yeast Cells</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/hpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.yeastCells ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Amorphous</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/lpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.amorphous || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Cast</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/lpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.casts || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Others</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.others || "N/A"
+                        }
+                      />
+    
+                      {/* Routine Fecalysis */}
+                      <h4 className="col-span-6 font-semibold mt-4">
+                        Routine Fecalysis
+                      </h4>
+                      <label className="col-span-1">Color</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineFecalysis?.color || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Consistency</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineFecalysis?.consistency || "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      <label className="col-span-1">Bacteria</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineFecalysis?.bacteria || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Others</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineFecalysis?.color || "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      {/* Microscopic Examination for Fecalysis */}
+                      <h4 className="col-span-6 font-semibold mt-4">
+                        Microscopic Examination
+                      </h4>
+                      <label className="col-span-1">Direct Fecal Smear</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineFecalysis?.microscopicExam?.directFecalSmear ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Kato Thick Smear</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineFecalysis?.microscopicExam?.katoThickSmear ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      <label className="col-span-1">Others</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineFecalysis?.others || "N/A"
+                        }
+                        readOnly
+                      />
+                    </div>
+                  )}
+    
+                  {/* Serology Section */}
+                  <div
+                    className="flex items-center justify-between cursor-pointer"
+                    onClick={toggleSerologyVisibility}
+                  >
+                    <h3 className="text-lg font-semibold mb-0 py-2">
+                      III. Serology
+                    </h3>
+                    <BiChevronDown
+                      className={`transform transition-transform duration-300 ${
+                        isSerologyVisible ? "rotate-180" : ""
+                      }`}
+                      size={24}
+                    />
+                  </div>
+                  <div className="w-full h-px bg-gray-300 my-0"></div>
+    
+                  {isSerologyVisible && (
+                    <div className="grid grid-cols-12 gap-4 p-4">
+                      {/* Hepatitis B Surface Antigen Determination and Anti-HAV Test */}
+                      <h4 className="col-span-6 font-semibold">
+                        Hepatitis B Surface Antigen Determination (Screening Test
+                        Only)
+                      </h4>
+                      <h4 className="col-span-6 font-semibold">
+                        Anti-HAV Test (Screening Test Only)
+                      </h4>
+    
+                      <label className="col-span-1">Method Used</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
+                            ?.methodUsed || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Method Used</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.antiHAVTest
+                            ?.methodUsed || "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      <label className="col-span-1">Lot No.</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
+                            ?.lotNumber || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Lot No.</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.antiHAVTest?.lotNumber ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      <label className="col-span-1">Expiration Date</label>
+                      <input
+                        type="date"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen?.expirationDate
+                            ? new Date(labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate)
+                                .toISOString()
+                                .split("T")[0]
+                            : "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Expiration Date</label>
+                      <input
+                        type="date"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.antiHAVTest?.expirationDate
+                            ? new Date(labDetails.bloodBankingSerology.antiHAVTest.expirationDate)
+                                .toISOString()
+                                .split("T")[0]
+                            : "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      <label className="col-span-1">Result</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
+                            ?.result || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Result</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.antiHAVTest?.result ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      {/* Serum Pregnancy and Test for Treponema pallidum / Syphilis */}
+                      <h4 className="col-span-6 font-semibold">Serum Pregnancy</h4>
+                      <h4 className="col-span-6 font-semibold">
+                        Test for Treponema pallidum / Syphilis
+                      </h4>
+    
+                      <label className="col-span-1">Method Used</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.serumPregnancy
+                            ?.methodUsed || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Method Used</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.treponemaPallidumTest
+                            ?.methodUsed || "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      <label className="col-span-1">Lot No.</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.serumPregnancy
+                            ?.lotNumber || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Lot No.</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.treponemaPallidumTest
+                            ?.lotNumber || "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      <label className="col-span-1">Expiration Date</label>
+                      <input
+                        type="date"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.serumPregnancy?.expirationDate
+                            ? new Date(labDetails.bloodBankingSerology.serumPregnancy.expirationDate)
+                                .toISOString()
+                                .split("T")[0]
+                            : "N/A"
+                        }
+                        
+                        readOnly
+                      />
+                      <label className="col-span-1">Expiration Date</label>
+                      <input
+                        type="date"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.treponemaPallidumTest?.expirationDate
+                            ? new Date(labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate)
+                                .toISOString()
+                                .split("T")[0]
+                            : "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      <label className="col-span-1">Result</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.serumPregnancy?.result ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Result</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.treponemaPallidumTest
+                            ?.result || "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      {/* Salmonella typhi and Blood Typing */}
+                      <h4 className="col-span-6 font-semibold">Salmonella typhi</h4>
+                      <h4 className="col-span-6 font-semibold">Blood Typing</h4>
+    
+                      <label className="col-span-1">Method Used</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.salmonellaTyphi
+                            ?.methodUsed || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">ABO Type</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.bloodTyping?.ABOType ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      <label className="col-span-1">Lot No.</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.salmonellaTyphi
+                            ?.lotNumber || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Rh Type</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.bloodTyping?.RhType ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      <label className="col-span-1">Expiration Date</label>
+                      <input
+                        type="date"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.salmonellaTyphi?.expirationDate
+                            ? new Date(labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate)
+                                .toISOString()
+                                .split("T")[0]
+                            : "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-6"></label>
+    
+                      <label className="col-span-1">Result</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.salmonellaTyphi
+                            ?.result || "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-6"></label>
+    
+                      {/* Test for Dengue and Others */}
+                      <h4 className="col-span-6 font-semibold">Test for Dengue</h4>
+                      <h4 className="col-span-6 font-semibold">Others</h4>
+    
+                      <label className="col-span-1">Method Used</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.testDengue?.methodUsed ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Method Used</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.others?.methodUsed ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      <label className="col-span-1">Lot No.</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.testDengue?.lotNumber ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Lot No.</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.others?.lotNumber ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      <label className="col-span-1">Expiration Date</label>
+                      <input
+                        type="date"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.testDengue?.expirationDate
+                            ? new Date(labDetails.bloodBankingSerology.testDengue.expirationDate)
+                                .toISOString()
+                                .split("T")[0]
+                            : "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Expiration Date</label>
+                      <input
+                        type="date"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.others?.expirationDate
+                            ? new Date(labDetails.bloodBankingSerology.others.expirationDate)
+                                .toISOString()
+                                .split("T")[0]
+                            : "N/A"
+                        }
+                        readOnly
+                      />
+    
+                      <label className="col-span-1">Result</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.testDengue?.result ||
+                          "N/A"
+                        }
+                        readOnly
+                      />
+                      <label className="col-span-1">Result</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.bloodBankingSerology?.others?.result || "N/A"
+                        }
+                        readOnly
+                      />
+                    </div>
+                  )}
+                </form>
+    
+                {/* Buttons Wrapper */}
+                <div className="flex justify-end space-x-4 mt-4">
+                  <button
+                    type="button"
+                    onClick={closeLabResultModal}
+                    className="px-6 py-2 text-gray-700 border border-gray-400 rounded hover:bg-gray-300 transition duration-300 ease-in-out"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+            )}
+
+            {isXrayDetailModalOpen && selectedXrayRecord && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
+                  {/* Form Title */}
+                  <h2 className="text-xl font-semibold mb-4">Result Form</h2>
+
+                  {/* Main Form Content */}
+                  <div className="flex-grow flex flex-col mb-4">
+                    <form className="flex flex-row items-start gap-4">
+                      {/* X-ray Result Image - Left Side */}
+                      <div className="w-1/2">
+                        <label className="block text-gray-700">
+                          X-ray Result
+                        </label>
+                        <img
+                          src={selectedXrayRecord.imageFile}
+                          alt="X-ray"
+                          className="w-auto h-full object-cover cursor-pointer"
+                        />
+                      </div>
+
+                      {/* Details Section - Right Side */}
+                      <div className="w-1/2">
+                        {/* Xray No. and Date */}
+                        <div className="flex mb-4">
+                          <div className="w-1/3 mr-2">
+                            <label className="block text-gray-700">
+                              OR No.
+                            </label>
+                            <input
+                              type="text"
+                              name="XrayNo"
+                              value={selectedXrayRecord.ORNumber || "N/A"}
+                              className="w-full px-3 py-2 border rounded"
+                              readOnly
+                            />
+                          </div>
+                          <div className="w-1/3 mr-2">
+                            <label className="block text-gray-700">
+                              Case No.
+                            </label>
+                            <input
+                              type="text"
+                              name="XrayNo"
+                              value={selectedXrayRecord.XrayNo || "N/A"}
+                              className="w-full px-3 py-2 border rounded"
+                              readOnly
+                            />
+                          </div>
+
+                          <div className="w-1/3">
+                            <label className="block text-gray-700">Date</label>
+                            <input
+                              type="text"
+                              name="date"
+                              value={new Date(
+                                selectedXrayRecord.isCreatedAt
+                              ).toLocaleString()}
+                              className="w-full px-3 py-2 border rounded"
+                              readOnly
+                            />
+                          </div>
+                        </div>
+
+                        {/* Name, Age, and Sex */}
+                        <div className="flex mb-4">
+                          <div className="w-1/2 mr-2">
+                            <label className="block text-gray-700">Name</label>
+                            <input
+                              type="text"
+                              name="name"
+                              value={
+                                `${patient.firstname} ${patient.lastname}` ||
+                                "N/A"
+                              }
+                              readOnly
+                              className="w-full px-3 py-2 border rounded bg-gray-100"
+                            />
+                          </div>
+                          <div className="w-1/4 mr-2">
+                            <label className="block text-gray-700">Age</label>
+                            <input
+                              type="text"
+                              name="age"
+                              value={calculateAge(patient.birthdate)}
+                              readOnly
+                              className="w-full px-3 py-2 border rounded bg-gray-100"
+                            />
+                          </div>
+                          <div className="w-1/4">
+                            <label className="block text-gray-700">Sex</label>
+                            <input
+                              type="text"
+                              name="sex"
+                              value={patient.sex || "N/A"}
+                              readOnly
+                              className="w-full px-3 py-2 border rounded bg-gray-100"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Course/Dept. or Position */}
+                        <div className="mb-4">
+                          <label className="block text-gray-700">
+                            {patient.patientType === "Student"
+                              ? "Course/Dept."
+                              : "Position"}
+                          </label>
+                          <input
+                            type="text"
+                            name="courseDept"
+                            value={
+                              patient.patientType === "Student"
+                                ? patient.course || "N/A"
+                                : patient.position || "N/A"
+                            }
+                            readOnly
+                            className="w-full px-3 py-2 border rounded bg-gray-100"
+                          />
+                        </div>
+
+                        {/* Diagnosis (Interpretation) */}
+                        <div className="w-full">
+                          <label className="block text-gray-700">
+                            Interpretation
+                          </label>
+                          <textarea
+                            name="diagnosis"
+                            className="w-full px-3 py-2 border rounded"
+                            rows="4"
+                            placeholder="Enter an interpretation..."
+                            value={selectedXrayRecord.xrayDescription || ""}
+                            readOnly
+                          />
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* Close Button */}
+                  <div className="flex justify-end space-x-4 mt-4">
+                    <button
+                      onClick={handleXrayModalClose}
+                      className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-between items-center mt-4">
               {/* Left Side: Doctor-Specific Button Group */}
               {role === "doctor" && (

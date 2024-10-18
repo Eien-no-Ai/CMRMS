@@ -1047,8 +1047,11 @@ function LaboratoryResult() {
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
-                        ?.expirationDate || "N/A"
+                      labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen?.expirationDate
+                        ? new Date(labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate)
+                            .toISOString()
+                            .split("T")[0]
+                        : "N/A"
                     }
                     readOnly
                   />
@@ -1057,8 +1060,11 @@ function LaboratoryResult() {
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology?.antiHAVTest
-                        ?.expirationDate || "N/A"
+                      labDetails.bloodBankingSerology?.antiHAVTest?.expirationDate
+                        ? new Date(labDetails.bloodBankingSerology.antiHAVTest.expirationDate)
+                            .toISOString()
+                            .split("T")[0]
+                        : "N/A"
                     }
                     readOnly
                   />
@@ -1137,18 +1143,25 @@ function LaboratoryResult() {
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology?.serumPregnancy
-                        ?.expirationDate || "N/A"
+                      labDetails.bloodBankingSerology?.serumPregnancy?.expirationDate
+                        ? new Date(labDetails.bloodBankingSerology.serumPregnancy.expirationDate)
+                            .toISOString()
+                            .split("T")[0]
+                        : "N/A"
                     }
+                    
                     readOnly
                   />
                   <label className="col-span-1">Expiration Date</label>
                   <input
-                    type="text"
+                    type="date"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology?.treponemaPallidumTest
-                        ?.expirationDate || "N/A"
+                      labDetails.bloodBankingSerology?.treponemaPallidumTest?.expirationDate
+                        ? new Date(labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate)
+                            .toISOString()
+                            .split("T")[0]
+                        : "N/A"
                     }
                     readOnly
                   />
@@ -1225,8 +1238,11 @@ function LaboratoryResult() {
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology?.salmonellaTyphi
-                        ?.expirationDate || "N/A"
+                      labDetails.bloodBankingSerology?.salmonellaTyphi?.expirationDate
+                        ? new Date(labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate)
+                            .toISOString()
+                            .split("T")[0]
+                        : "N/A"
                     }
                     readOnly
                   />
@@ -1295,8 +1311,11 @@ function LaboratoryResult() {
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology?.testDengue
-                        ?.expirationDate || "N/A"
+                      labDetails.bloodBankingSerology?.testDengue?.expirationDate
+                        ? new Date(labDetails.bloodBankingSerology.testDengue.expirationDate)
+                            .toISOString()
+                            .split("T")[0]
+                        : "N/A"
                     }
                     readOnly
                   />
@@ -1305,8 +1324,11 @@ function LaboratoryResult() {
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology?.others?.expirationDate ||
-                      "N/A"
+                      labDetails.bloodBankingSerology?.others?.expirationDate
+                        ? new Date(labDetails.bloodBankingSerology.others.expirationDate)
+                            .toISOString()
+                            .split("T")[0]
+                        : "N/A"
                     }
                     readOnly
                   />
