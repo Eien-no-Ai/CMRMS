@@ -766,6 +766,315 @@ function PatientsProfile() {
     combinedRecords[packageNumber].xrayRecords.push(record);
   });
 
+  const [medicalHistory, setMedicalHistory] = useState({
+    conditions: {
+      noseThroatDisorders: false,
+      earTrouble: false,
+      asthma: false,
+      tuberculosis: false,
+      lungDiseases: false,
+      highBloodPressure: false,
+      heartDiseases: false,
+      rheumaticFever: false,
+      diabetesMellitus: false,
+      endocrineDisorder: false,
+      cancerTumor: false,
+      mentalDisorder: false,
+      headNeckInjury: false,
+      hernia: false,
+      rheumatismJointPain: false,
+      eyeDisorders: false,
+      stomachPainUlcer: false,
+      abdominalDisorders: false,
+      kidneyBladderDiseases: false,
+      std: false,
+      familialDisorder: false,
+      tropicalDiseases: false,
+      chronicCough: false,
+      faintingSeizures: false,
+      frequentHeadache: false,
+      dizziness: false,
+    },
+    malaria: {
+      hasMalaria: null, // Radio buttons - Yes/No
+      lastAttackDate: '', // Malaria attack details
+    },
+    operations: {
+      undergoneOperation: null, // Radio buttons - Yes/No
+      listOperations: '', // Details of operations
+    },
+    signature: {
+      fileName: null,
+      fileType: null,
+      // fileSize: { type: Number, required: true, max: 5 * 1024 * 1024 }, // Max size 5MB
+    },
+    familyHistory: {
+      diseases: {
+        heartDisease: false,
+        tuberculosis: false,
+        kidneyDisease: false,
+        asthma: false,
+        hypertension: false,
+        diabetes: false,
+        cancer: false,
+      },
+      allergies: {
+        hasAllergies: null, // Radio buttons - Yes/No/Not Sure
+        allergyList: '', // List of allergies
+      },
+    },
+    personalHistory: {
+      tobaccoUse:{
+        usesTobacco: null, // Radio buttons - Yes/No
+        sticksPerDay: '', // Number of sticks per day
+        quitSmoking: null, // Radio buttons - Yes/No
+        quitWhen: '', // Reason for quitting
+      },
+      alcoholUse: {
+        drinksAlcohol: null, // Radio buttons - Yes/No
+        drinksPerDay: '',
+        quitDrinking: null, // Radio buttons - Yes/No
+        quitWhen: '',
+    },
+    forWomen: {
+        pregnant: null, // Radio buttons - Yes/No
+        months: '', // Number of months pregnant
+        lastMenstrualPeriod:  '', // Date of last menstrual period
+        abortionOrMiscarriage: null, // Radio buttons - Abortion/Miscarriage
+        dysmenorrhea: null, // Radio buttons - Yes/No
+    },
+  },
+  });
+
+  // FAMILY HISTORY FUNCTIONS
+  const handleCheckboxFamChange = (section, field, disease) => {
+    setMedicalHistory((prevState) => ({
+      ...prevState,
+      [section]: {
+        ...prevState[section],
+        [field]: {
+          ...prevState[section][field],
+          [disease]: !prevState[section][field][disease], // Toggle the value
+        },
+      },
+    }));
+  };
+  
+  const handleHistoryFamRadioChange = (section, field, subfield, e) => {
+    const value = e.target.value; // Get the value directly
+    console.log('Changing value:', value); // Debugging line
+    setMedicalHistory((prevState) => ({
+      ...prevState,
+      [section]: {
+        ...prevState[section],
+        [field]: {
+          ...prevState[section][field], // Spread the existing subfield object
+          [subfield]: value, // Update the specific subfield
+        },
+      },
+    }));
+  };
+  
+  const handleHistoryFamInputChange = (section, field, subfield, value) => {
+    setMedicalHistory((prevState) => ({
+      ...prevState,
+      [section]: {
+        ...prevState[section],
+        [field]: {
+          ...prevState[section][field], // Ensure the subfield object is retained
+          [subfield]: value, // Update only the specified subfield
+        },
+      },
+    }));
+  };
+  
+  // MEDICAL HISTORY FUNCTIONS
+  const handleCheckboxChange = (section, field) => {
+    setMedicalHistory((prevData) => ({
+      ...prevData,
+      [section]: {
+        ...prevData[section],
+        [field]: !prevData[section][field],
+      },
+    }));
+  };
+
+  const handleHistoryRadioChange = (section, field, e) => {
+    const value = e.target.value; // Get the value directly
+    console.log('Changing value:', value); // Debugging line
+    setMedicalHistory((prevState) => ({
+      ...prevState,
+      [section]: {
+        ...prevState[section],
+        [field]: value, // Directly set the value based on the selected radio button
+      },
+    }));
+  };
+
+  const handleHistoryInputChange = (section, field, value) => {
+    setMedicalHistory((prevData) => ({
+      ...prevData,
+      [section]: {
+        ...prevData[section],
+        [field]: value,
+      },
+    }));
+  };
+
+  // PERSONAL HISTORY FUNCTIONS
+  const handleTobaccoChange = (field, value) => {
+    console.log('Changing value:', value); // Debugging line
+    setMedicalHistory((prev) => ({
+      ...prev,
+      personalHistory: {
+        ...prev.personalHistory,
+        tobaccoUse: {
+          ...prev.personalHistory.tobaccoUse,
+          [field]: value,
+        },
+      },
+    }));
+  };
+  
+  const handleAlcoholChange = (field, value) => {
+    setMedicalHistory((prev) => ({
+      ...prev,
+      personalHistory: {
+        ...prev.personalHistory,
+        alcoholUse: {
+          ...prev.personalHistory.alcoholUse,
+          [field]: value,
+        },
+      },
+    }));
+  };
+  
+  const handleWomenHealthChange = (field, value) => {
+    setMedicalHistory((prev) => ({
+      ...prev,
+      personalHistory: {
+        ...prev.personalHistory,
+        forWomen: {
+          ...prev.personalHistory.forWomen,
+          [field]: value,
+        },
+      },
+    }));
+  };
+  
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setMedicalHistory((prevData) => ({
+      ...prevData,
+      signature: {
+        fileName: file.name,
+        fileType: file.type,
+      },
+    }));
+  };
+
+  const initialMedicalHistory = {
+    conditions: {
+      noseThroatDisorders: false,
+      earTrouble: false,
+      asthma: false,
+      tuberculosis: false,
+      lungDiseases: false,
+      highBloodPressure: false,
+      heartDiseases: false,
+      rheumaticFever: false,
+      diabetesMellitus: false,
+      endocrineDisorder: false,
+      cancerTumor: false,
+      mentalDisorder: false,
+      headNeckInjury: false,
+      hernia: false,
+      rheumatismJointPain: false,
+      eyeDisorders: false,
+      stomachPainUlcer: false,
+      abdominalDisorders: false,
+      kidneyBladderDiseases: false,
+      std: false,
+      familialDisorder: false,
+      tropicalDiseases: false,
+      chronicCough: false,
+      faintingSeizures: false,
+      frequentHeadache: false,
+      dizziness: false,
+    },
+    malaria: {
+      hasMalaria: null,
+      lastAttackDate: '',
+    },
+    operations: {
+      undergoneOperation: null,
+      listOperations: '',
+    },
+    signature: {
+      fileName: null,
+      fileType: null,
+    },
+    familyHistory: {
+      diseases: {
+        heartDisease: false,
+        tuberculosis: false,
+        kidneyDisease: false,
+        asthma: false,
+        hypertension: false,
+        diabetes: false,
+        cancer: false,
+      },
+      allergies: {
+        hasAllergies: null,
+        allergyList: '',
+      },
+    },
+    personalHistory: {
+      tobaccoUse: {
+        usesTobacco: null,
+        sticksPerDay: '',
+        quitSmoking: null,
+        quitWhen: '',
+      },
+      alcoholUse: {
+        drinksAlcohol: null,
+        drinksPerDay: '',
+        quitDrinking: null,
+        quitWhen: '',
+      },
+    },
+    forWomen: {
+      pregnant: null,
+      months: '',
+      lastMenstrualPeriod: '',
+      abortionOrMiscarriage: null,
+      dysmenorrhea: null,
+    },
+  };
+
+  const handleMedicalHistorySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        `http://localhost:3001/api/medical-history`,{
+          patient: id,
+          ...medicalHistory,
+        }
+      );
+      console.log('Medical history saved successfully:', response.data);
+      if (response.status === 200) {
+        handleMedicalClose();
+        setMedicalHistory({
+          ...initialMedicalHistory,
+        });
+          
+      }
+    } catch (error) {
+      console.error("Error adding medical history:", error);
+    }
+  };
+
   return (
     <div>
       <Navbar />
@@ -958,7 +1267,7 @@ function PatientsProfile() {
                   >
                     Medical
                   </button>
-
+                  
                   <button
                     className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                     onClick={handleFamilyPersonalOpen}
@@ -984,104 +1293,183 @@ function PatientsProfile() {
                   </label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                     <label>
-                      <input type="checkbox" className="mr-2" /> 1. Nose or
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.noseThroatDisorders}
+                      onChange={(e) => handleCheckboxChange('conditions', 'noseThroatDisorders',e)} 
+                      />
+                      1. Nose or
                       throat disorders
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 14. Hernia
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.hernia}
+                      onChange={(e) => handleCheckboxChange('conditions', 'hernia',e)}
+                      /> 14. Hernia
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 2. Ear trouble
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.earTrouble}
+                      onChange={(e) => handleCheckboxChange('conditions', 'earTrouble',e)}
+                      /> 2. Ear trouble
                       / deafness
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 15. Rheumatism,
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.rheumatismJointPain}
+                      onChange={(e) => handleCheckboxChange('conditions', 'rheumatismJointPain',e)}
+                      /> 15. Rheumatism,
                       joint or back pain
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 3. Asthma
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.asthma}
+                      onChange={(e) => handleCheckboxChange('conditions', 'asthma',e)}
+                      /> 3. Asthma
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 16. Eye
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.eyeDisorders}
+                      onChange={(e) => handleCheckboxChange('conditions', 'eyeDisorders',e)}
+                      /> 16. Eye
                       disorders
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 4. Tuberculosis
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.tuberculosis}
+                      onChange={(e) => handleCheckboxChange('conditions', 'tuberculosis',e)}
+                      /> 4. Tuberculosis
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 17. Stomach
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.stomachPainUlcer}
+                      onChange={(e) => handleCheckboxChange('conditions', 'stomachPainUlcer',e)}
+                      /> 17. Stomach
                       pain / ulcer
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 5. Other lung
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.lungDiseases}
+                      onChange={(e) => handleCheckboxChange('conditions', 'lungDiseases',e)}
+                      /> 5. Other lung
                       diseases
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 18. Other
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.abdominalDisorders}
+                      onChange={(e) => handleCheckboxChange('conditions', 'abdominalDisorders',e)}
+                      /> 18. Other
                       abdominal disorders
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 6. High Blood
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.highBloodPressure}
+                      onChange={(e) => handleCheckboxChange('conditions', 'highBloodPressure',e)}
+                      /> 6. High Blood
                       Pressure
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 19. Kidney or
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.kidneyBladderDiseases}
+                      onChange={(e) => handleCheckboxChange('conditions', 'kidneyBladderDiseases',e)}
+                      /> 19. Kidney or
                       bladder diseases
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 7. Heart
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.heartDiseases}
+                      onChange={(e) => handleCheckboxChange('conditions', 'heartDiseases',e)}
+                      /> 7. Heart
                       diseases
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 20. Sexually
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.std}
+                      onChange={(e) => handleCheckboxChange('conditions', 'std',e)}
+                      /> 20. Sexually
                       Transmitted Disease
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 8. Rheumatic
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.rheumaticFever}
+                      onChange={(e) => handleCheckboxChange('conditions', 'rheumaticFever',e)}
+                      /> 8. Rheumatic
                       Fever
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 21. Genetic or
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.familialDisorder}
+                      onChange={(e) => handleCheckboxChange('conditions', 'familialDisorder',e)}
+                      /> 21. Genetic or
                       Familial disorder
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 9. Diabetes
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.diabetesMellitus}
+                      onChange={(e) => handleCheckboxChange('conditions', 'diabetesMellitus',e)}
+                      /> 9. Diabetes
                       Mellitus
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 22. Tropical
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.tropicalDiseases}
+                      onChange={(e) => handleCheckboxChange('conditions', 'tropicalDiseases',e)}
+                      /> 22. Tropical
                       Diseases
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 10. Endocrine
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.endocrineDisorder}
+                      onChange={(e) => handleCheckboxChange('conditions', 'endocrineDisorder',e)}
+                      /> 10. Endocrine
                       Disorder
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 23. Chronic
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.chronicCough}
+                      onChange={(e) => handleCheckboxChange('conditions', 'chronicCough',e)}
+                      /> 23. Chronic
                       cough
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 11. Cancer /
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.cancerTumor}
+                      onChange={(e) => handleCheckboxChange('conditions', 'cancerTumor',e)}
+                      /> 11. Cancer /
                       Tumor
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 24. Fainting
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.faintingSeizures}
+                      onChange={(e) => handleCheckboxChange('conditions', 'faintingSeizures',e)}
+                      /> 24. Fainting
                       spells, fits or seizures
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 12. Mental
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.mentalDisorder}
+                      onChange={(e) => handleCheckboxChange('conditions', 'mentalDisorder',e)}
+                      /> 12. Mental
                       Disorder / Depression
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 25. Frequent
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.frequentHeadache}
+                      onChange={(e) => handleCheckboxChange('conditions', 'frequentHeadache',e)}
+                      /> 25. Frequent
                       headache
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 13. Head or
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.headNeckInjury}
+                      onChange={(e) => handleCheckboxChange('conditions', 'headNeckInjury',e)}
+                      /> 13. Head or
                       neck injury
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 26. Dizziness
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.conditions.dizziness}
+                      onChange={(e) => handleCheckboxChange('conditions', 'dizziness',e)}
+                      /> 26. Dizziness
                     </label>
                   </div>
 
@@ -1089,17 +1477,27 @@ function PatientsProfile() {
                     <p className="text-sm font-medium">Do you have Malaria?</p>
                     <div className="flex space-x-4 mt-2">
                       <label>
-                        <input type="radio" name="allergies" className="mr-2" />
+                        <input type="radio" name="hasMalaria" className="mr-2" 
+                        value="Yes" // Set the value to "Yes"
+                        checked={medicalHistory.malaria.hasMalaria === 'Yes'} // Check if the value is "Yes"
+                        onChange={(e) => handleHistoryRadioChange('malaria', 'hasMalaria', e)} // Pass the entire event object
+                        />
                         Yes
                       </label>
                       <label>
-                        <input type="radio" name="allergies" className="mr-2" />
+                        <input type="radio" name="hasMalaria" className="mr-2" 
+                        value="No" // Set the value to "No"
+                        checked={medicalHistory.malaria.hasMalaria === 'No'} // Check if the value is "No"
+                        onChange={(e) => handleHistoryRadioChange('malaria', 'hasMalaria', e)} // Pass the entire event object
+                        />
                         No
                       </label>
                     </div>
                     <textarea
                       placeholder="Please date the last attack."
                       className="textarea mt-2 border rounded-md p-2 w-full col-span-3"
+                      value={medicalHistory.malaria.lastAttackDate}
+                      onChange={(e) => handleHistoryInputChange('malaria', 'lastAttackDate', e.target.value)}
                     ></textarea>
                   </div>
 
@@ -1109,17 +1507,27 @@ function PatientsProfile() {
                     </p>
                     <div className="flex space-x-4 mt-2">
                       <label>
-                        <input type="radio" name="allergies" className="mr-2" />
+                        <input type="radio" name="undergoneOperation" className="mr-2" 
+                        value="Yes" // Set the value to "Yes"
+                        checked={medicalHistory.operations.undergoneOperation === 'Yes'}
+                        onChange={(e) => handleHistoryRadioChange('operations', 'undergoneOperation', e)}
+                        />
                         Yes
                       </label>
                       <label>
-                        <input type="radio" name="allergies" className="mr-2" />
+                        <input type="radio" name="undergoneOperation" className="mr-2" 
+                        value="No" // Set the value to "Yes"
+                        checked={medicalHistory.operations.undergoneOperation === 'No'}
+                        onChange={(e) => handleHistoryRadioChange('operations', 'undergoneOperation', e)}
+                        />
                         No
                       </label>
                     </div>
                     <textarea
                       placeholder="Please list them."
                       className="textarea mt-2 border rounded-md p-2 w-full col-span-3"
+                      value={medicalHistory.operations.listOperations}
+                      onChange={(e) => handleHistoryInputChange('operations', 'listOperations', e.target.value)}
                     ></textarea>
                   </div>
 
@@ -1171,9 +1579,9 @@ function PatientsProfile() {
                   </button>
                   <button
                     className="bg-custom-red text-white py-2 px-4 rounded-lg"
-                    onClick={() => {
-                      console.log("Save Medical History");
-                      handleMedicalClose();
+                    onClick={async (e) => {
+                      await handleMedicalHistorySubmit(e); // Call the submit function
+                      handleMedicalClose(); // Close the modal
                     }}
                   >
                     Save
@@ -1199,27 +1607,50 @@ function PatientsProfile() {
                   </label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                     <label>
-                      <input type="checkbox" className="mr-2" /> 1. Heart
-                      Disease
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={medicalHistory.familyHistory.diseases.heartDisease} // Ensure it's never undefined
+                        onChange={(e) => handleCheckboxFamChange('familyHistory', 'diseases', 'heartDisease',e)}
+                      />
+                      1. Heart Disease
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 5. Hypertension
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.familyHistory.diseases.hypertension}
+                      onChange={(e) => handleCheckboxFamChange('familyHistory', 'diseases', 'hypertension',e)}
+                      /> 5. Hypertension
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 2. Tuberculosis
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.familyHistory.diseases.tuberculosis}
+                      onChange={(e) => handleCheckboxFamChange('familyHistory', 'diseases', 'tuberculosis',e)}
+                      /> 2. Tuberculosis
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 6. Diabetes
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.familyHistory.diseases.diabetes}
+                      onChange={(e) => handleCheckboxFamChange('familyHistory', 'diseases', 'diabetes',e)}
+                      /> 6. Diabetes
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 3. Kidney
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.familyHistory.diseases.kidneyDisease}
+                      onChange={(e) => handleCheckboxFamChange('familyHistory', 'diseases', 'kidneyDisease',e)}
+                      /> 3. Kidney
                       Disease (UTI, Etc.)
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 7. Cancer
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.familyHistory.diseases.cancer}
+                      onChange={(e) => handleCheckboxFamChange('familyHistory', 'diseases', 'cancer',e)}
+                      /> 7. Cancer
                     </label>
                     <label>
-                      <input type="checkbox" className="mr-2" /> 4. Asthma
+                      <input type="checkbox" className="mr-2" 
+                      checked={medicalHistory.familyHistory.diseases.asthma}
+                      onChange={(e) => handleCheckboxFamChange('familyHistory', 'diseases', 'asthma',e)}
+                      /> 4. Asthma
                     </label>
                   </div>
 
@@ -1229,21 +1660,35 @@ function PatientsProfile() {
                     </p>
                     <div className="flex space-x-4 mt-2">
                       <label>
-                        <input type="radio" name="allergies" className="mr-2" />
+                        <input type="radio" name="allergies" className="mr-2" 
+                        value="Yes" // Set the value to "Yes"
+                        checked={medicalHistory.familyHistory.allergies.hasAllergies === 'Yes'} // Check if the value is "Yes"
+                        onChange={(e) => handleHistoryFamRadioChange('familyHistory', 'allergies', 'hasAllergies', e)} // Pass the entire event object
+                        />
                         Yes
                       </label>
                       <label>
-                        <input type="radio" name="allergies" className="mr-2" />
+                        <input type="radio" name="allergies" className="mr-2" 
+                        value="No" // Set the value to "No"
+                        checked={medicalHistory.familyHistory.allergies.hasAllergies === 'No'} // Check if the value is "No"
+                        onChange={(e) => handleHistoryFamRadioChange('familyHistory', 'allergies', 'hasAllergies', e)} // Pass the entire event object
+                        />
                         No
                       </label>
                       <label>
-                        <input type="radio" name="allergies" className="mr-2" />
+                        <input type="radio" name="allergies" className="mr-2" 
+                        value="Not Sure" // Set the value to "Not Sure"
+                        checked={medicalHistory.familyHistory.allergies.hasAllergies === 'Not Sure'} // Check if the value is "Not Sure"
+                        onChange={(e) => handleHistoryFamRadioChange('familyHistory', 'allergies', 'hasAllergies', e)} // Pass the entire event object
+                        />
                         Not Sure
                       </label>
                     </div>
                     <textarea
                       placeholder="Please list them."
                       className="textarea mt-2 border rounded-md p-2 w-full col-span-3"
+                      value={medicalHistory.familyHistory.allergies.allergyList}
+                      onChange={(e) => handleHistoryFamInputChange('familyHistory', 'allergies', 'allergyList', e.target.value)}
                     ></textarea>
                   </div>
                 </div>
@@ -1258,9 +1703,12 @@ function PatientsProfile() {
                         them?
                       </label>
 
-                      <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500">
-                        <option>Yes</option>
-                        <option>No</option>
+                      <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                      onChange={(e) => handleTobaccoChange('usesTobacco', e.target.value)}
+                      >
+                        <option value="" disabled selected>Select</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
                       </select>
                     </div>
                     <div className="space-y-4 mt-4">
@@ -1272,6 +1720,7 @@ function PatientsProfile() {
                           type="number"
                           placeholder="Enter number"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          onChange={(e) => handleTobaccoChange('sticksPerDay', e.target.value)}
                         />
                       </div>
 
@@ -1279,9 +1728,13 @@ function PatientsProfile() {
                         <label className="text-sm font-medium text-gray-700 w-1/2">
                           B. Quit smoking?
                         </label>
-                        <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500">
-                          <option>Yes</option>
-                          <option>No</option>
+                        <select 
+                        className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        onChange={(e) => handleTobaccoChange('quitSmoking', e.target.value)}
+                        >
+                          <option value="" disabled selected>Select</option>
+                          <option value="Yes">Yes</option>
+                          <option value="No">No</option>
                         </select>
                       </div>
 
@@ -1292,6 +1745,7 @@ function PatientsProfile() {
                         <input
                           type="date"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          onChange={(e) => handleTobaccoChange('quitWhen', e.target.value)}
                         />
                       </div>
                     </div>
@@ -1303,9 +1757,13 @@ function PatientsProfile() {
                         Do you drink alcoholic beverages?
                       </label>
 
-                      <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500">
-                        <option>Yes</option>
-                        <option>No</option>
+                      <select 
+                      className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                      onChange={(e) => handleAlcoholChange('drinksAlcohol', e.target.value)}
+                      >
+                        <option value="" disabled selected>Select</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
                       </select>
                     </div>
                     <div className="space-y-4 mt-4">
@@ -1317,6 +1775,7 @@ function PatientsProfile() {
                           type="text"
                           placeholder="Enter amount"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          onChange={(e) => handleAlcoholChange('drinksPerDay', e.target.value)}
                         />
                       </div>
 
@@ -1324,9 +1783,13 @@ function PatientsProfile() {
                         <label className="text-sm font-medium text-gray-700 w-1/2">
                           B. Quit drinking?
                         </label>
-                        <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500">
-                          <option>Yes</option>
-                          <option>No</option>
+                        <select 
+                        className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        onChange={(e) => handleAlcoholChange('quitDrinking', e.target.value)}
+                        >
+                          <option value="" disabled selected> Select</option>
+                          <option value="Yes">Yes</option>
+                          <option value="No">No</option>
                         </select>
                       </div>
 
@@ -1337,6 +1800,7 @@ function PatientsProfile() {
                         <input
                           type="date"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          onChange={(e) => handleAlcoholChange('quitWhen', e.target.value)}
                         />
                       </div>
                     </div>
@@ -1355,9 +1819,13 @@ function PatientsProfile() {
                         A. Pregnant?
                       </label>
 
-                      <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500">
-                        <option>Yes</option>
-                        <option>No</option>
+                      <select 
+                      className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                      onChange={(e) => handleWomenHealthChange('pregnant', e.target.value)}
+                      >
+                        <option value="" disabled selected>Select</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
                       </select>
                     </div>
                     <div className="space-y-4 mt-4">
@@ -1369,6 +1837,7 @@ function PatientsProfile() {
                           type="date"
                           placeholder="Enter amount"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          onChange={(e) => handleWomenHealthChange('months', e.target.value)}
                         />
                       </div>
 
@@ -1380,6 +1849,7 @@ function PatientsProfile() {
                           type="date"
                           placeholder="Enter amount"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          onChange={(e) => handleWomenHealthChange('lastMenstrualPeriod', e.target.value)}
                         />
                       </div>
 
@@ -1387,9 +1857,13 @@ function PatientsProfile() {
                         <label className="text-sm font-medium text-gray-700 w-1/2">
                           D. Abortion/ Miscarriage?
                         </label>
-                        <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500">
-                          <option>Abortion</option>
-                          <option>Miscarriage</option>
+                        <select 
+                        className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        onChange={(e) => handleWomenHealthChange('abortionOrMiscarriage', e.target.value)}
+                        >
+                          <option value="" disabled selected>Select</option>
+                          <option value="Abortion">Abortion</option>
+                          <option value="Miscarriage">Miscarriage</option>
                         </select>
                       </div>
                       <div className="flex items-center space-x-4 mt-6">
@@ -1397,9 +1871,13 @@ function PatientsProfile() {
                           E. Dysmenorrhea?
                         </label>
 
-                        <select className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500">
-                          <option>Yes</option>
-                          <option>No</option>
+                        <select 
+                        className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        onChange={(e) => handleWomenHealthChange('dysmenorrhea', e.target.value)}
+                        >
+                          <option value="" disabled selected>Select</option>
+                          <option value="Yes">Yes</option>
+                          <option value="No">No</option>
                         </select>
                       </div>
                     </div>
@@ -1452,9 +1930,9 @@ function PatientsProfile() {
                   </button>
                   <button
                     className="bg-custom-red text-white py-2 px-4 rounded-lg"
-                    onClick={() => {
-                      console.log("Save Medical History");
-                      handleFamilyClose();
+                    onClick={async (e) => {
+                      await handleMedicalHistorySubmit(e); // Call the submit function
+                      handleFamilyClose(); // Close the modal
                     }}
                   >
                     Save

@@ -9,6 +9,7 @@ const LaboratoryModel = require("./models/Laboratory");
 const LaboratoryResultsModel = require("./models/LaboratoryResults");
 const PhysicalTherapyModel = require("./models/PhysicalTherapy");
 const PackageModel = require("./models/Package");
+const MedicalHistoryModel = require("./models/MedicalHistory");
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -16,7 +17,50 @@ const nodemailer = require("nodemailer");
 
 mongoose.connect(
   "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee"
-);
+);`1
+`
+//M E D I C A L   H I S T O R Y
+app.post('/api/medical-history', async (req, res) => {
+  try {
+      // Create a new medical history document
+      const newMedicalHistory = new MedicalHistoryModel(req.body);
+
+      // Save to the database
+      const savedMedicalHistory = await newMedicalHistory.save();
+
+      // Send a success response
+      res.status(201).json({ message: 'Medical history added successfully', data: savedMedicalHistory });
+  } catch (error) {
+      res.status(500).json({ message: 'Error adding medical history', error: error.message });
+  }
+});
+
+// GET endpoint to fetch all medical history records
+app.get('/api/medical-history', async (req, res) => {
+  try {
+      // Fetch all medical history records
+      const medicalHistory = await MedicalHistoryModel.find();
+      res.json(medicalHistory);
+  } catch (error) {
+      res.status(500).json({ message: 'Error fetching medical history records', error: error });
+  }
+});
+
+// GET endpoint to fetch medical history record by ID
+app.get('/api/medical-history/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+      // Find medical history record by ID
+      const medicalHistory = await MedicalHistoryModel.findById(id);
+      if (!medicalHistory) {
+          return res.status(404).json({ message: 'Medical history record not found' });
+      }
+      res.json(medicalHistory);
+  } catch (error) {
+      res.status(500).json({ message: 'Error fetching medical history record', error: error });
+  }
+});
 
 app.post("/api/packages", async (req, res) => {
   const {
