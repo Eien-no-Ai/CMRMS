@@ -1120,6 +1120,27 @@ app.put(
     }
   }
 );
+// Endpoint to get X-ray result by ID
+app.get('/api/xrayResults/id/:id', async (req, res) => {
+  const { id } = req.params;
+
+  // Validate if the provided ID is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'Invalid X-ray ID format' });
+  }
+
+  try {
+    // Find the X-ray record by ID
+    const xrayResult = await XrayModel.findById(id).populate('patient');
+    if (!xrayResult) {
+      return res.status(404).json({ message: 'X-ray result not found' });
+    }
+    res.json(xrayResult);
+  } catch (error) {
+    console.error('Error fetching X-ray result:', error);
+    res.status(500).json({ message: 'Error fetching X-ray result', error });
+  }
+});
 
 //console log
 app.listen(3001, () => {

@@ -1142,6 +1142,60 @@ function PatientsProfile() {
     return age;
   };
 
+  // State variables for lab results, X-ray results, and modal visibility
+  const [selectedPackageLabResults, setSelectedPackageLabResults] = useState(
+    []
+  );
+  const [selectedPackageXrayResults, setSelectedPackageXrayResults] = useState(
+    []
+  );
+  const [isPackageResultModalOpen, setIsPackageResultModalOpen] =
+    useState(false);
+
+  const handleViewPackage = async (records) => {
+    try {
+      // Extract laboratory request IDs from labRecords
+      const laboratoryIds = records.labRecords.map(
+        (labRecord) => labRecord._id
+      );
+
+      // Fetch lab results for each laboratoryId
+      const labResultsPromises = laboratoryIds.map((laboratoryId) =>
+        axios
+          .get(
+            `http://localhost:3001/api/laboratory-results/by-request/${laboratoryId}`
+          )
+          .then((response) => response.data)
+      );
+
+      // Extract X-ray IDs from xrayRecords
+      const xrayIds = records.xrayRecords.map((xrayRecord) => xrayRecord._id);
+
+      // Fetch X-ray results for each xrayId
+      const xrayResultsPromises = xrayIds.map((xrayId) =>
+        axios
+          .get(`http://localhost:3001/api/xrayResults/id/${xrayId}`)
+          .then((response) => response.data)
+      );
+
+      // Wait for all promises to resolve
+      const labResults = await Promise.all(labResultsPromises);
+      const xrayResults = await Promise.all(xrayResultsPromises);
+
+      // Debugging logs
+      console.log("Lab Results:", labResults);
+      console.log("X-ray Results:", xrayResults);
+
+      // Store the lab and X-ray results and open the modal
+      setSelectedPackageLabResults(labResults);
+      setSelectedPackageXrayResults(xrayResults);
+      setIsPackageResultModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching results for the package:", error);
+      alert("Failed to load results for this package.");
+    }
+  };
+
   return (
     <div>
       <Navbar />
@@ -2678,7 +2732,12 @@ function PatientsProfile() {
                                   ))
                                 : "No X-ray Data"}
                             </p>
-                            <button className="text-custom-red">View</button>
+                            <button
+                              className="text-custom-red"
+                              onClick={() => handleViewPackage(records)}
+                            >
+                              View
+                            </button>{" "}
                           </div>
                         </li>
                       )
@@ -2688,6 +2747,1468 @@ function PatientsProfile() {
                       No Package records available.
                     </p>
                   ))}
+
+                {isPackageResultModalOpen && (
+                  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                    <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
+                      {/* Lab Results Section */}
+                      {selectedPackageLabResults.length > 0 ? (
+                        selectedPackageLabResults.map((labResult, index) => (
+                          <div className="" key={index}>
+                            <div className="">
+                              <form className="flex-grow">
+                                {/* <div className="flex mb-4">
+                                  <div className="w-3/4 mr-2">
+                                    <label className="block text-gray-700">
+                                      OR No.
+                                    </label>
+                                    <input
+                                      type="text"
+                                      name="ORNumber" // Changed name to match the formData key
+                                      value={labResult.ORNumber || "N/A"}
+                                      className="w-full px-3 py-2 border rounded"
+                                    />
+                                  </div>
+
+                                  <div className="w-3/4 mr-2">
+                                    <label className="block text-gray-700">
+                                      Lab No.
+                                    </label>
+                                    <input
+                                      type="text"
+                                      name="labNumber" // Changed name to match the formData key
+                                      value={labResult.labNumber || "N/A"}
+                                      className="w-full px-3 py-2 border rounded"
+                                      readOnly
+                                    />
+                                  </div>
+
+                                  <div className="w-1/4">
+                                    <label className="block text-gray-700">
+                                      Date
+                                    </label>
+                                    <input
+                                      type="text"
+                                      name="date"
+                                      className="w-full px-3 py-2 border rounded"
+                                      value={
+                                        new Date(
+                                          labResult.isCreatedAt
+                                        ).toLocaleDateString() || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                  </div>
+                                </div> */}
+
+                                <div className="flex mb-4">
+                                  <div className="w-1/2 mr-2">
+                                    <label className="block text-gray-700">
+                                      Name
+                                    </label>
+                                    <input
+                                      type="text"
+                                      name="name"
+                                      className="w-full px-3 py-2 border rounded bg-gray-100"
+                                      value={
+                                        labResult.patient
+                                          ? `${labResult.patient.lastname}, ${labResult.patient.firstname}`
+                                          : "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                  </div>
+                                  <div className="w-1/4 mr-2">
+                                    <label className="block text-gray-700">
+                                      Age
+                                    </label>
+                                    <input
+                                      type="text"
+                                      name="age"
+                                      className="w-full px-3 py-2 border rounded bg-gray-100"
+                                      value={
+                                        labResult.patient?.birthdate
+                                          ? getAge(labResult.patient.birthdate)
+                                          : "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                  </div>
+                                  <div className="w-1/4">
+                                    <label className="block text-gray-700">
+                                      Sex
+                                    </label>
+                                    <input
+                                      type="text"
+                                      name="sex"
+                                      className="w-full px-3 py-2 border rounded bg-gray-100"
+                                      value={labResult.patient?.sex || "N/A"}
+                                      readOnly
+                                    />
+                                  </div>
+                                </div>
+                                <div className="mb-4">
+                                  <label className="block text-gray-700">
+                                    Department/ Position
+                                  </label>
+                                  <input
+                                    type="text"
+                                    name="courseDept"
+                                    className="w-full px-3 py-2 border rounded bg-gray-100"
+                                    value={
+                                      labResult.patient
+                                        ? labResult.patient.patientType ===
+                                          "Student"
+                                          ? labResult.patient.course || "N/A" // Display course if patientType is student
+                                          : labResult.patient.position || "N/A" // Otherwise, display position
+                                        : "N/A"
+                                    }
+                                    readOnly
+                                  />
+                                </div>
+                                <h2 className="text-center text-xl font-semibold mt-4">
+                                Lab Result Form
+                              </h2>
+                                {/* Hematology Section */}
+                                <div className="mb-0">
+                                  <div
+                                    className="flex items-center justify-between cursor-pointer"
+                                    onClick={toggleHematologyVisibility}
+                                  >
+                                    <h3 className="text-lg font-semibold my-0 py-2">
+                                      I. Hematology
+                                    </h3>
+                                    <BiChevronDown
+                                      className={`transform transition-transform duration-300 ${
+                                        isHematologyVisible ? "rotate-180" : ""
+                                      }`}
+                                      size={24}
+                                    />
+                                  </div>
+                                  <div className="w-full h-px bg-gray-300 my-0"></div>
+
+                                  {isHematologyVisible && (
+                                    <div className="grid grid-cols-3 gap-4 p-4">
+                                      <div className="col-span-1 font-semibold">
+                                        Tests
+                                      </div>
+                                      <div className="col-span-1 font-semibold">
+                                        Result
+                                      </div>
+                                      <div className="col-span-1 font-semibold">
+                                        Reference Range
+                                      </div>
+
+                                      <div className="col-span-1">
+                                        Red Blood Cell Count
+                                      </div>
+                                      <div className="col-span-1">
+                                        <input
+                                          type="text"
+                                          name="redBloodCellCount"
+                                          className="w-full px-3 py-1 border rounded bg-gray-100"
+                                          value={
+                                            labResult.Hematology
+                                              ?.redBloodCellCount || "N/A"
+                                          }
+                                          readOnly
+                                        />
+                                      </div>
+                                      <div className="col-span-1">
+                                        Male: 4.0 - 5.5 x10^12/L; Female: 3.5 -
+                                        5.0 x10^12/L
+                                      </div>
+
+                                      <div className="col-span-1">
+                                        Hemoglobin
+                                      </div>
+                                      <div className="col-span-1">
+                                        <input
+                                          type="text"
+                                          name="hemoglobin"
+                                          className="w-full px-3 py-1 border rounded bg-gray-100"
+                                          value={
+                                            labResult.Hematology?.Hemoglobin ||
+                                            "N/A"
+                                          }
+                                          readOnly
+                                        />
+                                      </div>
+                                      <div className="col-span-1">
+                                        Male: 140 - 180 g/L; Female: 120 - 180
+                                        g/L
+                                      </div>
+
+                                      <div className="col-span-1">
+                                        Hematocrit
+                                      </div>
+                                      <div className="col-span-1">
+                                        <input
+                                          type="text"
+                                          name="hematocrit"
+                                          className="w-full px-3 py-1 border rounded bg-gray-100"
+                                          value={
+                                            labResult.Hematology?.Hematocrit ||
+                                            "N/A"
+                                          }
+                                          readOnly
+                                        />
+                                      </div>
+                                      <div className="col-span-1">
+                                        Male: 0.40 - 0.54; Female: 0.37 - 0.47
+                                      </div>
+
+                                      <div className="col-span-1">
+                                        Leukocyte Count
+                                      </div>
+                                      <div className="col-span-1">
+                                        <input
+                                          type="text"
+                                          name="leukocyteCount"
+                                          className="w-full px-3 py-1 border rounded bg-gray-100"
+                                          value={
+                                            labResult.Hematology
+                                              ?.LeukocyteCount || "N/A"
+                                          }
+                                          readOnly
+                                        />
+                                      </div>
+                                      <div className="col-span-1">
+                                        5.0 - 10.0 x10^9/L
+                                      </div>
+
+                                      <div className="col-span-1">
+                                        Differential Count
+                                      </div>
+                                      <div className="col-span-1"></div>
+                                      <div className="col-span-1"></div>
+
+                                      <div className="col-span-1 ml-9">
+                                        Segmenters
+                                      </div>
+                                      <div className="col-span-1">
+                                        <input
+                                          type="text"
+                                          name="segmenters"
+                                          className="w-full px-3 py-1 border rounded bg-gray-100"
+                                          value={
+                                            labResult.Hematology
+                                              ?.DifferentialCount?.segmenters ||
+                                            "N/A"
+                                          }
+                                          readOnly
+                                        />
+                                      </div>
+                                      <div className="col-span-1">
+                                        0.50 - 0.70
+                                      </div>
+
+                                      <div className="col-span-1 ml-9">
+                                        Lymphocytes
+                                      </div>
+                                      <div className="col-span-1">
+                                        <input
+                                          type="text"
+                                          name="lymphocytes"
+                                          className="w-full px-3 py-1 border rounded bg-gray-100"
+                                          value={
+                                            labResult.Hematology
+                                              ?.DifferentialCount
+                                              ?.lymphocytes || "N/A"
+                                          }
+                                          readOnly
+                                        />
+                                      </div>
+                                      <div className="col-span-1">
+                                        0.20 - 0.40
+                                      </div>
+
+                                      <div className="col-span-1 ml-9">
+                                        Monocytes
+                                      </div>
+                                      <div className="col-span-1">
+                                        <input
+                                          type="text"
+                                          name="monocytes"
+                                          className="w-full px-3 py-1 border rounded bg-gray-100"
+                                          value={
+                                            labResult.Hematology
+                                              ?.DifferentialCount?.monocytes ||
+                                            "N/A"
+                                          }
+                                          readOnly
+                                        />
+                                      </div>
+                                      <div className="col-span-1">
+                                        0.00 - 0.07
+                                      </div>
+
+                                      <div className="col-span-1 ml-9">
+                                        Eosinophils
+                                      </div>
+                                      <div className="col-span-1">
+                                        <input
+                                          type="text"
+                                          name="eosinophils"
+                                          className="w-full px-3 py-1 border rounded bg-gray-100"
+                                          value={
+                                            labResult.Hematology
+                                              ?.DifferentialCount
+                                              ?.eosinophils || "N/A"
+                                          }
+                                          readOnly
+                                        />
+                                      </div>
+                                      <div className="col-span-1">
+                                        0.00 - 0.05
+                                      </div>
+
+                                      <div className="col-span-1 ml-9">
+                                        Basophils
+                                      </div>
+                                      <div className="col-span-1">
+                                        <input
+                                          type="text"
+                                          name="basophils"
+                                          className="w-full px-3 py-1 border rounded bg-gray-100"
+                                          value={
+                                            labResult.Hematology
+                                              ?.DifferentialCount?.basophils ||
+                                            "N/A"
+                                          }
+                                          readOnly
+                                        />
+                                      </div>
+                                      <div className="col-span-1">
+                                        0.00 - 0.01
+                                      </div>
+
+                                      <div className="col-span-1 ml-9">
+                                        Total
+                                      </div>
+                                      <div className="col-span-1">
+                                        <input
+                                          type="text"
+                                          name="total"
+                                          className="w-full px-3 py-1 border rounded bg-gray-100"
+                                          value={
+                                            labResult.Hematology
+                                              ?.DifferentialCount?.total ||
+                                            "N/A"
+                                          }
+                                          readOnly
+                                        />
+                                      </div>
+                                      <div className="col-span-1"></div>
+
+                                      <div className="col-span-1">
+                                        Platelet Count
+                                      </div>
+                                      <div className="col-span-1">
+                                        <input
+                                          type="text"
+                                          name="plateletCount"
+                                          className="w-full px-3 py-1 border rounded bg-gray-100"
+                                          value={
+                                            labResult.Hematology
+                                              ?.PlateletCount || "N/A"
+                                          }
+                                          readOnly
+                                        />
+                                      </div>
+                                      <div className="col-span-1">
+                                        150 - 400 x10^9/L
+                                      </div>
+
+                                      <div className="col-span-1">Others</div>
+                                      <div className="col-span-1">
+                                        <input
+                                          type="text"
+                                          name="others"
+                                          className="w-full px-3 py-1 border rounded bg-gray-100"
+                                          value={
+                                            labResult.Hematology?.others ||
+                                            "N/A"
+                                          }
+                                          readOnly
+                                        />
+                                      </div>
+                                      <div className="col-span-1"></div>
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div
+                                  className="flex items-center justify-between cursor-pointer"
+                                  onClick={toggleClinicalMicroscopyVisibility}
+                                >
+                                  <h3 className="text-lg font-semibold mb-0 py-2">
+                                    II. Clinical Microscopy and Parasitology
+                                  </h3>
+                                  <BiChevronDown
+                                    className={`transform transition-transform duration-300 ${
+                                      isClinicalMicroscopyVisible
+                                        ? "rotate-180"
+                                        : ""
+                                    }`}
+                                    size={24}
+                                  />
+                                </div>
+                                <div className="w-full h-px bg-gray-300 my-0"></div>
+
+                                {isClinicalMicroscopyVisible && (
+                                  <div className="grid grid-cols-6 gap-4 p-4">
+                                    {/* Routine Urinalysis - Macroscopic Examination */}
+                                    <label className="col-span-3 font-semibold">
+                                      Routine Urinalysis
+                                    </label>
+
+                                    <label className="col-span-1">LMP</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-2 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.LMP || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <h4 className="col-span-6 font-semibold">
+                                      Macroscopic Examination
+                                    </h4>
+                                    <label className="col-span-1">Color</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-2 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.macroscopicExam
+                                          ?.color || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Appearance
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-2 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.macroscopicExam
+                                          ?.appearance || "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    {/* Routine Urinalysis - Chemical Examination */}
+                                    <h4 className="col-span-6 font-semibold mt-4">
+                                      Chemical Examination
+                                    </h4>
+                                    <label className="col-span-1">Sugar</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.chemicalExam
+                                          ?.sugar || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Urobilinogen
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.chemicalExam
+                                          ?.urobilinogen || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Albumin
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.chemicalExam
+                                          ?.albumin || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Ketones
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.chemicalExam
+                                          ?.ketones || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">Blood</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.chemicalExam
+                                          ?.blood || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Nitrite
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.chemicalExam
+                                          ?.nitrites || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Bilirubin
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.chemicalExam
+                                          ?.bilirubin || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Leukocyte
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.chemicalExam
+                                          ?.leukocytes || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Reaction
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.chemicalExam
+                                          ?.reaction || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Specific Gravity
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.chemicalExam
+                                          ?.specificGravity || "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    {/* Routine Urinalysis - Microscopic Examination */}
+                                    <h4 className="col-span-6 font-semibold mt-4">
+                                      Microscopic Examination
+                                    </h4>
+                                    <label className="col-span-1">
+                                      Pus Cells
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      placeholder="/hpf"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.microscopicExam
+                                          ?.pusCells || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Epithelial Cells
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      placeholder="/lpf"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.microscopicExam
+                                          ?.epithelialCells || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Red Blood Cells
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      placeholder="/hpf"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.microscopicExam
+                                          ?.RBC || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Mucus Threads
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      placeholder="/lpf"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.microscopicExam
+                                          ?.mucusThreads || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Bacteria
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      placeholder="/hpf"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.microscopicExam
+                                          ?.bacteria || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Crystals
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      placeholder="/lpf"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.microscopicExam
+                                          ?.crystals || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Yeast Cells
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      placeholder="/hpf"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.microscopicExam
+                                          ?.yeastCells || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Amorphous
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      placeholder="/lpf"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.microscopicExam
+                                          ?.amorphous || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">Cast</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-1 border rounded px-3 py-1"
+                                      placeholder="/lpf"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.microscopicExam
+                                          ?.casts || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">Others</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineUrinalysis?.microscopicExam
+                                          ?.others || "N/A"
+                                      }
+                                    />
+
+                                    {/* Routine Fecalysis */}
+                                    <h4 className="col-span-6 font-semibold mt-4">
+                                      Routine Fecalysis
+                                    </h4>
+                                    <label className="col-span-1">Color</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-2 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineFecalysis?.color || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Consistency
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-2 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineFecalysis?.consistency ||
+                                        "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    <label className="col-span-1">
+                                      Bacteria
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-2 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineFecalysis?.bacteria || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">Others</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-2 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineFecalysis?.color || "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    {/* Microscopic Examination for Fecalysis */}
+                                    <h4 className="col-span-6 font-semibold mt-4">
+                                      Microscopic Examination
+                                    </h4>
+                                    <label className="col-span-1">
+                                      Direct Fecal Smear
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-2 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineFecalysis?.microscopicExam
+                                          ?.directFecalSmear || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Kato Thick Smear
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-2 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineFecalysis?.microscopicExam
+                                          ?.katoThickSmear || "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    <label className="col-span-1">Others</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.clinicalMicroscopyParasitology
+                                          ?.routineFecalysis?.others || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                  </div>
+                                )}
+
+                                {/* Serology Section */}
+                                <div
+                                  className="flex items-center justify-between cursor-pointer"
+                                  onClick={toggleSerologyVisibility}
+                                >
+                                  <h3 className="text-lg font-semibold mb-0 py-2">
+                                    III. Serology
+                                  </h3>
+                                  <BiChevronDown
+                                    className={`transform transition-transform duration-300 ${
+                                      isSerologyVisible ? "rotate-180" : ""
+                                    }`}
+                                    size={24}
+                                  />
+                                </div>
+                                <div className="w-full h-px bg-gray-300 my-0"></div>
+
+                                {isSerologyVisible && (
+                                  <div className="grid grid-cols-12 gap-4 p-4">
+                                    {/* Hepatitis B Surface Antigen Determination and Anti-HAV Test */}
+                                    <h4 className="col-span-6 font-semibold">
+                                      Hepatitis B Surface Antigen Determination
+                                      (Screening Test Only)
+                                    </h4>
+                                    <h4 className="col-span-6 font-semibold">
+                                      Anti-HAV Test (Screening Test Only)
+                                    </h4>
+
+                                    <label className="col-span-1">
+                                      Method Used
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.hepatitisBSurfaceAntigen
+                                          ?.methodUsed || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Method Used
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.antiHAVTest?.methodUsed || "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    <label className="col-span-1">
+                                      Lot No.
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.hepatitisBSurfaceAntigen
+                                          ?.lotNumber || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Lot No.
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.antiHAVTest?.lotNumber || "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    <label className="col-span-1">
+                                      Expiration Date
+                                    </label>
+                                    <input
+                                      type="date"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.hepatitisBSurfaceAntigen
+                                          ?.expirationDate
+                                          ? new Date(
+                                              labResult.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
+                                          : "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Expiration Date
+                                    </label>
+                                    <input
+                                      type="date"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.antiHAVTest?.expirationDate
+                                          ? new Date(
+                                              labResult.bloodBankingSerology.antiHAVTest.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
+                                          : "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    <label className="col-span-1">Result</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.hepatitisBSurfaceAntigen?.result ||
+                                        "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">Result</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.antiHAVTest?.result || "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    {/* Serum Pregnancy and Test for Treponema pallidum / Syphilis */}
+                                    <h4 className="col-span-6 font-semibold">
+                                      Serum Pregnancy
+                                    </h4>
+                                    <h4 className="col-span-6 font-semibold">
+                                      Test for Treponema pallidum / Syphilis
+                                    </h4>
+
+                                    <label className="col-span-1">
+                                      Method Used
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.serumPregnancy?.methodUsed || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Method Used
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.treponemaPallidumTest?.methodUsed ||
+                                        "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    <label className="col-span-1">
+                                      Lot No.
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.serumPregnancy?.lotNumber || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Lot No.
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.treponemaPallidumTest?.lotNumber ||
+                                        "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    <label className="col-span-1">
+                                      Expiration Date
+                                    </label>
+                                    <input
+                                      type="date"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.serumPregnancy?.expirationDate
+                                          ? new Date(
+                                              labResult.bloodBankingSerology.serumPregnancy.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
+                                          : "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Expiration Date
+                                    </label>
+                                    <input
+                                      type="date"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.treponemaPallidumTest
+                                          ?.expirationDate
+                                          ? new Date(
+                                              labResult.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
+                                          : "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    <label className="col-span-1">Result</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.serumPregnancy?.result || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">Result</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.treponemaPallidumTest?.result ||
+                                        "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    {/* Salmonella typhi and Blood Typing */}
+                                    <h4 className="col-span-6 font-semibold">
+                                      Salmonella typhi
+                                    </h4>
+                                    <h4 className="col-span-6 font-semibold">
+                                      Blood Typing
+                                    </h4>
+
+                                    <label className="col-span-1">
+                                      Method Used
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.salmonellaTyphi?.methodUsed || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      ABO Type
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.bloodTyping?.ABOType || "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    <label className="col-span-1">
+                                      Lot No.
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.salmonellaTyphi?.lotNumber || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Rh Type
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.bloodTyping?.RhType || "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    <label className="col-span-1">
+                                      Expiration Date
+                                    </label>
+                                    <input
+                                      type="date"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.salmonellaTyphi?.expirationDate
+                                          ? new Date(
+                                              labResult.bloodBankingSerology.salmonellaTyphi.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
+                                          : "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-6"></label>
+
+                                    <label className="col-span-1">Result</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.salmonellaTyphi?.result || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-6"></label>
+
+                                    {/* Test for Dengue and Others */}
+                                    <h4 className="col-span-6 font-semibold">
+                                      Test for Dengue
+                                    </h4>
+                                    <h4 className="col-span-6 font-semibold">
+                                      Others
+                                    </h4>
+
+                                    <label className="col-span-1">
+                                      Method Used
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.testDengue?.methodUsed || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Method Used
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology?.others
+                                          ?.methodUsed || "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    <label className="col-span-1">
+                                      Lot No.
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.testDengue?.lotNumber || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Lot No.
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology?.others
+                                          ?.lotNumber || "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    <label className="col-span-1">
+                                      Expiration Date
+                                    </label>
+                                    <input
+                                      type="date"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.testDengue?.expirationDate
+                                          ? new Date(
+                                              labResult.bloodBankingSerology.testDengue.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
+                                          : "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">
+                                      Expiration Date
+                                    </label>
+                                    <input
+                                      type="date"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology?.others
+                                          ?.expirationDate
+                                          ? new Date(
+                                              labResult.bloodBankingSerology.others.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
+                                          : "N/A"
+                                      }
+                                      readOnly
+                                    />
+
+                                    <label className="col-span-1">Result</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology
+                                          ?.testDengue?.result || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                    <label className="col-span-1">Result</label>
+                                    <input
+                                      type="text"
+                                      className="col-span-5 border rounded px-3 py-1"
+                                      value={
+                                        labResult.bloodBankingSerology?.others
+                                          ?.result || "N/A"
+                                      }
+                                      readOnly
+                                    />
+                                  </div>
+                                )}
+                              </form>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p>No lab results available for this package.</p>
+                      )}
+
+                      {/* X-ray Results Section */}
+                      {selectedPackageXrayResults.length > 0 ? (
+                        selectedPackageXrayResults.map((xrayResult, index) => (
+                          <div key={index} className="mt-6">
+                            <div className="">
+                              {/* Form Title */}
+                              <h2 className="text-center text-xl font-semibold mb-4">
+                                X-Ray Result Form
+                              </h2>
+
+                              {/* Main Form Content */}
+                              <div className="flex-grow flex flex-col mb-4">
+                                <form className="flex flex-row items-start gap-4">
+                                  {/* X-ray Result Image - Left Side */}
+                                  <div className="w-1/2">
+                                    <label className="block text-gray-700">
+                                      X-ray Result
+                                    </label>
+                                    <img
+                                      src={xrayResult.imageFile}
+                                      alt="X-ray"
+                                      className="w-auto h-full object-cover cursor-pointer"
+                                    />
+                                  </div>
+
+                                  <div className="w-1/2">
+                                    {/* <div className="flex mb-4">
+                                      <div className="w-1/3 mr-2">
+                                        <label className="block text-gray-700">
+                                          OR No.
+                                        </label>
+                                        <input
+                                          type="text"
+                                          name="XrayNo"
+                                          value={xrayResult.ORNumber || "N/A"}
+                                          className="w-full px-3 py-2 border rounded"
+                                          readOnly
+                                        />
+                                      </div>
+                                      <div className="w-1/3 mr-2">
+                                        <label className="block text-gray-700">
+                                          Case No.
+                                        </label>
+                                        <input
+                                          type="text"
+                                          name="XrayNo"
+                                          value={xrayResult.XrayNo || "N/A"}
+                                          className="w-full px-3 py-2 border rounded"
+                                          readOnly
+                                        />
+                                      </div>
+
+                                      <div className="w-1/3">
+                                        <label className="block text-gray-700">
+                                          Date
+                                        </label>
+                                        <input
+                                          type="date"
+                                          name="date"
+                                          value={
+                                            new Date(xrayResult.isCreatedAt)
+                                              .toISOString()
+                                              .split("T")[0]
+                                          }
+                                          className="w-full px-3 py-2 border rounded"
+                                          readOnly
+                                        />
+                                      </div>
+                                    </div>
+
+                                    <div className="flex mb-4">
+                                      <div className="w-1/2 mr-2">
+                                        <label className="block text-gray-700">
+                                          Name
+                                        </label>
+                                        <input
+                                          type="text"
+                                          name="name"
+                                          value={
+                                            `${patient.firstname} ${patient.lastname}` ||
+                                            "N/A"
+                                          }
+                                          readOnly
+                                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                                        />
+                                      </div>
+                                      <div className="w-1/4 mr-2">
+                                        <label className="block text-gray-700">
+                                          Age
+                                        </label>
+                                        <input
+                                          type="text"
+                                          name="age"
+                                          value={calculateAge(
+                                            patient.birthdate
+                                          )}
+                                          readOnly
+                                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                                        />
+                                      </div>
+                                      <div className="w-1/4">
+                                        <label className="block text-gray-700">
+                                          Sex
+                                        </label>
+                                        <input
+                                          type="text"
+                                          name="sex"
+                                          value={patient.sex || "N/A"}
+                                          readOnly
+                                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                                        />
+                                      </div>
+                                    </div>
+
+                                    <div className="mb-4">
+                                      <label className="block text-gray-700">
+                                        {patient.patientType === "Student"
+                                          ? "Course/Dept."
+                                          : "Position"}
+                                      </label>
+                                      <input
+                                        type="text"
+                                        name="courseDept"
+                                        value={
+                                          patient.patientType === "Student"
+                                            ? patient.course || "N/A"
+                                            : patient.position || "N/A"
+                                        }
+                                        readOnly
+                                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                                      />
+                                    </div> */}
+
+                                    {/* Diagnosis (Interpretation) */}
+                                    <div className="w-full">
+                                      <label className="block text-gray-700">
+                                        Interpretation
+                                      </label>
+                                      <textarea
+                                        name="diagnosis"
+                                        className="w-full px-3 py-2 border rounded"
+                                        rows="4"
+                                        placeholder="Enter an interpretation..."
+                                        value={xrayResult.xrayDescription || ""}
+                                        readOnly
+                                      />
+                                    </div>
+                                  </div>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p>No X-ray results available for this package.</p>
+                      )}
+                      {/* Close Button */}
+                      <div className="flex justify-end space-x-4">
+                        <button
+                          onClick={() => setIsPackageResultModalOpen(false)}
+                          className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Physical Therapy Records */}
                 {selectedTab === "physical therapy" &&
@@ -3090,1070 +4611,1119 @@ function PatientsProfile() {
 
             {isLabResultModalOpen && labDetails && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
-                <h2 className="text-xl font-semibold mb-4">Result Form</h2>
-                <form className="flex-grow">
-                  <div className="flex mb-4">
-                  <div className="w-3/4 mr-2">
-                      <label className="block text-gray-700">OR No.</label>
-                      <input
-                        type="text"
-                        name="ORNumber" // Changed name to match the formData key
-                        value={labDetails.ORNumber || "N/A"}
-                        className="w-full px-3 py-2 border rounded"
-                      />
+                <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
+                  <h2 className="text-xl font-semibold mb-4">Result Form</h2>
+                  <form className="flex-grow">
+                    <div className="flex mb-4">
+                      <div className="w-3/4 mr-2">
+                        <label className="block text-gray-700">OR No.</label>
+                        <input
+                          type="text"
+                          name="ORNumber" // Changed name to match the formData key
+                          value={labDetails.ORNumber || "N/A"}
+                          className="w-full px-3 py-2 border rounded"
+                        />
+                      </div>
+
+                      <div className="w-3/4 mr-2">
+                        <label className="block text-gray-700">Lab No.</label>
+                        <input
+                          type="text"
+                          name="labNumber" // Changed name to match the formData key
+                          value={labDetails.labNumber || "N/A"}
+                          className="w-full px-3 py-2 border rounded"
+                          readOnly
+                        />
+                      </div>
+
+                      <div className="w-1/4">
+                        <label className="block text-gray-700">Date</label>
+                        <input
+                          type="text"
+                          name="date"
+                          className="w-full px-3 py-2 border rounded"
+                          value={
+                            new Date(
+                              labDetails.isCreatedAt
+                            ).toLocaleDateString() || "N/A"
+                          }
+                          readOnly
+                        />
+                      </div>
                     </div>
-    
-                    <div className="w-3/4 mr-2">
-                      <label className="block text-gray-700">Lab No.</label>
-                      <input
-                        type="text"
-                        name="labNumber" // Changed name to match the formData key
-                        value={labDetails.labNumber || "N/A"}
-                        className="w-full px-3 py-2 border rounded"
-                        readOnly
-                      />
+
+                    <div className="flex mb-4">
+                      <div className="w-1/2 mr-2">
+                        <label className="block text-gray-700">Name</label>
+                        <input
+                          type="text"
+                          name="name"
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                          value={
+                            labDetails.patient
+                              ? `${labDetails.patient.lastname}, ${labDetails.patient.firstname}`
+                              : "N/A"
+                          }
+                          readOnly
+                        />
+                      </div>
+                      <div className="w-1/4 mr-2">
+                        <label className="block text-gray-700">Age</label>
+                        <input
+                          type="text"
+                          name="age"
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                          value={
+                            labDetails.patient?.birthdate
+                              ? getAge(labDetails.patient.birthdate)
+                              : "N/A"
+                          }
+                          readOnly
+                        />
+                      </div>
+                      <div className="w-1/4">
+                        <label className="block text-gray-700">Sex</label>
+                        <input
+                          type="text"
+                          name="sex"
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                          value={labDetails.patient?.sex || "N/A"}
+                          readOnly
+                        />
+                      </div>
                     </div>
-    
-                    <div className="w-1/4">
-                      <label className="block text-gray-700">Date</label>
+                    <div className="mb-4">
+                      <label className="block text-gray-700">
+                        Department/ Position
+                      </label>
                       <input
                         type="text"
-                        name="date"
-                        className="w-full px-3 py-2 border rounded"
-                        value={
-                          new Date(labDetails.isCreatedAt).toLocaleDateString() ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-                    </div>
-                  </div>
-    
-                  <div className="flex mb-4">
-                    <div className="w-1/2 mr-2">
-                      <label className="block text-gray-700">Name</label>
-                      <input
-                        type="text"
-                        name="name"
+                        name="courseDept"
                         className="w-full px-3 py-2 border rounded bg-gray-100"
                         value={
                           labDetails.patient
-                            ? `${labDetails.patient.lastname}, ${labDetails.patient.firstname}`
+                            ? labDetails.patient.patientType === "Student"
+                              ? labDetails.patient.course || "N/A" // Display course if patientType is student
+                              : labDetails.patient.position || "N/A" // Otherwise, display position
                             : "N/A"
                         }
                         readOnly
                       />
                     </div>
-                    <div className="w-1/4 mr-2">
-                      <label className="block text-gray-700">Age</label>
-                      <input
-                        type="text"
-                        name="age"
-                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                        value={
-                          labDetails.patient?.birthdate
-                            ? getAge(labDetails.patient.birthdate)
-                            : "N/A"
-                        }
-                        readOnly
-                      />
+
+                    {/* Hematology Section */}
+                    <div className="mb-0">
+                      <div
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={toggleHematologyVisibility}
+                      >
+                        <h3 className="text-lg font-semibold my-0 py-2">
+                          I. Hematology
+                        </h3>
+                        <BiChevronDown
+                          className={`transform transition-transform duration-300 ${
+                            isHematologyVisible ? "rotate-180" : ""
+                          }`}
+                          size={24}
+                        />
+                      </div>
+                      <div className="w-full h-px bg-gray-300 my-0"></div>
+
+                      {isHematologyVisible && (
+                        <div className="grid grid-cols-3 gap-4 p-4">
+                          <div className="col-span-1 font-semibold">Tests</div>
+                          <div className="col-span-1 font-semibold">Result</div>
+                          <div className="col-span-1 font-semibold">
+                            Reference Range
+                          </div>
+
+                          <div className="col-span-1">Red Blood Cell Count</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="redBloodCellCount"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                labDetails.Hematology?.redBloodCellCount ||
+                                "N/A"
+                              }
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-span-1">
+                            Male: 4.0 - 5.5 x10^12/L; Female: 3.5 - 5.0 x10^12/L
+                          </div>
+
+                          <div className="col-span-1">Hemoglobin</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="hemoglobin"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={labDetails.Hematology?.Hemoglobin || "N/A"}
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-span-1">
+                            Male: 140 - 180 g/L; Female: 120 - 180 g/L
+                          </div>
+
+                          <div className="col-span-1">Hematocrit</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="hematocrit"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={labDetails.Hematology?.Hematocrit || "N/A"}
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-span-1">
+                            Male: 0.40 - 0.54; Female: 0.37 - 0.47
+                          </div>
+
+                          <div className="col-span-1">Leukocyte Count</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="leukocyteCount"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                labDetails.Hematology?.LeukocyteCount || "N/A"
+                              }
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-span-1">5.0 - 10.0 x10^9/L</div>
+
+                          <div className="col-span-1">Differential Count</div>
+                          <div className="col-span-1"></div>
+                          <div className="col-span-1"></div>
+
+                          <div className="col-span-1 ml-9">Segmenters</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="segmenters"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                labDetails.Hematology?.DifferentialCount
+                                  ?.segmenters || "N/A"
+                              }
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-span-1">0.50 - 0.70</div>
+
+                          <div className="col-span-1 ml-9">Lymphocytes</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="lymphocytes"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                labDetails.Hematology?.DifferentialCount
+                                  ?.lymphocytes || "N/A"
+                              }
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-span-1">0.20 - 0.40</div>
+
+                          <div className="col-span-1 ml-9">Monocytes</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="monocytes"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                labDetails.Hematology?.DifferentialCount
+                                  ?.monocytes || "N/A"
+                              }
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-span-1">0.00 - 0.07</div>
+
+                          <div className="col-span-1 ml-9">Eosinophils</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="eosinophils"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                labDetails.Hematology?.DifferentialCount
+                                  ?.eosinophils || "N/A"
+                              }
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-span-1">0.00 - 0.05</div>
+
+                          <div className="col-span-1 ml-9">Basophils</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="basophils"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                labDetails.Hematology?.DifferentialCount
+                                  ?.basophils || "N/A"
+                              }
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-span-1">0.00 - 0.01</div>
+
+                          <div className="col-span-1 ml-9">Total</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="total"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                labDetails.Hematology?.DifferentialCount
+                                  ?.total || "N/A"
+                              }
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-span-1"></div>
+
+                          <div className="col-span-1">Platelet Count</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="plateletCount"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                labDetails.Hematology?.PlateletCount || "N/A"
+                              }
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-span-1">150 - 400 x10^9/L</div>
+
+                          <div className="col-span-1">Others</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="others"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={labDetails.Hematology?.others || "N/A"}
+                              readOnly
+                            />
+                          </div>
+                          <div className="col-span-1"></div>
+                        </div>
+                      )}
                     </div>
-                    <div className="w-1/4">
-                      <label className="block text-gray-700">Sex</label>
-                      <input
-                        type="text"
-                        name="sex"
-                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                        value={labDetails.patient?.sex || "N/A"}
-                        readOnly
-                      />
-                    </div>
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-gray-700">
-                      Department/ Position
-                    </label>
-                    <input
-                      type="text"
-                      name="courseDept"
-                      className="w-full px-3 py-2 border rounded bg-gray-100"
-                      value={
-                        labDetails.patient
-                          ? labDetails.patient.patientType === "Student"
-                            ? labDetails.patient.course || "N/A" // Display course if patientType is student
-                            : labDetails.patient.position || "N/A" // Otherwise, display position
-                          : "N/A"
-                      }
-                      readOnly
-                    />
-                  </div>
-    
-                  {/* Hematology Section */}
-                  <div className="mb-0">
+
                     <div
                       className="flex items-center justify-between cursor-pointer"
-                      onClick={toggleHematologyVisibility}
+                      onClick={toggleClinicalMicroscopyVisibility}
                     >
-                      <h3 className="text-lg font-semibold my-0 py-2">
-                        I. Hematology
+                      <h3 className="text-lg font-semibold mb-0 py-2">
+                        II. Clinical Microscopy and Parasitology
                       </h3>
                       <BiChevronDown
                         className={`transform transition-transform duration-300 ${
-                          isHematologyVisible ? "rotate-180" : ""
+                          isClinicalMicroscopyVisible ? "rotate-180" : ""
                         }`}
                         size={24}
                       />
                     </div>
                     <div className="w-full h-px bg-gray-300 my-0"></div>
-    
-                    {isHematologyVisible && (
-                      <div className="grid grid-cols-3 gap-4 p-4">
-                        <div className="col-span-1 font-semibold">Tests</div>
-                        <div className="col-span-1 font-semibold">Result</div>
-                        <div className="col-span-1 font-semibold">
-                          Reference Range
-                        </div>
-    
-                        <div className="col-span-1">Red Blood Cell Count</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="redBloodCellCount"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              labDetails.Hematology?.redBloodCellCount || "N/A"
-                            }
-                            readOnly
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          Male: 4.0 - 5.5 x10^12/L; Female: 3.5 - 5.0 x10^12/L
-                        </div>
-    
-                        <div className="col-span-1">Hemoglobin</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="hemoglobin"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.Hematology?.Hemoglobin || "N/A"}
-                            readOnly
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          Male: 140 - 180 g/L; Female: 120 - 180 g/L
-                        </div>
-    
-                        <div className="col-span-1">Hematocrit</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="hematocrit"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.Hematology?.Hematocrit || "N/A"}
-                            readOnly
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          Male: 0.40 - 0.54; Female: 0.37 - 0.47
-                        </div>
-    
-                        <div className="col-span-1">Leukocyte Count</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="leukocyteCount"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.Hematology?.LeukocyteCount || "N/A"}
-                            readOnly
-                          />
-                        </div>
-                        <div className="col-span-1">5.0 - 10.0 x10^9/L</div>
-    
-                        <div className="col-span-1">Differential Count</div>
-                        <div className="col-span-1"></div>
-                        <div className="col-span-1"></div>
-    
-                        <div className="col-span-1 ml-9">Segmenters</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="segmenters"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              labDetails.Hematology?.DifferentialCount
-                                ?.segmenters || "N/A"
-                            }
-                            readOnly
-                          />
-                        </div>
-                        <div className="col-span-1">0.50 - 0.70</div>
-    
-                        <div className="col-span-1 ml-9">Lymphocytes</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="lymphocytes"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              labDetails.Hematology?.DifferentialCount
-                                ?.lymphocytes || "N/A"
-                            }
-                            readOnly
-                          />
-                        </div>
-                        <div className="col-span-1">0.20 - 0.40</div>
-    
-                        <div className="col-span-1 ml-9">Monocytes</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="monocytes"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              labDetails.Hematology?.DifferentialCount?.monocytes ||
-                              "N/A"
-                            }
-                            readOnly
-                          />
-                        </div>
-                        <div className="col-span-1">0.00 - 0.07</div>
-    
-                        <div className="col-span-1 ml-9">Eosinophils</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="eosinophils"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              labDetails.Hematology?.DifferentialCount
-                                ?.eosinophils || "N/A"
-                            }
-                            readOnly
-                          />
-                        </div>
-                        <div className="col-span-1">0.00 - 0.05</div>
-    
-                        <div className="col-span-1 ml-9">Basophils</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="basophils"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              labDetails.Hematology?.DifferentialCount?.basophils ||
-                              "N/A"
-                            }
-                            readOnly
-                          />
-                        </div>
-                        <div className="col-span-1">0.00 - 0.01</div>
-    
-                        <div className="col-span-1 ml-9">Total</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="total"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              labDetails.Hematology?.DifferentialCount?.total ||
-                              "N/A"
-                            }
-                            readOnly
-                          />
-                        </div>
-                        <div className="col-span-1"></div>
-    
-                        <div className="col-span-1">Platelet Count</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="plateletCount"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.Hematology?.PlateletCount || "N/A"}
-                            readOnly
-                          />
-                        </div>
-                        <div className="col-span-1">150 - 400 x10^9/L</div>
-    
-                        <div className="col-span-1">Others</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="others"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.Hematology?.others || "N/A"}
-                            readOnly
-                          />
-                        </div>
-                        <div className="col-span-1"></div>
+
+                    {isClinicalMicroscopyVisible && (
+                      <div className="grid grid-cols-6 gap-4 p-4">
+                        {/* Routine Urinalysis - Macroscopic Examination */}
+                        <label className="col-span-3 font-semibold">
+                          Routine Urinalysis
+                        </label>
+
+                        <label className="col-span-1">LMP</label>
+                        <input
+                          type="text"
+                          className="col-span-2 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.LMP || "N/A"
+                          }
+                          readOnly
+                        />
+                        <h4 className="col-span-6 font-semibold">
+                          Macroscopic Examination
+                        </h4>
+                        <label className="col-span-1">Color</label>
+                        <input
+                          type="text"
+                          className="col-span-2 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.macroscopicExam?.color ||
+                            "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Appearance</label>
+                        <input
+                          type="text"
+                          className="col-span-2 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.macroscopicExam
+                              ?.appearance || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        {/* Routine Urinalysis - Chemical Examination */}
+                        <h4 className="col-span-6 font-semibold mt-4">
+                          Chemical Examination
+                        </h4>
+                        <label className="col-span-1">Sugar</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.chemicalExam?.sugar || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Urobilinogen</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.chemicalExam?.urobilinogen ||
+                            "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Albumin</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.chemicalExam?.albumin ||
+                            "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Ketones</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.chemicalExam?.ketones ||
+                            "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Blood</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.chemicalExam?.blood || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Nitrite</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.chemicalExam?.nitrites ||
+                            "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Bilirubin</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.chemicalExam?.bilirubin ||
+                            "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Leukocyte</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.chemicalExam?.leukocytes ||
+                            "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Reaction</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.chemicalExam?.reaction ||
+                            "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Specific Gravity</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.chemicalExam
+                              ?.specificGravity || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        {/* Routine Urinalysis - Microscopic Examination */}
+                        <h4 className="col-span-6 font-semibold mt-4">
+                          Microscopic Examination
+                        </h4>
+                        <label className="col-span-1">Pus Cells</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          placeholder="/hpf"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.microscopicExam?.pusCells ||
+                            "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Epithelial Cells</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          placeholder="/lpf"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.microscopicExam
+                              ?.epithelialCells || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Red Blood Cells</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          placeholder="/hpf"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.microscopicExam?.RBC || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Mucus Threads</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          placeholder="/lpf"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.microscopicExam
+                              ?.mucusThreads || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Bacteria</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          placeholder="/hpf"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.microscopicExam?.bacteria ||
+                            "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Crystals</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          placeholder="/lpf"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.microscopicExam?.crystals ||
+                            "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Yeast Cells</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          placeholder="/hpf"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.microscopicExam
+                              ?.yeastCells || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Amorphous</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          placeholder="/lpf"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.microscopicExam?.amorphous ||
+                            "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Cast</label>
+                        <input
+                          type="text"
+                          className="col-span-1 border rounded px-3 py-1"
+                          placeholder="/lpf"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.microscopicExam?.casts ||
+                            "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Others</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis?.microscopicExam?.others ||
+                            "N/A"
+                          }
+                        />
+
+                        {/* Routine Fecalysis */}
+                        <h4 className="col-span-6 font-semibold mt-4">
+                          Routine Fecalysis
+                        </h4>
+                        <label className="col-span-1">Color</label>
+                        <input
+                          type="text"
+                          className="col-span-2 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineFecalysis?.color || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Consistency</label>
+                        <input
+                          type="text"
+                          className="col-span-2 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineFecalysis?.consistency || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        <label className="col-span-1">Bacteria</label>
+                        <input
+                          type="text"
+                          className="col-span-2 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineFecalysis?.bacteria || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Others</label>
+                        <input
+                          type="text"
+                          className="col-span-2 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineFecalysis?.color || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        {/* Microscopic Examination for Fecalysis */}
+                        <h4 className="col-span-6 font-semibold mt-4">
+                          Microscopic Examination
+                        </h4>
+                        <label className="col-span-1">Direct Fecal Smear</label>
+                        <input
+                          type="text"
+                          className="col-span-2 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineFecalysis?.microscopicExam
+                              ?.directFecalSmear || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Kato Thick Smear</label>
+                        <input
+                          type="text"
+                          className="col-span-2 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineFecalysis?.microscopicExam
+                              ?.katoThickSmear || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        <label className="col-span-1">Others</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.clinicalMicroscopyParasitology
+                              ?.routineFecalysis?.others || "N/A"
+                          }
+                          readOnly
+                        />
                       </div>
                     )}
-                  </div>
-    
-                  <div
-                    className="flex items-center justify-between cursor-pointer"
-                    onClick={toggleClinicalMicroscopyVisibility}
-                  >
-                    <h3 className="text-lg font-semibold mb-0 py-2">
-                      II. Clinical Microscopy and Parasitology
-                    </h3>
-                    <BiChevronDown
-                      className={`transform transition-transform duration-300 ${
-                        isClinicalMicroscopyVisible ? "rotate-180" : ""
-                      }`}
-                      size={24}
-                    />
-                  </div>
-                  <div className="w-full h-px bg-gray-300 my-0"></div>
-    
-                  {isClinicalMicroscopyVisible && (
-                    <div className="grid grid-cols-6 gap-4 p-4">
-                      {/* Routine Urinalysis - Macroscopic Examination */}
-                      <label className="col-span-3 font-semibold">
-                        Routine Urinalysis
-                      </label>
-    
-                      <label className="col-span-1">LMP</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.LMP || "N/A"
-                        }
-                        readOnly
-                      />
-                      <h4 className="col-span-6 font-semibold">
-                        Macroscopic Examination
-                      </h4>
-                      <label className="col-span-1">Color</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.macroscopicExam?.color || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Appearance</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.macroscopicExam?.appearance ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      {/* Routine Urinalysis - Chemical Examination */}
-                      <h4 className="col-span-6 font-semibold mt-4">
-                        Chemical Examination
-                      </h4>
-                      <label className="col-span-1">Sugar</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.sugar || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Urobilinogen</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.urobilinogen || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Albumin</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.albumin || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Ketones</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.ketones || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Blood</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.blood || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Nitrite</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.nitrites || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Bilirubin</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.bilirubin || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Leukocyte</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.leukocytes || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Reaction</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.reaction || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Specific Gravity</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.specificGravity ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      {/* Routine Urinalysis - Microscopic Examination */}
-                      <h4 className="col-span-6 font-semibold mt-4">
-                        Microscopic Examination
-                      </h4>
-                      <label className="col-span-1">Pus Cells</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/hpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.pusCells || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Epithelial Cells</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.epithelialCells ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Red Blood Cells</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/hpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.RBC || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Mucus Threads</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.mucusThreads ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Bacteria</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/hpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.bacteria || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Crystals</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.crystals || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Yeast Cells</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/hpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.yeastCells ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Amorphous</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.amorphous || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Cast</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.casts || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Others</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.others || "N/A"
-                        }
-                      />
-    
-                      {/* Routine Fecalysis */}
-                      <h4 className="col-span-6 font-semibold mt-4">
-                        Routine Fecalysis
-                      </h4>
-                      <label className="col-span-1">Color</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.color || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Consistency</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.consistency || "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      <label className="col-span-1">Bacteria</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.bacteria || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Others</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.color || "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      {/* Microscopic Examination for Fecalysis */}
-                      <h4 className="col-span-6 font-semibold mt-4">
-                        Microscopic Examination
-                      </h4>
-                      <label className="col-span-1">Direct Fecal Smear</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.microscopicExam?.directFecalSmear ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Kato Thick Smear</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.microscopicExam?.katoThickSmear ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      <label className="col-span-1">Others</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.others || "N/A"
-                        }
-                        readOnly
+
+                    {/* Serology Section */}
+                    <div
+                      className="flex items-center justify-between cursor-pointer"
+                      onClick={toggleSerologyVisibility}
+                    >
+                      <h3 className="text-lg font-semibold mb-0 py-2">
+                        III. Serology
+                      </h3>
+                      <BiChevronDown
+                        className={`transform transition-transform duration-300 ${
+                          isSerologyVisible ? "rotate-180" : ""
+                        }`}
+                        size={24}
                       />
                     </div>
-                  )}
-    
-                  {/* Serology Section */}
-                  <div
-                    className="flex items-center justify-between cursor-pointer"
-                    onClick={toggleSerologyVisibility}
-                  >
-                    <h3 className="text-lg font-semibold mb-0 py-2">
-                      III. Serology
-                    </h3>
-                    <BiChevronDown
-                      className={`transform transition-transform duration-300 ${
-                        isSerologyVisible ? "rotate-180" : ""
-                      }`}
-                      size={24}
-                    />
+                    <div className="w-full h-px bg-gray-300 my-0"></div>
+
+                    {isSerologyVisible && (
+                      <div className="grid grid-cols-12 gap-4 p-4">
+                        {/* Hepatitis B Surface Antigen Determination and Anti-HAV Test */}
+                        <h4 className="col-span-6 font-semibold">
+                          Hepatitis B Surface Antigen Determination (Screening
+                          Test Only)
+                        </h4>
+                        <h4 className="col-span-6 font-semibold">
+                          Anti-HAV Test (Screening Test Only)
+                        </h4>
+
+                        <label className="col-span-1">Method Used</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology
+                              ?.hepatitisBSurfaceAntigen?.methodUsed || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Method Used</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.antiHAVTest
+                              ?.methodUsed || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        <label className="col-span-1">Lot No.</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology
+                              ?.hepatitisBSurfaceAntigen?.lotNumber || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Lot No.</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.antiHAVTest
+                              ?.lotNumber || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        <label className="col-span-1">Expiration Date</label>
+                        <input
+                          type="date"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology
+                              ?.hepatitisBSurfaceAntigen?.expirationDate
+                              ? new Date(
+                                  labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
+                              : "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Expiration Date</label>
+                        <input
+                          type="date"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.antiHAVTest
+                              ?.expirationDate
+                              ? new Date(
+                                  labDetails.bloodBankingSerology.antiHAVTest.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
+                              : "N/A"
+                          }
+                          readOnly
+                        />
+
+                        <label className="col-span-1">Result</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology
+                              ?.hepatitisBSurfaceAntigen?.result || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Result</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.antiHAVTest
+                              ?.result || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        {/* Serum Pregnancy and Test for Treponema pallidum / Syphilis */}
+                        <h4 className="col-span-6 font-semibold">
+                          Serum Pregnancy
+                        </h4>
+                        <h4 className="col-span-6 font-semibold">
+                          Test for Treponema pallidum / Syphilis
+                        </h4>
+
+                        <label className="col-span-1">Method Used</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.serumPregnancy
+                              ?.methodUsed || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Method Used</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology
+                              ?.treponemaPallidumTest?.methodUsed || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        <label className="col-span-1">Lot No.</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.serumPregnancy
+                              ?.lotNumber || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Lot No.</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology
+                              ?.treponemaPallidumTest?.lotNumber || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        <label className="col-span-1">Expiration Date</label>
+                        <input
+                          type="date"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.serumPregnancy
+                              ?.expirationDate
+                              ? new Date(
+                                  labDetails.bloodBankingSerology.serumPregnancy.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
+                              : "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Expiration Date</label>
+                        <input
+                          type="date"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology
+                              ?.treponemaPallidumTest?.expirationDate
+                              ? new Date(
+                                  labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
+                              : "N/A"
+                          }
+                          readOnly
+                        />
+
+                        <label className="col-span-1">Result</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.serumPregnancy
+                              ?.result || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Result</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology
+                              ?.treponemaPallidumTest?.result || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        {/* Salmonella typhi and Blood Typing */}
+                        <h4 className="col-span-6 font-semibold">
+                          Salmonella typhi
+                        </h4>
+                        <h4 className="col-span-6 font-semibold">
+                          Blood Typing
+                        </h4>
+
+                        <label className="col-span-1">Method Used</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.salmonellaTyphi
+                              ?.methodUsed || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">ABO Type</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.bloodTyping
+                              ?.ABOType || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        <label className="col-span-1">Lot No.</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.salmonellaTyphi
+                              ?.lotNumber || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Rh Type</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.bloodTyping
+                              ?.RhType || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        <label className="col-span-1">Expiration Date</label>
+                        <input
+                          type="date"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.salmonellaTyphi
+                              ?.expirationDate
+                              ? new Date(
+                                  labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
+                              : "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-6"></label>
+
+                        <label className="col-span-1">Result</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.salmonellaTyphi
+                              ?.result || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-6"></label>
+
+                        {/* Test for Dengue and Others */}
+                        <h4 className="col-span-6 font-semibold">
+                          Test for Dengue
+                        </h4>
+                        <h4 className="col-span-6 font-semibold">Others</h4>
+
+                        <label className="col-span-1">Method Used</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.testDengue
+                              ?.methodUsed || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Method Used</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.others
+                              ?.methodUsed || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        <label className="col-span-1">Lot No.</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.testDengue
+                              ?.lotNumber || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Lot No.</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.others
+                              ?.lotNumber || "N/A"
+                          }
+                          readOnly
+                        />
+
+                        <label className="col-span-1">Expiration Date</label>
+                        <input
+                          type="date"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.testDengue
+                              ?.expirationDate
+                              ? new Date(
+                                  labDetails.bloodBankingSerology.testDengue.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
+                              : "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Expiration Date</label>
+                        <input
+                          type="date"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.others
+                              ?.expirationDate
+                              ? new Date(
+                                  labDetails.bloodBankingSerology.others.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
+                              : "N/A"
+                          }
+                          readOnly
+                        />
+
+                        <label className="col-span-1">Result</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.testDengue
+                              ?.result || "N/A"
+                          }
+                          readOnly
+                        />
+                        <label className="col-span-1">Result</label>
+                        <input
+                          type="text"
+                          className="col-span-5 border rounded px-3 py-1"
+                          value={
+                            labDetails.bloodBankingSerology?.others?.result ||
+                            "N/A"
+                          }
+                          readOnly
+                        />
+                      </div>
+                    )}
+                  </form>
+
+                  {/* Buttons Wrapper */}
+                  <div className="flex justify-end space-x-4 mt-4">
+                    <button
+                      type="button"
+                      onClick={closeLabResultModal}
+                      className="px-6 py-2 text-gray-700 border border-gray-400 rounded hover:bg-gray-300 transition duration-300 ease-in-out"
+                    >
+                      Close
+                    </button>
                   </div>
-                  <div className="w-full h-px bg-gray-300 my-0"></div>
-    
-                  {isSerologyVisible && (
-                    <div className="grid grid-cols-12 gap-4 p-4">
-                      {/* Hepatitis B Surface Antigen Determination and Anti-HAV Test */}
-                      <h4 className="col-span-6 font-semibold">
-                        Hepatitis B Surface Antigen Determination (Screening Test
-                        Only)
-                      </h4>
-                      <h4 className="col-span-6 font-semibold">
-                        Anti-HAV Test (Screening Test Only)
-                      </h4>
-    
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
-                            ?.methodUsed || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.antiHAVTest
-                            ?.methodUsed || "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
-                            ?.lotNumber || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.antiHAVTest?.lotNumber ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen?.expirationDate
-                            ? new Date(labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.antiHAVTest?.expirationDate
-                            ? new Date(labDetails.bloodBankingSerology.antiHAVTest.expirationDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
-                            ?.result || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.antiHAVTest?.result ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      {/* Serum Pregnancy and Test for Treponema pallidum / Syphilis */}
-                      <h4 className="col-span-6 font-semibold">Serum Pregnancy</h4>
-                      <h4 className="col-span-6 font-semibold">
-                        Test for Treponema pallidum / Syphilis
-                      </h4>
-    
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.serumPregnancy
-                            ?.methodUsed || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.treponemaPallidumTest
-                            ?.methodUsed || "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.serumPregnancy
-                            ?.lotNumber || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.treponemaPallidumTest
-                            ?.lotNumber || "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.serumPregnancy?.expirationDate
-                            ? new Date(labDetails.bloodBankingSerology.serumPregnancy.expirationDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : "N/A"
-                        }
-                        
-                        readOnly
-                      />
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.treponemaPallidumTest?.expirationDate
-                            ? new Date(labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.serumPregnancy?.result ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.treponemaPallidumTest
-                            ?.result || "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      {/* Salmonella typhi and Blood Typing */}
-                      <h4 className="col-span-6 font-semibold">Salmonella typhi</h4>
-                      <h4 className="col-span-6 font-semibold">Blood Typing</h4>
-    
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.salmonellaTyphi
-                            ?.methodUsed || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">ABO Type</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.bloodTyping?.ABOType ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.salmonellaTyphi
-                            ?.lotNumber || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Rh Type</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.bloodTyping?.RhType ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.salmonellaTyphi?.expirationDate
-                            ? new Date(labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-6"></label>
-    
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.salmonellaTyphi
-                            ?.result || "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-6"></label>
-    
-                      {/* Test for Dengue and Others */}
-                      <h4 className="col-span-6 font-semibold">Test for Dengue</h4>
-                      <h4 className="col-span-6 font-semibold">Others</h4>
-    
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.testDengue?.methodUsed ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.others?.methodUsed ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.testDengue?.lotNumber ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.others?.lotNumber ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.testDengue?.expirationDate
-                            ? new Date(labDetails.bloodBankingSerology.testDengue.expirationDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.others?.expirationDate
-                            ? new Date(labDetails.bloodBankingSerology.others.expirationDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : "N/A"
-                        }
-                        readOnly
-                      />
-    
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.testDengue?.result ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.others?.result || "N/A"
-                        }
-                        readOnly
-                      />
-                    </div>
-                  )}
-                </form>
-    
-                {/* Buttons Wrapper */}
-                <div className="flex justify-end space-x-4 mt-4">
-                  <button
-                    type="button"
-                    onClick={closeLabResultModal}
-                    className="px-6 py-2 text-gray-700 border border-gray-400 rounded hover:bg-gray-300 transition duration-300 ease-in-out"
-                  >
-                    Close
-                  </button>
                 </div>
               </div>
-            </div>
             )}
 
             {isXrayDetailModalOpen && selectedXrayRecord && (
