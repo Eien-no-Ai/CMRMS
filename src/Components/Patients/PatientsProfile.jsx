@@ -54,6 +54,7 @@ function PatientsProfile() {
   const [showEmergencyTreatmentInput, setShowEmergencyTreatmentInput] =
     useState(false);
   const [clinicId, setClinicId] = useState(null); // Added state for clinicId
+  const [medicalRecords, setMedicalRecords] = useState([]);
 
   // Fetch the role from localStorage
   useEffect(() => {
@@ -127,12 +128,29 @@ function PatientsProfile() {
     }
   }, [id]);
 
-  useEffect(() => {
+  const fetchMedicalRecords = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/medical-history/${id}`
+      );
+      const sortedMedicalRecords = response.data.sort(
+        (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
+      );
+      setMedicalRecords(sortedMedicalRecords);
+    } catch (error) {
+      console.error(
+        "There was an error fetching the Medical records!",
+        error
+      );
+    }
+  }, [id]);
+
+ useEffect(() => {
     fetchLabRecords();
     fetchXrayRecords();
     fetchClinicalRecords();
     fetchPhysicalTherapyRecords();
-
+    fetchMedicalRecords();
     const fetchPatient = async () => {
       try {
         const response = await axios.get(
@@ -153,6 +171,7 @@ function PatientsProfile() {
     fetchXrayRecords,
     fetchClinicalRecords,
     fetchPhysicalTherapyRecords,
+    fetchMedicalRecords,
   ]);
 
   const handleNewTherapyRecordOpen = () => {
@@ -195,6 +214,7 @@ function PatientsProfile() {
     }
   };
 
+  
   const handleNewRecordOpen = () => {
     setIsNewRecordModalOpen(true);
   };
@@ -1057,27 +1077,105 @@ function PatientsProfile() {
     },
   };
 
-  const handleMedicalHistorySubmit = async (e) => {
-    e.preventDefault();
+  const handleMedicalHistorySubmit = async () => {
+    
     try {
       const response = await axios.post(
-        `http://localhost:3001/api/medical-history`,
-        {
+        `http://localhost:3001/api/medical-history`,{
           patient: id,
           ...medicalHistory,
         }
       );
-      console.log("Medical history saved successfully:", response.data);
+      console.log('Medical history saved successfully:', response.data);
       if (response.status === 200) {
         handleMedicalClose();
+        fetchMedicalRecords();
         setMedicalHistory({
           ...initialMedicalHistory,
         });
+          
       }
     } catch (error) {
       console.error("Error adding medical history:", error);
     }
   };
+
+ const medicalHistoryId = medicalRecords[0]?._id; // Get the medical history ID
+   // Fetch the user data when the component is mounted
+   useEffect(() => {
+    if (medicalHistoryId) {
+      axios
+        .get(`http://localhost:3001/api/medical-history/${medicalHistoryId}`)
+        .then((response) => {
+          setMedicalHistory(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        });
+    }
+  }, [medicalHistoryId]);
+  
+// Function to handle form submission and update the medical history
+const handleUpdateSubmit = async () => {
+  const updatedData = {
+    familyHistory: {
+      diseases: {
+        heartDisease: medicalHistory.familyHistory.diseases.heartDisease,
+        hypertension: medicalHistory.familyHistory.diseases.hypertension,
+        tuberculosis: medicalHistory.familyHistory.diseases.tuberculosis,
+        diabetes: medicalHistory.familyHistory.diseases.diabetes,
+        kidneyDisease: medicalHistory.familyHistory.diseases.kidneyDisease,
+        cancer: medicalHistory.familyHistory.diseases.cancer,
+        asthma: medicalHistory.familyHistory.diseases.asthma,
+      },
+      allergies: {
+        hasAllergies: medicalHistory.familyHistory.allergies.hasAllergies,
+        allergyList: medicalHistory.familyHistory.allergies.allergyList,
+      },
+    },
+    personalHistory: {
+      tobaccoUse: {
+        usesTobacco: medicalHistory.personalHistory.tobaccoUse.usesTobacco,
+        sticksPerDay: medicalHistory.personalHistory.tobaccoUse.sticksPerDay,
+        quitSmoking: medicalHistory.personalHistory.tobaccoUse.quitSmoking,
+        quitWhen: medicalHistory.personalHistory.tobaccoUse.quitWhen,
+      },
+      alcoholUse: {
+        drinksAlcohol: medicalHistory.personalHistory.alcoholUse.drinksAlcohol,
+        drinksPerDay: medicalHistory.personalHistory.alcoholUse.drinksPerDay,
+        quitDrinking: medicalHistory.personalHistory.alcoholUse.quitDrinking,
+        quitWhen: medicalHistory.personalHistory.alcoholUse.quitWhen,
+      },
+      forWomen: {
+        pregnant: medicalHistory.personalHistory.forWomen.pregnant,
+        months: medicalHistory.personalHistory.forWomen.months,
+        lastMenstrualPeriod: medicalHistory.personalHistory.forWomen.lastMenstrualPeriod,
+        abortionOrMiscarriage: medicalHistory.personalHistory.forWomen.abortionOrMiscarriage,
+        dysmenorrhea: medicalHistory.personalHistory.forWomen.dysmenorrhea,
+      },
+    },
+    
+  };
+
+  try {
+    // Log the medical history ID to verify it's correct
+    console.log("Updating medical history ID:", medicalHistoryId);
+
+    // Make the PUT request to the server
+    const response = await axios.put(
+      `http://localhost:3001/api/medical-history/${medicalHistoryId}`, // API endpoint with ID from medicalHistory
+      updatedData // Send the updated data in the request body
+    );
+
+    // Log the successful response from the server
+    console.log('Update successful:', response.data);
+    // Handle success (e.g., close modal, refresh data, etc.)
+  } catch (error) {
+    console.error('Error updating medical history:', error.response || error.message);
+    // Handle error (e.g., show error message)
+  }
+};
+
   const [selectedXrayRecord, setSelectedXrayRecord] = useState(null);
 
   const [isXrayDetailModalOpen, setIsXrayDetailModalOpen] = useState(false);
@@ -1371,7 +1469,93 @@ function PatientsProfile() {
           <div className="bg-white p-6 rounded-lg shadow-sm h-full flex flex-col justify-between">
             <div>
               <h2 className="font-semibold text-lg">History</h2>
-              {/* Your content here */}
+              {medicalRecords && medicalRecords.length > 0 ? (
+                <ul>
+                  {medicalRecords.map((record) => (
+                    <li key={record._id} className="mb-4 p-2 bg-gray-100 rounded-lg">
+                      <p><strong>Medical History:</strong></p>
+                      <p><strong>Nose/Throat Disorders:</strong> {record.conditions.noseThroatDisorders ? 'Yes' : 'No'}</p>
+                      <p><strong>Ear Trouble:</strong> {record.conditions.earTrouble ? 'Yes' : 'No'}</p>
+                      <p><strong>Tuberculosis:</strong> {record.conditions.tuberculosis ? 'Yes' : 'No'}</p>
+                      <p><strong>Lung Diseases:</strong> {record.conditions.lungDiseases ? 'Yes' : 'No'}</p>
+                      <p><strong>Rheumatic Fever:</strong> {record.conditions.rheumaticFever ? 'Yes' : 'No'}</p>
+                      <p><strong>Endocrine Disorder:</strong> {record.conditions.endocrineDisorder ? 'Yes' : 'No'}</p>
+                      <p><strong>Cancer Tumor:</strong> {record.conditions.cancerTumor ? 'Yes' : 'No'}</p>
+                      <p><strong>Mental Disorder:</strong> {record.conditions.mentalDisorder ? 'Yes' : 'No'}</p>
+                      <p><strong>Head/Neck Injury:</strong> {record.conditions.headNeckInjury ? 'Yes' : 'No'}</p>
+                      <p><strong>Hernia:</strong> {record.conditions.hernia ? 'Yes' : 'No'}</p>
+                      <p><strong>Rheumatism/Joint Pain:</strong> {record.conditions.rheumatismJointPain ? 'Yes' : 'No'}</p>
+                      <p><strong>Stomach Pain/Ulcer:</strong> {record.conditions.stomachPainUlcer ? 'Yes' : 'No'}</p>
+                      <p><strong>Abdominal Disorders:</strong> {record.conditions.abdominalDisorders ? 'Yes' : 'No'}</p>
+                      <p><strong>Kidney/Bladder Diseases:</strong> {record.conditions.kidneyBladderDiseases ? 'Yes' : 'No'}</p>
+                      <p><strong>STD:</strong> {record.conditions.std ? 'Yes' : 'No'}</p>
+                      <p><strong>Familial Disorder:</strong> {record.conditions.familialDisorder ? 'Yes' : 'No'}</p>
+                      <p><strong>Tropical Diseases:</strong> {record.conditions.tropicalDiseases ? 'Yes' : 'No'}</p>
+                      <p><strong>Chronic Cough:</strong> {record.conditions.chronicCough ? 'Yes' : 'No'}</p>
+                      <p><strong>Fainting/Seizures:</strong> {record.conditions.faintingSeizures ? 'Yes' : 'No'}</p>
+                      <p><strong>Frequent Headache:</strong> {record.conditions.frequentHeadache ? 'Yes' : 'No'}</p>
+                      <p><strong>Dizziness:</strong> {record.conditions.dizziness ? 'Yes' : 'No'}</p>
+                      <p><strong>Asthma:</strong> {record.conditions.asthma ? 'Yes' : 'No'}</p>
+                      <p><strong>High Blood Pressure:</strong> {record.conditions.highBloodPressure ? 'Yes' : 'No'}</p>
+                      <p><strong>Heart Diseases:</strong> {record.conditions.heartDiseases ? 'Yes' : 'No'}</p>
+                      <p><strong>Diabetes Mellitus:</strong> {record.conditions.diabetesMellitus ? 'Yes' : 'No'}</p>
+                      <p><strong>Eye Disorders:</strong> {record.conditions.eyeDisorders ? 'Yes' : 'No'}</p>
+
+                      {/* Malaria */}
+                      <p><strong>Malaria:</strong> {record.malaria.hasMalaria ? 'Yes' : 'No'}</p>
+                      {record.malaria.hasMalaria && <p><strong>Last Malaria Attack:</strong> {record.malaria.lastAttackDate}</p>}
+
+                      {/* Operations */}
+                      <p><strong>Undergone Operation:</strong> {record.operations.undergoneOperation ? 'Yes' : 'No'}</p>
+                      {record.operations.undergoneOperation && (
+                        <p><strong>List of Operations:</strong> {record.operations.listOperations}</p>
+                      )}
+                      <br />
+                      {/* Family History */}
+                      <p><strong>Family History:</strong></p>
+                      <p><strong>Heart Disease:</strong> {record.familyHistory.diseases.heartDisease ? 'Yes' : 'No'}</p>
+                      <p><strong>Tuberculosis:</strong> {record.familyHistory.diseases.tuberculosis ? 'Yes' : 'No'}</p>
+                      <p><strong>Diabetes:</strong> {record.familyHistory.diseases.diabetes ? 'Yes' : 'No'}</p>
+                      <br />
+                      {/* Personal History */}
+                      <p><strong>Personal History:</strong></p>
+                      <p><strong>Uses Tobacco:</strong> {record.personalHistory.tobaccoUse.usesTobacco ? 'Yes' : 'No'}</p>
+                      {record.personalHistory.tobaccoUse.usesTobacco && (
+                        <>
+                          <p><strong>Sticks Per Day:</strong> {record.personalHistory.tobaccoUse.sticksPerDay}</p>
+                          <p><strong>Quit Smoking:</strong> {record.personalHistory.tobaccoUse.quitSmoking ? 'Yes' : 'No'}</p>
+                          <p><strong>Quit When:</strong> {record.personalHistory.tobaccoUse.quitWhen}</p>
+                        </>
+                      )}
+
+                      <br />
+                      <p><strong>Drinks Alcohol:</strong> {record.personalHistory.alcoholUse.drinksAlcohol ? 'Yes' : 'No'}</p>
+                      {record.personalHistory.alcoholUse.drinksAlcohol && (
+                        <>
+                          <p><strong>Drinks Per Day:</strong> {record.personalHistory.alcoholUse.drinksPerDay}</p>
+                          <p><strong>Quit Drinking:</strong> {record.personalHistory.alcoholUse.quitDrinking ? 'Yes' : 'No'}</p>
+                          <p><strong>Quit When:</strong> {record.personalHistory.alcoholUse.quitWhen}</p>
+                        </>
+                      )}
+
+                      <br />
+                      <p><strong>For Women:</strong></p>
+                      <p><strong>Pregnant:</strong> {record.personalHistory.forWomen.pregnant ? 'Yes' : 'No'}</p>
+                      {record.personalHistory.forWomen.pregnant && (
+                        <>
+                          <p><strong>Months:</strong> {record.personalHistory.forWomen.months}</p>
+                          <p><strong>Last Menstrual Period:</strong> {record.personalHistory.forWomen.lastMenstrualPeriod}</p>
+                          <p><strong>Abortion/Miscarriage:</strong> {record.personalHistory.forWomen.abortionOrMiscarriage}</p>
+                          <p><strong>Dysmenorrhea:</strong> {record.personalHistory.forWomen.dysmenorrhea ? 'Yes' : 'No'}</p>
+                        </>
+                      )}
+                  
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No medical history available.</p>
+              )}
             </div>
             <div className="relative mt-4" ref={historyDropdownRef}>
               <button
@@ -1388,7 +1572,7 @@ function PatientsProfile() {
                   >
                     Medical
                   </button>
-
+                  
                   <button
                     className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                     onClick={handleFamilyPersonalOpen}
@@ -2437,9 +2621,9 @@ function PatientsProfile() {
                   </button>
                   <button
                     className="bg-custom-red text-white py-2 px-4 rounded-lg"
-                    onClick={async (e) => {
-                      await handleMedicalHistorySubmit(e); // Call the submit function
-                      handleFamilyClose(); // Close the modal
+                    onClick={ () => {
+                      handleUpdateSubmit();
+                      handleFamilyClose();
                     }}
                   >
                     Save

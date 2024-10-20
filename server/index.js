@@ -39,26 +39,64 @@ app.post('/api/medical-history', async (req, res) => {
 app.get('/api/medical-history', async (req, res) => {
   try {
       // Fetch all medical history records
-      const medicalHistory = await MedicalHistoryModel.find();
+      const medicalHistory = await MedicalHistoryModel.find().populate('patient');
       res.json(medicalHistory);
   } catch (error) {
       res.status(500).json({ message: 'Error fetching medical history records', error: error });
   }
 });
 
-// GET endpoint to fetch medical history record by ID
-app.get('/api/medical-history/:id', async (req, res) => {
-  const { id } = req.params;
+// // GET endpoint to fetch medical history record by ID
+// app.get('/api/medical-history/:id', async (req, res) => {
+//   const { patientId } = req.params;
+
+//   try {
+//       // Find medical history record by ID
+//       const medicalHistory = await MedicalHistoryModel.findById(patientId).populate('patient');
+//       if (!medicalHistory) {
+//           return res.status(404).json({ message: 'Medical history record not found' });
+//       }
+//       res.json(medicalHistory);
+//   } catch (error) {
+//       res.status(500).json({ message: 'Error fetching medical history record', error: error });
+//   }
+// });
+
+// GET endpoint to fetch medical history records by patient ID
+app.get('/api/medical-history/:patientId', async (req, res) => {
+  const { patientId } = req.params;
 
   try {
-      // Find medical history record by ID
-      const medicalHistory = await MedicalHistoryModel.findById(id);
-      if (!medicalHistory) {
-          return res.status(404).json({ message: 'Medical history record not found' });
+      // Find all medical history records for the specific patient
+      const medicalHistories = await MedicalHistoryModel.find({ patient: patientId }).populate('patient');
+      if (!medicalHistories || medicalHistories.length === 0) {
+          return res.status(404).json({ message: 'No medical history records found for this patient' });
       }
-      res.json(medicalHistory);
+      res.json(medicalHistories);
   } catch (error) {
-      res.status(500).json({ message: 'Error fetching medical history record', error: error });
+      res.status(500).json({ message: 'Error fetching medical history records', error: error.message });
+  }
+});
+
+//Put endpoint to update medical history record
+app.put('/api/medical-history/:id', async (req, res) => {
+  const { id } = req.params;
+  const updatedMedicalHistory = req.body;
+
+  try {
+    // Update the medical history in the database
+    const updatedRecord = await MedicalHistoryModel.findByIdAndUpdate(id, updatedMedicalHistory, {
+      new: true, // Return the updated document
+      runValidators: true, // Ensure validation rules are applied
+    });
+
+    if (!updatedRecord) {
+      return res.status(404).send('Medical history not found.');
+    }
+
+    res.status(200).send(updatedRecord);
+  } catch (error) {
+    res.status(500).send('Error updating medical history.');
   }
 });
 
