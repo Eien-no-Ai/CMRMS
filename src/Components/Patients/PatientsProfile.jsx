@@ -367,15 +367,33 @@ function PatientsProfile() {
       document.removeEventListener("mousedown", handleClickOutsidePackage);
     };
   }, [showPackageOptions]);
-
+  const [isVaccineModalOpen, setIsVaccineModalOpen] = useState(false);
+  const [selectedVaccine, setSelectedVaccine] = useState(""); // Store se
   const handleTabChange = (tab) => {
     setSelectedTab(tab);
   };
 
+  // Toggle request options dropdown
   const handleMakeRequest = () => {
-    setShowRequestOptions((prev) => !prev);
+    setShowRequestOptions(!showRequestOptions);
   };
 
+  // Open vaccine modal
+  const handleNewVaccineOpen = () => {
+    setShowRequestOptions(false);
+    setIsVaccineModalOpen(true);
+  };
+
+  // Close vaccine modal
+  const handleVaccineModalClose = () => {
+    setIsVaccineModalOpen(false);
+    setSelectedVaccine(""); // Reset selection
+  };
+
+  // Handle vaccine dropdown change
+  const handleVaccineChange = (event) => {
+    setSelectedVaccine(event.target.value);
+  };
   const handleAddPackage = () => {
     setShowPackageOptions((prev) => !prev);
   };
@@ -1369,28 +1387,12 @@ function PatientsProfile() {
                             >
                               Regular Check Up
                             </button>
-                            <button className="block w-full px-4 py-2 text-left hover:bg-gray-100">
-                              Vaccines
-                            </button>
-                            {/* <button
-                              className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                              onClick={handleLabModalOpen} // Open modal here
-                            >
-                              Laboratory
-                            </button>
-
                             <button
                               className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                              onClick={handleNewXrayModalOpen}
+                              onClick={handleNewVaccineOpen}
                             >
-                              X-ray
-                            </button> */}
-                            {/* <button
-                            className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                              onClick={handleNewTherapyRecordOpen}
-                            >
-                              Physical Theraphy 
-                           </button> */}
+                              Vaccines
+                            </button>
                           </div>
                         )}
                       </div>
@@ -5358,6 +5360,53 @@ function PatientsProfile() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Vaccine Modal */}
+      {isVaccineModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-4 px-6 rounded-lg w-full max-w-lg shadow-lg">
+            <h2 className="text-lg font-semibold text-center">Add Vaccine</h2>
+
+            {/* Vaccine Selection Dropdown */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium">
+                Select Vaccine
+              </label>
+              <select
+                value={selectedVaccine}
+                onChange={handleVaccineChange}
+                className="w-full mt-2 border rounded-md p-2"
+              >
+                <option value="" disabled>
+                  -- Select Vaccine --
+                </option>
+                <option value="Hepa B">Hepa B</option>
+                <option value="Hepa C">Hepa C</option>
+                <option value="Tetanus Toxide">Tetanus Toxide</option>
+                <option value="Flu Vaccine">Flu Vaccine</option>
+              </select>
+            </div>
+
+            {/* Modal Action Buttons */}
+            <div className="flex justify-end mt-4 space-x-3">
+              <button
+                className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border"
+                onClick={handleVaccineModalClose}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border"
+                onClick={() => {
+                  console.log("Selected Vaccine:", selectedVaccine);
+                  handleVaccineModalClose();
+                }}
+              >
+                Submit
+              </button>
+            </div>
           </div>
         </div>
       )}

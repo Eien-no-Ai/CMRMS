@@ -162,7 +162,7 @@ function Profile() {
           <div className="text-3xl font-semibold mb-4">Account Settings</div>
 
           <div className="bg-white p-6 rounded-lg shadow-lg relative">
-            <div className="relative mb-12 w-full">
+            <div className="relative mb-12 w-full bg-gray-200 p-4 rounded-lg">
               <img
                 src="https://via.placeholder.com/1500x400"
                 alt="Store Banner"
