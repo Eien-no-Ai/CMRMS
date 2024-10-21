@@ -138,14 +138,11 @@ function PatientsProfile() {
       );
       setMedicalRecords(sortedMedicalRecords);
     } catch (error) {
-      console.error(
-        "There was an error fetching the Medical records!",
-        error
-      );
+      console.error("There was an error fetching the Medical records!", error);
     }
   }, [id]);
 
- useEffect(() => {
+  useEffect(() => {
     fetchLabRecords();
     fetchXrayRecords();
     fetchClinicalRecords();
@@ -214,7 +211,6 @@ function PatientsProfile() {
     }
   };
 
-  
   const handleNewRecordOpen = () => {
     setIsNewRecordModalOpen(true);
   };
@@ -1078,31 +1074,30 @@ function PatientsProfile() {
   };
 
   const handleMedicalHistorySubmit = async () => {
-    
     try {
       const response = await axios.post(
-        `http://localhost:3001/api/medical-history`,{
+        `http://localhost:3001/api/medical-history`,
+        {
           patient: id,
           ...medicalHistory,
         }
       );
-      console.log('Medical history saved successfully:', response.data);
+      console.log("Medical history saved successfully:", response.data);
       if (response.status === 200) {
         handleMedicalClose();
         fetchMedicalRecords();
         setMedicalHistory({
           ...initialMedicalHistory,
         });
-          
       }
     } catch (error) {
       console.error("Error adding medical history:", error);
     }
   };
 
- const medicalHistoryId = medicalRecords[0]?._id; // Get the medical history ID
-   // Fetch the user data when the component is mounted
-   useEffect(() => {
+  const medicalHistoryId = medicalRecords[0]?._id; // Get the medical history ID
+  // Fetch the user data when the component is mounted
+  useEffect(() => {
     if (medicalHistoryId) {
       axios
         .get(`http://localhost:3001/api/medical-history/${medicalHistoryId}`)
@@ -1114,67 +1109,72 @@ function PatientsProfile() {
         });
     }
   }, [medicalHistoryId]);
-  
-// Function to handle form submission and update the medical history
-const handleUpdateSubmit = async () => {
-  const updatedData = {
-    familyHistory: {
-      diseases: {
-        heartDisease: medicalHistory.familyHistory.diseases.heartDisease,
-        hypertension: medicalHistory.familyHistory.diseases.hypertension,
-        tuberculosis: medicalHistory.familyHistory.diseases.tuberculosis,
-        diabetes: medicalHistory.familyHistory.diseases.diabetes,
-        kidneyDisease: medicalHistory.familyHistory.diseases.kidneyDisease,
-        cancer: medicalHistory.familyHistory.diseases.cancer,
-        asthma: medicalHistory.familyHistory.diseases.asthma,
+
+  // Function to handle form submission and update the medical history
+  const handleUpdateSubmit = async () => {
+    const updatedData = {
+      familyHistory: {
+        diseases: {
+          heartDisease: medicalHistory.familyHistory.diseases.heartDisease,
+          hypertension: medicalHistory.familyHistory.diseases.hypertension,
+          tuberculosis: medicalHistory.familyHistory.diseases.tuberculosis,
+          diabetes: medicalHistory.familyHistory.diseases.diabetes,
+          kidneyDisease: medicalHistory.familyHistory.diseases.kidneyDisease,
+          cancer: medicalHistory.familyHistory.diseases.cancer,
+          asthma: medicalHistory.familyHistory.diseases.asthma,
+        },
+        allergies: {
+          hasAllergies: medicalHistory.familyHistory.allergies.hasAllergies,
+          allergyList: medicalHistory.familyHistory.allergies.allergyList,
+        },
       },
-      allergies: {
-        hasAllergies: medicalHistory.familyHistory.allergies.hasAllergies,
-        allergyList: medicalHistory.familyHistory.allergies.allergyList,
+      personalHistory: {
+        tobaccoUse: {
+          usesTobacco: medicalHistory.personalHistory.tobaccoUse.usesTobacco,
+          sticksPerDay: medicalHistory.personalHistory.tobaccoUse.sticksPerDay,
+          quitSmoking: medicalHistory.personalHistory.tobaccoUse.quitSmoking,
+          quitWhen: medicalHistory.personalHistory.tobaccoUse.quitWhen,
+        },
+        alcoholUse: {
+          drinksAlcohol:
+            medicalHistory.personalHistory.alcoholUse.drinksAlcohol,
+          drinksPerDay: medicalHistory.personalHistory.alcoholUse.drinksPerDay,
+          quitDrinking: medicalHistory.personalHistory.alcoholUse.quitDrinking,
+          quitWhen: medicalHistory.personalHistory.alcoholUse.quitWhen,
+        },
+        forWomen: {
+          pregnant: medicalHistory.personalHistory.forWomen.pregnant,
+          months: medicalHistory.personalHistory.forWomen.months,
+          lastMenstrualPeriod:
+            medicalHistory.personalHistory.forWomen.lastMenstrualPeriod,
+          abortionOrMiscarriage:
+            medicalHistory.personalHistory.forWomen.abortionOrMiscarriage,
+          dysmenorrhea: medicalHistory.personalHistory.forWomen.dysmenorrhea,
+        },
       },
-    },
-    personalHistory: {
-      tobaccoUse: {
-        usesTobacco: medicalHistory.personalHistory.tobaccoUse.usesTobacco,
-        sticksPerDay: medicalHistory.personalHistory.tobaccoUse.sticksPerDay,
-        quitSmoking: medicalHistory.personalHistory.tobaccoUse.quitSmoking,
-        quitWhen: medicalHistory.personalHistory.tobaccoUse.quitWhen,
-      },
-      alcoholUse: {
-        drinksAlcohol: medicalHistory.personalHistory.alcoholUse.drinksAlcohol,
-        drinksPerDay: medicalHistory.personalHistory.alcoholUse.drinksPerDay,
-        quitDrinking: medicalHistory.personalHistory.alcoholUse.quitDrinking,
-        quitWhen: medicalHistory.personalHistory.alcoholUse.quitWhen,
-      },
-      forWomen: {
-        pregnant: medicalHistory.personalHistory.forWomen.pregnant,
-        months: medicalHistory.personalHistory.forWomen.months,
-        lastMenstrualPeriod: medicalHistory.personalHistory.forWomen.lastMenstrualPeriod,
-        abortionOrMiscarriage: medicalHistory.personalHistory.forWomen.abortionOrMiscarriage,
-        dysmenorrhea: medicalHistory.personalHistory.forWomen.dysmenorrhea,
-      },
-    },
-    
+    };
+
+    try {
+      // Log the medical history ID to verify it's correct
+      console.log("Updating medical history ID:", medicalHistoryId);
+
+      // Make the PUT request to the server
+      const response = await axios.put(
+        `http://localhost:3001/api/medical-history/${medicalHistoryId}`, // API endpoint with ID from medicalHistory
+        updatedData // Send the updated data in the request body
+      );
+
+      // Log the successful response from the server
+      console.log("Update successful:", response.data);
+      // Handle success (e.g., close modal, refresh data, etc.)
+    } catch (error) {
+      console.error(
+        "Error updating medical history:",
+        error.response || error.message
+      );
+      // Handle error (e.g., show error message)
+    }
   };
-
-  try {
-    // Log the medical history ID to verify it's correct
-    console.log("Updating medical history ID:", medicalHistoryId);
-
-    // Make the PUT request to the server
-    const response = await axios.put(
-      `http://localhost:3001/api/medical-history/${medicalHistoryId}`, // API endpoint with ID from medicalHistory
-      updatedData // Send the updated data in the request body
-    );
-
-    // Log the successful response from the server
-    console.log('Update successful:', response.data);
-    // Handle success (e.g., close modal, refresh data, etc.)
-  } catch (error) {
-    console.error('Error updating medical history:', error.response || error.message);
-    // Handle error (e.g., show error message)
-  }
-};
 
   const [selectedXrayRecord, setSelectedXrayRecord] = useState(null);
 
@@ -1293,6 +1293,8 @@ const handleUpdateSubmit = async () => {
       alert("Failed to load results for this package.");
     }
   };
+  const [selectedRecords, setSelectedRecords] = useState(null);
+  const [isPackageInfoModalOpen, setisPackageInfoModalOpen] = useState(false);
 
   return (
     <div>
@@ -1356,7 +1358,7 @@ const handleUpdateSubmit = async () => {
                           className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                           onClick={handleMakeRequest}
                         >
-                          Transcation Type
+                          New Transaction
                         </button>
                         {/* Request options */}
                         {showRequestOptions && (
@@ -1469,93 +1471,263 @@ const handleUpdateSubmit = async () => {
           <div className="bg-white p-6 rounded-lg shadow-sm h-full flex flex-col justify-between">
             <div>
               <h2 className="font-semibold text-lg">History</h2>
-              {medicalRecords && medicalRecords.length > 0 ? (
+              {/* {medicalRecords && medicalRecords.length > 0 ? (
                 <ul>
                   {medicalRecords.map((record) => (
-                    <li key={record._id} className="mb-4 p-2 bg-gray-100 rounded-lg">
-                      <p><strong>Medical History:</strong></p>
-                      <p><strong>Nose/Throat Disorders:</strong> {record.conditions.noseThroatDisorders ? 'Yes' : 'No'}</p>
-                      <p><strong>Ear Trouble:</strong> {record.conditions.earTrouble ? 'Yes' : 'No'}</p>
-                      <p><strong>Tuberculosis:</strong> {record.conditions.tuberculosis ? 'Yes' : 'No'}</p>
-                      <p><strong>Lung Diseases:</strong> {record.conditions.lungDiseases ? 'Yes' : 'No'}</p>
-                      <p><strong>Rheumatic Fever:</strong> {record.conditions.rheumaticFever ? 'Yes' : 'No'}</p>
-                      <p><strong>Endocrine Disorder:</strong> {record.conditions.endocrineDisorder ? 'Yes' : 'No'}</p>
-                      <p><strong>Cancer Tumor:</strong> {record.conditions.cancerTumor ? 'Yes' : 'No'}</p>
-                      <p><strong>Mental Disorder:</strong> {record.conditions.mentalDisorder ? 'Yes' : 'No'}</p>
-                      <p><strong>Head/Neck Injury:</strong> {record.conditions.headNeckInjury ? 'Yes' : 'No'}</p>
-                      <p><strong>Hernia:</strong> {record.conditions.hernia ? 'Yes' : 'No'}</p>
-                      <p><strong>Rheumatism/Joint Pain:</strong> {record.conditions.rheumatismJointPain ? 'Yes' : 'No'}</p>
-                      <p><strong>Stomach Pain/Ulcer:</strong> {record.conditions.stomachPainUlcer ? 'Yes' : 'No'}</p>
-                      <p><strong>Abdominal Disorders:</strong> {record.conditions.abdominalDisorders ? 'Yes' : 'No'}</p>
-                      <p><strong>Kidney/Bladder Diseases:</strong> {record.conditions.kidneyBladderDiseases ? 'Yes' : 'No'}</p>
-                      <p><strong>STD:</strong> {record.conditions.std ? 'Yes' : 'No'}</p>
-                      <p><strong>Familial Disorder:</strong> {record.conditions.familialDisorder ? 'Yes' : 'No'}</p>
-                      <p><strong>Tropical Diseases:</strong> {record.conditions.tropicalDiseases ? 'Yes' : 'No'}</p>
-                      <p><strong>Chronic Cough:</strong> {record.conditions.chronicCough ? 'Yes' : 'No'}</p>
-                      <p><strong>Fainting/Seizures:</strong> {record.conditions.faintingSeizures ? 'Yes' : 'No'}</p>
-                      <p><strong>Frequent Headache:</strong> {record.conditions.frequentHeadache ? 'Yes' : 'No'}</p>
-                      <p><strong>Dizziness:</strong> {record.conditions.dizziness ? 'Yes' : 'No'}</p>
-                      <p><strong>Asthma:</strong> {record.conditions.asthma ? 'Yes' : 'No'}</p>
-                      <p><strong>High Blood Pressure:</strong> {record.conditions.highBloodPressure ? 'Yes' : 'No'}</p>
-                      <p><strong>Heart Diseases:</strong> {record.conditions.heartDiseases ? 'Yes' : 'No'}</p>
-                      <p><strong>Diabetes Mellitus:</strong> {record.conditions.diabetesMellitus ? 'Yes' : 'No'}</p>
-                      <p><strong>Eye Disorders:</strong> {record.conditions.eyeDisorders ? 'Yes' : 'No'}</p>
+                    <li
+                      key={record._id}
+                      className="mb-4 p-2 bg-gray-100 rounded-lg"
+                    >
+                      <p>
+                        <strong>Medical History:</strong>
+                      </p>
+                      <p>
+                        <strong>Nose/Throat Disorders:</strong>{" "}
+                        {record.conditions.noseThroatDisorders ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Ear Trouble:</strong>{" "}
+                        {record.conditions.earTrouble ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Tuberculosis:</strong>{" "}
+                        {record.conditions.tuberculosis ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Lung Diseases:</strong>{" "}
+                        {record.conditions.lungDiseases ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Rheumatic Fever:</strong>{" "}
+                        {record.conditions.rheumaticFever ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Endocrine Disorder:</strong>{" "}
+                        {record.conditions.endocrineDisorder ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Cancer Tumor:</strong>{" "}
+                        {record.conditions.cancerTumor ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Mental Disorder:</strong>{" "}
+                        {record.conditions.mentalDisorder ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Head/Neck Injury:</strong>{" "}
+                        {record.conditions.headNeckInjury ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Hernia:</strong>{" "}
+                        {record.conditions.hernia ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Rheumatism/Joint Pain:</strong>{" "}
+                        {record.conditions.rheumatismJointPain ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Stomach Pain/Ulcer:</strong>{" "}
+                        {record.conditions.stomachPainUlcer ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Abdominal Disorders:</strong>{" "}
+                        {record.conditions.abdominalDisorders ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Kidney/Bladder Diseases:</strong>{" "}
+                        {record.conditions.kidneyBladderDiseases ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>STD:</strong>{" "}
+                        {record.conditions.std ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Familial Disorder:</strong>{" "}
+                        {record.conditions.familialDisorder ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Tropical Diseases:</strong>{" "}
+                        {record.conditions.tropicalDiseases ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Chronic Cough:</strong>{" "}
+                        {record.conditions.chronicCough ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Fainting/Seizures:</strong>{" "}
+                        {record.conditions.faintingSeizures ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Frequent Headache:</strong>{" "}
+                        {record.conditions.frequentHeadache ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Dizziness:</strong>{" "}
+                        {record.conditions.dizziness ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Asthma:</strong>{" "}
+                        {record.conditions.asthma ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>High Blood Pressure:</strong>{" "}
+                        {record.conditions.highBloodPressure ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Heart Diseases:</strong>{" "}
+                        {record.conditions.heartDiseases ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Diabetes Mellitus:</strong>{" "}
+                        {record.conditions.diabetesMellitus ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Eye Disorders:</strong>{" "}
+                        {record.conditions.eyeDisorders ? "Yes" : "No"}
+                      </p>
 
-                      {/* Malaria */}
-                      <p><strong>Malaria:</strong> {record.malaria.hasMalaria ? 'Yes' : 'No'}</p>
-                      {record.malaria.hasMalaria && <p><strong>Last Malaria Attack:</strong> {record.malaria.lastAttackDate}</p>}
+                      <p>
+                        <strong>Malaria:</strong>{" "}
+                        {record.malaria.hasMalaria ? "Yes" : "No"}
+                      </p>
+                      {record.malaria.hasMalaria && (
+                        <p>
+                          <strong>Last Malaria Attack:</strong>{" "}
+                          {record.malaria.lastAttackDate}
+                        </p>
+                      )}
 
-                      {/* Operations */}
-                      <p><strong>Undergone Operation:</strong> {record.operations.undergoneOperation ? 'Yes' : 'No'}</p>
+                      <p>
+                        <strong>Undergone Operation:</strong>{" "}
+                        {record.operations.undergoneOperation ? "Yes" : "No"}
+                      </p>
                       {record.operations.undergoneOperation && (
-                        <p><strong>List of Operations:</strong> {record.operations.listOperations}</p>
+                        <p>
+                          <strong>List of Operations:</strong>{" "}
+                          {record.operations.listOperations}
+                        </p>
                       )}
                       <br />
-                      {/* Family History */}
-                      <p><strong>Family History:</strong></p>
-                      <p><strong>Heart Disease:</strong> {record.familyHistory.diseases.heartDisease ? 'Yes' : 'No'}</p>
-                      <p><strong>Tuberculosis:</strong> {record.familyHistory.diseases.tuberculosis ? 'Yes' : 'No'}</p>
-                      <p><strong>Diabetes:</strong> {record.familyHistory.diseases.diabetes ? 'Yes' : 'No'}</p>
+
+                      <p>
+                        <strong>Family History:</strong>
+                      </p>
+                      <p>
+                        <strong>Heart Disease:</strong>{" "}
+                        {record.familyHistory.diseases.heartDisease
+                          ? "Yes"
+                          : "No"}
+                      </p>
+                      <p>
+                        <strong>Tuberculosis:</strong>{" "}
+                        {record.familyHistory.diseases.tuberculosis
+                          ? "Yes"
+                          : "No"}
+                      </p>
+                      <p>
+                        <strong>Diabetes:</strong>{" "}
+                        {record.familyHistory.diseases.diabetes ? "Yes" : "No"}
+                      </p>
                       <br />
-                      {/* Personal History */}
-                      <p><strong>Personal History:</strong></p>
-                      <p><strong>Uses Tobacco:</strong> {record.personalHistory.tobaccoUse.usesTobacco ? 'Yes' : 'No'}</p>
+
+                      <p>
+                        <strong>Personal History:</strong>
+                      </p>
+                      <p>
+                        <strong>Uses Tobacco:</strong>{" "}
+                        {record.personalHistory.tobaccoUse.usesTobacco
+                          ? "Yes"
+                          : "No"}
+                      </p>
                       {record.personalHistory.tobaccoUse.usesTobacco && (
                         <>
-                          <p><strong>Sticks Per Day:</strong> {record.personalHistory.tobaccoUse.sticksPerDay}</p>
-                          <p><strong>Quit Smoking:</strong> {record.personalHistory.tobaccoUse.quitSmoking ? 'Yes' : 'No'}</p>
-                          <p><strong>Quit When:</strong> {record.personalHistory.tobaccoUse.quitWhen}</p>
+                          <p>
+                            <strong>Sticks Per Day:</strong>{" "}
+                            {record.personalHistory.tobaccoUse.sticksPerDay}
+                          </p>
+                          <p>
+                            <strong>Quit Smoking:</strong>{" "}
+                            {record.personalHistory.tobaccoUse.quitSmoking
+                              ? "Yes"
+                              : "No"}
+                          </p>
+                          <p>
+                            <strong>Quit When:</strong>{" "}
+                            {record.personalHistory.tobaccoUse.quitWhen}
+                          </p>
                         </>
                       )}
 
                       <br />
-                      <p><strong>Drinks Alcohol:</strong> {record.personalHistory.alcoholUse.drinksAlcohol ? 'Yes' : 'No'}</p>
+                      <p>
+                        <strong>Drinks Alcohol:</strong>{" "}
+                        {record.personalHistory.alcoholUse.drinksAlcohol
+                          ? "Yes"
+                          : "No"}
+                      </p>
                       {record.personalHistory.alcoholUse.drinksAlcohol && (
                         <>
-                          <p><strong>Drinks Per Day:</strong> {record.personalHistory.alcoholUse.drinksPerDay}</p>
-                          <p><strong>Quit Drinking:</strong> {record.personalHistory.alcoholUse.quitDrinking ? 'Yes' : 'No'}</p>
-                          <p><strong>Quit When:</strong> {record.personalHistory.alcoholUse.quitWhen}</p>
+                          <p>
+                            <strong>Drinks Per Day:</strong>{" "}
+                            {record.personalHistory.alcoholUse.drinksPerDay}
+                          </p>
+                          <p>
+                            <strong>Quit Drinking:</strong>{" "}
+                            {record.personalHistory.alcoholUse.quitDrinking
+                              ? "Yes"
+                              : "No"}
+                          </p>
+                          <p>
+                            <strong>Quit When:</strong>{" "}
+                            {record.personalHistory.alcoholUse.quitWhen}
+                          </p>
                         </>
                       )}
 
                       <br />
-                      <p><strong>For Women:</strong></p>
-                      <p><strong>Pregnant:</strong> {record.personalHistory.forWomen.pregnant ? 'Yes' : 'No'}</p>
+                      <p>
+                        <strong>For Women:</strong>
+                      </p>
+                      <p>
+                        <strong>Pregnant:</strong>{" "}
+                        {record.personalHistory.forWomen.pregnant
+                          ? "Yes"
+                          : "No"}
+                      </p>
                       {record.personalHistory.forWomen.pregnant && (
                         <>
-                          <p><strong>Months:</strong> {record.personalHistory.forWomen.months}</p>
-                          <p><strong>Last Menstrual Period:</strong> {record.personalHistory.forWomen.lastMenstrualPeriod}</p>
-                          <p><strong>Abortion/Miscarriage:</strong> {record.personalHistory.forWomen.abortionOrMiscarriage}</p>
-                          <p><strong>Dysmenorrhea:</strong> {record.personalHistory.forWomen.dysmenorrhea ? 'Yes' : 'No'}</p>
+                          <p>
+                            <strong>Months:</strong>{" "}
+                            {record.personalHistory.forWomen.months}
+                          </p>
+                          <p>
+                            <strong>Last Menstrual Period:</strong>{" "}
+                            {
+                              record.personalHistory.forWomen
+                                .lastMenstrualPeriod
+                            }
+                          </p>
+                          <p>
+                            <strong>Abortion/Miscarriage:</strong>{" "}
+                            {
+                              record.personalHistory.forWomen
+                                .abortionOrMiscarriage
+                            }
+                          </p>
+                          <p>
+                            <strong>Dysmenorrhea:</strong>{" "}
+                            {record.personalHistory.forWomen.dysmenorrhea
+                              ? "Yes"
+                              : "No"}
+                          </p>
                         </>
                       )}
-                  
                     </li>
                   ))}
                 </ul>
               ) : (
                 <p>No medical history available.</p>
-              )}
+              )} */}
             </div>
             <div className="relative mt-4" ref={historyDropdownRef}>
               <button
@@ -1572,7 +1744,7 @@ const handleUpdateSubmit = async () => {
                   >
                     Medical
                   </button>
-                  
+
                   <button
                     className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                     onClick={handleFamilyPersonalOpen}
@@ -2621,7 +2793,7 @@ const handleUpdateSubmit = async () => {
                   </button>
                   <button
                     className="bg-custom-red text-white py-2 px-4 rounded-lg"
-                    onClick={ () => {
+                    onClick={() => {
                       handleUpdateSubmit();
                       handleFamilyClose();
                     }}
@@ -2689,7 +2861,7 @@ const handleUpdateSubmit = async () => {
                   }`}
                   onClick={() => handleTabChange("package")}
                 >
-                  Package Records
+                  Physical Examination
                 </button>
               </div>
             </div>
@@ -2853,78 +3025,111 @@ const handleUpdateSubmit = async () => {
                 {selectedTab === "package" &&
                   (Object.keys(combinedRecords).length > 0 ? (
                     Object.entries(combinedRecords).map(
-                      ([packageNumber, records], index) => (
-                        <li
-                          key={index}
-                          className="grid grid-cols-3 gap-4 items-center p-4 bg-gray-100 rounded-lg"
-                        >
-                          <div className="col-span-1">
-                            <p className="text-gray-500 text-sm">
-                              {new Date(
-                                records.labRecords[0]?.isCreatedAt ||
-                                  records.xrayRecords[0]?.isCreatedAt
-                              ).toLocaleString() || "Invalid Date"}
-                            </p>
-                            <p className="font-semibold">
-                              {records.labRecords[0]?.packageId?.name || "N/A"}
-                            </p>
-                            <p className="text-gray-600 text-xs">
-                              Package No: {packageNumber}
-                            </p>
-                          </div>
+                      ([packageNumber, records], index) => {
+                        // Determine the status based on labResult and xrayResult
+                        const isCompleted =
+                          records.labRecords.every(
+                            (record) => record.labResult === "complete"
+                          ) &&
+                          records.xrayRecords.every(
+                            (record) => record.xrayResult === "done"
+                          );
+                        const status = isCompleted ? "With Result" : "Pending";
 
-                          <div className="col-span-1">
-                            <p className="text-gray-500">
-                              {records.labRecords.length > 0
-                                ? records.labRecords
-                                    .flatMap((record) =>
-                                      // Extract only values from bloodChemistry and hematology
-                                      [
-                                        // Extract all values from each category and filter empty values
-                                        ...Object.values(
-                                          record.bloodChemistry || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.hematology || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.clinicalMicroscopyParasitology ||
-                                            {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.bloodBankingSerology || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.microbiology || {}
-                                        ).filter((value) => value),
-                                      ]
-                                    )
-                                    .join(", ") || "No test data available"
-                                : "No Lab Tests Available"}
-                            </p>
-                          </div>
+                        return (
+                          <li
+                            key={index}
+                            className="grid grid-cols-4 gap-4 items-center p-4 bg-gray-100 rounded-lg"
+                          >
+                            {/* Date and Package Info */}
+                            <div className="col-span-1">
+                              <p className="text-gray-500 text-sm">
+                                {new Date(
+                                  records.labRecords[0]?.isCreatedAt ||
+                                    records.xrayRecords[0]?.isCreatedAt
+                                ).toLocaleString() || "Invalid Date"}
+                              </p>
+                              <p className="font-semibold">
+                                {records.labRecords[0]?.packageId?.name ||
+                                  "N/A"}
+                              </p>
+                              <p className="text-gray-600 text-xs">
+                                Package No: {packageNumber}
+                              </p>
+                            </div>
 
-                          <div className="col-span-1 flex justify-between items-center">
-                            <p className="text-gray-500">
-                              {records.xrayRecords.length > 0
-                                ? records.xrayRecords.map((record, idx) => (
-                                    <span key={idx}>
-                                      {record.xrayType}
-                                      {idx < records.xrayRecords.length - 1 &&
-                                        ", "}{" "}
-                                    </span>
-                                  ))
-                                : "No X-ray Data"}
-                            </p>
-                            <button
-                              className="text-custom-red"
-                              onClick={() => handleViewPackage(records)}
-                            >
-                              View
-                            </button>{" "}
-                          </div>
-                        </li>
-                      )
+                            {/* Lab Results Summary */}
+                            <div className="col-span-1">
+                              <p className="text-gray-500">
+                                {records.labRecords.length > 0
+                                  ? records.labRecords
+                                      .flatMap((record) =>
+                                        // Extract only values from bloodChemistry and hematology
+                                        [
+                                          ...Object.values(
+                                            record.bloodChemistry || {}
+                                          ).filter((value) => value),
+                                          ...Object.values(
+                                            record.hematology || {}
+                                          ).filter((value) => value),
+                                          ...Object.values(
+                                            record.clinicalMicroscopyParasitology ||
+                                              {}
+                                          ).filter((value) => value),
+                                          ...Object.values(
+                                            record.bloodBankingSerology || {}
+                                          ).filter((value) => value),
+                                          ...Object.values(
+                                            record.microbiology || {}
+                                          ).filter((value) => value),
+                                        ]
+                                      )
+                                      .join(", ") || "No test data available"
+                                  : "No Lab Tests Available"}
+                              </p>
+                            </div>
+
+                            {/* X-ray Data */}
+                            <div className="col-span-1">
+                              <p className="text-gray-500">
+                                {records.xrayRecords.length > 0
+                                  ? records.xrayRecords.map((record, idx) => (
+                                      <span key={idx}>
+                                        {record.xrayType}
+                                        {idx < records.xrayRecords.length - 1 &&
+                                          ", "}{" "}
+                                      </span>
+                                    ))
+                                  : "No X-ray Data"}
+                              </p>
+                            </div>
+
+                            {/* Status and View Button */}
+                            <div className="col-span-1 flex justify-between items-center">
+                              {/* Status Display */}
+                              <p
+                                className={`font-semibold ${
+                                  isCompleted
+                                    ? "text-green-500"
+                                    : "text-red-500"
+                                }`}
+                              >
+                                {status}
+                              </p>
+                              {/* View Button */}
+                              <button
+                                className="text-custom-red"
+                                onClick={() => {
+                                  setSelectedRecords(records); // Store the selected records
+                                  setisPackageInfoModalOpen(true); // Open the blank modal
+                                }}
+                              >
+                                View
+                              </button>
+                            </div>
+                          </li>
+                        );
+                      }
                     )
                   ) : (
                     <p className="text-center text-gray-500 py-4">
@@ -2932,8 +3137,702 @@ const handleUpdateSubmit = async () => {
                     </p>
                   ))}
 
+                {isPackageInfoModalOpen && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-2xl max-w-5xl overflow-y-auto flex flex-col justify-between relative">
+                      {/* Top section */}
+                      <h2 className="text-lg font-semibold">
+                        Package Information
+                      </h2>
+
+                      {/* Medical Records List */}
+                      <ul>
+                        {medicalRecords.map((record) => (
+                          <li key={record._id} className="mb-4 p-2  rounded-lg">
+                            <h3 className="text-lg font-semibold mt-4">
+                              I. MEDICAL HISTORY:
+                            </h3>
+
+                            {/* Conditions Section */}
+                            <div className="">
+                              <label className="block text-sm font-semibold">
+                                Has any of the applicant suffered from, or been
+                                told he had any of the following conditions:
+                              </label>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={
+                                      record.conditions.noseThroatDisorders
+                                    }
+                                  />
+                                  1. Nose or throat disorders
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.hernia}
+                                  />
+                                  14. Hernia
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.earTrouble}
+                                  />
+                                  2. Ear trouble / deafness
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={
+                                      record.conditions.rheumatismJointPain
+                                    }
+                                  />
+                                  15. Rheumatism, joint or back pain
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.asthma}
+                                  />
+                                  3. Asthma
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.eyeDisorders}
+                                  />
+                                  16. Eye disorders
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.tuberculosis}
+                                  />
+                                  4. Tuberculosis
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.stomachPainUlcer}
+                                  />
+                                  17. Stomach pain / ulcer
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.lungDiseases}
+                                  />
+                                  5. Other lung diseases
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={
+                                      record.conditions.abdominalDisorders
+                                    }
+                                  />
+                                  18. Other abdominal disorders
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={
+                                      record.conditions.highBloodPressure
+                                    }
+                                  />
+                                  6. High Blood Pressure
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={
+                                      record.conditions.kidneyBladderDiseases
+                                    }
+                                  />
+                                  19. Kidney or bladder diseases
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.heartDiseases}
+                                  />
+                                  7. Heart diseases
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.std}
+                                  />
+                                  20. Sexually Transmitted Disease
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.rheumaticFever}
+                                  />
+                                  8. Rheumatic Fever
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.familialDisorder}
+                                  />
+                                  21. Genetic or Familial disorder
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.diabetesMellitus}
+                                  />
+                                  9. Diabetes Mellitus
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.tropicalDiseases}
+                                  />
+                                  22. Tropical Diseases
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={
+                                      record.conditions.endocrineDisorder
+                                    }
+                                  />
+                                  10. Endocrine Disorder
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.chronicCough}
+                                  />
+                                  23. Chronic cough
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.cancerTumor}
+                                  />
+                                  11. Cancer / Tumor
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.faintingSeizures}
+                                  />
+                                  24. Fainting spells, fits or seizures
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.mentalDisorder}
+                                  />
+                                  12. Mental Disorder / Depression
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.frequentHeadache}
+                                  />
+                                  25. Frequent headache
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.headNeckInjury}
+                                  />
+                                  13. Head or neck injury
+                                </label>
+                                <label>
+                                  <input
+                                    type="checkbox"
+                                    className="mr-2"
+                                    checked={record.conditions.dizziness}
+                                  />
+                                  26. Dizziness
+                                </label>
+                              </div>
+
+                              <div className="mt-6">
+                                <p className="text-sm font-medium">
+                                  Do you have Malaria?
+                                </p>
+                                <div className="flex space-x-4 mt-2">
+                                  <label>
+                                    <input
+                                      type="radio"
+                                      name="hasMalaria"
+                                      className="mr-2"
+                                      value="Yes" // Set the value to "Yes"
+                                      checked={
+                                        record.malaria.hasMalaria === "Yes"
+                                      } // Check if the value is "Yes"
+                                    />
+                                    Yes
+                                  </label>
+                                  <label>
+                                    <input
+                                      type="radio"
+                                      name="hasMalaria"
+                                      className="mr-2"
+                                      value="No" // Set the value to "No"
+                                      checked={
+                                        record.malaria.hasMalaria === "No"
+                                      } // Check if the value is "No"
+                                    />
+                                    No
+                                  </label>
+                                </div>
+                                <textarea
+                                  placeholder="Please date the last attack."
+                                  className="textarea mt-2 border rounded-md p-2 w-full col-span-3"
+                                  value={record.malaria.lastAttackDate}
+                                ></textarea>
+                              </div>
+
+                              <div className="mt-6">
+                                <p className="text-sm font-medium">
+                                  Have you undergo any operations?
+                                </p>
+                                <div className="flex space-x-4 mt-2">
+                                  <label>
+                                    <input
+                                      type="radio"
+                                      name="undergoneOperation"
+                                      className="mr-2"
+                                      value="Yes" // Set the value to "Yes"
+                                      checked={
+                                        record.operations.undergoneOperation ===
+                                        "Yes"
+                                      }
+                                    />
+                                    Yes
+                                  </label>
+                                  <label>
+                                    <input
+                                      type="radio"
+                                      name="undergoneOperation"
+                                      className="mr-2"
+                                      value="No" // Set the value to "Yes"
+                                      checked={
+                                        record.operations.undergoneOperation ===
+                                        "No"
+                                      }
+                                    />
+                                    No
+                                  </label>
+                                </div>
+                                <textarea
+                                  placeholder="Please list them."
+                                  className="textarea mt-2 border rounded-md p-2 w-full col-span-3"
+                                  value={record.operations.listOperations}
+                                ></textarea>
+                              </div>
+
+                              <div className="mt-7 flex flex-col space-y-4">
+                                <label className="text-sm font-semibold text-gray-700">
+                                  I hereby certify that all the information I
+                                  have disclosed as reflected in this report are
+                                  true to the best of my knowledge and belief
+                                  and that any misrepresentation or concealment
+                                  on my part may lead to consequences, which may
+                                  or may not include disqualification, etc.
+                                  <br />
+                                  <br />
+                                  I hereby authorize UB Medical-Dental Clinic
+                                  and its officially designated examining
+                                  physicians and staff to conduct the
+                                  examinations necessary to assess my fitness to
+                                  undergo Internship/On-the-Job
+                                  Training/Practicum.
+                                  <br />
+                                  <br />
+                                  By signing this, I hold UB Medical-Dental
+                                  Clinic and its authorized physicians and staff
+                                  free from any criminal, civil, administrative,
+                                  ethical, and moral liability, that may arise
+                                  from the above.
+                                </label>
+
+                                <div className="flex justify-end mt-4">
+                                  <div className="w-1/2">
+                                    <label className="text-sm font-medium text-gray-700 block mb-2">
+                                      Upload Signature
+                                    </label>
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      Accepted file types: JPG, PNG. Max size:
+                                      5MB
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                      <div>
+                        <div className="flex items-center justify-between mt-4">
+                          <div>
+                            <h3 className="text-lg font-semibold mr-4">
+                              II. PHYSICAL EXAMINATION:
+                            </h3>
+                            <label className="text-sm font-semibold">
+                              To be completed by examining physician.
+                            </label>
+                          </div>
+
+                          <button
+                            className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                            onClick={() => {
+                              handleViewPackage(selectedRecords); // Pass the stored selected records to the view function
+                              setIsPackageResultModalOpen(true); // Open the actual result modal
+                            }}
+                          >
+                            View Result
+                          </button>
+                        </div>
+
+                        {/* Physical Examination Inputs */}
+                        <div className="grid grid-cols-12 gap-4 p-4">
+                          <label className="col-span-2">Temperature</label>
+                          <input
+                            type="text"
+                            className="col-span-4 border rounded px-3 py-1"
+                            readOnly
+                          />
+
+                          <label className="col-span-2">Height</label>
+                          <input
+                            type="text"
+                            className="col-span-4 border rounded px-3 py-1"
+                            readOnly
+                          />
+
+                          <label className="col-span-2">Blood Pressure</label>
+                          <input
+                            type="text"
+                            className="col-span-4 border rounded px-3 py-1"
+                            readOnly
+                          />
+
+                          <label className="col-span-2">Weight</label>
+                          <input
+                            type="text"
+                            className="col-span-4 border rounded px-3 py-1"
+                            readOnly
+                          />
+
+                          <label className="col-span-2">Pulse Rate</label>
+                          <input
+                            type="text"
+                            className="col-span-4 border rounded px-3 py-1"
+                            readOnly
+                          />
+
+                          <label className="col-span-2">Body Built</label>
+                          <input
+                            type="text"
+                            className="col-span-4 border rounded px-3 py-1"
+                            readOnly
+                          />
+
+                          <label className="col-span-2">Respiration</label>
+                          <input
+                            type="text"
+                            className="col-span-4 border rounded px-3 py-1"
+                            readOnly
+                          />
+
+                          <label className="col-span-2">Visual Acuity</label>
+                          <input
+                            type="text"
+                            className="col-span-4 border rounded px-3 py-1"
+                            readOnly
+                          />
+                        </div>
+                        <hr />
+                        {/* Dropdowns with Remarks */}
+                        <div className="grid grid-cols-12 gap-4 mt-2 p-4">
+                          {/* Skin */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Abdomen</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          {/* Lungs */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Lungs</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          {/* Head, Neck, Scalp */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Head, Neck, Scalp</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          {/* Heart */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Heart</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          {/* Eyes, External */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Eyes, External</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          {/* Abdomen */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Abdomen</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          {/* Pupils */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Pupils</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Back</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Ears</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Anus/ Rectum</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Nose, Sinuses</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Urinary</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Inguinal Genitals</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Reflexes</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Neck, Thyroid gland</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Extremities</label>
+                            <select className="border rounded w-1/3 px-2 py-1">
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                            />
+                          </div>
+
+                          <div className="col-span-12 flex items-center">
+                            <label className="w-1/2">
+                              Last Menstrual Period (LMP) for female patients
+                              only:
+                            </label>
+                            <input
+                              type="date"
+                              placeholder="Enter date"
+                              className="ml-2 border rounded w-1/2 px-2 py-1 flex-grow"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bottom section - Close button */}
+                      <div className="flex justify-end mt-4">
+                        <button
+                          className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                          onClick={() => {
+                            setisPackageInfoModalOpen(false); // Close the modal
+                          }}
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {isPackageResultModalOpen && (
-                  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
                       {/* Lab Results Section */}
                       {selectedPackageLabResults.length > 0 ? (
@@ -3051,8 +3950,8 @@ const handleUpdateSubmit = async () => {
                                   />
                                 </div>
                                 <h2 className="text-center text-xl font-semibold mt-4">
-                                Lab Result Form
-                              </h2>
+                                  Lab Result Form
+                                </h2>
                                 {/* Hematology Section */}
                                 <div className="mb-0">
                                   <div
