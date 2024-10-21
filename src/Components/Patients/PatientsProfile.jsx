@@ -1362,7 +1362,7 @@ function PatientsProfile() {
                         </button>
                         {/* Request options */}
                         {showRequestOptions && (
-                          <div className="absolute mt-2 bg-white border rounded-lg shadow-lg">
+                          <div className="absolute mt-2 w-full bg-white border rounded-lg shadow-lg">
                             <button
                               className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                               onClick={handleNewRecordOpen}
