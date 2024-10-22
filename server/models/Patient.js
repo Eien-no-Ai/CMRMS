@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 
 // Define the Patient schema
 const PatientSchema = new mongoose.Schema({
-    medicalHistory: { type: mongoose.Schema.Types.ObjectId, ref: 'MedicalHistory' }, 
     firstname: { type: String, required: true },
     middlename: { type: String },
     lastname: { type: String, required: true },
@@ -20,7 +19,6 @@ const PatientSchema = new mongoose.Schema({
     emergencyContact: { type: String, },
     position: { type: String },
     createdAt: { type: Date, default: Date.now }, 
-
 });
 
 const PatientModel = mongoose.model('patients', PatientSchema);

@@ -10,8 +10,6 @@ const LaboratoryResultsModel = require("./models/LaboratoryResults");
 const PhysicalTherapyModel = require("./models/PhysicalTherapy");
 const PackageModel = require("./models/Package");
 const MedicalHistoryModel = require("./models/MedicalHistory");
-const VaccineModel = require("./models/Vaccine"); // Path to your vaccine routes
-
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -45,26 +43,6 @@ app.get('/api/medical-history', async (req, res) => {
       res.json(medicalHistory);
   } catch (error) {
       res.status(500).json({ message: 'Error fetching medical history records', error: error });
-  }
-});
-
-// GET endpoint to fetch a single medical history record by its ID
-app.get('/api/medical-history/id/:id', async (req, res) => {
-  const { id } = req.params;
-
-  // Validate ObjectId
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'Invalid medical history ID format' });
-  }
-
-  try {
-    const medicalHistory = await MedicalHistoryModel.findById(id).populate('patient');
-    if (!medicalHistory) {
-      return res.status(404).json({ message: 'Medical history record not found' });
-    }
-    res.json(medicalHistory);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching medical history record', error: error.message });
   }
 });
 
@@ -1199,91 +1177,6 @@ app.get('/api/xrayResults/id/:id', async (req, res) => {
   } catch (error) {
     console.error('Error fetching X-ray result:', error);
     res.status(500).json({ message: 'Error fetching X-ray result', error });
-  }
-});
-
-// POST /api/vaccines - Add a new vaccine
-app.post('/api/vaccines', async (req, res) => {
-  const { patient, name, dateAdministered, administeredBy, nextDose } = req.body;
-
-  // Basic validation
-  if (!patient || !name || !administeredBy) {
-    return res.status(400).json({ message: 'Patient ID, vaccine name, and administeredBy are required.' });
-  }
-
-  // Validate ObjectId
-  if (!mongoose.Types.ObjectId.isValid(patient)) {
-    return res.status(400).json({ message: 'Invalid patient ID format.' });
-  }
-  if (!mongoose.Types.ObjectId.isValid(administeredBy)) {
-    return res.status(400).json({ message: 'Invalid administeredBy ID format.' });
-  }
-
-  try {
-    const newVaccine = new VaccineModel({
-      patient,
-      name,
-      dateAdministered: dateAdministered || Date.now(),
-      administeredBy,
-      nextDose,
-    });
-
-    const savedVaccine = await newVaccine.save();
-    res.status(201).json({ message: 'Vaccine added successfully', data: savedVaccine });
-  } catch (error) {
-    console.error('Error adding vaccine:', error);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
-  }
-});
-
-// GET /api/vaccines - Fetch all vaccines
-app.get('/api/vaccines', async (req, res) => {
-  try {
-    const vaccines = await VaccineModel.find().populate('patient').populate('administeredBy');
-    res.json(vaccines);
-  } catch (error) {
-    console.error('Error fetching vaccines:', error);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
-  }
-});
-
-// GET /api/vaccines/:id - Fetch vaccine by ID
-app.get('/api/vaccines/:id', async (req, res) => {
-  const { id } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'Invalid vaccine ID format' });
-  }
-
-  try {
-    const vaccine = await VaccineModel.findById(id).populate('patient').populate('administeredBy');
-    if (!vaccine) {
-      return res.status(404).json({ message: 'Vaccine not found' });
-    }
-    res.json(vaccine);
-  } catch (error) {
-    console.error('Error fetching vaccine:', error);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
-  }
-});
-
-// GET /api/vaccines/patient/:id - Fetch vaccines by patient ID
-app.get('/api/vaccines/patient/:id', async (req, res) => {
-  const { id } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'Invalid patient ID format' });
-  }
-
-  try {
-    const vaccines = await VaccineModel.find({ patient: id }).populate('administeredBy');
-    if (!vaccines || vaccines.length === 0) {
-      return res.status(404).json({ message: 'No vaccine records found.' });
-    }
-    res.json(vaccines);
-  } catch (error) {
-    console.error('Error fetching vaccine records:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 });
 
