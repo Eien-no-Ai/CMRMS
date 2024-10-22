@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 // Define the Patient schema
 const PatientSchema = new mongoose.Schema({
+    medicalHistory: { type: mongoose.Schema.Types.ObjectId, ref: 'MedicalHistory' }, // Reference to the MedicalHistory model
     firstname: { type: String, required: true },
     middlename: { type: String },
     lastname: { type: String, required: true },

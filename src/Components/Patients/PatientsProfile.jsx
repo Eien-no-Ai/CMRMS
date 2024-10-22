@@ -131,7 +131,7 @@ function PatientsProfile() {
   const fetchMedicalRecords = useCallback(async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/medical-history/${id}`
+        `http://localhost:3001/api/medical-history/${id}` // 'id' is patientId
       );
       const sortedMedicalRecords = response.data.sort(
         (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
@@ -367,8 +367,10 @@ function PatientsProfile() {
       document.removeEventListener("mousedown", handleClickOutsidePackage);
     };
   }, [showPackageOptions]);
+
   const [isVaccineModalOpen, setIsVaccineModalOpen] = useState(false);
   const [selectedVaccine, setSelectedVaccine] = useState(""); // Store se
+
   const handleTabChange = (tab) => {
     setSelectedTab(tab);
   };
@@ -394,6 +396,57 @@ function PatientsProfile() {
   const handleVaccineChange = (event) => {
     setSelectedVaccine(event.target.value);
   };
+
+  const handleVaccineSubmit = async () => {
+    if (!selectedVaccine) {
+      alert("Please select a vaccine before submitting.");
+      return;
+    }
+
+    try {
+      // Get the logged-in user's ID (assuming it's stored in localStorage)
+      const adminId = localStorage.getItem("userId");
+      if (!adminId) {
+        alert("Admin user not found. Please log in again.");
+        return;
+      }
+
+      // Send the selected vaccine to the backend API
+      const response = await axios.post("http://localhost:3001/api/vaccines", {
+        patient: id, // Use id from useParams (patient ID from URL)
+        name: selectedVaccine, // Vaccine name
+        dateAdministered: new Date(), // You can modify the date if needed
+        administeredBy: adminId, // Add the admin user ID
+      });
+
+      console.log("Vaccine submitted successfully:", response.data);
+      // Close modal and reset form after successful submission
+      handleVaccineModalClose();
+      // Optionally, refresh vaccine records or notify the user
+    } catch (error) {
+      console.error("Error submitting vaccine:", error.response || error);
+      alert("Failed to submit vaccine. Please try again.");
+    }
+  };
+
+  // Vaccine records state
+  const [vaccineRecords, setVaccineRecords] = useState([]);
+  const fetchVaccineRecords = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/vaccines/patient/${id}`
+      );
+      console.log("Vaccine Records Response:", response.data); // Debugging log
+      setVaccineRecords(response.data);
+    } catch (error) {
+      console.error("Error fetching vaccine records:", error);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    fetchVaccineRecords();
+  }, [fetchVaccineRecords]);
+
   const handleAddPackage = () => {
     setShowPackageOptions((prev) => !prev);
   };
@@ -416,6 +469,8 @@ function PatientsProfile() {
       ? xrayRecords
       : selectedTab === "physical therapy"
       ? physicalTherapyRecords
+      : selectedTab === "vaccine"
+      ? vaccineRecords // <-- New condition for vaccines
       : [];
 
   const initialFormData = {
@@ -1118,12 +1173,13 @@ function PatientsProfile() {
   useEffect(() => {
     if (medicalHistoryId) {
       axios
-        .get(`http://localhost:3001/api/medical-history/${medicalHistoryId}`)
+        .get(`http://localhost:3001/api/medical-history/id/${medicalHistoryId}`)
         .then((response) => {
           setMedicalHistory(response.data);
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
+          // Optionally, display a user-friendly message
         });
     }
   }, [medicalHistoryId]);
@@ -2864,6 +2920,16 @@ function PatientsProfile() {
                   onClick={() => handleTabChange("package")}
                 >
                   Physical Examination
+                </button>
+                <button
+                  className={`${
+                    selectedTab === "vaccine"
+                      ? "text-custom-red font-semibold"
+                      : ""
+                  }`}
+                  onClick={() => handleTabChange("vaccine")}
+                >
+                  Vaccine Records
                 </button>
               </div>
             </div>
@@ -5321,6 +5387,42 @@ function PatientsProfile() {
                       No Physical Therapy records available.
                     </p>
                   ))}
+
+                {/* Vaccine Records */}
+                {selectedTab === "vaccine" &&
+                  (displayedRecords.length > 0 ? (
+                    <ul className="space-y-4">
+                      {displayedRecords.map((record, index) => (
+                        <li
+                          key={index}
+                          className="flex justify-between items-center p-4 bg-gray-100 rounded-lg"
+                        >
+                          <div className="flex-1">
+                            <p className="text-gray-500 text-sm">
+                              {new Date(
+                                record.dateAdministered
+                              ).toLocaleString()}
+                            </p>
+                            <p className="font-semibold">{record.name}</p>
+                            {record.nextDose && (
+                              <p className="text-gray-500 italic">
+                                Next Dose:{" "}
+                                {new Date(record.nextDose).toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-gray-500">
+                            Administered by: {record.administeredBy?.firstname}{" "}
+                            {record.administeredBy?.lastname}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-center text-gray-500 py-4">
+                      No vaccine records found.
+                    </p>
+                  ))}
               </ul>
             </div>
           </div>
@@ -5363,6 +5465,7 @@ function PatientsProfile() {
           </div>
         </div>
       )}
+
       {/* Vaccine Modal */}
       {isVaccineModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -5399,10 +5502,7 @@ function PatientsProfile() {
               </button>
               <button
                 className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border"
-                onClick={() => {
-                  console.log("Selected Vaccine:", selectedVaccine);
-                  handleVaccineModalClose();
-                }}
+                onClick={handleVaccineSubmit}
               >
                 Submit
               </button>
