@@ -276,8 +276,8 @@ function LaboratoryResult() {
     if (labDetails && labDetails._id) {
       setClinicId(labDetails._id);
       setIsNewTherapyRecordModalOpen(true);
-      setId(labDetails.patient);
-      console.log("Therapy record modal opened, patient ID:", labDetails.patient);
+      setId(labDetails.patient._id);
+      console.log("Therapy record modal opened, patient ID:", labDetails.patient._id);
     } else {
       console.error("No lab details available or missing _id");
     }
@@ -343,7 +343,7 @@ function LaboratoryResult() {
   
       const dataToSend = {
         ...newTherapyRecord,
-        patient: labDetails._id,
+        patient: labDetails.patient._id,
         status: "pending", // Assuming you want to add a status field
       };
   
@@ -390,8 +390,8 @@ function LaboratoryResult() {
     if (labDetails && labDetails.patient) {
       setClinicId(labDetails._id);
       setIsNewXrayModalOpen(true);
-      setId(labDetails.patient);
-      console.log("X-ray modal opened, patient ID:", labDetails.patient);
+      setId(labDetails.patient._id);
+      console.log("X-ray modal opened, patient ID:", labDetails.patient._id);
     } else {
       console.error("No lab details available or missing _id");
     }
@@ -411,7 +411,7 @@ function LaboratoryResult() {
 
       const dataToSend = {
         ...newXrayRecord,
-        patient: labDetails._id,
+        patient: labDetails.patient._id,
         xrayResult: "pending",
       };
 
