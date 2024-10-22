@@ -1,9 +1,5 @@
-// import React, { useState, useEffect } from "react";
-// import { BiSearch, BiChevronDown } from "react-icons/bi";
-import Navbar from "../Navbar/Navbar";
-import axios from "axios";
-
-  //-----------------------------------
+  import Navbar from "../Navbar/Navbar";
+  import axios from "axios";
   import React, { useState, useEffect, useRef, useCallback } from "react";
   import { useParams } from "react-router-dom";
   import { FaXRay } from "react-icons/fa6";
@@ -146,18 +142,12 @@ function LaboratoryResult() {
     return age;
   };
 
-  //-----------------------------------
-  // const { id } = useParams();
+  //------------------------------------------------------OTHERSSSS--------------------------------------------------------------------------------------
   const [id, setId] = useState(null);
-  const [patient, setPatient] = useState(null);
-  const [role, setRole] = useState(null); // Store the user role
-  const [selectedRecord, setSelectedRecord] = useState(null);
   const [isLabModalOpen, setIsLabModalOpen] = useState(false);
   const [clinicId, setClinicId] = useState(null); // Added state for clinicId
-  const [isNewRecordModalOpen, setIsNewRecordModalOpen] = useState(false);
   const [isNewTherapyRecordModalOpen, setIsNewTherapyRecordModalOpen] = useState(false);
   const [isNewXrayModalOpen, setIsNewXrayModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedLabTests, setSelectedLabTests] = useState([]);
   const [selectedXrayRecords, setSelectedXrayRecords] = useState([]);
   const [xrayRecords, setXrayRecords] = useState([]);
@@ -170,7 +160,7 @@ function LaboratoryResult() {
     xrayDescription: "",
   });
 
-  //-----------------------------------
+  //------------------------------------------------------LABORATORY REQUEST--------------------------------------------------------------------------------------
   const initialFormData = {
     bloodChemistry: {
       bloodSugar: "",
@@ -213,6 +203,21 @@ function LaboratoryResult() {
   };
 
   const [formData, setFormData] = useState(initialFormData);
+
+  const handleLabModalOpen = () => {
+    if (labDetails && labDetails._id) {
+      setIsLabModalOpen(true);
+      setClinicId(labDetails._id);
+      setId(labDetails.patient); // Assuming patient ID is stored in labDetails.patient
+      console.log("Lab modal opened, patient ID:", labDetails.patient);
+    } else {
+      console.error("No lab details available or missing _id");
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsLabModalOpen(false);
+  };
 
   const handleInputChange = (section, field) => {
     setFormData((prevData) => ({
@@ -265,32 +270,8 @@ function LaboratoryResult() {
     } finally {
       setClinicId(null); // Clear clinicId explicitly
     }
-  };//stop here
-  //-----------------------------------
-  const handleLabModalOpen = () => {
-    if (labDetails && labDetails._id) {
-      setIsLabModalOpen(true);
-      setClinicId(labDetails._id);
-      setId(labDetails.patient); // Assuming patient ID is stored in labDetails.patient
-      console.log("Lab modal opened, patient ID:", labDetails.patient);
-    } else {
-      console.error("No lab details available or missing _id");
-    }
   };
-
-  const handleModalClose = () => {
-    setIsLabModalOpen(false);
-  };
-
-  //------------------------------------
-  const handleNewTherapyRecordChange = (e) => {
-    const { name, value } = e.target;
-    setNewTherapyRecord((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
+  //------------------------------------------------------PHYSICAL THERAPY REQUEST--------------------------------------------------------------------------------------
   const handleNewTherapyRecordOpen = () => {
     if (labDetails && labDetails._id) {
       setClinicId(labDetails._id);
@@ -301,10 +282,17 @@ function LaboratoryResult() {
       console.error("No lab details available or missing _id");
     }
   };
-  
 
   const handleNewTherapyRecordClose = () => {
     setIsNewTherapyRecordModalOpen(false);
+  };
+
+  const handleNewTherapyRecordChange = (e) => {
+    const { name, value } = e.target;
+    setNewTherapyRecord((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const [newTherapyRecord, setNewTherapyRecord] = useState({
@@ -395,90 +383,9 @@ function LaboratoryResult() {
     } finally {
       setClinicId(null);
     }
-  };  //------------------------------------
-const handleNewXraySubmit = async (e) => {
-  e.preventDefault();
-  try {
-    if (!labDetails || !labDetails.patient) {
-      console.error("No patient data available");
-      return;
-    }
+  };  
 
-    const dataToSend = {
-      ...newXrayRecord,
-      patient: labDetails._id,
-      xrayResult: "pending",
-    };
-
-    if (clinicId) {
-      dataToSend.clinicId = clinicId;
-    }
-
-    console.log("Submitting X-ray request:", dataToSend);
-
-    const response = await axios.post(
-      "http://localhost:3001/api/xrayResults",
-      dataToSend
-    );
-
-    if (response.data.success) {
-      console.log("X-ray submitted successfully:", response.data);
-      setNewXrayRecord({});
-      handleNewXrayModalClose();
-      fetchXrayRecords();
-
-      if (clinicId) {
-        const updatedXrayRecords = await axios.get(
-          `http://localhost:3001/api/xrayResults?clinicId=${clinicId}`
-        );
-        setSelectedXrayRecords(updatedXrayRecords.data);
-      }
-    } else {
-      console.error("Error submitting X-ray form:", response.data);
-    }
-  } catch (error) {
-    console.error("An error occurred while submitting the X-ray form:", error);
-  } finally {
-    setClinicId(null);
-  }
-};  
-
-const handleNewXrayChange = (e) => {
-    const { name, value } = e.target;
-    setNewXrayRecord((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const fetchXrayRecords = useCallback(async () => {
-    try {
-      if (!labDetails || !labDetails.patient) {
-        console.error("No patient data available");
-        return;
-      }
-  
-      const patientId = labDetails.patient._id || labDetails.patient;
-  
-      if (!patientId) {
-        console.error("Invalid patient ID");
-        return;
-      }
-  
-      const response = await axios.get(
-        `http://localhost:3001/api/xrayResults/${patientId}`
-      );
-      const sortedXrayRecords = response.data.sort(
-        (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
-      );
-      setXrayRecords(sortedXrayRecords);
-      console.log("Fetched X-ray Records:", sortedXrayRecords);
-    } catch (error) {
-      console.error("There was an error fetching the X-ray records! ", error);
-    }
-  }, [labDetails]);
-
-
+  //------------------------------------------------------X-RAY REQUEST--------------------------------------------------------------------------------------
   const handleNewXrayModalOpen = () => {
     if (labDetails && labDetails.patient) {
       setClinicId(labDetails._id);
@@ -490,10 +397,93 @@ const handleNewXrayChange = (e) => {
     }
   };
 
-
   const handleNewXrayModalClose = () => {
     setIsNewXrayModalOpen(false);
   };
+
+  const handleNewXraySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (!labDetails || !labDetails.patient) {
+        console.error("No patient data available");
+        return;
+      }
+
+      const dataToSend = {
+        ...newXrayRecord,
+        patient: labDetails._id,
+        xrayResult: "pending",
+      };
+
+      if (clinicId) {
+        dataToSend.clinicId = clinicId;
+      }
+
+      console.log("Submitting X-ray request:", dataToSend);
+
+      const response = await axios.post(
+        "http://localhost:3001/api/xrayResults",
+        dataToSend
+      );
+
+      if (response.data.success) {
+        console.log("X-ray submitted successfully:", response.data);
+        setNewXrayRecord({});
+        handleNewXrayModalClose();
+        fetchXrayRecords();
+
+        if (clinicId) {
+          const updatedXrayRecords = await axios.get(
+            `http://localhost:3001/api/xrayResults?clinicId=${clinicId}`
+          );
+          setSelectedXrayRecords(updatedXrayRecords.data);
+        }
+      } else {
+        console.error("Error submitting X-ray form:", response.data);
+      }
+    } catch (error) {
+      console.error("An error occurred while submitting the X-ray form:", error);
+    } finally {
+      setClinicId(null);
+    }
+  };  
+
+  const handleNewXrayChange = (e) => {
+      const { name, value } = e.target;
+      setNewXrayRecord((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    };
+
+    const fetchXrayRecords = useCallback(async () => {
+      try {
+        if (!labDetails || !labDetails.patient) {
+          console.error("No patient data available");
+          return;
+        }
+    
+        const patientId = labDetails.patient._id || labDetails.patient;
+    
+        if (!patientId) {
+          console.error("Invalid patient ID");
+          return;
+        }
+    
+        const response = await axios.get(
+          `http://localhost:3001/api/xrayResults/${patientId}`
+        );
+        const sortedXrayRecords = response.data.sort(
+          (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
+        );
+        setXrayRecords(sortedXrayRecords);
+        console.log("Fetched X-ray Records:", sortedXrayRecords);
+      } catch (error) {
+        console.error("There was an error fetching the X-ray records! ", error);
+      }
+    }, [labDetails]);
+
+  {/* -------------------------------------------------------------------------------------------------------------------------------------------- */}
 
   return (
     <div>
@@ -1728,28 +1718,26 @@ const handleNewXrayChange = (e) => {
             </form>
 
             <div className="flex justify-between items-center mt-4">
-                              <div className="flex space-x-2"> 
-                              <button
-                                  className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                                  onClick={handleLabModalOpen}
-                                >
-                                  <SlChemistry className="mr-2" /> Lab Request
-                                </button>
-                                <button
-                                  className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                                  onClick={handleNewXrayModalOpen}
-                                >
-                                  <FaXRay className="mr-2" /> X-Ray Request
-                                </button>
-                                <button
-                                  className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                                  onClick={handleNewTherapyRecordOpen}
-                                >
-                                  <GiBiceps className="mr-2" /> Refer to PT
-                              </button>
-                            </div>
-            
-
+              <div className="flex space-x-2"> 
+                  <button
+                    className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                     onClick={handleLabModalOpen}
+                  >
+                    <SlChemistry className="mr-2" /> Lab Request
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                    onClick={handleNewXrayModalOpen}
+                  >
+                    <FaXRay className="mr-2" /> X-Ray Request
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                    onClick={handleNewTherapyRecordOpen}
+                   >
+                    <GiBiceps className="mr-2" /> Refer to PT
+                  </button>
+                </div>
               {/* Right Side: Close and Submit Buttons */}
               <div className="flex space-x-4">
 
@@ -1764,441 +1752,443 @@ const handleNewXrayChange = (e) => {
           </div>
         </div>
       )}
-      {/* ---------------------------------------------------------------------------- */}
 
-{isLabModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
-            <h2 className="text-lg font-bold mb-4 text-center">
-              Laboratory Request Form
-            </h2>
+  {/* ------------------------------------------------------LABORATORY REQUEST MDDAL-------------------------------------------------------------------------------------- */}
+        {isLabModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
+                <h2 className="text-lg font-bold mb-4 text-center">
+                  Laboratory Request Form
+                </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* I. Blood Chemistry */}
-              <div className="md:col-span-2 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
-                <h3 className="font-semibold text-base mb-3">
-                  I. Blood Chemistry
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.bloodSugar !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "bloodSugar")
-                      }
-                    />{" "}
-                    Blood Sugar (Fasting / Random)
-                  </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* I. Blood Chemistry */}
+                  <div className="md:col-span-2 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+                    <h3 className="font-semibold text-base mb-3">
+                      I. Blood Chemistry
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.bloodChemistry.bloodSugar !== ""}
+                          onChange={() =>
+                            handleInputChange("bloodChemistry", "bloodSugar")
+                          }
+                        />{" "}
+                        Blood Sugar (Fasting / Random)
+                      </label>
 
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.bloodUreaNitrogen !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "bloodUreaNitrogen")
-                      }
-                    />{" "}
-                    Blood Urea Nitrogen
-                  </label>
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.bloodChemistry.bloodUreaNitrogen !== ""}
+                          onChange={() =>
+                            handleInputChange("bloodChemistry", "bloodUreaNitrogen")
+                          }
+                        />{" "}
+                        Blood Urea Nitrogen
+                      </label>
 
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.bloodUricAcid !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "bloodUricAcid")
-                      }
-                    />{" "}
-                    Blood Uric Acid
-                  </label>
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.bloodChemistry.bloodUricAcid !== ""}
+                          onChange={() =>
+                            handleInputChange("bloodChemistry", "bloodUricAcid")
+                          }
+                        />{" "}
+                        Blood Uric Acid
+                      </label>
 
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.creatinine !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "creatinine")
-                      }
-                    />{" "}
-                    Creatinine
-                  </label>
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.bloodChemistry.creatinine !== ""}
+                          onChange={() =>
+                            handleInputChange("bloodChemistry", "creatinine")
+                          }
+                        />{" "}
+                        Creatinine
+                      </label>
 
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.SGOT_AST !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "SGOT_AST")
-                      }
-                    />{" "}
-                    SGOT / AST
-                  </label>
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.bloodChemistry.SGOT_AST !== ""}
+                          onChange={() =>
+                            handleInputChange("bloodChemistry", "SGOT_AST")
+                          }
+                        />{" "}
+                        SGOT / AST
+                      </label>
 
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.SGPT_ALT !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "SGPT_ALT")
-                      }
-                    />{" "}
-                    SGPT / ALT
-                  </label>
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.bloodChemistry.SGPT_ALT !== ""}
+                          onChange={() =>
+                            handleInputChange("bloodChemistry", "SGPT_ALT")
+                          }
+                        />{" "}
+                        SGPT / ALT
+                      </label>
 
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.totalCholesterol !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "totalCholesterol")
-                      }
-                    />{" "}
-                    Total Cholesterol
-                  </label>
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.bloodChemistry.totalCholesterol !== ""}
+                          onChange={() =>
+                            handleInputChange("bloodChemistry", "totalCholesterol")
+                          }
+                        />{" "}
+                        Total Cholesterol
+                      </label>
 
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.triglyceride !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "triglyceride")
-                      }
-                    />{" "}
-                    Triglyceride
-                  </label>
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.bloodChemistry.triglyceride !== ""}
+                          onChange={() =>
+                            handleInputChange("bloodChemistry", "triglyceride")
+                          }
+                        />{" "}
+                        Triglyceride
+                      </label>
 
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.HDL_cholesterol !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "HDL_cholesterol")
-                      }
-                    />{" "}
-                    HDL Cholesterol
-                  </label>
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.bloodChemistry.HDL_cholesterol !== ""}
+                          onChange={() =>
+                            handleInputChange("bloodChemistry", "HDL_cholesterol")
+                          }
+                        />{" "}
+                        HDL Cholesterol
+                      </label>
 
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.LDL_cholesterol !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "LDL_cholesterol")
-                      }
-                    />{" "}
-                    LDL Cholesterol
-                  </label>
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.bloodChemistry.LDL_cholesterol !== ""}
+                          onChange={() =>
+                            handleInputChange("bloodChemistry", "LDL_cholesterol")
+                          }
+                        />{" "}
+                        LDL Cholesterol
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* II. Hematology */}
+                  <div className="border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+                    <h3 className="font-semibold text-base mb-3">II. Hematology</h3>
+                    <div className="space-y-2 text-sm">
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={
+                            formData.hematology.bleedingTimeClottingTime !== ""
+                          }
+                          onChange={() =>
+                            handleInputChange(
+                              "hematology",
+                              "bleedingTimeClottingTime"
+                            )
+                          }
+                        />{" "}
+                        Bleeding Time & Clotting Time
+                      </label>
+
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.hematology.completeBloodCount !== ""}
+                          onChange={() =>
+                            handleInputChange("hematology", "completeBloodCount")
+                          }
+                        />{" "}
+                        Complete Blood Count with Platelet Count
+                      </label>
+
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={
+                            formData.hematology.hematocritAndHemoglobin !== ""
+                          }
+                          onChange={() =>
+                            handleInputChange(
+                              "hematology",
+                              "hematocritAndHemoglobin"
+                            )
+                          }
+                        />{" "}
+                        Hematocrit and Hemoglobin
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* III. Clinical Microscopy & Parasitology */}
+                  <div className="border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+                    <h3 className="font-semibold text-base mb-3">
+                      III. Clinical Microscopy & Parasitology
+                    </h3>
+                    <div className="space-y-2 text-sm">
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={
+                            formData.clinicalMicroscopyParasitology
+                              .routineUrinalysis !== ""
+                          }
+                          onChange={() =>
+                            handleInputChange(
+                              "clinicalMicroscopyParasitology",
+                              "routineUrinalysis"
+                            )
+                          }
+                        />{" "}
+                        Routine Urinalysis
+                      </label>
+
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={
+                            formData.clinicalMicroscopyParasitology
+                              .routineStoolExamination !== ""
+                          }
+                          onChange={() =>
+                            handleInputChange(
+                              "clinicalMicroscopyParasitology",
+                              "routineStoolExamination"
+                            )
+                          }
+                        />{" "}
+                        Routine Stool Examination
+                      </label>
+
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={
+                            formData.clinicalMicroscopyParasitology
+                              .katoThickSmear !== ""
+                          }
+                          onChange={() =>
+                            handleInputChange(
+                              "clinicalMicroscopyParasitology",
+                              "katoThickSmear"
+                            )
+                          }
+                        />{" "}
+                        Kato Thick Smear
+                      </label>
+
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={
+                            formData.clinicalMicroscopyParasitology
+                              .fecalOccultBloodTest !== ""
+                          }
+                          onChange={() =>
+                            handleInputChange(
+                              "clinicalMicroscopyParasitology",
+                              "fecalOccultBloodTest"
+                            )
+                          }
+                        />{" "}
+                        Fecal Occult Blood Test
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* IV. Blood Banking And Serology */}
+                  <div className="md:col-span-2 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+                    <h3 className="font-semibold text-base mb-3">
+                      IV. Blood Banking And Serology
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={
+                            formData.bloodBankingSerology.antiTreponemaPallidum !==
+                            ""
+                          }
+                          onChange={() =>
+                            handleInputChange(
+                              "bloodBankingSerology",
+                              "antiTreponemaPallidum"
+                            )
+                          }
+                        />{" "}
+                        Anti-Treponema Pallidum
+                      </label>
+
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.bloodBankingSerology.antiHCV !== ""}
+                          onChange={() =>
+                            handleInputChange("bloodBankingSerology", "antiHCV")
+                          }
+                        />{" "}
+                        Anti-HCV
+                      </label>
+
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.bloodBankingSerology.bloodTyping !== ""}
+                          onChange={() =>
+                            handleInputChange("bloodBankingSerology", "bloodTyping")
+                          }
+                        />{" "}
+                        Blood Typing (ABO & Rh Grouping)
+                      </label>
+
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={
+                            formData.bloodBankingSerology
+                              .hepatitisBSurfaceAntigen !== ""
+                          }
+                          onChange={() =>
+                            handleInputChange(
+                              "bloodBankingSerology",
+                              "hepatitisBSurfaceAntigen"
+                            )
+                          }
+                        />{" "}
+                        Hepatitis B Surface Antigen
+                      </label>
+
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={
+                            formData.bloodBankingSerology.pregnancyTest !== ""
+                          }
+                          onChange={() =>
+                            handleInputChange(
+                              "bloodBankingSerology",
+                              "pregnancyTest"
+                            )
+                          }
+                        />{" "}
+                        Pregnancy Test (Plasma/Serum)
+                      </label>
+
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.bloodBankingSerology.dengueTest !== ""}
+                          onChange={() =>
+                            handleInputChange("bloodBankingSerology", "dengueTest")
+                          }
+                        />{" "}
+                        Dengue Test
+                      </label>
+
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={
+                            formData.bloodBankingSerology.HIVRapidTest !== ""
+                          }
+                          onChange={() =>
+                            handleInputChange(
+                              "bloodBankingSerology",
+                              "HIVRapidTest"
+                            )
+                          }
+                        />{" "}
+                        HIV Rapid Test Kit
+                      </label>
+
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.bloodBankingSerology.HIVElsa !== ""}
+                          onChange={() =>
+                            handleInputChange("bloodBankingSerology", "HIVElsa")
+                          }
+                        />{" "}
+                        HIV ELISA
+                      </label>
+
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={
+                            formData.bloodBankingSerology.testForSalmonellaTyphi !==
+                            ""
+                          }
+                          onChange={() =>
+                            handleInputChange(
+                              "bloodBankingSerology",
+                              "testForSalmonellaTyphi"
+                            )
+                          }
+                        />{" "}
+                        Test for Salmonella typhi
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* V. Microbiology */}
+                  <div className="md:col-span-3 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+                    <h3 className="font-semibold text-base mb-3">
+                      V. Microbiology
+                    </h3>
+                    <div className="space-y-2 text-sm">
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.microbiology.gramsStain !== ""}
+                          onChange={() =>
+                            handleInputChange("microbiology", "gramsStain")
+                          }
+                        />{" "}
+                        Gram's Stain
+                      </label>
+
+                      <label className="block">
+                        <input
+                          type="checkbox"
+                          checked={formData.microbiology.KOH !== ""}
+                          onChange={() => handleInputChange("microbiology", "KOH")}
+                        />{" "}
+                        KOH
+                      </label>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              {/* II. Hematology */}
-              <div className="border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
-                <h3 className="font-semibold text-base mb-3">II. Hematology</h3>
-                <div className="space-y-2 text-sm">
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.hematology.bleedingTimeClottingTime !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "hematology",
-                          "bleedingTimeClottingTime"
-                        )
-                      }
-                    />{" "}
-                    Bleeding Time & Clotting Time
-                  </label>
+                <div className="flex justify-end mt-4 space-x-3">
+                  <button
+                    className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:gray-500 hover:border-gray-500 border transition duration-200"
+                    onClick={handleModalClose}
+                  >
+                    Cancel
+                  </button>
 
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.hematology.completeBloodCount !== ""}
-                      onChange={() =>
-                        handleInputChange("hematology", "completeBloodCount")
-                      }
-                    />{" "}
-                    Complete Blood Count with Platelet Count
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.hematology.hematocritAndHemoglobin !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "hematology",
-                          "hematocritAndHemoglobin"
-                        )
-                      }
-                    />{" "}
-                    Hematocrit and Hemoglobin
-                  </label>
-                </div>
-              </div>
-
-              {/* III. Clinical Microscopy & Parasitology */}
-              <div className="border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
-                <h3 className="font-semibold text-base mb-3">
-                  III. Clinical Microscopy & Parasitology
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.clinicalMicroscopyParasitology
-                          .routineUrinalysis !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "clinicalMicroscopyParasitology",
-                          "routineUrinalysis"
-                        )
-                      }
-                    />{" "}
-                    Routine Urinalysis
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.clinicalMicroscopyParasitology
-                          .routineStoolExamination !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "clinicalMicroscopyParasitology",
-                          "routineStoolExamination"
-                        )
-                      }
-                    />{" "}
-                    Routine Stool Examination
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.clinicalMicroscopyParasitology
-                          .katoThickSmear !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "clinicalMicroscopyParasitology",
-                          "katoThickSmear"
-                        )
-                      }
-                    />{" "}
-                    Kato Thick Smear
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.clinicalMicroscopyParasitology
-                          .fecalOccultBloodTest !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "clinicalMicroscopyParasitology",
-                          "fecalOccultBloodTest"
-                        )
-                      }
-                    />{" "}
-                    Fecal Occult Blood Test
-                  </label>
-                </div>
-              </div>
-
-              {/* IV. Blood Banking And Serology */}
-              <div className="md:col-span-2 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
-                <h3 className="font-semibold text-base mb-3">
-                  IV. Blood Banking And Serology
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology.antiTreponemaPallidum !==
-                        ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "antiTreponemaPallidum"
-                        )
-                      }
-                    />{" "}
-                    Anti-Treponema Pallidum
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodBankingSerology.antiHCV !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodBankingSerology", "antiHCV")
-                      }
-                    />{" "}
-                    Anti-HCV
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodBankingSerology.bloodTyping !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodBankingSerology", "bloodTyping")
-                      }
-                    />{" "}
-                    Blood Typing (ABO & Rh Grouping)
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology
-                          .hepatitisBSurfaceAntigen !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "hepatitisBSurfaceAntigen"
-                        )
-                      }
-                    />{" "}
-                    Hepatitis B Surface Antigen
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology.pregnancyTest !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "pregnancyTest"
-                        )
-                      }
-                    />{" "}
-                    Pregnancy Test (Plasma/Serum)
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodBankingSerology.dengueTest !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodBankingSerology", "dengueTest")
-                      }
-                    />{" "}
-                    Dengue Test
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology.HIVRapidTest !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "HIVRapidTest"
-                        )
-                      }
-                    />{" "}
-                    HIV Rapid Test Kit
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodBankingSerology.HIVElsa !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodBankingSerology", "HIVElsa")
-                      }
-                    />{" "}
-                    HIV ELISA
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology.testForSalmonellaTyphi !==
-                        ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "testForSalmonellaTyphi"
-                        )
-                      }
-                    />{" "}
-                    Test for Salmonella typhi
-                  </label>
-                </div>
-              </div>
-
-              {/* V. Microbiology */}
-              <div className="md:col-span-3 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
-                <h3 className="font-semibold text-base mb-3">
-                  V. Microbiology
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.microbiology.gramsStain !== ""}
-                      onChange={() =>
-                        handleInputChange("microbiology", "gramsStain")
-                      }
-                    />{" "}
-                    Gram's Stain
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.microbiology.KOH !== ""}
-                      onChange={() => handleInputChange("microbiology", "KOH")}
-                    />{" "}
-                    KOH
-                  </label>
+                  <button
+                    className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                    onClick={handleSubmit}
+                  >
+                    Submit
+                  </button>
                 </div>
               </div>
             </div>
+          )}
 
-            <div className="flex justify-end mt-4 space-x-3">
-              <button
-                className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:gray-500 hover:border-gray-500 border transition duration-200"
-                onClick={handleModalClose}
-              >
-                Cancel
-              </button>
-
-              <button
-                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                onClick={handleSubmit}
-              >
-                Submit
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+  {/* -----------------------------------------------------PHYSICAL THERAPY REQUEST MDDAL-------------------------------------------------------------------------------------- */}
         {isNewTherapyRecordModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
@@ -2235,7 +2225,9 @@ const handleNewXrayChange = (e) => {
               </form>
             </div>
           </div>
-        )}      
+        )}
+
+  {/* ------------------------------------------------------XRAY REQUEST MDDAL-------------------------------------------------------------------------------------- */}      
       {isNewXrayModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-2 px-6 rounded-lg w-full max-w-md shadow-lg">
@@ -2291,8 +2283,8 @@ const handleNewXrayChange = (e) => {
       
 
 
-      {/* ---------------------------------------------------------------------------- */}
-    </div>
+  {/* ------------------------------------------------------DON'T DELETE THE FOLLOWING-------------------------------------------------------------------------------------- */}
+  </div>
   );
 }
 
