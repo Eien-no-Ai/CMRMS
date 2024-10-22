@@ -10,6 +10,7 @@ const LaboratoryResultsModel = require("./models/LaboratoryResults");
 const PhysicalTherapyModel = require("./models/PhysicalTherapy");
 const PackageModel = require("./models/Package");
 const MedicalHistoryModel = require("./models/MedicalHistory");
+const PhysicalExamStudentModel = require("./models/PhysicalExamStudent");
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -17,8 +18,39 @@ const nodemailer = require("nodemailer");
 
 mongoose.connect(
   "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee"
-);`1
-`
+);
+
+// P H Y S I C A L E X A M   S T U D E N T
+app.post("/api/physical-exam-student", async (req, res) => {
+  try {
+    const physicalExamStudent = req.body;
+    const newPhysicalExamStudent = await PhysicalExamStudentModel.create(
+      physicalExamStudent
+    );
+    res.json({
+      message: "Physical Exam Student created successfully",
+      newPhysicalExamStudent,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error creating Physical Exam Student",
+      error: error.message,
+    });
+  }
+});
+
+app.get("/api/physical-exam-student", async (req, res) => {
+  try {
+    const physicalExamStudents = await PhysicalExamStudentModel.find();
+    res.json(physicalExamStudents);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching Physical Exam Students",
+      error: error.message,
+    });
+  }
+});
+
 //M E D I C A L   H I S T O R Y
 app.post('/api/medical-history', async (req, res) => {
   try {
