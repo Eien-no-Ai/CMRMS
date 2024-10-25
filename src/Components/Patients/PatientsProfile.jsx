@@ -55,7 +55,7 @@ function PatientsProfile() {
     useState(false);
   const [clinicId, setClinicId] = useState(null); // Added state for clinicId
   const [medicalRecords, setMedicalRecords] = useState([]);
-
+  
   // Fetch the role from localStorage
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
@@ -142,15 +142,27 @@ function PatientsProfile() {
     }
   }, [id]);
 
-  // const fetchPhysicalExamStudent = useCallback(async () => {
+
+  // const fetchPhysicalExamStudentRecords = useCallback(async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://localhost:3001/api/physical-exam-student/${id}` // 'id' is patientId
+  //     );
+  //     const sortedPhysicalExamStudentRecords = response.data.sort(
+  //       (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
+  //     );
+  //     sortedPhysicalExamStudentRecords(sortedPhysicalExamStudentRecords);
+  //   } catch (error) {
+  //     console.error("There was an error fetching the Medical records!", error);
+  //   }
+  // }, [id]);
+
+  // const fetchPhysicalExamStudentRecords = useCallback(async () => {
   //   try {
   //     const response = await axios.get(
   //       `http://localhost:3001/api/physical-exam-student/${id}`
   //     );
-  //     const sortedPhysicalExamStudent = response.data.sort(
-  //       (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
-  //     );
-  //     setPhysicalExamStudent(sortedPhysicalExamStudent);
+  //     setPhysicalExamStudent(response.data); // Set fetched data directly
   //   } catch (error) {
   //     console.error(
   //       "There was an error fetching the Physical Exam Student records!",
@@ -165,7 +177,7 @@ function PatientsProfile() {
     fetchClinicalRecords();
     fetchPhysicalTherapyRecords();
     fetchMedicalRecords();
-    // fetchPhysicalExamStudent();
+    // fetchPhysicalExamStudentRecords();
     const fetchPatient = async () => {
       try {
         const response = await axios.get(
@@ -187,7 +199,7 @@ function PatientsProfile() {
     fetchClinicalRecords,
     fetchPhysicalTherapyRecords,
     fetchMedicalRecords,
-    // fetchPhysicalExamStudent,
+    // fetchPhysicalExamStudentRecords,
   ]);
 
   const handleNewTherapyRecordOpen = () => {
@@ -1421,7 +1433,7 @@ function PatientsProfile() {
       LMP:null,
     },
   });
-
+  
   const handlePEInputChange = (field, value) => {
     // Check if the field is in the 'abnormalFindings' object
     if (field in physicalExamStudent.abnormalFindings) {
@@ -1435,6 +1447,14 @@ function PatientsProfile() {
               ...prevState.abnormalFindings[field],
               remarks: value.remarks, // Update only remarks
             },
+          },
+        }));
+      } else if (field === 'LMP') {
+        setPhysicalExamStudent((prevState) => ({
+          ...prevState,
+          abnormalFindings: {
+            ...prevState.abnormalFindings,
+            LMP: value, // Set the LMP as a string in the 'yyyy-MM-dd' format
           },
         }));
       } else {
@@ -1458,7 +1478,25 @@ function PatientsProfile() {
       }));
     }
   };
+
+  const [physicalExamStudentRecords, setPhysicalExamStudentRecords] = useState([]);
+
+  const fetchPhysicalExamStudents = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/physical-exam-student`
+      );
+      console.log("Physical exam student data:", response.data);
+      setPhysicalExamStudentRecords(response.data);
+    } catch (error) {
+      console.error("Error fetching physical exam student data:", error);
+    }
+  };
   
+  useEffect(() => {
+    fetchPhysicalExamStudents();
+  }, []);
+
   
   const handlePESubmit = async () => {
     try {
@@ -1470,17 +1508,50 @@ function PatientsProfile() {
         }
       );
       console.log("Physical exam saved successfully:", response.data);
+  
       if (response.status === 200) {
+       
+        // Close the modal
         setisPackageInfoModalOpen(false);
-        // fetchPhysicalExamStudent();
+        fetchPhysicalExamStudents();
+        // Clear the input fields by resetting physicalExamStudent to initial values
         setPhysicalExamStudent({
-          ...physicalExamStudent,
+          temperature: '',
+          bloodPressure: '',
+          pulseRate: '',
+          respirationRate: '',
+          height: '',
+          weight: '',
+          bodyBuilt: '',
+          visualAcuity: '',
+          abnormalFindings: {
+            skin: { skin: false, remarks: '' },
+            headNeckScalp: { headNeckScalp: false, remarks: '' },
+            eyesExternal: { eyesExternal: false, remarks: '' },
+            pupils: { pupils: false, remarks: '' },
+            ears: { ears: false, remarks: '' },
+            noseSinuses: { noseSinuses: false, remarks: '' },
+            mouthThroat: { mouthThroat: false, remarks: '' },
+            neckThyroid: { neckThyroid: false, remarks: '' },
+            chestBreastsAxilla: { chestBreastsAxilla: false, remarks: '' },
+            lungs: { lungs: false, remarks: '' },
+            heart: { heart: false, remarks: '' },
+            abdomen: { abdomen: false, remarks: '' },
+            back: { back: false, remarks: '' },
+            anusRectum: { anusRectum: false, remarks: '' },
+            urinary: { urinary: false, remarks: '' },
+            inguinalGenitals: { inguinalGenitals: false, remarks: '' },
+            reflexes: { reflexes: false, remarks: '' },
+            extremities: { extremities: false, remarks: '' },
+            LMP: null,
+          }
         });
       }
     } catch (error) {
       console.error("Error adding physical exam:", error);
     }
-  }
+  };
+  
 
   return (
     <div>
@@ -3327,7 +3398,7 @@ function PatientsProfile() {
 
                       {/* Medical Records List */}
                       <ul>
-                        {medicalRecords.map((record) => (
+                        {medicalRecords.map ((record) => (
                           <li key={record._id} className="mb-4 p-2  rounded-lg">
                             <h3 className="text-lg font-semibold mt-4">
                               I. MEDICAL HISTORY:
@@ -3681,18 +3752,20 @@ function PatientsProfile() {
                                 </div>
                               </div>
                             </div>
-                          </li>
+                          {/* </li>
                         ))}
-                      </ul>
+                      </ul> */}
                       <div>
                         <div className="flex items-center justify-between mt-4">
                           <div>
+                            
                             <h3 className="text-lg font-semibold mr-4">
                               II. PHYSICAL EXAMINATION:
                             </h3>
                             <label className="text-sm font-semibold">
                               To be completed by examining physician.
                             </label>
+                            
                           </div>
 
                           <button
@@ -3705,14 +3778,38 @@ function PatientsProfile() {
                             View Result
                           </button>
                         </div>
+                          
+                      
 
                        {/* Physical Examination Inputs */}
+                        {/* Fetch Physical Examination Records */}
+                        {physicalExamStudentRecords.length > 0 ? (
+                          physicalExamStudentRecords.map((record) => (
+                            <div key={record._id} className="bg-white p-6 rounded-lg shadow-sm mt-4">
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <h3 className="text-lg font-semibold">
+                                    Physical Examination Results
+                                  </h3>
+                                  <p className="text-sm text-gray-500">
+                                    Temperature: {record.temperature}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center text-gray-500 mt-4">
+                            No physical examination records available.
+                          </div>
+                        )}
+
                         <div className="grid grid-cols-12 gap-4 p-4">
                           <label className="col-span-2">Temperature</label>
                           <input
                             type="text"
                             className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.temperature}
+                            value={physicalExamStudent.temperature || ""} 
                             onChange={(e) =>
                               handlePEInputChange("temperature", e.target.value)
                             }
@@ -3722,7 +3819,7 @@ function PatientsProfile() {
                           <input
                             type="text"
                             className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.height}
+                            value={physicalExamStudent.height || ""}
                             onChange={(e) =>
                               handlePEInputChange("height", e.target.value)
                             }
@@ -3732,7 +3829,7 @@ function PatientsProfile() {
                           <input
                             type="text"
                             className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.bloodPressure}
+                            value={physicalExamStudent.bloodPressure || ""}
                             onChange={(e) =>
                               handlePEInputChange("bloodPressure", e.target.value)
                             }
@@ -3742,7 +3839,7 @@ function PatientsProfile() {
                           <input
                             type="text"
                             className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.weight}
+                            value={physicalExamStudent.weight || ""}
                             onChange={(e) =>
                               handlePEInputChange("weight", e.target.value)
                             }
@@ -3752,7 +3849,7 @@ function PatientsProfile() {
                           <input
                             type="text"
                             className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.pulseRate}
+                            value={physicalExamStudent.pulseRate || ""}
                             onChange={(e) =>
                               handlePEInputChange("pulseRate", e.target.value)
                             }
@@ -3762,7 +3859,7 @@ function PatientsProfile() {
                           <input
                             type="text"
                             className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.bodyBuilt}
+                            value={physicalExamStudent.bodyBuilt || ""}
                             onChange={(e) =>
                               handlePEInputChange("bodyBuilt", e.target.value)
                             }
@@ -3772,7 +3869,7 @@ function PatientsProfile() {
                           <input
                             type="text"
                             className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.respirationRate}
+                            value={physicalExamStudent.respirationRate || ""}
                             onChange={(e) =>
                               handlePEInputChange("respirationRate", e.target.value)
                             }
@@ -3782,12 +3879,13 @@ function PatientsProfile() {
                           <input
                             type="text"
                             className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.visualAcuity}
+                            value={physicalExamStudent.visualAcuity || ""}
                             onChange={(e) =>
                               handlePEInputChange("visualAcuity", e.target.value)
                             }
                           />
                         </div>
+
                         <hr />
                         {/* Dropdowns with Remarks */}
                         <div className="grid grid-cols-12 gap-4 mt-2 p-4">
@@ -3796,7 +3894,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Skin</label>
                             <select
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.skin.skin ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.skin.skin ? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) =>
                                 handlePEInputChange('skin', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -3808,7 +3906,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.skin.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.skin.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('skin', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -3820,7 +3918,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Lungs</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.lungs.lungs? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.lungs.lungs? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) =>
                                 handlePEInputChange('lungs', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -3832,7 +3930,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.lungs.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.lungs.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('lungs', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -3844,7 +3942,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Head, Neck, Scalp</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.headNeckScalp.headNeckScalp ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.headNeckScalp.headNeckScalp ? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) => 
                                 handlePEInputChange('headNeckScalp', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -3856,7 +3954,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.headNeckScalp.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.headNeckScalp.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('headNeckScalp', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -3868,7 +3966,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Heart</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.heart.heart ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.heart.heart ? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) => 
                                 handlePEInputChange('heart', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -3880,7 +3978,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.heart.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.heart.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('heart', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -3892,7 +3990,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Eyes, External</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.eyesExternal.eyesExternal ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.eyesExternal.eyesExternal ? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) =>
                                 handlePEInputChange('eyesExternal', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -3904,7 +4002,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.eyesExternal.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.eyesExternal.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('eyesExternal', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -3916,7 +4014,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Abdomen</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.abdomen.abdomen ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.abdomen.abdomen ? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) =>
                                 handlePEInputChange('abdomen', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -3928,7 +4026,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.abdomen.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.abdomen.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('abdomen', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -3940,7 +4038,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Pupils</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.pupils.pupils ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.pupils.pupils ? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) =>
                                 handlePEInputChange('pupils', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -3952,7 +4050,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.pupils.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.pupils.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('pupils', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -3963,7 +4061,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Back</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.back.back ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.back.back ? 'Yes' : 'No' || ""}  // Convert boolean to 'Yes' or 'No'
                               onChange={(e) =>
                                 handlePEInputChange('back', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -3975,7 +4073,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.back.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.back.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('back', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -3986,7 +4084,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Ears</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.ears.ears ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.ears.ears ? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) =>
                                 handlePEInputChange('ears', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -3998,7 +4096,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.ears.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.ears.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('ears', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -4009,7 +4107,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Anus/ Rectum</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.anusRectum.anusRectum ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.anusRectum.anusRectum ? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) =>
                                 handlePEInputChange('anusRectum', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -4021,7 +4119,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.anusRectum.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.anusRectum.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('anusRectum', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -4032,7 +4130,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Nose, Sinuses</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.noseSinuses.noseSinuses ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.noseSinuses.noseSinuses ? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) =>
                                 handlePEInputChange('noseSinuses', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -4044,7 +4142,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.noseSinuses.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.noseSinuses.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('noseSinuses', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -4055,7 +4153,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Urinary</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.urinary.urinary ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.urinary.urinary ? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) =>
                                 handlePEInputChange('urinary', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -4067,7 +4165,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.urinary.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.urinary.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('urinary', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -4078,7 +4176,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Inguinal Genitals</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.inguinalGenitals.inguinalGenitals ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.inguinalGenitals.inguinalGenitals ? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) =>
                                 handlePEInputChange('inguinalGenitals', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -4090,7 +4188,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.inguinalGenitals.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.inguinalGenitals.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('inguinalGenitals', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -4101,7 +4199,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Reflexes</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.reflexes.reflexes ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.reflexes.reflexes ? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) =>
                                 handlePEInputChange('reflexes', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -4113,7 +4211,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.reflexes.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.reflexes.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('reflexes', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -4124,7 +4222,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Neck, Thyroid gland</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.neckThyroid.neckThyroid ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.neckThyroid.neckThyroid ? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) =>
                                 handlePEInputChange('neckThyroid', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -4136,7 +4234,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.neckThyroid.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.neckThyroid.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('neckThyroid', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -4147,7 +4245,7 @@ function PatientsProfile() {
                             <label className="w-1/2">Extremities</label>
                             <select 
                               className="border rounded w-1/3 px-2 py-1"
-                              value={physicalExamStudent.abnormalFindings.extremities.extremities ? 'Yes' : 'No'} // Convert boolean to 'Yes' or 'No'
+                              value={physicalExamStudent.abnormalFindings.extremities.extremities ? 'Yes' : 'No' || ""} // Convert boolean to 'Yes' or 'No'
                               onChange={(e) =>
                                 handlePEInputChange('extremities', e.target.value === 'Yes') // Convert 'Yes' to true, 'No' to false
                               }
@@ -4159,7 +4257,7 @@ function PatientsProfile() {
                               type="text"
                               placeholder="Remarks"
                               className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.extremities.remarks} // Set the value for the remarks input
+                              value={physicalExamStudent.abnormalFindings.extremities.remarks || ""} // Set the value for the remarks input
                               onChange={(e) =>
                                 handlePEInputChange('extremities', { remarks: e.target.value }) // Update the remarks separately
                               }
@@ -4175,7 +4273,7 @@ function PatientsProfile() {
                               type="date"
                               placeholder="Enter date"
                               className="ml-2 border rounded w-1/2 px-2 py-1 flex-grow"
-                              value={physicalExamStudent.abnormalFindings.LMP ? physicalExamStudent.abnormalFindings.LMP : ''} // Set the value for the LMP input
+                              value={physicalExamStudent.abnormalFindings.LMP ? physicalExamStudent.abnormalFindings.LMP : '' || ""} // Set the value for the LMP input
                               onChange={(e) =>
                                 handlePEInputChange('LMP', e.target.value)
                               }
@@ -4183,7 +4281,10 @@ function PatientsProfile() {
                           </div>
                         </div>
                       </div>
-
+                      </li>
+                        
+                      ))}
+                      </ul>
                       {/* Bottom section - Close button */}
                       <div className="flex justify-end mt-4">
                         <button

@@ -41,6 +41,57 @@ app.post("/api/physical-exam-student", async (req, res) => {
   }
 });
 
+// Fetch by physical exam student ID
+app.get("/api/physical-exam-student/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const physicalExamStudent = await PhysicalExamStudentModel.findById(id);
+    if (!physicalExamStudent) {
+      return res.status(404).json({ message: "Physical Exam Student not found" });
+    }
+    res.json(physicalExamStudent);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching Physical Exam Student", error: error.message });
+  }
+}
+);
+
+// Endpoint to get Physical Exam Student by ID
+app.get('/api/physical-exam-student/id/:id', async (req, res) => {
+  const { id } = req.params;
+
+  // Validate if the provided ID is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'Invalid Physical Exam Student ID format' });
+  }
+
+  try {
+    // Find the Physical Exam Student record by ID
+    const physicalExamStudent = await PhysicalExamStudentModel.findById(id);
+    if (!physicalExamStudent) {
+      return res.status(404).json({ message: 'Physical Exam Student not found' });
+    }
+    res.json(physicalExamStudent);
+  } catch (error) {
+    console.error('Error fetching Physical Exam Student:', error);
+    res.status(500).json({ message: 'Error fetching Physical Exam Student', error });
+  }
+});
+
+
+// app.get('/api/physical-exam-student/id/:id', async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     const record = await PhysicalExamStudentModel.findById(id);  // Use the correct model and ID
+//     if (!record) {
+//       return res.status(404).send('Physical Exam Student record not found');
+//     }
+//     res.json(record);
+//   } catch (error) {
+//     res.status(500).send('Server error');
+//   }
+// });
+
 app.get("/api/physical-exam-student", async (req, res) => {
   try {
     const physicalExamStudents = await PhysicalExamStudentModel.find();
@@ -52,6 +103,7 @@ app.get("/api/physical-exam-student", async (req, res) => {
     });
   }
 });
+
 
 //M E D I C A L   H I S T O R Y
 app.post('/api/medical-history', async (req, res) => {
