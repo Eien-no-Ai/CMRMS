@@ -228,6 +228,7 @@ const Package = () => {
   
     if (packageToEdit) {
       // Preload the form with the package's data
+      setDropdownIndex(null); // Close the dropdown menu
       setPackageToEdit(packageToEdit);
       setAddPackage(packageToEdit.name);
       setFormData({
