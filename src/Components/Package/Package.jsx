@@ -296,6 +296,7 @@ const Package = () => {
       setIsConfirmModalOpen(false);
       setMessage("Package deleted successfully!");
       setTimeout(() => setMessage(""), 3000); // Clear message after timeout
+      setDropdownIndex(null); // Close the dropdown menu
     } catch (err) {
       console.error("Error deleting package:", err);
       setMessage("Error deleting package.");
@@ -785,11 +786,10 @@ const Package = () => {
                   />
                 </div>
               </div>
-
               {/* Buttons */}
               <div className="flex justify-end mt-4 space-x-3">
                 <button
-                  className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:gray-500 hover:border-gray-500 border transition duration-200"
+                  className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border transition duration-200"
                   onClick={handleModalClose}
                 >
                   Cancel
@@ -798,7 +798,7 @@ const Package = () => {
                   className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
                   onClick={handleSubmit}
                 >
-                  Submit Package
+                  {packageToEdit ? "Update Package" : "Submit Package"}
                 </button>
               </div>
             </div>
