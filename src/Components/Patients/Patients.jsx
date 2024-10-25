@@ -241,6 +241,16 @@ function Patients() {
     setIsConfirmModalOpen(false);
   };
 
+  const [role, setRole] = useState(null); // Store the user role
+
+  // Fetch the role from localStorage
+  useEffect(() => {
+    const storedRole = localStorage.getItem("role");
+    if (storedRole) {
+      setRole(storedRole); // Store the role in state
+    }
+  }, []);
+
   return (
     <div>
       <Navbar />
@@ -280,12 +290,14 @@ function Patients() {
                 size={24}
               />
             </div>
-            <button
-              onClick={handleModalOpen}
-              className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
-            >
-              Add Patient
-            </button>
+            {role === "nurse" && (
+              <button
+                onClick={handleModalOpen}
+                className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
+              >
+                Add Patient
+              </button>
+            )}
           </div>
         </div>
 

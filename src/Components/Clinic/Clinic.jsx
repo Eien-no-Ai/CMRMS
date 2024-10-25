@@ -479,43 +479,94 @@ function Clinic() {
                     </p>
                   )}
                 </div>
+                {role === "doctor" &&
+                  (selectedLabTests && selectedLabTests.length > 0 ? (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium mb-4">
+                        Lab Tests
+                      </label>
+                      <div className="mb-4 max-h-48 overflow-y-auto">
+                        <ul className="space-y-4">
+                          {selectedLabTests
+                            .sort(
+                              (a, b) =>
+                                new Date(b.isCreatedAt) -
+                                new Date(a.isCreatedAt)
+                            )
+                            .map((labTest, index) => {
+                              const allTests = [
+                                ...Object.entries(labTest.bloodChemistry || {})
+                                  .filter(([key, value]) => value)
+                                  .map(([key]) => key),
+                                ...Object.entries(labTest.hematology || {})
+                                  .filter(([key, value]) => value)
+                                  .map(([key]) => key),
+                                ...Object.entries(
+                                  labTest.clinicalMicroscopyParasitology || {}
+                                )
+                                  .filter(([key, value]) => value)
+                                  .map(([key]) => key),
+                                ...Object.entries(
+                                  labTest.bloodBankingSerology || {}
+                                )
+                                  .filter(([key, value]) => value)
+                                  .map(([key]) => key),
+                                ...Object.entries(labTest.microbiology || {})
+                                  .filter(([key, value]) => value)
+                                  .map(([key]) => key),
+                              ].join(", ");
 
-                {selectedLabTests && selectedLabTests.length > 0 ? (
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-4">
-                      Lab Tests
-                    </label>
-                    <div className="mb-4 max-h-48 overflow-y-auto">
-                      <ul className="space-y-4">
-                        {selectedLabTests
-                          .sort(
-                            (a, b) =>
-                              new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
-                          )
-                          .map((labTest, index) => {
-                            const allTests = [
-                              ...Object.entries(labTest.bloodChemistry || {})
-                                .filter(([key, value]) => value)
-                                .map(([key]) => key),
-                              ...Object.entries(labTest.hematology || {})
-                                .filter(([key, value]) => value)
-                                .map(([key]) => key),
-                              ...Object.entries(
-                                labTest.clinicalMicroscopyParasitology || {}
-                              )
-                                .filter(([key, value]) => value)
-                                .map(([key]) => key),
-                              ...Object.entries(
-                                labTest.bloodBankingSerology || {}
-                              )
-                                .filter(([key, value]) => value)
-                                .map(([key]) => key),
-                              ...Object.entries(labTest.microbiology || {})
-                                .filter(([key, value]) => value)
-                                .map(([key]) => key),
-                            ].join(", ");
+                              return (
+                                <li
+                                  key={index}
+                                  className="grid grid-cols-3 gap-4 items-center p-4 bg-gray-100 rounded-lg"
+                                >
+                                  <div className="col-span-1">
+                                    <p className="text-gray-500 text-sm">
+                                      {new Date(
+                                        labTest.isCreatedAt
+                                      ).toLocaleString()}
+                                    </p>
+                                    <p className="font-semibold">{allTests}</p>
+                                  </div>
 
-                            return (
+                                  <div className="col-span-1 flex justify-center items-center">
+                                    <p className="text-gray-500">
+                                      {labTest.labResult || "pending"}
+                                    </p>
+                                  </div>
+
+                                  <div className="col-span-1 flex justify-end items-center">
+                                    <button className="text-custom-red">
+                                      View
+                                    </button>
+                                  </div>
+                                </li>
+                              );
+                            })}
+                        </ul>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">
+                      No lab tests available for this record.
+                    </p>
+                  ))}
+                {role === "doctor" &&
+                  (selectedXrayRecords && selectedXrayRecords.length > 0 ? (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium mb-4">
+                        X-Ray Records
+                      </label>
+                      <div className="mb-4 max-h-48 overflow-y-auto">
+                        <ul className="space-y-4">
+                          {selectedXrayRecords
+                            .sort(
+                              (a, b) =>
+                                new Date(b.isCreatedAt) -
+                                new Date(a.isCreatedAt)
+                            )
+                            .map((xray, index) => (
                               <li
                                 key={index}
                                 className="grid grid-cols-3 gap-4 items-center p-4 bg-gray-100 rounded-lg"
@@ -523,76 +574,35 @@ function Clinic() {
                                 <div className="col-span-1">
                                   <p className="text-gray-500 text-sm">
                                     {new Date(
-                                      labTest.isCreatedAt
+                                      xray.isCreatedAt
                                     ).toLocaleString()}
                                   </p>
-                                  <p className="font-semibold">{allTests}</p>
-                                </div>
-
-                                <div className="col-span-1 flex justify-center items-center">
-                                  <p className="text-gray-500">
-                                    {labTest.labResult || "pending"}
+                                  <p className="font-semibold">
+                                    {xray.xrayType}
                                   </p>
                                 </div>
-
+                                <div className="col-span-1 flex justify-center items-center">
+                                  <p className="text-gray-500">
+                                    {xray.xrayResult || "pending"}
+                                  </p>
+                                </div>
                                 <div className="col-span-1 flex justify-end items-center">
                                   <button className="text-custom-red">
                                     View
                                   </button>
                                 </div>
                               </li>
-                            );
-                          })}
-                      </ul>
+                            ))}
+                        </ul>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <p className="text-gray-500">
-                    No lab tests available for this record.
-                  </p>
-                )}
+                  ) : (
+                    <p className="text-gray-500">
+                      No X-ray records available for this record.
+                    </p>
+                  ))}
               </div>
-              {selectedXrayRecords && selectedXrayRecords.length > 0 ? (
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-4">
-                    X-Ray Records
-                  </label>
-                  <div className="mb-4 max-h-48 overflow-y-auto">
-                    <ul className="space-y-4">
-                      {selectedXrayRecords
-                        .sort(
-                          (a, b) =>
-                            new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
-                        )
-                        .map((xray, index) => (
-                          <li
-                            key={index}
-                            className="grid grid-cols-3 gap-4 items-center p-4 bg-gray-100 rounded-lg"
-                          >
-                            <div className="col-span-1">
-                              <p className="text-gray-500 text-sm">
-                                {new Date(xray.isCreatedAt).toLocaleString()}
-                              </p>
-                              <p className="font-semibold">{xray.xrayType}</p>
-                            </div>
-                            <div className="col-span-1 flex justify-center items-center">
-                              <p className="text-gray-500">
-                                {xray.xrayResult || "pending"}
-                              </p>
-                            </div>
-                            <div className="col-span-1 flex justify-end items-center">
-                              <button className="text-custom-red">View</button>
-                            </div>
-                          </li>
-                        ))}
-                    </ul>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-gray-500">
-                  No X-ray records available for this record.
-                </p>
-              )}
+
               <div className="flex justify-between items-center mt-4">
                 {/* Left Side: Doctor-Specific Button Group */}
                 {role === "doctor" && (
