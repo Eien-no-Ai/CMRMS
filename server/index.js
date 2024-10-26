@@ -242,38 +242,6 @@ app.get("/api/packages/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/packages/:id", (req, res) => {
-  const { id } = req.params;
-  PackageModel.findByIdAndDelete(id)
-    .then((package) => {
-      if (package) {
-        res.json({ message: "Patient deleted successfully" });
-      } else {
-        res.status(404).json({ message: "Patient not found" });
-      }
-    })
-    .catch((err) =>
-      res.status(500).json({ message: "Error deleting patient", error: err })
-    );
-});
-
-app.put("/api/packages/:id", (req, res) => {
-  const { id } = req.params;
-  const updatedPackages = req.body;
-
-  PackageModel.findByIdAndUpdate(id, updatedPackages, { new: true })
-    .then((package) => {
-      if (package) {
-        res.json({ message: "Patient updated successfully", package });
-      } else {
-        res.status(404).json({ message: "Patient not found" });
-      }
-    })
-    .catch((err) =>
-      res.status(500).json({ message: "Error updating patient", error: err })
-    );
-});
-
 // P H Y S I C A L   T H E R A P Y   R E C O R D S
 
 app.post("/api/physicalTherapy", async (req, res) => {
