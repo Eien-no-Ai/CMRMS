@@ -1238,7 +1238,7 @@ function PatientsProfile() {
         updatedData // Send the updated data in the request body
       );
 
-      // Log the successful response from the server
+      // Log the successful response from the serverV
       console.log("Update successful:", response.data);
       // Handle success (e.g., close modal, refresh data, etc.)
     } catch (error) {
@@ -1253,9 +1253,11 @@ function PatientsProfile() {
   const [selectedXrayRecord, setSelectedXrayRecord] = useState(null);
 
   const [isXrayDetailModalOpen, setIsXrayDetailModalOpen] = useState(false);
+
   const handleXrayView = (xray) => {
     setSelectedXrayRecord(xray);
     setIsXrayDetailModalOpen(true);
+    console.log("xixi");
   };
 
   const handleXrayModalClose = () => {
@@ -1263,17 +1265,39 @@ function PatientsProfile() {
     setSelectedXrayRecord(null); // Clear the current selection
   };
 
+  
+// -------------------------------------------------------------------------------------------------------------------------
+const [isXrayPreviewModalOpen, setIsXrayPreviewModalOpen] = useState(false);
+const handlePendingXrayView = async (id) => {
+  try {
+    const response = await axios.get(`http://localhost:3001/api/xrayResults/id/${id}`);
+    setSelectedXrayRecord(response.data); // Set the selected X-ray record
+    setIsXrayPreviewModalOpen(true); // Open the preview modal
+    console.log(`Viewing pending X-ray with id: ${id}`);
+  } catch (error) {
+    console.error("Error fetching the pending X-ray record:", error);
+    alert("Failed to load X-ray details. Please try again.");
+  }
+};
+
+const handleXrayPreviewModalClose = () => {
+  setIsXrayPreviewModalOpen(false);
+  setSelectedXrayRecord(null); // Clear the current selection
+};
+// -------------------------------------------------------------------------------------------------------------------------
   const [labDetails, setLabDetails] = useState(null);
   const [isLabResultModalOpen, setIsLabResultModalOpen] = useState(false);
 
   const fetchLabResultByRequestId = async (laboratoryId) => {
+    console.log("yeah");
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/laboratory-results/by-request/${laboratoryId}`
+        `http://localhost:3001/api/laboratory/${laboratoryId}`
       );
       if (response.status === 200 && response.data) {
         setLabDetails(response.data); // Set lab details
         setIsLabResultModalOpen(true); // Open the modal
+        console.log("yeah");
       } else {
         alert("No laboratory result found for this request ID.");
       }
@@ -1287,6 +1311,7 @@ function PatientsProfile() {
 
   const openLabResultModal = (laboratoryId) => {
     fetchLabResultByRequestId(laboratoryId);
+    console.log("yeah");
   };
 
   const closeLabResultModal = () => {
@@ -1294,6 +1319,32 @@ function PatientsProfile() {
     setIsLabResultModalOpen(false);
   };
 
+  // -------------------------------------------------------------------------------------------------------------------------
+  const [isLabPreviewModalOpen, setIsLabPreviewModalOpen] = useState(false);
+  const [selectedLabRecord, setSelectedLabRecord] = useState();
+
+  const handlePendingLabView = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:3001/api/laboratory/${id}`);
+      
+      // Log the response data to check its structure
+      console.log("Fetched Lab Record Data:", JSON.stringify(response.data));
+      
+      setSelectedLabRecord(response.data); // Set the selected Lab record
+      setIsLabPreviewModalOpen(true); // Open the preview modal
+      console.log(`Viewing pending Lab with id: ${id}`);
+    } catch (error) {
+      console.error("Error fetching the pending Lab record:", error);
+      alert("Failed to load Lab details. Please try again.");
+    }
+  };
+
+  const handleLabPreviewModalClose = () => {
+    setIsLabPreviewModalOpen(false);
+    setSelectedLabRecord(null); // Clear the current selection
+  };  
+  
+  // -------------------------------------------------------------------------------------------------------------------------
   const toggleHematologyVisibility = () =>
     setHematologyVisible(!isHematologyVisible);
   const toggleClinicalMicroscopyVisibility = () =>
@@ -3021,7 +3072,30 @@ function PatientsProfile() {
                             {records.labResult}
                           </div>
                           <div className="flex-1 text-right">
-                            <button className="text-custom-red">View</button>
+                          {/* ------------------------------------------------------------------------------------------------------ */}
+                          {records.labResult === 'pending' ? (
+                          <>
+                            <div>
+                              <button
+                                className="text-custom-red"
+                                onClick={() => handlePendingLabView(records.patient._id)}
+                              >
+                                View
+                              </button>
+                            </div>
+                          </>
+                        ) : ( //trial
+                          <>
+                            <button
+                              className="text-custom-red"
+                              onClick={() => openLabResultModal(records._id)} // Opens the lab result modal
+                            >
+                              View
+                            </button>
+                          </>
+                        )}                        
+
+                          {/* ------------------------------------------------------------------------------------------------------ */}
                           </div>
                         </li>
                       );
@@ -3053,7 +3127,29 @@ function PatientsProfile() {
                         </div>
                         <div className="col-span-1 flex justify-between items-center">
                           <p className="text-gray-500">{records.xrayResult}</p>
-                          <button className="text-custom-red">View</button>
+                        {/* ------------------------------------------------------------------------------------------------------ */}
+                        {records.xrayResult === 'pending' ? (
+                          <>
+                            <div>
+                              <button
+                                className="text-custom-red"
+                                onClick={() => handlePendingXrayView(records._id)}
+                              >
+                                View
+                              </button>
+                            </div>
+                          </>
+                        ) : ( //trial
+                          <>
+                            <button
+                              className="text-custom-red"
+                              onClick={() => handleXrayView(records._id)}
+                            >
+                              View
+                            </button>
+                          </>
+                        )}                        
+                        {/* ------------------------------------------------------------------------------------------------------ */}                        
                         </div>
                       </li>
                     ))
@@ -5429,7 +5525,7 @@ function PatientsProfile() {
         </div>
       </div>
       {isNewTherapyRecordModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
             <h2 className="text-lg font-bold mb-4 text-center">
               New Physical Therapy Record
@@ -6943,17 +7039,43 @@ function PatientsProfile() {
                       </div>
                     )}
                   </form>
+                  {/* ------------------------------------------------------------------------------------------------------ */}
+                  <div className="flex justify-between items-center mt-4">
+                      {/* Left Side: Doctor-Specific Button Group */}
+                      {role === "doctor" && (
+                        <div className="flex space-x-2">
+                          <button
+                            className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                            onClick={() => handleLabModalOpen(selectedRecord)}
+                          >
+                            <SlChemistry className="mr-2" /> Lab Request
+                          </button>
+                          <button
+                            className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                            onClick={() => handleNewXrayModalOpen(selectedRecord)}
+                          >
+                            <FaXRay className="mr-2" /> X-Ray Request
+                          </button>
+                          <button
+                            className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                            onClick={() => handleNewTherapyRecordOpen(selectedRecord)}
+                          >
+                            <GiBiceps className="mr-2" /> Refer to PT
+                          </button>
+                        </div>
+                      )}
 
-                  {/* Buttons Wrapper */}
-                  <div className="flex justify-end space-x-4 mt-4">
-                    <button
-                      type="button"
-                      onClick={closeLabResultModal}
-                      className="px-6 py-2 text-gray-700 border border-gray-400 rounded hover:bg-gray-300 transition duration-300 ease-in-out"
-                    >
-                      Close
-                    </button>
-                  </div>
+                      {/* Right Side: Close and Submit Buttons */}
+                      <div className="flex space-x-4">
+                        <button
+                          className="px-6 py-2 bg-gray-500 text-white rounded-md"
+                          onClick={() => closeLabResultModal(false)}
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                    {/* ------------------------------------------------------------------------------------------------------ */}
                 </div>
               </div>
             )}
@@ -7096,16 +7218,43 @@ function PatientsProfile() {
                       </div>
                     </form>
                   </div>
+                  {/* ------------------------------------------------------------------------------------------------------ */}
+                  <div className="flex justify-between items-center mt-4">
+                      {/* Left Side: Doctor-Specific Button Group */}
+                      {role === "doctor" && (
+                        <div className="flex space-x-2">
+                          <button
+                            className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                            onClick={() => handleLabModalOpen(selectedRecord)}
+                          >
+                            <SlChemistry className="mr-2" /> Lab Request
+                          </button>
+                          <button
+                            className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                            onClick={() => handleNewXrayModalOpen(selectedRecord)}
+                          >
+                            <FaXRay className="mr-2" /> X-Ray Request
+                          </button>
+                          <button
+                            className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                            onClick={() => handleNewTherapyRecordOpen(selectedRecord)}
+                          >
+                            <GiBiceps className="mr-2" /> Refer to PT
+                          </button>
+                        </div>
+                      )}
 
-                  {/* Close Button */}
-                  <div className="flex justify-end space-x-4 mt-4">
-                    <button
-                      onClick={handleXrayModalClose}
-                      className="px-4 py-2 bg-gray-500 text-white rounded-md"
-                    >
-                      Close
-                    </button>
-                  </div>
+                      {/* Right Side: Close and Submit Buttons */}
+                      <div className="flex space-x-4">
+                        <button
+                          className="px-6 py-2 bg-gray-500 text-white rounded-md"
+                          onClick={() => handleXrayModalClose(false)}
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  {/* ------------------------------------------------------------------------------------------------------ */}
                 </div>
               </div>
             )}
@@ -7151,6 +7300,7 @@ function PatientsProfile() {
                 </button>
               </div>
             </div>
+
           </div>
         </div>
       )}
@@ -7675,7 +7825,8 @@ function PatientsProfile() {
             </div>
           </div>
         </div>
-      )}
+      )} 
+
       {isNewXrayModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-2 px-6 rounded-lg w-full max-w-md shadow-lg">
@@ -7728,6 +7879,339 @@ function PatientsProfile() {
           </div>
         </div>
       )}
+
+      {/* -------------------------------------------------XRAY PREVIEW REQUEST--------------------------------------------------------------------- */}
+      {isXrayPreviewModalOpen && selectedXrayRecord && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white py-2 px-6 rounded-lg w-full max-w-md shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">X-Ray Preview Details</h2>
+              <div className="flex flex-col mb-4">
+                <div className="mb-4">
+                  <label className="block text-gray-700">X-ray Type:</label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border rounded bg-gray-100"
+                    value={selectedXrayRecord.xrayType || "N/A"}
+                    readOnly
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700">Description:</label>
+                  <textarea
+                    className="w-full px-3 py-2 border rounded bg-gray-100"
+                    rows="2"
+                    value={selectedXrayRecord.xrayDescription || "N/A"}
+                    readOnly
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700">Status</label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border rounded bg-gray-100"
+                    value={selectedXrayRecord.xrayResult || "N/A"}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-white hover:text-gray-500 hover:border-gray-500 border transition duration-200"
+                  onClick={() => setIsXrayPreviewModalOpen(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      {/* ---------------------------------------------------------------------------------------------------------------------- */}
+      
+      {/* -------------------------------------------------LABORATORY PREVIEW REQUEST--------------------------------------------------------------------- */}
+{isLabPreviewModalOpen && selectedLabRecord && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
+      <h2 className="text-lg font-bold mb-4 text-center">
+        Laboratory Request Preview
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* I. Blood Chemistry */}
+        <div className="md:col-span-2 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+          <h3 className="font-semibold text-base mb-3">I. Blood Chemistry</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodChemistry?.bloodSugar}
+                readOnly
+              />{" "}
+              Blood Sugar (Fasting / Random)
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodChemistry?.bloodUreaNitrogen}
+                readOnly
+              />{" "}
+              Blood Urea Nitrogen
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodChemistry?.bloodUricAcid}
+                readOnly
+              />{" "}
+              Blood Uric Acid
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodChemistry?.creatinine}
+                readOnly
+              />{" "}
+              Creatinine
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodChemistry?.SGOT_AST}
+                readOnly
+              />{" "}
+              SGOT / AST
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodChemistry?.SGPT_ALT}
+                readOnly
+              />{" "}
+              SGPT / ALT
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodChemistry?.totalCholesterol}
+                readOnly
+              />{" "}
+              Total Cholesterol
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodChemistry?.triglyceride}
+                readOnly
+              />{" "}
+              Triglyceride
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodChemistry?.HDL_cholesterol}
+                readOnly
+              />{" "}
+              HDL Cholesterol
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodChemistry?.LDL_cholesterol}
+                readOnly
+              />{" "}
+              LDL Cholesterol
+            </label>
+          </div>
+        </div>
+
+        {/* II. Hematology */}
+        <div className="border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+          <h3 className="font-semibold text-base mb-3">II. Hematology</h3>
+          <div className="space-y-2 text-sm">
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.hematology?.bleedingTimeClottingTime}
+                readOnly
+              />{" "}
+              Ble eding Time & Clotting Time
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.hematology?.completeBloodCount}
+                readOnly
+              />{" "}
+              Complete Blood Count with Platelet Count
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.hematology?.hematocritAndHemoglobin}
+                readOnly
+              />{" "}
+              Hematocrit and Hemoglobin
+            </label>
+          </div>
+        </div>
+
+        {/* III. Clinical Microscopy & Parasitology */}
+        <div className="border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+          <h3 className="font-semibold text-base mb-3">
+            III. Clinical Microscopy & Parasitology
+          </h3>
+          <div className="space-y-2 text-sm">
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.clinicalMicroscopyParasitology?.routineUrinalysis}
+                readOnly
+              />{" "}
+              Routine Urinalysis
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.clinicalMicroscopyParasitology?.routineStoolExamination}
+                readOnly
+              />{" "}
+              Routine Stool Examination
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.clinicalMicroscopyParasitology?.katoThickSmear}
+                readOnly
+              />{" "}
+              Kato Thick Smear
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.clinicalMicroscopyParasitology?.fecalOccultBloodTest}
+                readOnly
+              />{" "}
+              Fecal Occult Blood Test
+            </label>
+          </div>
+        </div>
+
+        {/* IV. Blood Banking And Serology */}
+        <div className="md:col-span-2 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+          <h3 className="font-semibold text-base mb-3">
+            IV. Blood Banking And Serology
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodBankingSerology?.antiTreponemaPallidum}
+                readOnly
+              />{" "}
+              Anti-Treponema Pallidum
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodBankingSerology?.antiHCV}
+                readOnly
+              />{" "}
+              Anti-HCV
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodBankingSerology?.bloodTyping}
+                readOnly
+              />{" "}
+              Blood Typing (ABO & Rh Grouping)
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodBankingSerology?.hepatitisBSurfaceAntigen}
+                readOnly
+              />{" "}
+              Hepatitis B Surface Antigen
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodBankingSerology?.pregnancyTest}
+                readOnly
+              />{" "}
+              Pregnancy Test (Plasma/Serum)
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodBankingSerology?.dengueTest}
+                readOnly
+              />{" "}
+              Dengue Test
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodBankingSerology?.HIVRapidTest}
+                readOnly
+              />{" "}
+              HIV Rapid Test Kit
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodBankingSerology?.HIVElsa}
+                readOnly
+              />{" "}
+              HIV ELISA
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.bloodBankingSerology?.testForSalmonellaTyphi}
+                readOnly
+              />{" "}
+              Test for Salmonella typhi
+            </label>
+          </div>
+        </div>
+
+ {/* V. Microbiology */}
+        <div className="md:col-span-3 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+          <h3 className="font-semibold text-base mb-3">V. Microbiology</h3>
+          <div className="space-y-2 text-sm">
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.microbiology?.gramsStain}
+                readOnly
+              />{" "}
+              Gram's Stain
+            </label>
+            <label className="block">
+              <input
+                type="checkbox"
+                checked={!!selectedLabRecord.microbiology?.KOH}
+                readOnly
+              />{" "}
+              KOH
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end mt-4 space-x-3">
+        <button
+          className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:gray-500 hover:border-gray-500 border transition duration-200"
+          onClick={handleLabPreviewModalClose}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}      
+{/* ---------------------------------------------------------------------------------------------------------------------- */}
     </div>
   );
 }
