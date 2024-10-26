@@ -25,7 +25,7 @@ function LaboratoryResult() {
       .get("http://localhost:3001/api/laboratory")
       .then((response) => {
         const completeRecords = response.data
-          .filter((record) => record.labResult === "complete")
+          .filter((record) => record.labResult === "verified")
           .sort((a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt));
         setLabRecords(completeRecords);
       })

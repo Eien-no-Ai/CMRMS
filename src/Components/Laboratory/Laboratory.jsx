@@ -1367,7 +1367,7 @@ function Laboratory() {
                       <label className="col-span-1">Others</label>
                       <input
                         type="text"
-                        className="col-span-1 border rounded px-3 py-1"
+                        className="col-span-5 border rounded px-3 py-1"
                         value={
                           formData.clinicalMicroscopyParasitology
                             ?.routineUrinalysis?.microscopicExam?.others || ""
@@ -1421,40 +1421,6 @@ function Laboratory() {
                           )
                         }
                       />
-                      <label className="col-span-1">Bacteria</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.bacteria || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineFecalysis",
-                            "bacteria"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Others</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.others || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineFecalysis",
-                            "others"
-                          )
-                        }
-                      />
 
                       {/* Microscopic Examination for Fecalysis */}
                       <h4 className="col-span-6 font-semibold mt-4">
@@ -1495,6 +1461,23 @@ function Laboratory() {
                             "routineFecalysis",
                             "microscopicExam",
                             "katoThickSmear"
+                          )
+                        }
+                      />
+                      <label className="col-span-1">Others</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          formData.clinicalMicroscopyParasitology
+                            ?.routineFecalysis?.others || ""
+                        }
+                        onChange={(e) =>
+                          handleInputChange(
+                            e,
+                            "clinicalMicroscopyParasitology",
+                            "routineFecalysis",
+                            "others"
                           )
                         }
                       />

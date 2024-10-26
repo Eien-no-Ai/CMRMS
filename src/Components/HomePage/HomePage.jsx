@@ -78,22 +78,22 @@ const Dashboard = () => {
 
   useEffect(() => {
     const roleRecordMapping = {
-      "nurse": ["Clinical Records"],
-      "doctor": ["Clinical Records", "Laboratory Records", "X-Ray Records"],
-      "pathologist": ["Laboratory Records"],
+      nurse: ["Clinical Records"],
+      doctor: ["Clinical Records", "Laboratory Records", "X-Ray Records"],
+      pathologist: ["Laboratory Records"],
       "junior medtech": ["Laboratory Records"],
       "senior medtech": ["Laboratory Records"],
       "radiologic technologist": ["X-Ray Records"],
-      "radiologist": ["X-Ray Records"],
-      "dentist": ["X-Ray Records"]
+      radiologist: ["X-Ray Records"],
+      dentist: ["X-Ray Records"],
     };
-  
+
     // Check if the userRole exists in the mapping and get the records it can access
     const userRecords = roleRecordMapping[userRole] || [];
-  
+
     setRecords(userRecords);
   }, [userRole]);
-  
+
   // Check if the user role is 'user' and display the message
   if (userRole === "user") {
     return (
@@ -137,7 +137,10 @@ const Dashboard = () => {
                       href="/clinic/records" // Link to Clinical Records page
                       className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                     >
-                      <TbBuildingHospital size={40} className="text-gray-500 mb-2" />
+                      <TbBuildingHospital
+                        size={40}
+                        className="text-gray-500 mb-2"
+                      />
                       <span className="font-semibold text-custom-red">
                         CLINICAL RECORDS
                       </span>
@@ -149,7 +152,10 @@ const Dashboard = () => {
                         href="/laboratory/records" // Link to Laboratory Records page
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
-                        <IoFileTrayFullOutline  size={40} className="text-gray-500 mb-2"/>
+                        <IoFileTrayFullOutline
+                          size={40}
+                          className="text-gray-500 mb-2"
+                        />
                         <span className="font-semibold text-custom-red">
                           LAB RECORDS
                         </span>
@@ -158,7 +164,10 @@ const Dashboard = () => {
                         href="/laboratory/verification" // Link to Laboratory Records page
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
-                        <MdOutlineVerifiedUser size={40} className="text-gray-500 mb-2"/>
+                        <MdOutlineVerifiedUser
+                          size={40}
+                          className="text-gray-500 mb-2"
+                        />
                         <span className="font-semibold text-custom-red">
                           LAB VERIFICATION
                         </span>
@@ -167,7 +176,7 @@ const Dashboard = () => {
                         href="/laboratory/requests" // Link to Laboratory Requests page
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
-                        <SlChemistry size={40} className="text-gray-500 mb-2"/>
+                        <SlChemistry size={40} className="text-gray-500 mb-2" />
                         <span className="font-semibold text-custom-red">
                           LAB REQUESTS
                         </span>
@@ -180,7 +189,10 @@ const Dashboard = () => {
                         href="/xray/records" // Link to X-Ray Records page
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
-                        <FaXRay size={40} className="text-gray-500 mb-2" />
+                        <IoFileTrayFullOutline
+                          size={40}
+                          className="text-gray-500 mb-2"
+                        />
                         <span className="font-semibold text-custom-red">
                           X-RAY RECORDS
                         </span>
@@ -214,7 +226,10 @@ const Dashboard = () => {
                   >
                     {record === "Clinical Records" && (
                       <>
-                        <TbBuildingHospital size={40} className="text-gray-500 mb-2" />
+                        <TbBuildingHospital
+                          size={40}
+                          className="text-gray-500 mb-2"
+                        />
                         <span className="font-semibold text-custom-red">
                           CLINICAL RECORDS
                         </span>
@@ -222,7 +237,7 @@ const Dashboard = () => {
                     )}
                     {record === "Laboratory Records" && (
                       <>
-                        <SlChemistry size={40} className="text-gray-500 mb-2"/>                        
+                        <SlChemistry size={40} className="text-gray-500 mb-2" />
                         <span className="font-semibold text-custom-red">
                           LABORATORY RECORDS
                         </span>

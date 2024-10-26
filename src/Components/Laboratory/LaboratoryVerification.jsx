@@ -200,7 +200,7 @@ function LaboratoryVerification() {
         // Second, update the labResult field in LaboratoryModel
         const labUpdateResponse = await axios.put(
           `http://localhost:3001/api/laboratory/${labDetails.laboratoryId}`, // Make sure labDetails has `laboratoryId`
-          { labResult: "complete" }
+          { labResult: "verified" }
         );
 
         console.log("Response from Laboratory API:", labUpdateResponse.data);
@@ -535,7 +535,15 @@ function LaboratoryVerification() {
                         value={
                           labDetails.Hematology?.redBloodCellCount || "N/A"
                         }
-                        readOnly
+                        onChange={(e) => {
+                          setLabDetails({
+                            ...labDetails,
+                            Hematology: {
+                              ...labDetails.Hematology,
+                              redBloodCellCount: e.target.value,
+                            },
+                          });
+                        }}
                       />
                     </div>
                     <div className="col-span-1">
@@ -549,7 +557,15 @@ function LaboratoryVerification() {
                         name="hemoglobin"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
                         value={labDetails.Hematology?.Hemoglobin || "N/A"}
-                        readOnly
+                        onChange={(e) => {
+                          setLabDetails({
+                            ...labDetails,
+                            Hematology: {
+                              ...labDetails.Hematology,
+                              Hemoglobin: e.target.value,
+                            },
+                          });
+                        }}
                       />
                     </div>
                     <div className="col-span-1">
@@ -563,7 +579,15 @@ function LaboratoryVerification() {
                         name="hematocrit"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
                         value={labDetails.Hematology?.Hematocrit || "N/A"}
-                        readOnly
+                        onChange={(e) => {
+                          setLabDetails({
+                            ...labDetails,
+                            Hematology: {
+                              ...labDetails.Hematology,
+                              Hematocrit: e.target.value,
+                            },
+                          });
+                        }}
                       />
                     </div>
                     <div className="col-span-1">
@@ -577,7 +601,15 @@ function LaboratoryVerification() {
                         name="leukocyteCount"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
                         value={labDetails.Hematology?.LeukocyteCount || "N/A"}
-                        readOnly
+                        onChange={(e) => {
+                          setLabDetails({
+                            ...labDetails,
+                            Hematology: {
+                              ...labDetails.Hematology,
+                              LeukocyteCount: e.target.value,
+                            },
+                          });
+                        }}
                       />
                     </div>
                     <div className="col-span-1">5.0 - 10.0 x10^9/L</div>
@@ -596,7 +628,18 @@ function LaboratoryVerification() {
                           labDetails.Hematology?.DifferentialCount
                             ?.segmenters || "N/A"
                         }
-                        readOnly
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            Hematology: {
+                              ...labDetails.Hematology,
+                              DifferentialCount: {
+                                ...labDetails.Hematology?.DifferentialCount,
+                                segmenters: e.target.value,
+                              },
+                            },
+                          })
+                        }
                       />
                     </div>
                     <div className="col-span-1">0.50 - 0.70</div>
@@ -611,7 +654,18 @@ function LaboratoryVerification() {
                           labDetails.Hematology?.DifferentialCount
                             ?.lymphocytes || "N/A"
                         }
-                        readOnly
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            Hematology: {
+                              ...labDetails.Hematology,
+                              DifferentialCount: {
+                                ...labDetails.Hematology?.DifferentialCount,
+                                lymphocytes: e.target.value,
+                              },
+                            },
+                          })
+                        }
                       />
                     </div>
                     <div className="col-span-1">0.20 - 0.40</div>
@@ -626,7 +680,18 @@ function LaboratoryVerification() {
                           labDetails.Hematology?.DifferentialCount?.monocytes ||
                           "N/A"
                         }
-                        readOnly
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            Hematology: {
+                              ...labDetails.Hematology,
+                              DifferentialCount: {
+                                ...labDetails.Hematology?.DifferentialCount,
+                                monocytes: e.target.value,
+                              },
+                            },
+                          })
+                        }
                       />
                     </div>
                     <div className="col-span-1">0.00 - 0.07</div>
@@ -641,7 +706,18 @@ function LaboratoryVerification() {
                           labDetails.Hematology?.DifferentialCount
                             ?.eosinophils || "N/A"
                         }
-                        readOnly
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            Hematology: {
+                              ...labDetails.Hematology,
+                              DifferentialCount: {
+                                ...labDetails.Hematology?.DifferentialCount,
+                                eosinophils: e.target.value,
+                              },
+                            },
+                          })
+                        }
                       />
                     </div>
                     <div className="col-span-1">0.00 - 0.05</div>
@@ -656,7 +732,18 @@ function LaboratoryVerification() {
                           labDetails.Hematology?.DifferentialCount?.basophils ||
                           "N/A"
                         }
-                        readOnly
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            Hematology: {
+                              ...labDetails.Hematology,
+                              DifferentialCount: {
+                                ...labDetails.Hematology?.DifferentialCount,
+                                basophils: e.target.value,
+                              },
+                            },
+                          })
+                        }
                       />
                     </div>
                     <div className="col-span-1">0.00 - 0.01</div>
@@ -671,7 +758,18 @@ function LaboratoryVerification() {
                           labDetails.Hematology?.DifferentialCount?.total ||
                           "N/A"
                         }
-                        readOnly
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            Hematology: {
+                              ...labDetails.Hematology,
+                              DifferentialCount: {
+                                ...labDetails.Hematology?.DifferentialCount,
+                                total: e.target.value,
+                              },
+                            },
+                          })
+                        }
                       />
                     </div>
                     <div className="col-span-1"></div>
@@ -683,7 +781,15 @@ function LaboratoryVerification() {
                         name="plateletCount"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
                         value={labDetails.Hematology?.PlateletCount || "N/A"}
-                        readOnly
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            Hematology: {
+                              ...labDetails.Hematology,
+                              PlateletCount: e.target.value,
+                            },
+                          })
+                        }
                       />
                     </div>
                     <div className="col-span-1">150 - 400 x10^9/L</div>
@@ -695,7 +801,15 @@ function LaboratoryVerification() {
                         name="others"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
                         value={labDetails.Hematology?.others || "N/A"}
-                        readOnly
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            Hematology: {
+                              ...labDetails.Hematology,
+                              others: e.target.value,
+                            },
+                          })
+                        }
                       />
                     </div>
                     <div className="col-span-1"></div>
@@ -759,7 +873,19 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.LMP || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            LMP: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <h4 className="col-span-6 font-semibold">
                     Macroscopic Examination
@@ -772,7 +898,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.macroscopicExam?.color || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            macroscopicExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.macroscopicExam,
+                              color: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Appearance</label>
                   <input
@@ -783,7 +925,23 @@ function LaboratoryVerification() {
                         ?.routineUrinalysis?.macroscopicExam?.appearance ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            macroscopicExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.macroscopicExam,
+                              appearance: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
 
                   {/* Routine Urinalysis - Chemical Examination */}
@@ -798,7 +956,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.chemicalExam?.sugar || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            chemicalExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam,
+                              sugar: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Urobilinogen</label>
                   <input
@@ -808,7 +982,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.chemicalExam?.urobilinogen || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            chemicalExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam,
+                              urobilinogen: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Albumin</label>
                   <input
@@ -818,7 +1008,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.chemicalExam?.albumin || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            chemicalExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam,
+                              albumin: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Ketones</label>
                   <input
@@ -828,7 +1034,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.chemicalExam?.ketones || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            chemicalExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam,
+                              ketones: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Blood</label>
                   <input
@@ -838,7 +1060,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.chemicalExam?.blood || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            chemicalExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam,
+                              blood: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Nitrite</label>
                   <input
@@ -848,7 +1086,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.chemicalExam?.nitrites || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            chemicalExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam,
+                              nitrites: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Bilirubin</label>
                   <input
@@ -858,7 +1112,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.chemicalExam?.bilirubin || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            chemicalExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam,
+                              bilirubin: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Leukocyte</label>
                   <input
@@ -868,7 +1138,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.chemicalExam?.leukocytes || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            chemicalExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam,
+                              leukocytes: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Reaction</label>
                   <input
@@ -878,7 +1164,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.chemicalExam?.reaction || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            chemicalExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam,
+                              reaction: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Specific Gravity</label>
                   <input
@@ -889,7 +1191,23 @@ function LaboratoryVerification() {
                         ?.routineUrinalysis?.chemicalExam?.specificGravity ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            chemicalExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam,
+                              specificGravity: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
 
                   {/* Routine Urinalysis - Microscopic Examination */}
@@ -905,7 +1223,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.microscopicExam?.pusCells || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            microscopicExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam,
+                              pusCells: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Epithelial Cells</label>
                   <input
@@ -917,7 +1251,23 @@ function LaboratoryVerification() {
                         ?.routineUrinalysis?.microscopicExam?.epithelialCells ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            microscopicExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam,
+                              epithelialCells: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Red Blood Cells</label>
                   <input
@@ -928,7 +1278,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.microscopicExam?.RBC || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            microscopicExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam,
+                              RBC: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Mucus Threads</label>
                   <input
@@ -940,7 +1306,23 @@ function LaboratoryVerification() {
                         ?.routineUrinalysis?.microscopicExam?.mucusThreads ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            microscopicExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam,
+                              mucusThreads: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Bacteria</label>
                   <input
@@ -951,7 +1333,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.microscopicExam?.bacteria || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            microscopicExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam,
+                              bacteria: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Crystals</label>
                   <input
@@ -962,7 +1360,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.microscopicExam?.crystals || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            microscopicExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam,
+                              crystals: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Yeast Cells</label>
                   <input
@@ -974,7 +1388,23 @@ function LaboratoryVerification() {
                         ?.routineUrinalysis?.microscopicExam?.yeastCells ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            microscopicExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam,
+                              yeastCells: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Amorphous</label>
                   <input
@@ -985,7 +1415,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.microscopicExam?.amorphous || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            microscopicExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam,
+                              amorphous: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Cast</label>
                   <input
@@ -996,7 +1442,23 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.microscopicExam?.casts || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            microscopicExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam,
+                              casts: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Others</label>
                   <input
@@ -1005,6 +1467,23 @@ function LaboratoryVerification() {
                     value={
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineUrinalysis?.microscopicExam?.others || "N/A"
+                    }
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineUrinalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineUrinalysis,
+                            microscopicExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam,
+                              others: e.target.value,
+                            },
+                          },
+                        },
+                      })
                     }
                   />
 
@@ -1020,7 +1499,19 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineFecalysis?.color || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineFecalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineFecalysis,
+                            color: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Consistency</label>
                   <input
@@ -1030,28 +1521,19 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineFecalysis?.consistency || "N/A"
                     }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Bacteria</label>
-                  <input
-                    type="text"
-                    className="col-span-2 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineFecalysis?.bacteria || "N/A"
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineFecalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineFecalysis,
+                            consistency: e.target.value,
+                          },
+                        },
+                      })
                     }
-                    readOnly
-                  />
-                  <label className="col-span-1">Others</label>
-                  <input
-                    type="text"
-                    className="col-span-2 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineFecalysis?.color || "N/A"
-                    }
-                    readOnly
                   />
 
                   {/* Microscopic Examination for Fecalysis */}
@@ -1067,7 +1549,23 @@ function LaboratoryVerification() {
                         ?.routineFecalysis?.microscopicExam?.directFecalSmear ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineFecalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineFecalysis,
+                            microscopicExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineFecalysis?.microscopicExam,
+                              directFecalSmear: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Kato Thick Smear</label>
                   <input
@@ -1078,7 +1576,23 @@ function LaboratoryVerification() {
                         ?.routineFecalysis?.microscopicExam?.katoThickSmear ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineFecalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineFecalysis,
+                            microscopicExam: {
+                              ...labDetails.clinicalMicroscopyParasitology
+                                ?.routineFecalysis?.microscopicExam,
+                              katoThickSmear: e.target.value,
+                            },
+                          },
+                        },
+                      })
+                    }
                   />
 
                   <label className="col-span-1">Others</label>
@@ -1089,7 +1603,19 @@ function LaboratoryVerification() {
                       labDetails.clinicalMicroscopyParasitology
                         ?.routineFecalysis?.others || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        clinicalMicroscopyParasitology: {
+                          ...labDetails.clinicalMicroscopyParasitology,
+                          routineFecalysis: {
+                            ...labDetails.clinicalMicroscopyParasitology
+                              ?.routineFecalysis,
+                            others: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   {/* Signature Button for Clinical Microscopy */}
                   <div className="col-span-6 flex justify-end">
@@ -1153,7 +1679,19 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
                         ?.methodUsed || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          hepatitisBSurfaceAntigen: {
+                            ...labDetails.bloodBankingSerology
+                              ?.hepatitisBSurfaceAntigen,
+                            methodUsed: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Method Used</label>
                   <input
@@ -1163,7 +1701,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.antiHAVTest
                         ?.methodUsed || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          antiHAVTest: {
+                            ...labDetails.bloodBankingSerology?.antiHAVTest,
+                            methodUsed: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
 
                   <label className="col-span-1">Lot No.</label>
@@ -1174,7 +1723,19 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
                         ?.lotNumber || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          hepatitisBSurfaceAntigen: {
+                            ...labDetails.bloodBankingSerology
+                              ?.hepatitisBSurfaceAntigen,
+                            lotNumber: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Lot No.</label>
                   <input
@@ -1184,7 +1745,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.antiHAVTest?.lotNumber ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          antiHAVTest: {
+                            ...labDetails.bloodBankingSerology?.antiHAVTest,
+                            lotNumber: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
 
                   <label className="col-span-1">Expiration Date</label>
@@ -1201,7 +1773,19 @@ function LaboratoryVerification() {
                             .split("T")[0]
                         : "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          hepatitisBSurfaceAntigen: {
+                            ...labDetails.bloodBankingSerology
+                              ?.hepatitisBSurfaceAntigen,
+                            expirationDate: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Expiration Date</label>
                   <input
@@ -1217,7 +1801,18 @@ function LaboratoryVerification() {
                             .split("T")[0]
                         : "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          antiHAVTest: {
+                            ...labDetails.bloodBankingSerology?.antiHAVTest,
+                            expirationDate: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
 
                   <label className="col-span-1">Result</label>
@@ -1228,7 +1823,19 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
                         ?.result || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          hepatitisBSurfaceAntigen: {
+                            ...labDetails.bloodBankingSerology
+                              ?.hepatitisBSurfaceAntigen,
+                            result: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Result</label>
                   <input
@@ -1238,7 +1845,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.antiHAVTest?.result ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          antiHAVTest: {
+                            ...labDetails.bloodBankingSerology?.antiHAVTest,
+                            result: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
 
                   {/* Serum Pregnancy and Test for Treponema pallidum / Syphilis */}
@@ -1255,7 +1873,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.serumPregnancy
                         ?.methodUsed || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          serumPregnancy: {
+                            ...labDetails.bloodBankingSerology?.serumPregnancy,
+                            methodUsed: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Method Used</label>
                   <input
@@ -1265,7 +1894,19 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.treponemaPallidumTest
                         ?.methodUsed || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          treponemaPallidumTest: {
+                            ...labDetails.bloodBankingSerology
+                              ?.treponemaPallidumTest,
+                            methodUsed: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
 
                   <label className="col-span-1">Lot No.</label>
@@ -1276,7 +1917,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.serumPregnancy
                         ?.lotNumber || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          serumPregnancy: {
+                            ...labDetails.bloodBankingSerology?.serumPregnancy,
+                            lotNumber: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Lot No.</label>
                   <input
@@ -1286,7 +1938,19 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.treponemaPallidumTest
                         ?.lotNumber || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          treponemaPallidumTest: {
+                            ...labDetails.bloodBankingSerology
+                              ?.treponemaPallidumTest,
+                            lotNumber: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
 
                   <label className="col-span-1">Expiration Date</label>
@@ -1303,7 +1967,18 @@ function LaboratoryVerification() {
                             .split("T")[0]
                         : "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          serumPregnancy: {
+                            ...labDetails.bloodBankingSerology?.serumPregnancy,
+                            expirationDate: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Expiration Date</label>
                   <input
@@ -1319,7 +1994,19 @@ function LaboratoryVerification() {
                             .split("T")[0]
                         : "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          treponemaPallidumTest: {
+                            ...labDetails.bloodBankingSerology
+                              ?.treponemaPallidumTest,
+                            expirationDate: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
 
                   <label className="col-span-1">Result</label>
@@ -1330,7 +2017,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.serumPregnancy?.result ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          serumPregnancy: {
+                            ...labDetails.bloodBankingSerology?.serumPregnancy,
+                            result: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Result</label>
                   <input
@@ -1340,7 +2038,19 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.treponemaPallidumTest
                         ?.result || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          treponemaPallidumTest: {
+                            ...labDetails.bloodBankingSerology
+                              ?.treponemaPallidumTest,
+                            result: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
 
                   {/* Salmonella typhi and Blood Typing */}
@@ -1355,7 +2065,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.salmonellaTyphi
                         ?.methodUsed || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          salmonellaTyphi: {
+                            ...labDetails.bloodBankingSerology?.salmonellaTyphi,
+                            methodUsed: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">ABO Type</label>
                   <input
@@ -1365,7 +2086,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.bloodTyping?.ABOType ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          bloodTyping: {
+                            ...labDetails.bloodBankingSerology?.bloodTyping,
+                            ABOType: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
 
                   <label className="col-span-1">Lot No.</label>
@@ -1376,7 +2108,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.salmonellaTyphi
                         ?.lotNumber || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          salmonellaTyphi: {
+                            ...labDetails.bloodBankingSerology?.salmonellaTyphi,
+                            lotNumber: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Rh Type</label>
                   <input
@@ -1386,7 +2129,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.bloodTyping?.RhType ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          bloodTyping: {
+                            ...labDetails.bloodBankingSerology?.bloodTyping,
+                            RhType: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
 
                   <label className="col-span-1">Expiration Date</label>
@@ -1403,7 +2157,18 @@ function LaboratoryVerification() {
                             .split("T")[0]
                         : "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          salmonellaTyphi: {
+                            ...labDetails.bloodBankingSerology?.salmonellaTyphi,
+                            expirationDate: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-6"></label>
 
@@ -1415,7 +2180,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.salmonellaTyphi
                         ?.result || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          salmonellaTyphi: {
+                            ...labDetails.bloodBankingSerology?.salmonellaTyphi,
+                            result: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-6"></label>
 
@@ -1431,7 +2207,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.testDengue?.methodUsed ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          testDengue: {
+                            ...labDetails.bloodBankingSerology?.testDengue,
+                            methodUsed: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Method Used</label>
                   <input
@@ -1441,7 +2228,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.others?.methodUsed ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          others: {
+                            ...labDetails.bloodBankingSerology?.others,
+                            methodUsed: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
 
                   <label className="col-span-1">Lot No.</label>
@@ -1452,7 +2250,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.testDengue?.lotNumber ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          testDengue: {
+                            ...labDetails.bloodBankingSerology?.testDengue,
+                            lotNumber: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Lot No.</label>
                   <input
@@ -1462,7 +2271,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.others?.lotNumber ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          others: {
+                            ...labDetails.bloodBankingSerology?.others,
+                            lotNumber: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
 
                   <label className="col-span-1">Expiration Date</label>
@@ -1479,7 +2299,18 @@ function LaboratoryVerification() {
                             .split("T")[0]
                         : "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          testDengue: {
+                            ...labDetails.bloodBankingSerology?.testDengue,
+                            expirationDate: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Expiration Date</label>
                   <input
@@ -1494,7 +2325,18 @@ function LaboratoryVerification() {
                             .split("T")[0]
                         : "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          others: {
+                            ...labDetails.bloodBankingSerology?.others,
+                            expirationDate: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
 
                   <label className="col-span-1">Result</label>
@@ -1505,7 +2347,18 @@ function LaboratoryVerification() {
                       labDetails.bloodBankingSerology?.testDengue?.result ||
                       "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          testDengue: {
+                            ...labDetails.bloodBankingSerology?.testDengue,
+                            result: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   <label className="col-span-1">Result</label>
                   <input
@@ -1514,7 +2367,18 @@ function LaboratoryVerification() {
                     value={
                       labDetails.bloodBankingSerology?.others?.result || "N/A"
                     }
-                    readOnly
+                    onChange={(e) =>
+                      setLabDetails({
+                        ...labDetails,
+                        bloodBankingSerology: {
+                          ...labDetails.bloodBankingSerology,
+                          others: {
+                            ...labDetails.bloodBankingSerology?.others,
+                            result: e.target.value,
+                          },
+                        },
+                      })
+                    }
                   />
                   {/* Signature Button for Clinical Microscopy */}
                   <div className="col-span-12 flex justify-end">

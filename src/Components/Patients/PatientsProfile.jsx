@@ -3213,7 +3213,7 @@ function PatientsProfile() {
                         // Determine the status based on labResult and xrayResult
                         const isCompleted =
                           records.labRecords.every(
-                            (record) => record.labResult === "complete"
+                            (record) => record.labResult === "verified"
                           ) &&
                           records.xrayRecords.every(
                             (record) => record.xrayResult === "done"
