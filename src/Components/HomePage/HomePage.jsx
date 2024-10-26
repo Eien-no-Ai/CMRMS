@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import { TbBuildingHospital } from "react-icons/tb";
 import { FaXRay } from "react-icons/fa6";
 import { SlChemistry } from "react-icons/sl";
+import { MdOutlineVerifiedUser } from "react-icons/md";
+import { IoFileTrayFullOutline } from "react-icons/io5";
 
 const Dashboard = () => {
   const [userRole, setUserRole] = useState(null);
@@ -142,14 +144,23 @@ const Dashboard = () => {
                     </a>
                   )}
                   {records.includes("Laboratory Records") && (
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-3 gap-6">
                       <a
                         href="/laboratory/records" // Link to Laboratory Records page
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
-                        <SlChemistry size={40} className="text-gray-500 mb-2"/>
+                        <IoFileTrayFullOutline  size={40} className="text-gray-500 mb-2"/>
                         <span className="font-semibold text-custom-red">
-                          LABORATORY RECORDS
+                          LAB RECORDS
+                        </span>
+                      </a>
+                      <a
+                        href="/laboratory/verification" // Link to Laboratory Records page
+                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                      >
+                        <MdOutlineVerifiedUser size={40} className="text-gray-500 mb-2"/>
+                        <span className="font-semibold text-custom-red">
+                          LAB VERIFICATION
                         </span>
                       </a>
                       <a
@@ -158,7 +169,7 @@ const Dashboard = () => {
                       >
                         <SlChemistry size={40} className="text-gray-500 mb-2"/>
                         <span className="font-semibold text-custom-red">
-                          LABORATORY REQUESTS
+                          LAB REQUESTS
                         </span>
                       </a>
                     </div>
@@ -211,7 +222,8 @@ const Dashboard = () => {
                     )}
                     {record === "Laboratory Records" && (
                       <>
-                        <SlChemistry size={40} className="text-gray-500 mb-2"/>                        <span className="font-semibold text-custom-red">
+                        <SlChemistry size={40} className="text-gray-500 mb-2"/>                        
+                        <span className="font-semibold text-custom-red">
                           LABORATORY RECORDS
                         </span>
                       </>

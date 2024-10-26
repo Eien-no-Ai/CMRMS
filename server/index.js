@@ -18,9 +18,7 @@ app.use(express.json());
 const nodemailer = require("nodemailer");
 
 mongoose.connect(
-  "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee"
-);`1
-`
+  "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee");`1`;
 
 // P H Y S I C A L E X A M   S T U D E N T
 app.post("/api/physical-exam-student", async (req, res) => {
@@ -54,49 +52,72 @@ app.get("/api/physical-exam-student", async (req, res) => {
 });
 
 //M E D I C A L   H I S T O R Y
-app.post('/api/medical-history', async (req, res) => {
+app.post("/api/medical-history", async (req, res) => {
   try {
-      // Create a new medical history document
-      const newMedicalHistory = new MedicalHistoryModel(req.body);
+    // Create a new medical history document
+    const newMedicalHistory = new MedicalHistoryModel(req.body);
 
-      // Save to the database
-      const savedMedicalHistory = await newMedicalHistory.save();
+    // Save to the database
+    const savedMedicalHistory = await newMedicalHistory.save();
 
-      // Send a success response
-      res.status(201).json({ message: 'Medical history added successfully', data: savedMedicalHistory });
+    // Send a success response
+    res
+      .status(201)
+      .json({
+        message: "Medical history added successfully",
+        data: savedMedicalHistory,
+      });
   } catch (error) {
-      res.status(500).json({ message: 'Error adding medical history', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error adding medical history", error: error.message });
   }
 });
 
 // GET endpoint to fetch all medical history records
-app.get('/api/medical-history', async (req, res) => {
+app.get("/api/medical-history", async (req, res) => {
   try {
-      // Fetch all medical history records
-      const medicalHistory = await MedicalHistoryModel.find().populate('patient');
-      res.json(medicalHistory);
+    // Fetch all medical history records
+    const medicalHistory = await MedicalHistoryModel.find().populate("patient");
+    res.json(medicalHistory);
   } catch (error) {
-      res.status(500).json({ message: 'Error fetching medical history records', error: error });
+    res
+      .status(500)
+      .json({
+        message: "Error fetching medical history records",
+        error: error,
+      });
   }
 });
 
 // GET endpoint to fetch a single medical history record by its ID
-app.get('/api/medical-history/id/:id', async (req, res) => {
+app.get("/api/medical-history/id/:id", async (req, res) => {
   const { id } = req.params;
 
   // Validate ObjectId
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'Invalid medical history ID format' });
+    return res
+      .status(400)
+      .json({ message: "Invalid medical history ID format" });
   }
 
   try {
-    const medicalHistory = await MedicalHistoryModel.findById(id).populate('patient');
+    const medicalHistory = await MedicalHistoryModel.findById(id).populate(
+      "patient"
+    );
     if (!medicalHistory) {
-      return res.status(404).json({ message: 'Medical history record not found' });
+      return res
+        .status(404)
+        .json({ message: "Medical history record not found" });
     }
     res.json(medicalHistory);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching medical history record', error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error fetching medical history record",
+        error: error.message,
+      });
   }
 });
 
@@ -117,40 +138,53 @@ app.get('/api/medical-history/id/:id', async (req, res) => {
 // });
 
 // GET endpoint to fetch medical history records by patient ID
-app.get('/api/medical-history/:patientId', async (req, res) => {
+app.get("/api/medical-history/:patientId", async (req, res) => {
   const { patientId } = req.params;
 
   try {
-      // Find all medical history records for the specific patient
-      const medicalHistories = await MedicalHistoryModel.find({ patient: patientId }).populate('patient');
-      if (!medicalHistories || medicalHistories.length === 0) {
-          return res.status(404).json({ message: 'No medical history records found for this patient' });
-      }
-      res.json(medicalHistories);
+    // Find all medical history records for the specific patient
+    const medicalHistories = await MedicalHistoryModel.find({
+      patient: patientId,
+    }).populate("patient");
+    if (!medicalHistories || medicalHistories.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No medical history records found for this patient" });
+    }
+    res.json(medicalHistories);
   } catch (error) {
-      res.status(500).json({ message: 'Error fetching medical history records', error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error fetching medical history records",
+        error: error.message,
+      });
   }
 });
 
 //Put endpoint to update medical history record
-app.put('/api/medical-history/:id', async (req, res) => {
+app.put("/api/medical-history/:id", async (req, res) => {
   const { id } = req.params;
   const updatedMedicalHistory = req.body;
 
   try {
     // Update the medical history in the database
-    const updatedRecord = await MedicalHistoryModel.findByIdAndUpdate(id, updatedMedicalHistory, {
-      new: true, // Return the updated document
-      runValidators: true, // Ensure validation rules are applied
-    });
+    const updatedRecord = await MedicalHistoryModel.findByIdAndUpdate(
+      id,
+      updatedMedicalHistory,
+      {
+        new: true, // Return the updated document
+        runValidators: true, // Ensure validation rules are applied
+      }
+    );
 
     if (!updatedRecord) {
-      return res.status(404).send('Medical history not found.');
+      return res.status(404).send("Medical history not found.");
     }
 
     res.status(200).send(updatedRecord);
   } catch (error) {
-    res.status(500).send('Error updating medical history.');
+    res.status(500).send("Error updating medical history.");
   }
 });
 
@@ -531,6 +565,31 @@ app.get(
     }
   }
 );
+
+app.put("/api/laboratory-results/update/:id", async (req, res) => {
+  const { id } = req.params;
+  const updatedData = req.body;
+
+  try {
+    const updatedLabResult = await LaboratoryResultsModel.findByIdAndUpdate(
+      id,
+      updatedData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!updatedLabResult) {
+      return res.status(404).json({ message: "Laboratory result not found." });
+    }
+
+    res.status(200).json(updatedLabResult);
+  } catch (error) {
+    console.error("Error updating laboratory result:", error);
+    res.status(500).json({ message: "Error updating laboratory result." });
+  }
+});
 
 // // POST endpoint to save a lab request
 // app.post("/api/laboratory-results", async (req, res) => {
@@ -1245,42 +1304,49 @@ app.put(
   }
 );
 // Endpoint to get X-ray result by ID
-app.get('/api/xrayResults/id/:id', async (req, res) => {
+app.get("/api/xrayResults/id/:id", async (req, res) => {
   const { id } = req.params;
 
   // Validate if the provided ID is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'Invalid X-ray ID format' });
+    return res.status(400).json({ message: "Invalid X-ray ID format" });
   }
 
   try {
     // Find the X-ray record by ID
-    const xrayResult = await XrayModel.findById(id).populate('patient');
+    const xrayResult = await XrayModel.findById(id).populate("patient");
     if (!xrayResult) {
-      return res.status(404).json({ message: 'X-ray result not found' });
+      return res.status(404).json({ message: "X-ray result not found" });
     }
     res.json(xrayResult);
   } catch (error) {
-    console.error('Error fetching X-ray result:', error);
-    res.status(500).json({ message: 'Error fetching X-ray result', error });
+    console.error("Error fetching X-ray result:", error);
+    res.status(500).json({ message: "Error fetching X-ray result", error });
   }
 });
 
 // POST /api/vaccines - Add a new vaccine
-app.post('/api/vaccines', async (req, res) => {
-  const { patient, name, dateAdministered, administeredBy, nextDose } = req.body;
+app.post("/api/vaccines", async (req, res) => {
+  const { patient, name, dateAdministered, administeredBy, nextDose } =
+    req.body;
 
   // Basic validation
   if (!patient || !name || !administeredBy) {
-    return res.status(400).json({ message: 'Patient ID, vaccine name, and administeredBy are required.' });
+    return res
+      .status(400)
+      .json({
+        message: "Patient ID, vaccine name, and administeredBy are required.",
+      });
   }
 
   // Validate ObjectId
   if (!mongoose.Types.ObjectId.isValid(patient)) {
-    return res.status(400).json({ message: 'Invalid patient ID format.' });
+    return res.status(400).json({ message: "Invalid patient ID format." });
   }
   if (!mongoose.Types.ObjectId.isValid(administeredBy)) {
-    return res.status(400).json({ message: 'Invalid administeredBy ID format.' });
+    return res
+      .status(400)
+      .json({ message: "Invalid administeredBy ID format." });
   }
 
   try {
@@ -1293,61 +1359,77 @@ app.post('/api/vaccines', async (req, res) => {
     });
 
     const savedVaccine = await newVaccine.save();
-    res.status(201).json({ message: 'Vaccine added successfully', data: savedVaccine });
+    res
+      .status(201)
+      .json({ message: "Vaccine added successfully", data: savedVaccine });
   } catch (error) {
-    console.error('Error adding vaccine:', error);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    console.error("Error adding vaccine:", error);
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 });
 
 // GET /api/vaccines - Fetch all vaccines
-app.get('/api/vaccines', async (req, res) => {
+app.get("/api/vaccines", async (req, res) => {
   try {
-    const vaccines = await VaccineModel.find().populate('patient').populate('administeredBy');
+    const vaccines = await VaccineModel.find()
+      .populate("patient")
+      .populate("administeredBy");
     res.json(vaccines);
   } catch (error) {
-    console.error('Error fetching vaccines:', error);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    console.error("Error fetching vaccines:", error);
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 });
 
 // GET /api/vaccines/:id - Fetch vaccine by ID
-app.get('/api/vaccines/:id', async (req, res) => {
+app.get("/api/vaccines/:id", async (req, res) => {
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'Invalid vaccine ID format' });
+    return res.status(400).json({ message: "Invalid vaccine ID format" });
   }
 
   try {
-    const vaccine = await VaccineModel.findById(id).populate('patient').populate('administeredBy');
+    const vaccine = await VaccineModel.findById(id)
+      .populate("patient")
+      .populate("administeredBy");
     if (!vaccine) {
-      return res.status(404).json({ message: 'Vaccine not found' });
+      return res.status(404).json({ message: "Vaccine not found" });
     }
     res.json(vaccine);
   } catch (error) {
-    console.error('Error fetching vaccine:', error);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    console.error("Error fetching vaccine:", error);
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 });
 
 // GET /api/vaccines/patient/:id - Fetch vaccines by patient ID
-app.get('/api/vaccines/patient/:id', async (req, res) => {
+app.get("/api/vaccines/patient/:id", async (req, res) => {
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'Invalid patient ID format' });
+    return res.status(400).json({ message: "Invalid patient ID format" });
   }
 
   try {
-    const vaccines = await VaccineModel.find({ patient: id }).populate('administeredBy');
+    const vaccines = await VaccineModel.find({ patient: id }).populate(
+      "administeredBy"
+    );
     if (!vaccines || vaccines.length === 0) {
-      return res.status(404).json({ message: 'No vaccine records found.' });
+      return res.status(404).json({ message: "No vaccine records found." });
     }
     res.json(vaccines);
   } catch (error) {
-    console.error('Error fetching vaccine records:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    console.error("Error fetching vaccine records:", error);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 });
 

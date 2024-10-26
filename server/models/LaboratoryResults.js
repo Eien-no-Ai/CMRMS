@@ -21,7 +21,8 @@ const LaboratoryResultsSchema = new mongoose.Schema({
             total: { type: String, default: "" },
         },
         PlateletCount: { type: String, default: "" },
-        others: { type: String, default: "" }
+        others: { type: String, default: "" },
+        signature: { type: String, default: "" },
     },
 
     clinicalMicroscopyParasitology: {
@@ -67,6 +68,7 @@ const LaboratoryResultsSchema = new mongoose.Schema({
             },
             others: { type: String, default: "" },
         },
+        signature: { type: String, default: "" },
     },
     bloodBankingSerology: {
         hepatitisBSurfaceAntigen: {
@@ -114,7 +116,8 @@ const LaboratoryResultsSchema = new mongoose.Schema({
             lotNumber: { type: String, default: "" },
             expirationDate: {type: Date, default: "" },
             result: { type: String, default: "" },
-        }
+        },
+        signature: { type: String, default: "" },
     },
     isCreatedAt: { type: Date, default: Date.now },
 });

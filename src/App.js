@@ -18,6 +18,7 @@ import Package from "./Components/Package/Package";
 import LaboratoryResult from "./Components/Laboratory/LaboratoryResult";
 import PhysicalTherapy from "./Components/PhysicalTherapy/PhysicalTherapy";
 import XrayResult from "./Components/Xray/XrayResult";
+import LaboratoryVerification from "./Components/Laboratory/LaboratoryVerification";
 
 function App() {
   return (
@@ -173,6 +174,21 @@ function App() {
                 ]}
               >
                 <Laboratory />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/laboratory/verification"
+            element={
+              <PrivateRoute
+                allowedRoles={[
+                  "junior medtech",
+                  "senior medtech",
+                  "pathologist",
+                ]}
+              >
+                <LaboratoryVerification />
               </PrivateRoute>
             }
           />

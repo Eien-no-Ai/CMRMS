@@ -165,8 +165,8 @@ function Laboratory() {
             patientData.patientType === "Student"
               ? patientData.course
               : patientData.position || "",
-              date: new Date().toISOString().split("T")[0],
-              age: getAge(patientData.birthdate),
+          date: new Date().toISOString().split("T")[0],
+          age: getAge(patientData.birthdate),
           sex: patientData.sex || "",
           patientType: patientData.patientType,
         });
@@ -277,7 +277,7 @@ function Laboratory() {
         await axios.put(
           `http://localhost:3001/api/laboratory/${laboratoryId}`,
           {
-            labResult: "complete",
+            labResult: "for verification",
           }
         );
         closeModal(); // Close the modal
@@ -438,7 +438,7 @@ function Laboratory() {
                         colSpan="4"
                         className="py-4 text-center text-gray-500"
                       >
-                        No lab records found.
+                        No laboratory request found.
                       </td>
                     </tr>
                   ) : (

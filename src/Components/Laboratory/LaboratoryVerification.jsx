@@ -3,7 +3,7 @@ import { BiSearch, BiChevronDown } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
 
-function LaboratoryResult() {
+function LaboratoryVerification() {
   const [labRecords, setLabRecords] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const labRecordsPerPage = 4;
@@ -16,6 +16,13 @@ function LaboratoryResult() {
     useState(false);
   const [isSerologyVisible, setSerologyVisible] = useState(false);
 
+  // Separate signature URLs for each section
+  const [hematologySignatureUrl, setHematologySignatureUrl] = useState(null);
+  const [clinicalMicroscopySignatureUrl, setClinicalMicroscopySignatureUrl] =
+    useState(null);
+  const [serologySignatureUrl, setSerologySignatureUrl] = useState(null);
+  const userId = localStorage.getItem("userId"); // Get the user ID from local storage
+
   useEffect(() => {
     fetchLabRecords();
   }, []);
@@ -25,7 +32,7 @@ function LaboratoryResult() {
       .get("http://localhost:3001/api/laboratory")
       .then((response) => {
         const completeRecords = response.data
-          .filter((record) => record.labResult === "complete")
+          .filter((record) => record.labResult === "for verification")
           .sort((a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt));
         setLabRecords(completeRecords);
       })
@@ -124,12 +131,102 @@ function LaboratoryResult() {
     return age;
   };
 
+  const fetchSignature = async (section) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/signature/user/${userId}`
+      );
+      if (response.data && response.data.signature) {
+        switch (section) {
+          case "hematology":
+            setHematologySignatureUrl(response.data.signature);
+            break;
+          case "clinicalMicroscopy":
+            setClinicalMicroscopySignatureUrl(response.data.signature);
+            break;
+          case "serology":
+            setSerologySignatureUrl(response.data.signature);
+            break;
+          default:
+            break;
+        }
+      } else {
+        console.error("No signature found.");
+      }
+    } catch (error) {
+      console.error("Error fetching signature:", error);
+    }
+  };
+
+  // Verify button handler
+  const verifyLabResult = async () => {
+    if (!labDetails) {
+      alert("Lab details not found. Unable to verify.");
+      return;
+    }
+
+    // Prepare the updated data for LaboratoryResultsModel
+    const updatedLabResultData = {
+      Hematology: {
+        ...labDetails.Hematology,
+        signature: hematologySignatureUrl || labDetails.Hematology?.signature, // Fallback to existing signature if not updated
+      },
+      clinicalMicroscopyParasitology: {
+        ...labDetails.clinicalMicroscopyParasitology,
+        signature:
+          clinicalMicroscopySignatureUrl ||
+          labDetails.clinicalMicroscopyParasitology?.signature,
+      },
+      bloodBankingSerology: {
+        ...labDetails.bloodBankingSerology,
+        signature:
+          serologySignatureUrl || labDetails.bloodBankingSerology?.signature,
+      },
+    };
+
+    // Debugging to see the updated data before the API call
+    console.log("Updated Data for verification:", updatedLabResultData);
+
+    try {
+      // First, update the laboratory results (in LaboratoryResultsModel)
+      const response = await axios.put(
+        `http://localhost:3001/api/laboratory-results/update/${labDetails._id}`,
+        updatedLabResultData
+      );
+
+      console.log("Response from LaboratoryResults API:", response.data);
+
+      if (response.status === 200) {
+        // Second, update the labResult field in LaboratoryModel
+        const labUpdateResponse = await axios.put(
+          `http://localhost:3001/api/laboratory/${labDetails.laboratoryId}`, // Make sure labDetails has `laboratoryId`
+          { labResult: "complete" }
+        );
+
+        console.log("Response from Laboratory API:", labUpdateResponse.data);
+
+        if (labUpdateResponse.status === 200) {
+          alert("Lab result successfully verified and marked as complete.");
+          setIsModalOpen(false); // Close modal after successful update
+          fetchLabRecords(); // Refresh the lab records list
+        } else {
+          alert("Failed to update lab result status. Please try again.");
+        }
+      } else {
+        alert("Failed to verify the lab result. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error verifying lab result:", error);
+      alert("An error occurred while verifying the lab result.");
+    }
+  };
+
   return (
     <div>
       <Navbar />
       <div className="p-6 pt-20 bg-gray-100 min-h-screen">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl font-semibold">Laboratory Records</h1>
+          <h1 className="text-3xl font-semibold">Laboratory Verification</h1>
         </div>
 
         <div className="flex justify-between items-center mb-6">
@@ -178,7 +275,7 @@ function LaboratoryResult() {
                         colSpan="4"
                         className="py-4 text-center text-gray-500"
                       >
-                        No laboratory records found.
+                        No laboratory request for verification found.
                       </td>
                     </tr>
                   ) : (
@@ -602,18 +699,29 @@ function LaboratoryResult() {
                       />
                     </div>
                     <div className="col-span-1"></div>
+                    <div className="col-span-1"></div>
+
                     <div className="col-span-3 flex justify-end">
+                      {!hematologySignatureUrl && (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault(); // Prevents the page refresh
+                            fetchSignature("hematology");
+                          }}
+                        >
+                          Attach Signature
+                        </button>
+                      )}
+
                       {/* Display fetched signature image */}
-                      {labDetails?.Hematology?.signature ? (
+                      {hematologySignatureUrl && (
                         <div className="flex justify-end">
                           <img
-                            src={labDetails.Hematology.signature}
+                            src={hematologySignatureUrl}
                             alt="Signature"
                             className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
                           />
                         </div>
-                      ) : (
-                        <p>No signature available</p>
                       )}
                     </div>
                   </div>
@@ -983,20 +1091,27 @@ function LaboratoryResult() {
                     }
                     readOnly
                   />
+                  {/* Signature Button for Clinical Microscopy */}
                   <div className="col-span-6 flex justify-end">
-                    {/* Display fetched signature image */}
-                    {labDetails?.clinicalMicroscopyParasitology?.signature ? (
+                    {!clinicalMicroscopySignatureUrl && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault(); // Prevents the page refresh
+                          fetchSignature("clinicalMicroscopy");
+                        }}
+                      >
+                        Attach Signature
+                      </button>
+                    )}
+
+                    {clinicalMicroscopySignatureUrl && (
                       <div className="flex justify-end">
                         <img
-                          src={
-                            labDetails.clinicalMicroscopyParasitology.signature
-                          }
+                          src={clinicalMicroscopySignatureUrl}
                           alt="Signature"
                           className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
                         />
                       </div>
-                    ) : (
-                      <p>No signature available</p>
                     )}
                   </div>
                 </div>
@@ -1401,18 +1516,27 @@ function LaboratoryResult() {
                     }
                     readOnly
                   />
+                  {/* Signature Button for Clinical Microscopy */}
                   <div className="col-span-12 flex justify-end">
-                    {/* Display fetched signature image */}
-                    {labDetails?.bloodBankingSerology?.signature ? (
-                      <div className="flex justify-end">
+                    {!serologySignatureUrl && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault(); // Prevents the page refresh
+                          fetchSignature("serology");
+                        }}
+                      >
+                        Attach Signature
+                      </button>
+                    )}
+
+                    {serologySignatureUrl && (
+                      <div className="">
                         <img
-                          src={labDetails.bloodBankingSerology.signature}
+                          src={serologySignatureUrl}
                           alt="Signature"
                           className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
                         />
                       </div>
-                    ) : (
-                      <p>No signature available</p>
                     )}
                   </div>
                 </div>
@@ -1428,6 +1552,13 @@ function LaboratoryResult() {
               >
                 Close
               </button>
+              <button
+                type="button"
+                onClick={verifyLabResult} // Trigger verification on click
+                className="px-6 py-2 text-gray-700 border border-gray-400 rounded hover:bg-gray-300 transition duration-300 ease-in-out"
+              >
+                Verify
+              </button>
             </div>
           </div>
         </div>
@@ -1436,4 +1567,4 @@ function LaboratoryResult() {
   );
 }
 
-export default LaboratoryResult;
+export default LaboratoryVerification;
