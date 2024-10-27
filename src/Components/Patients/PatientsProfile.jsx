@@ -1524,12 +1524,6 @@ function PatientsProfile() {
                         </p>
                         <p className="text-gray-500">X-ray</p>
                       </div>
-                      <div>
-                        <p className="text-gray-700 text-lg font-semibold">
-                          {physicalTherapyRecords.length}
-                        </p>
-                        <p className="text-gray-500">PT</p>
-                      </div>
                     </div>
 
                     {role === "nurse" && (
@@ -3210,6 +3204,9 @@ function PatientsProfile() {
                   (Object.keys(combinedRecords).length > 0 ? (
                     Object.entries(combinedRecords).map(
                       ([packageNumber, records], index) => {
+                        if (!records.labRecords[0]?.packageId) {
+                          return null; // Skip rendering this item if packageId is missing
+                        }
                         // Determine the status based on labResult and xrayResult
                         const isCompleted =
                           records.labRecords.every(
@@ -3362,6 +3359,7 @@ function PatientsProfile() {
                                     checked={
                                       record.conditions.noseThroatDisorders
                                     }
+                                    readOnly
                                   />
                                   1. Nose or throat disorders
                                 </label>
@@ -3370,6 +3368,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.hernia}
+                                    readOnly
                                   />
                                   14. Hernia
                                 </label>
@@ -3378,6 +3377,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.earTrouble}
+                                    readOnly
                                   />
                                   2. Ear trouble / deafness
                                 </label>
@@ -3388,6 +3388,7 @@ function PatientsProfile() {
                                     checked={
                                       record.conditions.rheumatismJointPain
                                     }
+                                    readOnly
                                   />
                                   15. Rheumatism, joint or back pain
                                 </label>
@@ -3396,6 +3397,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.asthma}
+                                    readOnly
                                   />
                                   3. Asthma
                                 </label>
@@ -3404,6 +3406,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.eyeDisorders}
+                                    readOnly
                                   />
                                   16. Eye disorders
                                 </label>
@@ -3412,6 +3415,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.tuberculosis}
+                                    readOnly
                                   />
                                   4. Tuberculosis
                                 </label>
@@ -3420,6 +3424,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.stomachPainUlcer}
+                                    readOnly
                                   />
                                   17. Stomach pain / ulcer
                                 </label>
@@ -3428,6 +3433,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.lungDiseases}
+                                    readOnly
                                   />
                                   5. Other lung diseases
                                 </label>
@@ -3438,6 +3444,7 @@ function PatientsProfile() {
                                     checked={
                                       record.conditions.abdominalDisorders
                                     }
+                                    readOnly
                                   />
                                   18. Other abdominal disorders
                                 </label>
@@ -3448,6 +3455,7 @@ function PatientsProfile() {
                                     checked={
                                       record.conditions.highBloodPressure
                                     }
+                                    readOnly
                                   />
                                   6. High Blood Pressure
                                 </label>
@@ -3458,6 +3466,7 @@ function PatientsProfile() {
                                     checked={
                                       record.conditions.kidneyBladderDiseases
                                     }
+                                    readOnly
                                   />
                                   19. Kidney or bladder diseases
                                 </label>
@@ -3466,6 +3475,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.heartDiseases}
+                                    readOnly
                                   />
                                   7. Heart diseases
                                 </label>
@@ -3474,6 +3484,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.std}
+                                    readOnly
                                   />
                                   20. Sexually Transmitted Disease
                                 </label>
@@ -3482,6 +3493,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.rheumaticFever}
+                                    readOnly
                                   />
                                   8. Rheumatic Fever
                                 </label>
@@ -3490,6 +3502,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.familialDisorder}
+                                    readOnly
                                   />
                                   21. Genetic or Familial disorder
                                 </label>
@@ -3498,6 +3511,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.diabetesMellitus}
+                                    readOnly
                                   />
                                   9. Diabetes Mellitus
                                 </label>
@@ -3506,6 +3520,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.tropicalDiseases}
+                                    readOnly
                                   />
                                   22. Tropical Diseases
                                 </label>
@@ -3516,6 +3531,7 @@ function PatientsProfile() {
                                     checked={
                                       record.conditions.endocrineDisorder
                                     }
+                                    readOnly
                                   />
                                   10. Endocrine Disorder
                                 </label>
@@ -3524,6 +3540,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.chronicCough}
+                                    readOnly
                                   />
                                   23. Chronic cough
                                 </label>
@@ -3532,6 +3549,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.cancerTumor}
+                                    readOnly
                                   />
                                   11. Cancer / Tumor
                                 </label>
@@ -3540,6 +3558,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.faintingSeizures}
+                                    readOnly
                                   />
                                   24. Fainting spells, fits or seizures
                                 </label>
@@ -3548,6 +3567,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.mentalDisorder}
+                                    readOnly
                                   />
                                   12. Mental Disorder / Depression
                                 </label>
@@ -3556,6 +3576,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.frequentHeadache}
+                                    readOnly
                                   />
                                   25. Frequent headache
                                 </label>
@@ -3564,6 +3585,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.headNeckInjury}
+                                    readOnly
                                   />
                                   13. Head or neck injury
                                 </label>
@@ -3572,6 +3594,7 @@ function PatientsProfile() {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={record.conditions.dizziness}
+                                    readOnly
                                   />
                                   26. Dizziness
                                 </label>
@@ -3590,7 +3613,8 @@ function PatientsProfile() {
                                       value="Yes" // Set the value to "Yes"
                                       checked={
                                         record.malaria.hasMalaria === "Yes"
-                                      } // Check if the value is "Yes"
+                                      }
+                                      readOnly
                                     />
                                     Yes
                                   </label>
@@ -3602,7 +3626,8 @@ function PatientsProfile() {
                                       value="No" // Set the value to "No"
                                       checked={
                                         record.malaria.hasMalaria === "No"
-                                      } // Check if the value is "No"
+                                      }
+                                      readOnly
                                     />
                                     No
                                   </label>
@@ -3611,6 +3636,7 @@ function PatientsProfile() {
                                   placeholder="Please date the last attack."
                                   className="textarea mt-2 border rounded-md p-2 w-full col-span-3"
                                   value={record.malaria.lastAttackDate}
+                                  readOnly
                                 ></textarea>
                               </div>
 
@@ -3629,6 +3655,7 @@ function PatientsProfile() {
                                         record.operations.undergoneOperation ===
                                         "Yes"
                                       }
+                                      readOnly
                                     />
                                     Yes
                                   </label>
@@ -3642,6 +3669,7 @@ function PatientsProfile() {
                                         record.operations.undergoneOperation ===
                                         "No"
                                       }
+                                      readOnly
                                     />
                                     No
                                   </label>
@@ -3650,6 +3678,7 @@ function PatientsProfile() {
                                   placeholder="Please list them."
                                   className="textarea mt-2 border rounded-md p-2 w-full col-span-3"
                                   value={record.operations.listOperations}
+                                  readOnly
                                 ></textarea>
                               </div>
 

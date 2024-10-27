@@ -197,11 +197,11 @@ function Patients() {
     if (patient) {
       // Preload the form with the patient's data
       setPatientToEdit(patient);
-      setPatientType(patient.patientType); 
+      setPatientType(patient.patientType);
       setFirstName(patient.firstname);
       setMiddleName(patient.middlename);
       setLastName(patient.lastname);
-      setBirthDate(new Date(patient.birthdate).toISOString().split('T')[0]);
+      setBirthDate(new Date(patient.birthdate).toISOString().split("T")[0]);
       setIdNumber(patient.idnumber);
       setAddress(patient.address);
       setPhoneNumber(patient.phonenumber);
@@ -258,7 +258,7 @@ function Patients() {
 
       <div className="p-6 pt-20 bg-gray-100 min-h-screen">
         {message && (
-          <div className="bg-green-500 text-white p-4 rounded-lg mb-4">
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50">
             {message}
           </div>
         )}

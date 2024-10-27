@@ -18,7 +18,9 @@ app.use(express.json());
 const nodemailer = require("nodemailer");
 
 mongoose.connect(
-  "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee");`1`;
+  "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee"
+);
+`1`;
 
 // P H Y S I C A L E X A M   S T U D E N T
 app.post("/api/physical-exam-student", async (req, res) => {
@@ -61,12 +63,10 @@ app.post("/api/medical-history", async (req, res) => {
     const savedMedicalHistory = await newMedicalHistory.save();
 
     // Send a success response
-    res
-      .status(201)
-      .json({
-        message: "Medical history added successfully",
-        data: savedMedicalHistory,
-      });
+    res.status(201).json({
+      message: "Medical history added successfully",
+      data: savedMedicalHistory,
+    });
   } catch (error) {
     res
       .status(500)
@@ -81,12 +81,10 @@ app.get("/api/medical-history", async (req, res) => {
     const medicalHistory = await MedicalHistoryModel.find().populate("patient");
     res.json(medicalHistory);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error fetching medical history records",
-        error: error,
-      });
+    res.status(500).json({
+      message: "Error fetching medical history records",
+      error: error,
+    });
   }
 });
 
@@ -112,12 +110,10 @@ app.get("/api/medical-history/id/:id", async (req, res) => {
     }
     res.json(medicalHistory);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error fetching medical history record",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error fetching medical history record",
+      error: error.message,
+    });
   }
 });
 
@@ -138,6 +134,7 @@ app.get("/api/medical-history/id/:id", async (req, res) => {
 // });
 
 // GET endpoint to fetch medical history records by patient ID
+// GET endpoint to fetch medical history records by patient ID
 app.get("/api/medical-history/:patientId", async (req, res) => {
   const { patientId } = req.params;
 
@@ -146,19 +143,14 @@ app.get("/api/medical-history/:patientId", async (req, res) => {
     const medicalHistories = await MedicalHistoryModel.find({
       patient: patientId,
     }).populate("patient");
-    if (!medicalHistories || medicalHistories.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No medical history records found for this patient" });
-    }
-    res.json(medicalHistories);
+
+    // Return medical histories (this will be an empty array if no records found)
+    res.json(medicalHistories); // No need to check for length here
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error fetching medical history records",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error fetching medical history records",
+      error: error.message,
+    });
   }
 });
 
@@ -738,11 +730,15 @@ app.put("/user/:id/update-password", (req, res) => {
 app.get("/api/pathologist-signature", async (req, res) => {
   try {
     // Find an employee with the role of "pathologist"
-    const pathologist = await EmployeeModel.findOne({ role: "pathologist" }).select("signature");
+    const pathologist = await EmployeeModel.findOne({
+      role: "pathologist",
+    }).select("signature");
 
     // Check if a pathologist with a signature was found
     if (!pathologist || !pathologist.signature) {
-      return res.status(404).json({ message: "Pathologist or signature not found" });
+      return res
+        .status(404)
+        .json({ message: "Pathologist or signature not found" });
     }
 
     // Construct the URL for the signature file
@@ -750,7 +746,9 @@ app.get("/api/pathologist-signature", async (req, res) => {
     return res.json({ signature: signatureUrl });
   } catch (error) {
     console.error("Error fetching pathologist signature:", error);
-    return res.status(500).json({ message: "Server error while fetching signature" });
+    return res
+      .status(500)
+      .json({ message: "Server error while fetching signature" });
   }
 });
 
@@ -1320,11 +1318,9 @@ app.post("/api/vaccines", async (req, res) => {
 
   // Basic validation
   if (!patient || !name || !administeredBy) {
-    return res
-      .status(400)
-      .json({
-        message: "Patient ID, vaccine name, and administeredBy are required.",
-      });
+    return res.status(400).json({
+      message: "Patient ID, vaccine name, and administeredBy are required.",
+    });
   }
 
   // Validate ObjectId
@@ -1397,7 +1393,6 @@ app.get("/api/vaccines/:id", async (req, res) => {
   }
 });
 
-// GET /api/vaccines/patient/:id - Fetch vaccines by patient ID
 app.get("/api/vaccines/patient/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -1409,10 +1404,9 @@ app.get("/api/vaccines/patient/:id", async (req, res) => {
     const vaccines = await VaccineModel.find({ patient: id }).populate(
       "administeredBy"
     );
-    if (!vaccines || vaccines.length === 0) {
-      return res.status(404).json({ message: "No vaccine records found." });
-    }
-    res.json(vaccines);
+
+    // Return an empty array instead of 404 if no records are found
+    res.json(vaccines); // This will be an empty array if no records found
   } catch (error) {
     console.error("Error fetching vaccine records:", error);
     res
