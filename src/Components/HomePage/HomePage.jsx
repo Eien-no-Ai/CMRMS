@@ -78,15 +78,14 @@ const Dashboard = () => {
 
   useEffect(() => {
     const roleRecordMapping = {
-      "nurse": ["Clinical Records"],
-      "doctor": ["Clinical Records", "Laboratory Records", "X-Ray Records"],
-      "pathologist": ["Laboratory Records"],
+      nurse: ["Clinical Records"],
+      doctor: ["Clinical Records", "Laboratory Records", "X-Ray Records"],
+      pathologist: ["Laboratory Records"],
       "junior medtech": ["Laboratory Records"],
       "senior medtech": ["Laboratory Records"],
       "radiologic technologist": ["X-Ray Records"],
-      "radiologist": ["X-Ray Records"],
-      "special trainee":["Physical Therapy Records"],
-      "physical therapist":["Physical Therapy Records"],
+      radiologist: ["X-Ray Records"],
+      dentist: ["X-Ray Records"],
     };
 
     // Check if the userRole exists in the mapping and get the records it can access
@@ -138,30 +137,54 @@ const Dashboard = () => {
                       href="/clinic/records" // Link to Clinical Records page
                       className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                     >
-                      <TbBuildingHospital size={40} className="text-gray-500 mb-2" />
+                      <TbBuildingHospital
+                        size={40}
+                        className="text-gray-500 mb-2"
+                      />
                       <span className="font-semibold text-custom-red">
                         CLINICAL RECORDS
                       </span>
                     </a>
                   )}
                   {records.includes("Laboratory Records") && (
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-3 gap-6">
                       <a
-                        href="/laboratory/records" // Link to Laboratory Records page
+                        href="/laboratory/records"
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
-                        <SlChemistry size={40} className="text-gray-500 mb-2"/>
+                        <IoFileTrayFullOutline
+                          size={40}
+                          className="text-gray-500 mb-2"
+                        />
                         <span className="font-semibold text-custom-red">
-                          LABORATORY RECORDS
+                          LAB RECORDS
                         </span>
                       </a>
                       <a
-                        href="/laboratory/requests" // Link to Laboratory Requests page
+                        href="/laboratory/verification"
+                        onClick={(e) => {
+                          if (userRole !== "senior medtech" && userRole !== "pathologist") {
+                            e.preventDefault();
+                            alert("You do not have permission to verify laboratory tests.");
+                          }
+                        }}                        
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
-                        <SlChemistry size={40} className="text-gray-500 mb-2"/>
+                        <MdOutlineVerifiedUser
+                          size={40}
+                          className="text-gray-500 mb-2"
+                        />
                         <span className="font-semibold text-custom-red">
-                          LABORATORY REQUESTS
+                          LAB VERIFICATION
+                        </span>
+                      </a>
+                      <a
+                        href="/laboratory/requests"
+                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                      >
+                        <SlChemistry size={40} className="text-gray-500 mb-2" />
+                        <span className="font-semibold text-custom-red">
+                          LAB REQUESTS
                         </span>
                       </a>
                     </div>
@@ -172,7 +195,10 @@ const Dashboard = () => {
                         href="/xray/records" // Link to X-Ray Records page
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
-                        <FaXRay size={40} className="text-gray-500 mb-2" />
+                        <IoFileTrayFullOutline
+                          size={40}
+                          className="text-gray-500 mb-2"
+                        />
                         <span className="font-semibold text-custom-red">
                           X-RAY RECORDS
                         </span>
@@ -188,7 +214,7 @@ const Dashboard = () => {
                       </a>
                     </div>
                   )}
-                  {records.includes("Physical Therapy Records") && (
+                   {records.includes("Physical Therapy Records") && (
                     <a
                       href="/physicaltherapy/records" // Link to Physical Therapy Records page
                       className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
@@ -211,15 +237,16 @@ const Dashboard = () => {
                         ? "/laboratory/records"
                         : record === "X-Ray Records"
                         ? "/xray/records"
-                        : record === "Physical Therapy Records"
-                        ? "/physicaltherapy/records"
                         : "#"
                     }
                     className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105"
                   >
                     {record === "Clinical Records" && (
                       <>
-                        <TbBuildingHospital size={40} className="text-gray-500 mb-2" />
+                        <TbBuildingHospital
+                          size={40}
+                          className="text-gray-500 mb-2"
+                        />
                         <span className="font-semibold text-custom-red">
                           CLINICAL RECORDS
                         </span>
