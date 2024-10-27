@@ -256,6 +256,18 @@ function App() {
             }
           />
 
+          <Route
+            path="/physicaltherapy/requests"
+            element={
+              <PrivateRoute allowedRoles={[
+                'physical therapist',
+                'special trainee',
+                "doctor",]}>
+                <PhysicalTherapy />
+              </PrivateRoute>
+            }
+          />
+
           {/* Admin Routes */}
           <Route
             path="/admin"

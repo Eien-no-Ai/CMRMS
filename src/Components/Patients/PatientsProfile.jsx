@@ -5998,15 +5998,17 @@ function PatientsProfile() {
         </div>
       </div>
       {isNewTherapyRecordModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
+         <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg z-50">
             <h2 className="text-lg font-bold mb-4 text-center">
               New Physical Therapy Record
             </h2>
             <form onSubmit={handleNewTherapySubmit}>
               <div className="mb-4">
-                <label className="block text-sm font-medium">Diagnosis</label>
-                <input
+                <label className="block text-sm font-medium">
+                  Diagnosis
+                </label>
+                <textarea
                   type="text"
                   name="Diagnosis"
                   value={newTherapyRecord.Diagnosis}
