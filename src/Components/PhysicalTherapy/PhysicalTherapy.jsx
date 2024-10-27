@@ -1,16 +1,137 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect ,useRef} from "react";
 import { BiSearch } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
 import { BsThreeDots } from "react-icons/bs";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { useParams } from "react-router-dom";
 
 function PhysicalTherapy() {
+  const { id } = useParams();
+  
   const [physicalTherapyRecords, setPhysicalTherapyRecords] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const physicalTherapyRecordsPerPage = 4;
   const [searchQuery, setSearchQuery] = useState("");
   const [showFullList, setShowFullList] = useState(false);
+  const [isNewTherapyRecordModalOpen, setIsNewTherapyRecordModalOpen] = useState(false);
+  // New state for the modal
+  const [isViewRecordModalOpen, setIsViewRecordModalOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [newTherapyRecord, setNewTherapyRecord] = useState({ 
+    SOAPSummary:"" 
+  });
+  const [selectedTherapyId, setSelectedTherapyId] = useState(null);
 
+  // Set the selected ID when a record is clicked
+  const handleSelectRecord = (id) => {
+    setSelectedTherapyId(id);
+  };
+  
+   // Function to close the view record modal
+   const closeViewRecordModal = () => {
+    setIsViewRecordModalOpen(false);
+    setSelectedRecord(null);
+  };
+
+    // Function to open the view record modal
+    const openViewRecordModal = (record) => {
+      setSelectedRecord(record);
+      setIsViewRecordModalOpen(true);
+    };
+
+  // Use selectedTherapyId in handleNewTherapySubmit
+  const [dropdownIndex, setDropdownIndex] = useState(null);
+  const dropdownRefs = useRef([]);
+  const toggleDropdown = (index) => {
+    setDropdownIndex(dropdownIndex === index ? null : index);
+  };
+
+  const handleNewTherapyRecordOpen = () => {
+    setIsNewTherapyRecordModalOpen(true);
+  };
+
+  const handleNewTherapyRecordClose = () => {
+    setIsNewTherapyRecordModalOpen(false);
+    setNewTherapyRecord({ SOAPSummary: '' }); // Reset form on close
+  };
+
+  // Handler for input change
+  const handleNewTherapyRecordChange = (e) => {
+    setNewTherapyRecord({ ...newTherapyRecord, [e.target.name]: e.target.value });
+  };
+
+
+  const handleNewTherapySubmit = async (e) => {
+    e.preventDefault();
+  
+    const therapyRecordId = selectedTherapyId; // Use the selected therapy ID
+  
+    if (!therapyRecordId) {
+      console.error("Error: ID is undefined. Cannot update record.");
+      return; // Prevent further execution if the ID is not valid
+    }
+  
+    try {
+      const response = await axios.put(
+        `http://localhost:3001/api/physicalTherapy/${therapyRecordId}`, // Use the defined ID here
+        {
+          ...newTherapyRecord,
+          patient: id, // Assuming 'id' is the patient ID
+        }
+      );
+  
+      if (response.status === 200) {
+        handleNewTherapyRecordClose(); // Close the modal after successful submission
+        fetchPhysicalTherapyRecords(); // Fetch the updated records
+        setNewTherapyRecord({
+          SOAPSummary: "", // Reset the form state
+        });
+      }
+    } catch (error) {
+      console.error("Error updating therapy record:", error.response || error); // Log any errors
+    }
+  };
+  
+
+  const openNewTherapyModal = (id) => {
+    setSelectedTherapyId(id); // Set the selected therapy ID when opening the modal
+    setNewTherapyRecord({ SOAPSummary: "" }); // Reset the form fields
+    setIsNewTherapyRecordModalOpen(true); // Open the modal
+  };
+  
+
+  const handleGenerateReport = () => {
+    const pdf = new jsPDF();
+  
+    // Set the title of the report
+    pdf.text("Physical Therapy Report", 20, 20);
+  
+    // Table headers
+    const headers = ["Date", "Diagnosis","SOAP Summary"];
+  
+    // Use filteredPhysicalTherapyRecords instead of currentPhysicalTherapyRecords
+    const tableData = filteredPhysicalTherapyRecords.map((record) => [
+      new Date(record.isCreatedAt).toLocaleString(),
+      record.Diagnosis,
+      record.SOAPSummary,
+      
+    ]);
+  
+    // Generate the table using autoTable
+    pdf.autoTable({
+      head: [headers],
+      body: tableData,
+      startY: 30, // Start table below the title
+    });
+  
+    // Save the PDF with a dynamic filename
+    pdf.save("Physical_Therapy_Report.pdf");
+  };
+  
+
+  
   useEffect(() => {
     fetchPhysicalTherapyRecords(); // Fetch physical therapy records on component mount
   }, []);
@@ -94,6 +215,14 @@ function PhysicalTherapy() {
 
           <div className="flex items-center space-x-4">
             <div className="relative">
+            <button
+              className="bg-custom-red text-white py-2 px-4 rounded-lg w-full"
+              onClick={handleGenerateReport}
+              >
+              Generate Report
+            </button>
+            </div>
+            <div className="relative">
               <input
                 type="text"
                 placeholder="Search"
@@ -119,6 +248,7 @@ function PhysicalTherapy() {
                 <thead>
                   <tr className="text-left text-gray-600">
                     <th className="py-3 w-1/4">Patient Info</th>
+                    <th className="py-3 w-1/4">Diagnosis</th>
                     <th className="py-3 w-1/4">SOAP Summary</th>
                     <th className="py-3 w-1/12"></th>
                   </tr>
@@ -134,7 +264,7 @@ function PhysicalTherapy() {
                       </td>
                     </tr>
                   ) : (
-                    currentPhysicalTherapyRecords.map((record) => (
+                    currentPhysicalTherapyRecords.map((record,index) => (
                       <tr key={record._id} className="border-b">
                         <td className="py-4">
                           {record.patient ? (
@@ -155,17 +285,66 @@ function PhysicalTherapy() {
                         </td>
                         <td className="py-4">
                           <p className="font-semibold">
+                            {record.Diagnosis || "No SOAP Summary available"}
+                          </p>
+                        </td>
+                        <td className="py-4">
+                          <p className="font-semibold">
                             {record.SOAPSummary || "No SOAP Summary available"}
                           </p>
                         </td>
                         <td className="py-4">
-                        <button className="text-gray-500 hover:text-gray-700">
+                       {/* Three dot button to trigger the modal
+                       <button key={record._id} onClick={() => openNewTherapyModal(record._id)}>
+                        Result
+                       </button>
+                        </td> */}
+                        <div
+                            className="relative"
+                            ref={(el) => (dropdownRefs.current[index] = el)}
+                          >
+                            <button
+                              className="text-gray-500 hover:text-gray-700"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleDropdown(index);
+                              }}
+                            >
                               <BsThreeDots size={20} />
                             </button>
-                        </td>
+
+                            {dropdownIndex === index && (
+                              <div className="absolute right-0 w-40 bg-white rounded-md shadow-lg border z-10">
+                                <button
+                                  className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
+                                  onClick={() => {
+                                    openViewRecordModal(record); // Open the therapy modal
+                                    toggleDropdown(-1); // Close the dropdown after clicking
+                                  }}
+                                  
+                                >
+                                  View Records
+                                </button>
+                                <button
+                                  className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
+                                  key={record._id} 
+                                  onClick={() => {
+                                    
+                                    openNewTherapyModal(record._id); // Open the therapy modal
+                                    toggleDropdown(-1); // Close the dropdown after clicking
+                                  }}
+                                >
+                                  Add Summary
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          </td> 
                       </tr>
+
                     ))
                   )}
+                  
                 </tbody>
               </table>
             </div>
@@ -219,6 +398,98 @@ function PhysicalTherapy() {
             </div>
           </div>
         )}
+
+        {/* Modal for adding SOAP summary */}
+        {isNewTherapyRecordModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
+              <h2 className="text-lg font-bold mb-4 text-center">
+                New Physical Therapy Record
+              </h2>
+              <form onSubmit={handleNewTherapySubmit}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium">
+                    SOAP Summary
+                  </label>
+                  <input
+                    type="text"
+                    name="SOAPSummary"
+                    value={newTherapyRecord.SOAPSummary}
+                    onChange={handleNewTherapyRecordChange}
+                    // onChange={(e) => handleNewTherapyRecordChange(e.target.value)}
+                    required
+                    className="border rounded-lg w-full p-2 mt-1"
+                  />
+                </div>
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                    onClick={handleNewTherapyRecordClose}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                  type="submit"
+                  className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                  // onClick={() => {
+                  //   setSelectedRecord({
+                  //     ...selectedRecord,
+                  //     SOAPSummary: selectedRecord.SOAPSummary
+                  //       ? `${newTherapyRecord.SOAPSummary}, ${newTherapyRecord}`
+                  //       : newTherapyRecord,
+                  //   });
+                  //   handleNewTherapyRecordClose();
+                  //   setNewTherapyRecord({ SOAPSummary: "" });
+                  // }}
+                >
+                  Submit
+                </button>
+
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+       {/* View Record Modal */}
+      {isViewRecordModalOpen && selectedRecord && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/2">
+            <h2 className="text-xl font-semibold mb-4">Record Details</h2>
+            <p><strong>Patient Info:</strong> {selectedRecord.patient?.firstname} {selectedRecord.patient?.lastname}</p>
+            <p><strong>Diagnosis:</strong> {selectedRecord.Diagnosis}</p>
+            <p><strong>Gender:</strong> {selectedRecord.patient?.gender}</p>
+            <p><strong>Precautions:</strong> {selectedRecord.Precautions}</p>
+
+            {/* Date and SOAP Summary Table */}
+            <div className="mt-4">
+              <table className="min-w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr>
+                    <th className="border border-gray-300 px-4 py-2">Date</th>
+                    <th className="border border-gray-300 px-4 py-2">SOAP Summary</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="border border-gray-300 px-4 py-2">{new Date(selectedRecord.isCreatedAt).toLocaleDateString()}</td>
+                    <td className="border border-gray-300 px-4 py-2">{selectedRecord.SOAPSummary}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-custom-red text-white px-4 py-2 rounded-lg"
+                onClick={closeViewRecordModal} // Close the modal
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );
