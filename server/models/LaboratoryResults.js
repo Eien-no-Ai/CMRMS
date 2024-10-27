@@ -119,6 +119,7 @@ const LaboratoryResultsSchema = new mongoose.Schema({
         },
         signature: { type: String, default: "" },
     },
+    pathologistSignature: { type: String, default: "" },
     isCreatedAt: { type: Date, default: Date.now },
 });
 

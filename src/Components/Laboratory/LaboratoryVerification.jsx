@@ -22,9 +22,11 @@ function LaboratoryVerification() {
     useState(null);
   const [serologySignatureUrl, setSerologySignatureUrl] = useState(null);
   const userId = localStorage.getItem("userId"); // Get the user ID from local storage
+  const [pathologistSignatureUrl, setPathologistSignatureUrl] = useState(null);
 
   useEffect(() => {
     fetchLabRecords();
+    fetchPathologistSignature();
   }, []);
 
   const fetchLabRecords = () => {
@@ -182,6 +184,8 @@ function LaboratoryVerification() {
         signature:
           serologySignatureUrl || labDetails.bloodBankingSerology?.signature,
       },
+      pathologistSignature:
+        pathologistSignatureUrl || labDetails.pathologistSignature, // Add pathologist's signature with fallback
     };
 
     // Debugging to see the updated data before the API call
@@ -218,6 +222,22 @@ function LaboratoryVerification() {
     } catch (error) {
       console.error("Error verifying lab result:", error);
       alert("An error occurred while verifying the lab result.");
+    }
+  };
+
+  // Fetch the pathologist's signature
+  const fetchPathologistSignature = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3001/api/pathologist-signature"
+      );
+      if (response.data && response.data.signature) {
+        setPathologistSignatureUrl(response.data.signature);
+      } else {
+        console.error("No pathologist signature found.");
+      }
+    } catch (error) {
+      console.error("Error fetching pathologist signature:", error);
     }
   };
 
@@ -383,7 +403,7 @@ function LaboratoryVerification() {
             <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 flex justify-center">
               <p className="text-gray-700 flex items-center">
                 <span className="mr-2">&#9432;</span> Whole laboratory request
-                list is not shown to save initial load time.
+                for verification list is not shown to save initial load time.
               </p>
             </div>
             <div className="flex justify-center mt-4">
@@ -391,7 +411,7 @@ function LaboratoryVerification() {
                 onClick={toggleListVisibility}
                 className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
               >
-                Load All Laboratory Records
+                Load All Laboratory Requests.
               </button>
             </div>
           </div>
@@ -2381,7 +2401,7 @@ function LaboratoryVerification() {
                     }
                   />
                   {/* Signature Button for Clinical Microscopy */}
-                  <div className="col-span-12 flex justify-end">
+                  <div className="col-span-12 flex justify-end space-x-6 items-center">
                     {!serologySignatureUrl && (
                       <button
                         onClick={(e) => {
@@ -2394,7 +2414,7 @@ function LaboratoryVerification() {
                     )}
 
                     {serologySignatureUrl && (
-                      <div className="">
+                      <div className="flex flex-col items-center">
                         <img
                           src={serologySignatureUrl}
                           alt="Signature"
@@ -2407,6 +2427,25 @@ function LaboratoryVerification() {
               )}
             </form>
 
+            {pathologistSignatureUrl && (
+              <div className="grid grid-cols-3">
+                <div className="flex flex-col items-center">
+                  <img
+                    src={pathologistSignatureUrl}
+                    alt="Pathologist Signature"
+                    className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
+                  />
+                  <p className="text-gray-600 text-xs mt-1 font-semibold">
+                    Rhesa Michelle M. Wong, MD, DPSP
+                  </p>
+                  <p className="text-gray-600 text-xs">
+                    License Number: 0111589
+                  </p>
+                  <hr />
+                  <p className="text-gray-600 text-xs">Clinical Pathologist</p>
+                </div>
+              </div>
+            )}
             {/* Buttons Wrapper */}
             <div className="flex justify-end space-x-4 mt-4">
               <button

@@ -285,7 +285,7 @@ function LaboratoryResult() {
           <div>
             <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 flex justify-center">
               <p className="text-gray-700 flex items-center">
-                <span className="mr-2">&#9432;</span> Whole laboratory request
+                <span className="mr-2">&#9432;</span> Whole laboratory records
                 list is not shown to save initial load time.
               </p>
             </div>
@@ -1401,10 +1401,10 @@ function LaboratoryResult() {
                     }
                     readOnly
                   />
-                  <div className="col-span-12 flex justify-end">
+                  <div className="col-span-12 flex justify-end space-x-6 items-center">
                     {/* Display fetched signature image */}
                     {labDetails?.bloodBankingSerology?.signature ? (
-                      <div className="flex justify-end">
+                      <div className="flex flex-col items-center">
                         <img
                           src={labDetails.bloodBankingSerology.signature}
                           alt="Signature"
@@ -1418,6 +1418,26 @@ function LaboratoryResult() {
                 </div>
               )}
             </form>
+            
+            {labDetails.pathologistSignature && (
+              <div className="grid grid-cols-3">
+                <div className="flex flex-col items-center">
+                  <img
+                    src={labDetails.pathologistSignature}
+                    alt="Pathologist Signature"
+                    className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
+                  />
+                  <p className="text-gray-600 text-xs mt-1 font-semibold">
+                    Rhesa Michelle M. Wong, MD, DPSP
+                  </p>
+                  <p className="text-gray-600 text-xs">
+                    License Number: 0111589
+                  </p>
+                  <hr />
+                  <p className="text-gray-600 text-xs">Clinical Pathologist</p>
+                </div>
+              </div>
+            )}
 
             {/* Buttons Wrapper */}
             <div className="flex justify-end space-x-4 mt-4">

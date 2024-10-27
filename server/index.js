@@ -734,6 +734,26 @@ app.put("/user/:id/update-password", (req, res) => {
     );
 });
 
+// Endpoint to get pathologist's signature
+app.get("/api/pathologist-signature", async (req, res) => {
+  try {
+    // Find an employee with the role of "pathologist"
+    const pathologist = await EmployeeModel.findOne({ role: "pathologist" }).select("signature");
+
+    // Check if a pathologist with a signature was found
+    if (!pathologist || !pathologist.signature) {
+      return res.status(404).json({ message: "Pathologist or signature not found" });
+    }
+
+    // Construct the URL for the signature file
+    const signatureUrl = `http://localhost:3001/uploads/${pathologist.signature}`;
+    return res.json({ signature: signatureUrl });
+  } catch (error) {
+    console.error("Error fetching pathologist signature:", error);
+    return res.status(500).json({ message: "Server error while fetching signature" });
+  }
+});
+
 // app.post('/role', (req, res) => {
 //     const {email,firstName,role} = req.body;
 //     EmployeeModel.findOne

@@ -149,7 +149,7 @@ const Dashboard = () => {
                   {records.includes("Laboratory Records") && (
                     <div className="grid grid-cols-3 gap-6">
                       <a
-                        href="/laboratory/records" // Link to Laboratory Records page
+                        href="/laboratory/records"
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
                         <IoFileTrayFullOutline
@@ -161,7 +161,13 @@ const Dashboard = () => {
                         </span>
                       </a>
                       <a
-                        href="/laboratory/verification" // Link to Laboratory Records page
+                        href="/laboratory/verification"
+                        onClick={(e) => {
+                          if (userRole !== "senior medtech" && userRole !== "pathologist") {
+                            e.preventDefault();
+                            alert("You do not have permission to verify laboratory tests.");
+                          }
+                        }}                        
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
                         <MdOutlineVerifiedUser
@@ -173,7 +179,7 @@ const Dashboard = () => {
                         </span>
                       </a>
                       <a
-                        href="/laboratory/requests" // Link to Laboratory Requests page
+                        href="/laboratory/requests"
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
                         <SlChemistry size={40} className="text-gray-500 mb-2" />
