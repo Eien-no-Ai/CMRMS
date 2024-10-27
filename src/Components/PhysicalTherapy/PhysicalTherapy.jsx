@@ -458,7 +458,7 @@ function PhysicalTherapy() {
             <h2 className="text-xl font-semibold mb-4">Record Details</h2>
             <p><strong>Patient Info:</strong> {selectedRecord.patient?.firstname} {selectedRecord.patient?.lastname}</p>
             <p><strong>Diagnosis:</strong> {selectedRecord.Diagnosis}</p>
-            <p><strong>Gender:</strong> {selectedRecord.patient?.gender}</p>
+            <p><strong>Gender:</strong> {selectedRecord.patient?.sex}</p>
             <p><strong>Precautions:</strong> {selectedRecord.Precautions}</p>
 
             {/* Date and SOAP Summary Table */}
