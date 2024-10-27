@@ -197,10 +197,11 @@ function Patients() {
     if (patient) {
       // Preload the form with the patient's data
       setPatientToEdit(patient);
+      setPatientType(patient.patientType); 
       setFirstName(patient.firstname);
       setMiddleName(patient.middlename);
       setLastName(patient.lastname);
-      setBirthDate(patient.birthdate);
+      setBirthDate(new Date(patient.birthdate).toISOString().split('T')[0]);
       setIdNumber(patient.idnumber);
       setAddress(patient.address);
       setPhoneNumber(patient.phonenumber);
