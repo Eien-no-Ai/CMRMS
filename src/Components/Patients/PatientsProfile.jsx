@@ -1482,40 +1482,30 @@ function PatientsProfile() {
       }));
     }
   };
-
-  const fetchPhysicalExamStudent = async () => {
-    try {
-      const response = await axios.get(`http://localhost:3001/api/physical-exam-student/${id}`);
-      setPhysicalExamStudent(response.data); // Update state with fetched data
-      return response.data; // Return fetched data for use in other functions
-    } catch (error) {
-      console.error("Error fetching physical exam student record:", error);
-    }
-  };
   
-  
-const handlePESubmit = async () => {
+ const handlePESubmit = async () => {
   try {
+    // Check if selectedRecords has labRecords with a valid packageId
+    const packageId = selectedRecords?.labRecords[0]?.packageId;
+
+    if (!packageId) {
+      alert("Package ID not found. Please select a valid package.");
+      return;
+    }
+
     const response = await axios.post(
       `http://localhost:3001/api/physical-exam-student`,
       {
         patient: id,
+        packageId, // Add packageId to the request body
         ...physicalExamStudent,
       }
     );
+
     console.log("Physical exam saved successfully:", response.data);
-
     if (response.status === 200) {
-      // Fetch the latest physical exam data
-      const updatedPhysicalExam = await fetchPhysicalExamStudent();
-
-      // Update the physical exam state with the latest data
-      if (updatedPhysicalExam) {
-        setPhysicalExamStudent(updatedPhysicalExam);
-      }
-
-      // Close the modal
       setisPackageInfoModalOpen(false);
+      setPhysicalExamStudent({ ...physicalExamStudent });
     }
   } catch (error) {
     console.error("Error adding physical exam:", error.response?.data || error);
