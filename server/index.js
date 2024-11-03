@@ -873,7 +873,6 @@ app.get("/search", (req, res) => {
       res.status(500).json({ message: "Error searching accounts", error: err })
     );
 });
-
 // P A T I E N T
 app.post("/add-patient", async (req, res) => {
   try {
@@ -900,21 +899,34 @@ app.post("/add-patient", async (req, res) => {
 
     // Generate idnumber for OPD if it's not provided
     if (patientType === "OPD" && !idnumber) {
-      const latestOpdPatient = await PatientModel.findOne({
-        patientType: "OPD",
-      })
-        .sort({ idnumber: -1 }) // Sort by idnumber in descending order
-        .exec();
+      let isUnique = false;
+      let counter = 1;
 
-      if (latestOpdPatient && latestOpdPatient.idnumber) {
-        const lastNumber = parseInt(
-          latestOpdPatient.idnumber.replace("OPD", ""),
-          10
-        );
-        generatedIdNumber = `OPD${lastNumber + 1}`;
-      } else {
-        generatedIdNumber = "OPD1"; // Start from OPD1 if no previous OPD patients found
+      while (!isUnique) {
+        const potentialId = `OPD${counter}`;
+        const existingPatient = await PatientModel.findOne({
+          idnumber: potentialId,
+        });
+
+        if (!existingPatient) {
+          generatedIdNumber = potentialId;
+          isUnique = true;
+        } else {
+          counter++;
+        }
       }
+    }
+
+    // Validate that required fields are present
+    if (
+      !firstname ||
+      !lastname ||
+      !birthdate ||
+      !phonenumber ||
+      !email ||
+      !generatedIdNumber
+    ) {
+      throw new Error("Missing required fields");
     }
 
     const newPatient = new PatientModel({

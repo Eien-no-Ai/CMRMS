@@ -17,6 +17,7 @@ const XraySchema = new mongoose.Schema({
   isCreatedAt: { type: Date, default: Date.now },
   diagnosis: { type: String, default: "" },
   imageFile: { type: String, default: "" },
+  referredBy: { type: String, default: "" },
 });
 
 const XrayModel = mongoose.model("xrays", XraySchema);
