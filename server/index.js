@@ -117,6 +117,7 @@ app.get("/api/medical-history/id/:id", async (req, res) => {
   }
 });
 
+
 // // GET endpoint to fetch medical history record by ID
 // app.get('/api/medical-history/:id', async (req, res) => {
 //   const { patientId } = req.params;

@@ -1169,30 +1169,49 @@ function PatientsProfile() {
       abortionOrMiscarriage: null,
       dysmenorrhea: null,
     },
-  };
-
+  }
+  
   const handleMedicalHistorySubmit = async () => {
     try {
-      const response = await axios.post(
-        `http://localhost:3001/api/medical-history`,
-        {
-          patient: id,
-          ...medicalHistory,
-        }
-      );
-      console.log("Medical history saved successfully:", response.data);
-      if (response.status === 200) {
-        handleMedicalClose();
-        fetchMedicalRecords();
-        setMedicalHistory({
-          ...initialMedicalHistory,
-        });
+      let response;
+  
+      if (medicalHistoryId) {
+        // Update existing medical history
+        response = await axios.put(
+          `http://localhost:3001/api/medical-history/${medicalHistoryId}`,
+          {
+            patient: id,
+            ...medicalHistory,
+          }
+        );
+        console.log("Medical history updated successfully:", response.data);
+      } else {
+        // Create new medical history
+        response = await axios.post(
+          `http://localhost:3001/api/medical-history`,
+          {
+            patient: id,
+            ...medicalHistory,
+          }
+        );
+        console.log("Medical history saved successfully:", response.data);
       }
+  
+      // Fetch updated medical records
+      const updatedRecords = await fetchMedicalRecords();
+  
+      // Update state with the fetched medical history
+      setMedicalHistory({
+        ...updatedRecords[0], // Assuming fetchMedicalRecords returns an array with the latest record
+      });
+  
+      // Close modal
+      handleMedicalClose();
     } catch (error) {
-      console.error("Error adding medical history:", error);
+      console.error("Error saving/updating medical history:", error);
     }
   };
-
+  
   const medicalHistoryId = medicalRecords[0]?._id; // Get the medical history ID
   // Fetch the user data when the component is mounted
   useEffect(() => {
@@ -1424,9 +1443,15 @@ function PatientsProfile() {
   });
 
   const handlePEInputChange = (field, value) => {
-    // Check if the field is in the 'abnormalFindings' object
-    if (field in physicalExamStudent.abnormalFindings) {
-      // If value is an object (used for remarks update)
+    if (field === "LMP") {
+      setPhysicalExamStudent((prevState) => ({
+        ...prevState,
+        abnormalFindings: {
+          ...prevState.abnormalFindings,
+          LMP: value ? new Date(value).toISOString().split("T")[0] : null, // Format as yyyy-MM-dd
+        },
+      }));
+    } else if (field in physicalExamStudent.abnormalFindings) {
       if (typeof value === "object" && value.remarks !== undefined) {
         setPhysicalExamStudent((prevState) => ({
           ...prevState,
@@ -1434,25 +1459,23 @@ function PatientsProfile() {
             ...prevState.abnormalFindings,
             [field]: {
               ...prevState.abnormalFindings[field],
-              remarks: value.remarks, // Update only remarks
+              remarks: value.remarks,
             },
           },
         }));
       } else {
-        // Update the boolean (yes/no) field dynamically based on the field parameter
         setPhysicalExamStudent((prevState) => ({
           ...prevState,
           abnormalFindings: {
             ...prevState.abnormalFindings,
             [field]: {
               ...prevState.abnormalFindings[field],
-              [field]: value, // Update the boolean (yes/no) dynamically
+              [field]: value,
             },
           },
         }));
       }
     } else {
-      // For normal string fields like temperature, bloodPressure, etc.
       setPhysicalExamStudent((prevState) => ({
         ...prevState,
         [field]: value,
@@ -1460,27 +1483,46 @@ function PatientsProfile() {
     }
   };
 
-  const handlePESubmit = async () => {
+  const fetchPhysicalExamStudent = async () => {
     try {
-      const response = await axios.post(
-        `http://localhost:3001/api/physical-exam-student`,
-        {
-          patient: id,
-          ...physicalExamStudent,
-        }
-      );
-      console.log("Physical exam saved successfully:", response.data);
-      if (response.status === 200) {
-        setisPackageInfoModalOpen(false);
-        // fetchPhysicalExamStudent();
-        setPhysicalExamStudent({
-          ...physicalExamStudent,
-        });
-      }
+      const response = await axios.get(`http://localhost:3001/api/physical-exam-student/${id}`);
+      setPhysicalExamStudent(response.data); // Update state with fetched data
+      return response.data; // Return fetched data for use in other functions
     } catch (error) {
-      console.error("Error adding physical exam:", error);
+      console.error("Error fetching physical exam student record:", error);
     }
   };
+  
+  
+const handlePESubmit = async () => {
+  try {
+    const response = await axios.post(
+      `http://localhost:3001/api/physical-exam-student`,
+      {
+        patient: id,
+        ...physicalExamStudent,
+      }
+    );
+    console.log("Physical exam saved successfully:", response.data);
+
+    if (response.status === 200) {
+      // Fetch the latest physical exam data
+      const updatedPhysicalExam = await fetchPhysicalExamStudent();
+
+      // Update the physical exam state with the latest data
+      if (updatedPhysicalExam) {
+        setPhysicalExamStudent(updatedPhysicalExam);
+      }
+
+      // Close the modal
+      setisPackageInfoModalOpen(false);
+    }
+  } catch (error) {
+    console.error("Error adding physical exam:", error.response?.data || error);
+  }
+};
+
+  
 
   return (
     <div>

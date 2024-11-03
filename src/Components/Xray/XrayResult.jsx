@@ -513,7 +513,7 @@ function XrayResult() {
                     ? "Cancel"
                     : "Close"}
                 </button>
-                {userRole === "radiologist" && !formData.diagnosis && (
+                {userRole === "radiologist" && (
                   <button
                     onClick={handleSubmitResult}
                     className="px-4 py-2 bg-custom-red text-white rounded-md"

@@ -2,12 +2,13 @@ const mongoose = require('mongoose');
 
 const PhysicalExamStudentSchema = new mongoose.Schema({
     patient: { type: mongoose.Schema.Types.ObjectId, ref: 'patients'},
-    temperature : { type: Number, required: true },
-    bloodPressure : { type: Number, required: true },
-    pulseRate : { type: Number, required: true },
-    respirationRate : { type: Number, required: true },
-    height : { type: Number, required: true },
-    weight : { type: Number, required: true },
+    packageId: { type: mongoose.Schema.Types.ObjectId, ref: "packages" },
+    temperature : { type: String, required: true },
+    bloodPressure : { type: String, required: true },
+    pulseRate : { type: String, required: true },
+    respirationRate : { type: String, required: true },
+    height : { type: String, required: true },
+    weight : { type: String, required: true },
     bodyBuilt : { type: String, required: true },
     visualAcuity : { type: String, required: true },
     abnormalFindings :{
