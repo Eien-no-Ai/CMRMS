@@ -1,27 +1,30 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 // Define the Patient schema
 const PatientSchema = new mongoose.Schema({
-    medicalHistory: { type: mongoose.Schema.Types.ObjectId, ref: 'MedicalHistory' }, // Reference to the MedicalHistory model
-    firstname: { type: String, required: true },
-    middlename: { type: String },
-    lastname: { type: String, required: true },
-    birthdate: { type: Date, required: true },
-    idnumber: { type: String, unique: true },
-    address: { type: String },
-    city: { type: String },
-    state: { type: String },
-    postalcode: { type: String },
-    phonenumber: { type: String },
-    email: { type: String, required: true, unique: true },
-    course: { type: String },
-    sex: { type: String, required: true },
-    patientType: { type: String, required: true },
-    emergencyContact: { type: String, },
-    position: { type: String },
-    createdAt: { type: Date, default: Date.now }, 
+  medicalHistory: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "MedicalHistory",
+  }, // Reference to the MedicalHistory model
+  firstname: { type: String, required: true },
+  middlename: { type: String },
+  lastname: { type: String, required: true },
+  birthdate: { type: Date, required: true },
+  idnumber: { type: String, unique: true },
+  address: { type: String },
+  city: { type: String },
+  state: { type: String },
+  postalcode: { type: String },
+  phonenumber: { type: String },
+  email: { type: String, required: true, unique: true },
+  course: { type: String },
+  sex: { type: String, required: true },
+  patientType: { type: String, required: true },
+  emergencyContact: { type: String },
+  position: { type: String },
+  createdAt: { type: Date, default: Date.now },
 });
 
-const PatientModel = mongoose.model('patients', PatientSchema);
+const PatientModel = mongoose.model("patients", PatientSchema);
 
 module.exports = PatientModel;

@@ -875,58 +875,77 @@ app.get("/search", (req, res) => {
 });
 
 // P A T I E N T
+app.post("/add-patient", async (req, res) => {
+  try {
+    const {
+      firstname,
+      middlename,
+      lastname,
+      birthdate,
+      idnumber,
+      address,
+      city,
+      state,
+      postalcode,
+      phonenumber,
+      email,
+      course,
+      sex,
+      patientType,
+      emergencyContact,
+      position,
+    } = req.body;
 
-app.post("/add-patient", (req, res) => {
-  const {
-    firstname,
-    middlename,
-    lastname,
-    birthdate,
-    birthplace,
-    idnumber,
-    address,
-    city,
-    state,
-    postalcode,
-    phonenumber,
-    email,
-    course,
-    sex,
-    patientType,
-    emergencyContact,
-    position,
-  } = req.body;
+    let generatedIdNumber = idnumber || null;
 
-  const newPatient = new PatientModel({
-    firstname,
-    middlename,
-    lastname,
-    birthdate,
-    birthplace,
-    idnumber,
-    address,
-    city,
-    state,
-    postalcode,
-    phonenumber,
-    email,
-    course,
-    sex,
-    patientType,
-    emergencyContact,
-    position,
-  });
+    // Generate idnumber for OPD if it's not provided
+    if (patientType === "OPD" && !idnumber) {
+      const latestOpdPatient = await PatientModel.findOne({
+        patientType: "OPD",
+      })
+        .sort({ idnumber: -1 }) // Sort by idnumber in descending order
+        .exec();
 
-  newPatient
-    .save()
-    .then((patient) =>
-      res.status(201).json({ message: "Patient added successfully", patient })
-    )
-    .catch((err) =>
-      res
-        .status(500)
-        .json({ message: "Error adding patient", error: err.message })
-    );
+      if (latestOpdPatient && latestOpdPatient.idnumber) {
+        const lastNumber = parseInt(
+          latestOpdPatient.idnumber.replace("OPD", ""),
+          10
+        );
+        generatedIdNumber = `OPD${lastNumber + 1}`;
+      } else {
+        generatedIdNumber = "OPD1"; // Start from OPD1 if no previous OPD patients found
+      }
+    }
+
+    const newPatient = new PatientModel({
+      firstname,
+      middlename,
+      lastname,
+      birthdate,
+      idnumber: generatedIdNumber,
+      address,
+      city,
+      state,
+      postalcode,
+      phonenumber,
+      email,
+      course,
+      sex,
+      patientType,
+      emergencyContact,
+      position,
+    });
+
+    const savedPatient = await newPatient.save();
+    res
+      .status(201)
+      .json({ message: "Patient added successfully", patient: savedPatient });
+  } catch (error) {
+    console.error("Error adding patient:", error);
+    res
+      .status(500)
+      .json({ message: "Error adding patient", error: error.message });
+  }
 });
 
 app.get("/patients", (req, res) => {

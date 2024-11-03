@@ -93,7 +93,6 @@ function Patients() {
       position,
     };
 
-    // Check if editing an existing patient or adding a new one
     if (patientToEdit) {
       // Update existing patient (Edit)
       axios
@@ -118,7 +117,7 @@ function Patients() {
           console.log("Patient added:", result);
           fetchPatients(); // Refresh the patient list after adding a new patient
           handleModalClose(); // Close the modal after successful addition
-          resetForm(); // Clear the form fields after submission
+          resetForm(); // Clear the form fields after submission (only for new patient)
           setMessage("Patient added successfully!");
           setTimeout(() => setMessage(""), 3000); // Clear success message after a timeout
         })
@@ -143,6 +142,7 @@ function Patients() {
     setSex("");
     setEmergencyContact("");
     setPosition("");
+    setPatientType("");
   };
 
   const indexOfLastPatient = currentPage * patientsPerPage;
