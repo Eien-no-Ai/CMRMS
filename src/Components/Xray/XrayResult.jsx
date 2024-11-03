@@ -33,25 +33,12 @@ function XrayResult() {
     axios
       .get("http://localhost:3001/api/xrayResults")
       .then((response) => {
-        // If userRole is 'doctor', display all records
-        let filteredRecords;
-        if (userRole === "doctor") {
-          filteredRecords = response.data.filter(
-            (record) => record.xrayResult === "done"
-          );
-        } else {
-          // Filter records based on user role and X-ray type
-          filteredRecords = response.data.filter((record) => {
-            return (
-              record.xrayResult === "done" &&
-              ((userRole === "radiologist" && record.xrayType === "medical") ||
-                (userRole === "radiologic technologist" &&
-                  record.xrayType === "medical") ||
-                (userRole === "dentist" && record.xrayType === "dental"))
-            );
-          });
-        }
+        // Filter only for records with xrayResult set to "done" without any role-based restrictions
+        const filteredRecords = response.data.filter(
+          (record) => record.xrayResult === "done"
+        );
 
+        // Sort the records by creation date, most recent first
         const sortedRecords = filteredRecords.sort(
           (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
         );
@@ -61,7 +48,7 @@ function XrayResult() {
       .catch((error) => {
         console.error("There was an error fetching the X-ray records!", error);
       });
-  }, [userRole]);
+  }, []);
 
   useEffect(() => {
     if (userRole) {
@@ -239,50 +226,10 @@ function XrayResult() {
 
         <div className="flex justify-between items-center mb-6">
           <p className="text-gray-600">
-            {/* Display total X-ray requests if user is a doctor */}
-            {userRole === "doctor" && filteredXrayRecords.length >= 0 && (
-              <>
-                <span className="font-bold text-4xl text-custom-red">
-                  {filteredXrayRecords.length}
-                </span>{" "}
-                records
-              </>
-            )}
-
-            {/* Display Dental requests if user is a dentist and dental records count is non-negative */}
-            {userRole === "dentist" &&
-              filteredXrayRecords.filter(
-                (record) => record.xrayType === "dental"
-              ).length >= 0 && (
-                <>
-                  <span className="font-bold text-4xl text-custom-red">
-                    {
-                      filteredXrayRecords.filter(
-                        (record) => record.xrayType === "dental"
-                      ).length
-                    }
-                  </span>{" "}
-                  Dental records
-                </>
-              )}
-
-            {/* Display Medical requests if user is not a dentist and medical records count is non-negative */}
-            {userRole !== "dentist" &&
-              userRole !== "doctor" &&
-              filteredXrayRecords.filter(
-                (record) => record.xrayType === "medical"
-              ).length >= 0 && (
-                <>
-                  <span className="font-bold text-4xl text-custom-red">
-                    {
-                      filteredXrayRecords.filter(
-                        (record) => record.xrayType === "medical"
-                      ).length
-                    }
-                  </span>{" "}
-                  Medical records
-                </>
-              )}
+            <span className="font-bold text-4xl text-custom-red">
+              {filteredXrayRecords.length}
+            </span>{" "}
+            records
           </p>
 
           <div className="flex items-center space-x-4">
@@ -320,91 +267,59 @@ function XrayResult() {
                 </thead>
 
                 <tbody>
-                  {/* Check for dental and medical records separately */}
-                  {userRole === "dentist" &&
-                    currentXrayRecords.filter(
-                      (record) => record.xrayType === "dental"
-                    ).length === 0 && (
-                      <tr>
-                        <td
-                          colSpan="5"
-                          className="py-4 text-center text-gray-500"
-                        >
-                          No Dental X-ray records found.
-                        </td>
-                      </tr>
-                    )}
-                  {userRole !== "dentist" &&
-                    currentXrayRecords.filter(
-                      (record) => record.xrayType === "medical"
-                    ).length === 0 && (
-                      <tr>
-                        <td
-                          colSpan="5"
-                          className="py-4 text-center text-gray-500"
-                        >
-                          No Medical X-ray records found.
-                        </td>
-                      </tr>
-                    )}
+                  {currentXrayRecords.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan="5"
+                        className="py-4 text-center text-gray-500"
+                      >
+                        No X-ray records found.
+                      </td>
+                    </tr>
+                  )}
 
-                  {/* Display records if available */}
-                  {currentXrayRecords.map((record) => {
-                    if (
-                      userRole === "doctor" ||
-                      (record.xrayType === "medical" &&
-                        (userRole === "radiologist" ||
-                          userRole === "radiologic technologist")) ||
-                      (record.xrayType === "dental" && userRole === "dentist")
-                    ) {
-                      return (
-                        <tr key={record._id} className="border-b">
-                          <td className="py-4">
-                            {record.patient ? (
-                              <>
-                                <p className="font-semibold">
-                                  {record.patient.lastname},{" "}
-                                  {record.patient.firstname}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  {new Date(
-                                    record.isCreatedAt
-                                  ).toLocaleString()}
-                                </p>
-                              </>
-                            ) : (
-                              <p className="text-sm text-gray-500">
-                                No patient data
-                              </p>
-                            )}
-                          </td>
-                          <td className="py-4">
+                  {currentXrayRecords.map((record) => (
+                    <tr key={record._id} className="border-b">
+                      <td className="py-4">
+                        {record.patient ? (
+                          <>
                             <p className="font-semibold">
-                              {record.xrayType || "No test data available"}
+                              {record.patient.lastname},{" "}
+                              {record.patient.firstname}
                             </p>
-                          </td>
-                          <td className="py-4">
-                            <p>
-                              {record.xrayDescription ||
-                                "No description available"}
+                            <p className="text-sm text-gray-500">
+                              {new Date(record.isCreatedAt).toLocaleString()}
                             </p>
-                          </td>
-                          <td className="py-4">
-                            <p>{record.xrayResult || "pending"}</p>
-                          </td>
-                          <td className="py-4">
-                            <button
-                              className="text-custom-red hover:underline"
-                              onClick={() => handleAddResult(record)}
-                            >
-                              View
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    }
-                    return null; // If the xrayType does not match the user role, skip this row
-                  })}
+                          </>
+                        ) : (
+                          <p className="text-sm text-gray-500">
+                            No patient data
+                          </p>
+                        )}
+                      </td>
+                      <td className="py-4">
+                        <p className="font-semibold">
+                          {record.xrayType || "No test data available"}
+                        </p>
+                      </td>
+                      <td className="py-4">
+                        <p>
+                          {record.xrayDescription || "No description available"}
+                        </p>
+                      </td>
+                      <td className="py-4">
+                        <p>{record.xrayResult || "pending"}</p>
+                      </td>
+                      <td className="py-4">
+                        <button
+                          className="text-custom-red hover:underline"
+                          onClick={() => handleAddResult(record)}
+                        >
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -598,7 +513,7 @@ function XrayResult() {
                     ? "Cancel"
                     : "Close"}
                 </button>
-                {userRole === "radiologist" && (
+                {userRole === "radiologist" && !formData.diagnosis && (
                   <button
                     onClick={handleSubmitResult}
                     className="px-4 py-2 bg-custom-red text-white rounded-md"

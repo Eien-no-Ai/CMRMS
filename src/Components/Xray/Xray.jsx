@@ -30,16 +30,12 @@ function Xray() {
     axios
       .get("http://localhost:3001/api/xrayResults")
       .then((response) => {
-        const filteredRecords = response.data.filter((record) => {
-          return (
-            record.xrayResult === "pending" &&
-            ((userRole === "radiologist" && record.xrayType === "medical") ||
-              (userRole === "radiologic technologist" &&
-                record.xrayType === "medical") ||
-              (userRole === "dentist" && record.xrayType === "dental"))
-          );
-        });
+        // Filter only pending records without any role-based or type-based restrictions
+        const filteredRecords = response.data.filter(
+          (record) => record.xrayResult === "pending"
+        );
 
+        // Sort the records by creation date, most recent first
         const sortedRecords = filteredRecords.sort(
           (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
         );
@@ -49,7 +45,7 @@ function Xray() {
       .catch((error) => {
         console.error("There was an error fetching the X-ray records!", error);
       });
-  }, [userRole]);
+  }, []);
 
   useEffect(() => {
     if (userRole) {
@@ -231,10 +227,9 @@ function Xray() {
   const [xrayDescription, setXrayDescription] = useState(""); // New state for X-ray description
   const [referredBy, setReferredBy] = useState(""); // State for "Referred by"
 
-
   const handleAddOPDSubmit = async (e) => {
     e.preventDefault();
-  
+
     const patientData = {
       firstname,
       middlename,
@@ -247,12 +242,15 @@ function Xray() {
       sex,
       patientType: "OPD",
     };
-  
+
     try {
       // Step 1: Add the patient
-      const patientResponse = await axios.post("http://localhost:3001/add-patient", patientData);
+      const patientResponse = await axios.post(
+        "http://localhost:3001/add-patient",
+        patientData
+      );
       const patientId = patientResponse.data.patient._id; // Extract the patient ID
-  
+
       // Step 2: Wait for the patient ID and use it to create the associated X-ray request
       const xrayRequestData = {
         patient: patientId, // Pass the patient ID here
@@ -261,9 +259,12 @@ function Xray() {
         xrayResult: "pending", // Initial status of the X-ray request
         referredBy,
       };
-  
-      await axios.post("http://localhost:3001/api/xrayResults", xrayRequestData);
-  
+
+      await axios.post(
+        "http://localhost:3001/api/xrayResults",
+        xrayRequestData
+      );
+
       // Close modal and reset form
       setIsAddOPDModalOpen(false);
       resetForm();
@@ -271,7 +272,6 @@ function Xray() {
       console.error("Error adding OPD patient and X-ray request:", error);
     }
   };
-  
 
   const resetForm = () => {
     setFirstName("");
@@ -303,40 +303,10 @@ function Xray() {
 
         <div className="flex justify-between items-center mb-6">
           <p className="text-gray-600">
-            {/* Display Dental requests if there are any */}
-
-            {userRole === "dentist" &&
-              currentXrayRecords.filter(
-                (record) => record.xrayType === "dental"
-              ).length >= 0 && (
-                <>
-                  <span className="font-bold text-4xl text-custom-red">
-                    {
-                      filteredXrayRecords.filter(
-                        (record) => record.xrayType === "dental"
-                      ).length
-                    }
-                  </span>{" "}
-                  requests
-                </>
-              )}
-
-            {/* Display Medical requests if there are any */}
-            {userRole !== "dentist" &&
-              currentXrayRecords.filter(
-                (record) => record.xrayType === "medical"
-              ).length >= 0 && (
-                <>
-                  <span className="font-bold text-4xl text-custom-red">
-                    {
-                      filteredXrayRecords.filter(
-                        (record) => record.xrayType === "medical"
-                      ).length
-                    }
-                  </span>{" "}
-                  requests
-                </>
-              )}
+            <span className="font-bold text-4xl text-custom-red">
+              {filteredXrayRecords.length}
+            </span>{" "}
+            requests
           </p>
 
           <div className="flex items-center space-x-4">
@@ -357,10 +327,10 @@ function Xray() {
               />
             </div>
             <button
-                          onClick={toggleAddOPDModal}
-                className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
-              >
-                Add OPD Patient
+              onClick={toggleAddOPDModal}
+              className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
+            >
+              Add OPD Patient
             </button>
           </div>
         </div>
@@ -380,91 +350,61 @@ function Xray() {
                 </thead>
 
                 <tbody>
-                  {/* Check for dental and medical records separately */}
-                  {userRole === "dentist" &&
-                    currentXrayRecords.filter(
-                      (record) => record.xrayType === "dental"
-                    ).length === 0 && (
-                      <tr>
-                        <td
-                          colSpan="5"
-                          className="py-4 text-center text-gray-500"
-                        >
-                          No Dental X-ray requests found.
-                        </td>
-                      </tr>
-                    )}
-                  {userRole !== "dentist" &&
-                    currentXrayRecords.filter(
-                      (record) => record.xrayType === "medical"
-                    ).length === 0 && (
-                      <tr>
-                        <td
-                          colSpan="5"
-                          className="py-4 text-center text-gray-500"
-                        >
-                          No Medical X-ray requests found.
-                        </td>
-                      </tr>
-                    )}
+                  {/* Show message if no X-ray requests are found */}
+                  {currentXrayRecords.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan="5"
+                        className="py-4 text-center text-gray-500"
+                      >
+                        No X-ray requests found.
+                      </td>
+                    </tr>
+                  )}
 
-                  {/* Display records if available */}
-                  {currentXrayRecords.map((record) => {
-                    // Conditional rendering based on xrayType and userRole
-                    if (
-                      (record.xrayType === "medical" &&
-                        (userRole === "radiologist" ||
-                          userRole === "radiologic technologist")) ||
-                      (record.xrayType === "dental" && userRole === "dentist")
-                    ) {
-                      return (
-                        <tr key={record._id} className="border-b">
-                          <td className="py-4">
-                            {record.patient ? (
-                              <>
-                                <p className="font-semibold">
-                                  {record.patient.lastname},{" "}
-                                  {record.patient.firstname}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  {new Date(
-                                    record.isCreatedAt
-                                  ).toLocaleString()}
-                                </p>
-                              </>
-                            ) : (
-                              <p className="text-sm text-gray-500">
-                                No patient data
-                              </p>
-                            )}
-                          </td>
-                          <td className="py-4">
+                  {/* Display all records */}
+                  {currentXrayRecords.map((record) => (
+                    <tr key={record._id} className="border-b">
+                      <td className="py-4">
+                        {record.patient ? (
+                          <>
                             <p className="font-semibold">
-                              {record.xrayType || "No test data available"}
+                              {record.patient.lastname},{" "}
+                              {record.patient.firstname}
                             </p>
-                          </td>
-                          <td className="py-4">
-                            <p>
-                              {record.xrayDescription ||
-                                "No description available"}
+                            <p className="text-sm text-gray-500">
+                              {new Date(record.isCreatedAt).toLocaleString()}
                             </p>
-                          </td>
-                          <td className="py-4">
-                            <p>{record.xrayResult || "pending"}</p>
-                          </td>
-                          <td className="py-4">
-                            <button
-                              className="text-custom-red hover:underline"
-                              onClick={() => handleAddResult(record)}
-                            >
-                              View
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    }
-                    return null;
-                  })}
+                          </>
+                        ) : (
+                          <p className="text-sm text-gray-500">
+                            No patient data
+                          </p>
+                        )}
+                      </td>
+                      <td className="py-4">
+                        <p className="font-semibold">
+                          {record.xrayType || "No test data available"}
+                        </p>
+                      </td>
+                      <td className="py-4">
+                        <p>
+                          {record.xrayDescription || "No description available"}
+                        </p>
+                      </td>
+                      <td className="py-4">
+                        <p>{record.xrayResult || "pending"}</p>
+                      </td>
+                      <td className="py-4">
+                        <button
+                          className="text-custom-red hover:underline"
+                          onClick={() => handleAddResult(record)}
+                        >
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -669,14 +609,13 @@ function Xray() {
             </div>
           </div>
         )}
-         {/* Add OPD Patient Modal */}
-         {isAddOPDModalOpen && (
+        {/* Add OPD Patient Modal */}
+        {isAddOPDModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white py-4 px-6 rounded-lg w-1/2 shadow-lg">
               <h2 className="text-xl font-semibold mb-4">Add OPD Patient</h2>
               <form onSubmit={handleAddOPDSubmit}>
-              <div className="grid grid-cols-3 gap-4">
-                
+                <div className="grid grid-cols-3 gap-4">
                   {/* Full Name Fields - Display only for Student */}
                   <div className="col-span-3">
                     <label className="block mb-2">Full Name</label>
@@ -772,7 +711,9 @@ function Xray() {
                   </div>
                 </div>
                 <div className="my-4">
-                  <label className="block text-sm font-medium">Referred by</label>
+                  <label className="block text-sm font-medium">
+                    Referred by
+                  </label>
                   <input
                     type="text"
                     name="referredBy"
@@ -782,34 +723,37 @@ function Xray() {
                     placeholder="Enter name of referrer"
                   />
                 </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium">X-ray Type</label>
-                <select
-                  name="xrayType"
-                  value={xrayType}
-                  onChange={(e) => setXrayType(e.target.value)}
-                  className="border rounded-lg w-full p-2 mt-1"
-                  required
-                >
-                  <option value="" disabled>
-                    Select X-ray Type
-                  </option>
-                  <option value="medical">Medical X-Ray</option>
-                  <option value="dental">Dental X-ray</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium">Description</label>
-                <textarea
-                  name="xrayDescription"
-                  value={xrayDescription}
-                  onChange={(e) => setXrayDescription(e.target.value)}
-                  className="border rounded-lg w-full p-2 mt-1"
-                  placeholder="Enter X-ray description or details"
-                />
-              </div>
-              
-             
+                <div className="mb-4">
+                  <label className="block text-sm font-medium">
+                    X-ray Type
+                  </label>
+                  <select
+                    name="xrayType"
+                    value={xrayType}
+                    onChange={(e) => setXrayType(e.target.value)}
+                    className="border rounded-lg w-full p-2 mt-1"
+                    required
+                  >
+                    <option value="" disabled>
+                      Select X-ray Type
+                    </option>
+                    <option value="medical">Medical X-Ray</option>
+                    <option value="dental">Dental X-ray</option>
+                  </select>
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium">
+                    Description
+                  </label>
+                  <textarea
+                    name="xrayDescription"
+                    value={xrayDescription}
+                    onChange={(e) => setXrayDescription(e.target.value)}
+                    className="border rounded-lg w-full p-2 mt-1"
+                    placeholder="Enter X-ray description or details"
+                  />
+                </div>
+
                 <div className="flex justify-end space-x-4">
                   <button
                     type="button"
