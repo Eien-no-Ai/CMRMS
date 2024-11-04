@@ -7824,9 +7824,8 @@ function PatientsProfile() {
             )}
 
             <div className="flex justify-between items-center mt-4">
-            <div className="flex justify-between items-center mt-4">
               {/* Left Side: Doctor-Specific Button Group */}
-              {role === "doctor" && (selectedXrayRecords && selectedXrayRecords.length > 0) ? (
+              {role === "doctor" && (
                 <div className="flex space-x-2">
                   <button
                     className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
@@ -7840,26 +7839,26 @@ function PatientsProfile() {
                   >
                     <FaXRay className="mr-2" /> X-Ray Request
                   </button>
-                  <ul >
-                    {selectedXrayRecords
-                    .sort((a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt))
-                    .map((xray, index) => (
-                    <li 
-                    key={index}
-                    >
-                    <button
-                      className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                      onClick={() => handleNewTherapyRecordOpen(xray)}
-                    >
-                      <GiBiceps className="mr-2" /> Refer to PT
-                    </button>
-                    </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-            </div>
 
+                  {/* Conditionally Render the PT Refer Buttons */}
+                  {selectedXrayRecords && selectedXrayRecords.length > 0 && (
+                    <ul>
+                      {selectedXrayRecords
+                        .sort((a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt))
+                        .map((xray, index) => (
+                          <li key={index}>
+                            <button
+                              className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                              onClick={() => handleNewTherapyRecordOpen(xray)}
+                            >
+                              <GiBiceps className="mr-2" /> Refer to PT
+                            </button>
+                          </li>
+                        ))}
+                    </ul>
+                  )}
+                </div>
+              )}
 
             {/* {role === "doctor" &&
                 (selectedXrayRecords && selectedXrayRecords.length > 0 ? (
