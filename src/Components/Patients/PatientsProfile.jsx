@@ -1169,12 +1169,12 @@ function PatientsProfile() {
       abortionOrMiscarriage: null,
       dysmenorrhea: null,
     },
-  }
-  
+  };
+
   const handleMedicalHistorySubmit = async () => {
     try {
       let response;
-  
+
       if (medicalHistoryId) {
         // Update existing medical history
         response = await axios.put(
@@ -1196,22 +1196,22 @@ function PatientsProfile() {
         );
         console.log("Medical history saved successfully:", response.data);
       }
-  
+
       // Fetch updated medical records
       const updatedRecords = await fetchMedicalRecords();
-  
+
       // Update state with the fetched medical history
       setMedicalHistory({
         ...updatedRecords[0], // Assuming fetchMedicalRecords returns an array with the latest record
       });
-  
+
       // Close modal
       handleMedicalClose();
     } catch (error) {
       console.error("Error saving/updating medical history:", error);
     }
   };
-  
+
   const medicalHistoryId = medicalRecords[0]?._id; // Get the medical history ID
   // Fetch the user data when the component is mounted
   useEffect(() => {
@@ -1441,7 +1441,7 @@ function PatientsProfile() {
       LMP: null,
     },
   });
-  
+
   const handlePEInputChange = (field, value) => {
     if (field === "LMP") {
       setPhysicalExamStudent((prevState) => ({
@@ -1482,17 +1482,17 @@ function PatientsProfile() {
       }));
     }
   };
-  
+
   const handlePESubmit = async (packageNumber) => {
     try {
       // Check if selectedRecords has labRecords with a valid packageId
       const packageId = selectedRecords?.labRecords[0]?.packageId;
-  
+
       if (!packageId) {
         alert("Package ID not found. Please select a valid package.");
         return;
       }
-  
+
       const response = await axios.post(
         `http://localhost:3001/api/physical-exam-student`,
         {
@@ -1502,18 +1502,20 @@ function PatientsProfile() {
           ...physicalExamStudent,
         }
       );
-  
+
       console.log("Physical exam saved successfully:", response.data);
       if (response.status === 200) {
         setisPackageInfoModalOpen(false);
         setPhysicalExamStudent({ ...physicalExamStudent });
       }
     } catch (error) {
-      console.error("Error adding physical exam:", error.response?.data || error);
+      console.error(
+        "Error adding physical exam:",
+        error.response?.data || error
+      );
     }
   };
 
-  
   const defaultPhysicalExamStudent = {
     temperature: "",
     bloodPressure: "",
@@ -1545,15 +1547,15 @@ function PatientsProfile() {
       LMP: null,
     },
   };
-  
+
   const fetchPhysicalExam = useCallback(async (packageNumber, patientId) => {
     try {
       const response = await axios.get(
         `http://localhost:3001/api/physical-exam-student/${packageNumber}/${patientId}`
       );
-  
+
       const data = response.data || {};
-  
+
       setPhysicalExamStudent({
         ...defaultPhysicalExamStudent,
         ...data,
@@ -1566,21 +1568,20 @@ function PatientsProfile() {
         },
       });
     } catch (error) {
-      console.error("There was an error fetching the physical exam data!", error);
+      console.error(
+        "There was an error fetching the physical exam data!",
+        error
+      );
     }
   }, []);
-  
-  
-  
-  
-useEffect(() => {
-  if (isPackageInfoModalOpen && selectedRecords) {
-    const packageNumber = selectedRecords.labRecords[0].packageNumber;
-    const patientId = id; // Assuming `id` is the patientId from useParams()
-    fetchPhysicalExam(packageNumber, patientId);
-  }
-}, [isPackageInfoModalOpen, selectedRecords, fetchPhysicalExam, id]);
 
+  useEffect(() => {
+    if (isPackageInfoModalOpen && selectedRecords) {
+      const packageNumber = selectedRecords.labRecords[0].packageNumber;
+      const patientId = id; // Assuming `id` is the patientId from useParams()
+      fetchPhysicalExam(packageNumber, patientId);
+    }
+  }, [isPackageInfoModalOpen, selectedRecords, fetchPhysicalExam, id]);
 
   return (
     <div>
@@ -1668,15 +1669,17 @@ useEffect(() => {
                           </button>
                           {showPackageOptions && (
                             <div className="absolute mt-2 w-full bg-white border rounded-lg shadow-lg">
-                              {packages.map((pkg) => (
-                                <button
-                                  key={pkg._id}
-                                  className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                                  onClick={() => handlePackageClick(pkg._id)}
-                                >
-                                  {pkg.name}
-                                </button>
-                              ))}
+                              {packages
+                                .filter((pkg) => !pkg.isArchived) // Only include packages where isArchived is false
+                                .map((pkg) => (
+                                  <button
+                                    key={pkg._id}
+                                    className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                                    onClick={() => handlePackageClick(pkg._id)}
+                                  >
+                                    {pkg.name}
+                                  </button>
+                                ))}
                             </div>
                           )}
                         </div>
@@ -3850,559 +3853,711 @@ useEffect(() => {
                           </button>
                         </div>
                         {physicalExamStudent && (
+                          <div className="grid grid-cols-12 gap-4 p-4">
+                            <label className="col-span-2">Temperature</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              value={physicalExamStudent.temperature}
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "temperature",
+                                  e.target.value
+                                )
+                              }
+                            />
 
-                        <div className="grid grid-cols-12 gap-4 p-4">
-                          <label className="col-span-2">Temperature</label>
-  <input
-    type="text"
-    className="col-span-4 border rounded px-3 py-1"
-    value={physicalExamStudent.temperature}
-    onChange={(e) => handlePEInputChange("temperature", e.target.value)}
-  />
+                            <label className="col-span-2">Height</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              value={physicalExamStudent.height}
+                              onChange={(e) =>
+                                handlePEInputChange("height", e.target.value)
+                              }
+                            />
 
-                          <label className="col-span-2">Height</label>
-                          <input
-                            type="text"
-                            className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.height}
-                            onChange={(e) =>
-                              handlePEInputChange("height", e.target.value)
-                            }
-                          />
+                            <label className="col-span-2">Blood Pressure</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              value={physicalExamStudent.bloodPressure}
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "bloodPressure",
+                                  e.target.value
+                                )
+                              }
+                            />
 
-                          <label className="col-span-2">Blood Pressure</label>
-                          <input
-                            type="text"
-                            className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.bloodPressure}
-                            onChange={(e) =>
-                              handlePEInputChange(
-                                "bloodPressure",
-                                e.target.value
-                              )
-                            }
-                          />
+                            <label className="col-span-2">Weight</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              value={physicalExamStudent.weight}
+                              onChange={(e) =>
+                                handlePEInputChange("weight", e.target.value)
+                              }
+                            />
 
-                          <label className="col-span-2">Weight</label>
-                          <input
-                            type="text"
-                            className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.weight}
-                            onChange={(e) =>
-                              handlePEInputChange("weight", e.target.value)
-                            }
-                          />
+                            <label className="col-span-2">Pulse Rate</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              value={physicalExamStudent.pulseRate}
+                              onChange={(e) =>
+                                handlePEInputChange("pulseRate", e.target.value)
+                              }
+                            />
 
-                          <label className="col-span-2">Pulse Rate</label>
-                          <input
-                            type="text"
-                            className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.pulseRate}
-                            onChange={(e) =>
-                              handlePEInputChange("pulseRate", e.target.value)
-                            }
-                          />
+                            <label className="col-span-2">Body Built</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              value={physicalExamStudent.bodyBuilt}
+                              onChange={(e) =>
+                                handlePEInputChange("bodyBuilt", e.target.value)
+                              }
+                            />
 
-                          <label className="col-span-2">Body Built</label>
-                          <input
-                            type="text"
-                            className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.bodyBuilt}
-                            onChange={(e) =>
-                              handlePEInputChange("bodyBuilt", e.target.value)
-                            }
-                          />
+                            <label className="col-span-2">Respiration</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              value={physicalExamStudent.respirationRate}
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "respirationRate",
+                                  e.target.value
+                                )
+                              }
+                            />
 
-                          <label className="col-span-2">Respiration</label>
-                          <input
-                            type="text"
-                            className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.respirationRate}
-                            onChange={(e) =>
-                              handlePEInputChange(
-                                "respirationRate",
-                                e.target.value
-                              )
-                            }
-                          />
-
-                          <label className="col-span-2">Visual Acuity</label>
-                          <input
-                            type="text"
-                            className="col-span-4 border rounded px-3 py-1"
-                            value={physicalExamStudent.visualAcuity}
-                            onChange={(e) =>
-                              handlePEInputChange(
-                                "visualAcuity",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </div>
+                            <label className="col-span-2">Visual Acuity</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              value={physicalExamStudent.visualAcuity}
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "visualAcuity",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
                         )}
                         <hr />
-                        
+
                         {/* Dropdowns with Remarks */}
                         <div className="grid grid-cols-12 gap-4 mt-2 p-4">
                           {/* Skin */}
                           <div className="col-span-6 flex items-center">
-  <label className="w-1/2">Skin</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={physicalExamStudent.abnormalFindings?.skin?.skin ? "Yes" : "No"}
-    onChange={(e) =>
-      handlePEInputChange("skin", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={physicalExamStudent.abnormalFindings?.skin?.remarks || ""}
-    onChange={(e) =>
-      handlePEInputChange("skin", { remarks: e.target.value })
-    }
-  />
-</div>
+                            <label className="w-1/2">Skin</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings?.skin?.skin
+                                  ? "Yes"
+                                  : "No"
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "skin",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings?.skin
+                                  ?.remarks || ""
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange("skin", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
+                          {/* Lungs */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Lungs</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings?.lungs
+                                  ?.lungs
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "lungs",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings?.lungs
+                                  ?.remarks || ""
+                              } // Use an empty string as a fallback
+                              onChange={(e) =>
+                                handlePEInputChange("lungs", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
-                       {/* Lungs */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Lungs</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.lungs?.lungs ? "Yes" : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("lungs", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={
-      physicalExamStudent.abnormalFindings?.lungs?.remarks || ""
-    } // Use an empty string as a fallback
-    onChange={(e) =>
-      handlePEInputChange("lungs", { remarks: e.target.value })
-    }
-  />
-</div>
+                          {/* Head, Neck, Scalp */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Head, Neck, Scalp</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings
+                                  ?.headNeckScalp?.headNeckScalp
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "headNeckScalp",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings
+                                  ?.headNeckScalp?.remarks || ""
+                              } // Use an empty string as a fallback
+                              onChange={(e) =>
+                                handlePEInputChange("headNeckScalp", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
-{/* Head, Neck, Scalp */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Head, Neck, Scalp</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.headNeckScalp
-        ?.headNeckScalp
-        ? "Yes"
-        : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("headNeckScalp", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={
-      physicalExamStudent.abnormalFindings?.headNeckScalp?.remarks || ""
-    } // Use an empty string as a fallback
-    onChange={(e) =>
-      handlePEInputChange("headNeckScalp", {
-        remarks: e.target.value,
-      })
-    }
-  />
-</div>
+                          {/* Heart */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Heart</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings?.heart
+                                  ?.heart
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "heart",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings?.heart
+                                  ?.remarks || ""
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange("heart", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
+                          {/* Eyes, External */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Eyes, External</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings
+                                  ?.eyesExternal?.eyesExternal
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "eyesExternal",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings
+                                  ?.eyesExternal?.remarks || ""
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange("eyesExternal", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
-                     {/* Heart */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Heart</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.heart?.heart ? "Yes" : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("heart", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={physicalExamStudent.abnormalFindings?.heart?.remarks || ""}
-    onChange={(e) =>
-      handlePEInputChange("heart", { remarks: e.target.value })
-    }
-  />
-</div>
+                          {/* Abdomen */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Abdomen</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings?.abdomen
+                                  ?.abdomen
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "abdomen",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings?.abdomen
+                                  ?.remarks || ""
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange("abdomen", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
-{/* Eyes, External */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Eyes, External</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.eyesExternal?.eyesExternal
-        ? "Yes"
-        : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("eyesExternal", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={physicalExamStudent.abnormalFindings?.eyesExternal?.remarks || ""}
-    onChange={(e) =>
-      handlePEInputChange("eyesExternal", { remarks: e.target.value })
-    }
-  />
-</div>
+                          {/* Pupils */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Pupils</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings?.pupils
+                                  ?.pupils
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "pupils",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings?.pupils
+                                  ?.remarks || ""
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange("pupils", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
-                        {/* Abdomen */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Abdomen</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.abdomen?.abdomen ? "Yes" : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("abdomen", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={physicalExamStudent.abnormalFindings?.abdomen?.remarks || ""}
-    onChange={(e) =>
-      handlePEInputChange("abdomen", { remarks: e.target.value })
-    }
-  />
-</div>
+                          {/* Back */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Back</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings?.back?.back
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "back",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings?.back
+                                  ?.remarks || ""
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange("back", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
-{/* Pupils */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Pupils</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.pupils?.pupils ? "Yes" : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("pupils", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={physicalExamStudent.abnormalFindings?.pupils?.remarks || ""}
-    onChange={(e) =>
-      handlePEInputChange("pupils", { remarks: e.target.value })
-    }
-  />
-</div>
+                          {/* Ears */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Ears</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings?.ears?.ears
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "ears",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings?.ears
+                                  ?.remarks || ""
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange("ears", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
+                          {/* Anus/Rectum */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Anus/ Rectum</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings?.anusRectum
+                                  ?.anusRectum
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "anusRectum",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings?.anusRectum
+                                  ?.remarks || ""
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange("anusRectum", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
-                        {/* Back */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Back</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.back?.back ? "Yes" : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("back", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={physicalExamStudent.abnormalFindings?.back?.remarks || ""}
-    onChange={(e) =>
-      handlePEInputChange("back", { remarks: e.target.value })
-    }
-  />
-</div>
+                          {/* Nose, Sinuses */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Nose, Sinuses</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings
+                                  ?.noseSinuses?.noseSinuses
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "noseSinuses",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings
+                                  ?.noseSinuses?.remarks || ""
+                              } // Use an empty string if undefined
+                              onChange={(e) =>
+                                handlePEInputChange("noseSinuses", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
-{/* Ears */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Ears</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.ears?.ears ? "Yes" : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("ears", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={physicalExamStudent.abnormalFindings?.ears?.remarks || ""}
-    onChange={(e) =>
-      handlePEInputChange("ears", { remarks: e.target.value })
-    }
-  />
-</div>
+                          {/* Urinary */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Urinary</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings?.urinary
+                                  ?.urinary
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "urinary",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings?.urinary
+                                  ?.remarks || ""
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange("urinary", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
-{/* Anus/Rectum */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Anus/ Rectum</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.anusRectum?.anusRectum ? "Yes" : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("anusRectum", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={physicalExamStudent.abnormalFindings?.anusRectum?.remarks || ""}
-    onChange={(e) =>
-      handlePEInputChange("anusRectum", { remarks: e.target.value })
-    }
-  />
-</div>
+                          {/* Inguinal Genitals */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Inguinal Genitals</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings
+                                  ?.inguinalGenitals?.inguinalGenitals
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "inguinalGenitals",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings
+                                  ?.inguinalGenitals?.remarks || ""
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange("inguinalGenitals", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
+                          {/* Reflexes */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Reflexes</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings?.reflexes
+                                  ?.reflexes
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "reflexes",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings?.reflexes
+                                  ?.remarks || ""
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange("reflexes", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
-                        {/* Nose, Sinuses */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Nose, Sinuses</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.noseSinuses?.noseSinuses
-        ? "Yes"
-        : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("noseSinuses", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={
-      physicalExamStudent.abnormalFindings?.noseSinuses?.remarks || ""
-    } // Use an empty string if undefined
-    onChange={(e) =>
-      handlePEInputChange("noseSinuses", { remarks: e.target.value })
-    }
-  />
-</div>
+                          {/* Neck, Thyroid gland */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Neck, Thyroid gland</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings
+                                  ?.neckThyroid?.neckThyroid
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "neckThyroid",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings
+                                  ?.neckThyroid?.remarks || ""
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange("neckThyroid", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
-{/* Urinary */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Urinary</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.urinary?.urinary
-        ? "Yes"
-        : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("urinary", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={physicalExamStudent.abnormalFindings?.urinary?.remarks || ""}
-    onChange={(e) =>
-      handlePEInputChange("urinary", { remarks: e.target.value })
-    }
-  />
-</div>
+                          {/* Extremities */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Extremities</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              value={
+                                physicalExamStudent.abnormalFindings
+                                  ?.extremities?.extremities
+                                  ? "Yes"
+                                  : "No"
+                              } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handlePEInputChange(
+                                  "extremities",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings
+                                  ?.extremities?.remarks || ""
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange("extremities", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
 
-
-                       {/* Inguinal Genitals */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Inguinal Genitals</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.inguinalGenitals?.inguinalGenitals
-        ? "Yes"
-        : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("inguinalGenitals", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={physicalExamStudent.abnormalFindings?.inguinalGenitals?.remarks || ""}
-    onChange={(e) =>
-      handlePEInputChange("inguinalGenitals", { remarks: e.target.value })
-    }
-  />
-</div>
-
-{/* Reflexes */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Reflexes</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.reflexes?.reflexes
-        ? "Yes"
-        : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("reflexes", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={physicalExamStudent.abnormalFindings?.reflexes?.remarks || ""}
-    onChange={(e) =>
-      handlePEInputChange("reflexes", { remarks: e.target.value })
-    }
-  />
-</div>
-
-{/* Neck, Thyroid gland */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Neck, Thyroid gland</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.neckThyroid?.neckThyroid
-        ? "Yes"
-        : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("neckThyroid", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={physicalExamStudent.abnormalFindings?.neckThyroid?.remarks || ""}
-    onChange={(e) =>
-      handlePEInputChange("neckThyroid", { remarks: e.target.value })
-    }
-  />
-</div>
-
-{/* Extremities */}
-<div className="col-span-6 flex items-center">
-  <label className="w-1/2">Extremities</label>
-  <select
-    className="border rounded w-1/3 px-2 py-1"
-    value={
-      physicalExamStudent.abnormalFindings?.extremities?.extremities
-        ? "Yes"
-        : "No"
-    } // Convert boolean to 'Yes' or 'No'
-    onChange={(e) =>
-      handlePEInputChange("extremities", e.target.value === "Yes")
-    }
-  >
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-  <input
-    type="text"
-    placeholder="Remarks"
-    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-    value={physicalExamStudent.abnormalFindings?.extremities?.remarks || ""}
-    onChange={(e) =>
-      handlePEInputChange("extremities", { remarks: e.target.value })
-    }
-  />
-</div>
-
-{/* Last Menstrual Period (LMP) */}
-<div className="col-span-12 flex items-center">
-  <label className="w-1/2">
-    Last Menstrual Period (LMP) for female patients only:
-  </label>
-  <input
-    type="date"
-    placeholder="Enter date"
-    className="ml-2 border rounded w-1/2 px-2 py-1 flex-grow"
-    value={physicalExamStudent.abnormalFindings?.LMP || ""}
-    onChange={(e) => handlePEInputChange("LMP", e.target.value)}
-  />
-</div>
-
-
+                          {/* Last Menstrual Period (LMP) */}
+                          <div className="col-span-12 flex items-center">
+                            <label className="w-1/2">
+                              Last Menstrual Period (LMP) for female patients
+                              only:
+                            </label>
+                            <input
+                              type="date"
+                              placeholder="Enter date"
+                              className="ml-2 border rounded w-1/2 px-2 py-1 flex-grow"
+                              value={
+                                physicalExamStudent.abnormalFindings?.LMP || ""
+                              }
+                              onChange={(e) =>
+                                handlePEInputChange("LMP", e.target.value)
+                              }
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -4418,8 +4573,12 @@ useEffect(() => {
                         </button>
                         <button
                           className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                          onClick={() => handlePESubmit(selectedRecords.labRecords[0].packageNumber)}
-                          >
+                          onClick={() =>
+                            handlePESubmit(
+                              selectedRecords.labRecords[0].packageNumber
+                            )
+                          }
+                        >
                           Submit
                         </button>
                       </div>
@@ -5957,16 +6116,14 @@ useEffect(() => {
         </div>
       </div>
       {isNewTherapyRecordModalOpen && (
-         <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
           <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg z-50">
             <h2 className="text-lg font-bold mb-4 text-center">
               New Physical Therapy Record
             </h2>
             <form onSubmit={handleNewTherapySubmit}>
               <div className="mb-4">
-                <label className="block text-sm font-medium">
-                  Diagnosis
-                </label>
+                <label className="block text-sm font-medium">Diagnosis</label>
                 <textarea
                   type="text"
                   name="Diagnosis"

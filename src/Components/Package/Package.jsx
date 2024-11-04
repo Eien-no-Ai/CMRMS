@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar/Navbar";
 import { BiSearch } from "react-icons/bi";
 import axios from "axios";
-import { BsThreeDots } from "react-icons/bs";
+import { IoArchiveOutline } from "react-icons/io5";
 
 const Package = () => {
   const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
@@ -195,7 +195,6 @@ const Package = () => {
     }
   };
 
-
   const [currentPage, setCurrentPage] = useState(1);
   const packagesPerPage = 4;
   const [searchQuery, setSearchQuery] = useState("");
@@ -246,6 +245,41 @@ const Package = () => {
 
   const toggleListVisibility = () => {
     setShowFullList(!showFullList);
+  };
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [packageToArchive, setPackageToArchive] = useState(null); // Store the package ID to archive
+
+  // Open the confirmation modal
+  const confirmArchive = (packageId) => {
+    setPackageToArchive(packageId); // Set the package ID to archive
+    setShowConfirmModal(true); // Show the confirmation modal
+  };
+
+  // Handle archive action
+  const handleArchive = async () => {
+    if (!packageToArchive) return;
+
+    try {
+      await axios.put(
+        `http://localhost:3001/api/packages/${packageToArchive}`,
+        {
+          isArchived: true,
+        }
+      );
+
+      // Update the package list
+      setPackages((prevPackages) =>
+        prevPackages.map((pkg) =>
+          pkg._id === packageToArchive ? { ...pkg, isArchived: true } : pkg
+        )
+      );
+      setShowConfirmModal(false); // Close the modal
+      setPackageToArchive(null); // Clear the package to archive
+    } catch (error) {
+      console.error("Error archiving package:", error);
+      alert("Failed to archive package. Please try again.");
+    }
   };
 
   return (
@@ -314,21 +348,37 @@ const Package = () => {
                   ) : (
                     currentPackages.map((pkg) => (
                       <tr key={pkg._id} className="border-b">
-                        <td className="py-4">
+                        <td
+                          className={`py-4 ${
+                            pkg.isArchived ? "text-gray-400 line-through" : ""
+                          }`}
+                        >
                           <p className="font-semibold">{pkg.name}</p>
                           <p className="text-sm text-gray-500">
                             Created:{" "}
                             {new Date(pkg.isCreatedAt).toLocaleString()}
                           </p>
                         </td>
-                        <td className="py-4">
+                        <td
+                          className={`py-4 ${
+                            pkg.isArchived ? "text-gray-400 line-through" : ""
+                          }`}
+                        >
                           <p className="font-semibold">
                             {pkg.xrayDescription || "No description available"}
                           </p>
                         </td>
                         <td className="py-4">
-                          <button className="text-gray-500 hover:text-gray-700">
-                            <BsThreeDots size={20} />
+                          <button
+                            className={`text-gray-500 hover:text-gray-700 ${
+                              pkg.isArchived
+                                ? "cursor-not-allowed opacity-50"
+                                : ""
+                            }`}
+                            onClick={() => confirmArchive(pkg._id)}
+                            disabled={pkg.isArchived}
+                          >
+                            <IoArchiveOutline size={24} />
                           </button>
                         </td>
                       </tr>
@@ -588,6 +638,30 @@ const Package = () => {
                   onClick={handleSubmit}
                 >
                   Submit Package
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {showConfirmModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+              <h2 className="text-lg font-bold mb-4">Confirm Archive</h2>
+              <p className="mb-6">
+                Are you sure you want to archive this package?
+              </p>
+              <div className="flex justify-end space-x-4">
+                <button
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg"
+                  onClick={() => setShowConfirmModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="bg-custom-red text-white px-4 py-2 rounded-lg"
+                  onClick={handleArchive}
+                >
+                  Archive
                 </button>
               </div>
             </div>

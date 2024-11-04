@@ -55,6 +55,7 @@ const PackageSchema = new mongoose.Schema({
   xrayType: { type: String, default: "" },
   xrayDescription: { type: String, default: "" },
   isCreatedAt: { type: Date, default: Date.now },
+  isArchived: { type: Boolean, default: false }, // New field
 });
 
 // Middleware for auto-incrementing packageNumber

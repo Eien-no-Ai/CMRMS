@@ -54,23 +54,24 @@ app.get("/api/physical-exam-student", async (req, res) => {
 });
 
 // Updated backend route to fetch a physical exam by package number and patient ID
-app.get("/api/physical-exam-student/:packageNumber/:patientId", async (req, res) => {
-  try {
-    const { packageNumber, patientId } = req.params;
-    const physicalExamData = await PhysicalExamStudentModel.findOne({
-      packageNumber,
-      patient: patientId, // Assuming `patient` is the field storing patient IDs
-    });
-    res.json(physicalExamData);
-  } catch (error) {
-    res.status(500).json({
-      message: "Error fetching physical exam data",
-      error: error.message,
-    });
+app.get(
+  "/api/physical-exam-student/:packageNumber/:patientId",
+  async (req, res) => {
+    try {
+      const { packageNumber, patientId } = req.params;
+      const physicalExamData = await PhysicalExamStudentModel.findOne({
+        packageNumber,
+        patient: patientId, // Assuming `patient` is the field storing patient IDs
+      });
+      res.json(physicalExamData);
+    } catch (error) {
+      res.status(500).json({
+        message: "Error fetching physical exam data",
+        error: error.message,
+      });
+    }
   }
-});
-
-
+);
 
 //M E D I C A L   H I S T O R Y
 app.post("/api/medical-history", async (req, res) => {
@@ -135,7 +136,6 @@ app.get("/api/medical-history/id/:id", async (req, res) => {
     });
   }
 });
-
 
 // // GET endpoint to fetch medical history record by ID
 // app.get('/api/medical-history/:id', async (req, res) => {
@@ -251,6 +251,27 @@ app.get("/api/packages/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching package" });
+  }
+});
+
+app.put("/api/packages/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const updatedPackage = await PackageModel.findByIdAndUpdate(
+      id,
+      { isArchived: true }, // Set isArchived to true
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedPackage) {
+      return res.status(404).json({ message: "Package not found" });
+    }
+
+    res.json(updatedPackage);
+  } catch (error) {
+    console.error("Error archiving package:", error);
+    res.status(500).json({ message: "Error archiving package" });
   }
 });
 
