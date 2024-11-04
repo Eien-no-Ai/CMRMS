@@ -53,6 +53,25 @@ app.get("/api/physical-exam-student", async (req, res) => {
   }
 });
 
+// Updated backend route to fetch a physical exam by package number and patient ID
+app.get("/api/physical-exam-student/:packageNumber/:patientId", async (req, res) => {
+  try {
+    const { packageNumber, patientId } = req.params;
+    const physicalExamData = await PhysicalExamStudentModel.findOne({
+      packageNumber,
+      patient: patientId, // Assuming `patient` is the field storing patient IDs
+    });
+    res.json(physicalExamData);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching physical exam data",
+      error: error.message,
+    });
+  }
+});
+
+
+
 //M E D I C A L   H I S T O R Y
 app.post("/api/medical-history", async (req, res) => {
   try {
