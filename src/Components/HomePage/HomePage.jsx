@@ -62,9 +62,9 @@ const Dashboard = () => {
     axios
       .get("http://localhost:3001/patients")
       .then((response) => {
-        const sortedPatients = response.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
+        const sortedPatients = response.data
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 15);
         setPatients(sortedPatients);
       })
       .catch((error) => {
@@ -163,11 +163,16 @@ const Dashboard = () => {
                       <a
                         href="/laboratory/verification"
                         onClick={(e) => {
-                          if (userRole !== "senior medtech" && userRole !== "pathologist") {
+                          if (
+                            userRole !== "senior medtech" &&
+                            userRole !== "pathologist"
+                          ) {
                             e.preventDefault();
-                            alert("You do not have permission to verify laboratory tests.");
+                            alert(
+                              "You do not have permission to verify laboratory tests."
+                            );
                           }
-                        }}                        
+                        }}
                         className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
                       >
                         <MdOutlineVerifiedUser
@@ -214,7 +219,7 @@ const Dashboard = () => {
                       </a>
                     </div>
                   )}
-                   {records.includes("Physical Therapy Records") && (
+                  {records.includes("Physical Therapy Records") && (
                     <a
                       href="/physicaltherapy/records" // Link to Physical Therapy Records page
                       className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"

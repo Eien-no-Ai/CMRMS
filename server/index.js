@@ -54,9 +54,7 @@ app.get("/api/physical-exam-student", async (req, res) => {
 });
 
 // Updated backend route to fetch a physical exam by package number and patient ID
-app.get(
-  "/api/physical-exam-student/:packageNumber/:patientId",
-  async (req, res) => {
+app.get("/api/physical-exam-student/:packageNumber/:patientId", async (req, res) => {
     try {
       const { packageNumber, patientId } = req.params;
       const physicalExamData = await PhysicalExamStudentModel.findOne({
