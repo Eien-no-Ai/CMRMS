@@ -19,6 +19,7 @@ import LaboratoryResult from "./Components/Laboratory/LaboratoryResult";
 import PhysicalTherapy from "./Components/PhysicalTherapy/PhysicalTherapy";
 import XrayResult from "./Components/Xray/XrayResult";
 import LaboratoryVerification from "./Components/Laboratory/LaboratoryVerification";
+import Vaccine from "./Components/Vaccine/Vaccine";
 
 function App() {
   return (
@@ -28,6 +29,15 @@ function App() {
           {/* random url */}
           <Route path="*" element={<NotFound />} />
           <Route path="/packages" element={<Package />} />
+
+          <Route
+            path="/vaccines"
+            element={
+              <PrivateRoute allowedRoles={["nurse"]}>
+                <Vaccine />
+              </PrivateRoute>
+            }
+          />
 
           {/* Public routes that redirect logged-in users */}
           <Route
@@ -259,10 +269,13 @@ function App() {
           <Route
             path="/physicaltherapy/requests"
             element={
-              <PrivateRoute allowedRoles={[
-                'physical therapist',
-                'special trainee',
-                "doctor",]}>
+              <PrivateRoute
+                allowedRoles={[
+                  "physical therapist",
+                  "special trainee",
+                  "doctor",
+                ]}
+              >
                 <PhysicalTherapy />
               </PrivateRoute>
             }

@@ -12,6 +12,8 @@ const PackageModel = require("./models/Package");
 const MedicalHistoryModel = require("./models/MedicalHistory");
 const VaccineModel = require("./models/Vaccine"); // Path to your vaccine routes
 const PhysicalExamStudentModel = require("./models/PhysicalExamStudent");
+const VaccineListModel = require("./models/VaccineList");
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -21,6 +23,60 @@ mongoose.connect(
   "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee"
 );
 `1`;
+
+// V A C C I N E   L I S T
+app.post("/api/vaccine-list", async (req, res) => {
+  try {
+    const newVaccine = await VaccineListModel.create(req.body);
+    res.status(201).json(newVaccine);
+  } catch (error) {
+    res.status(500).json({ message: "Error adding vaccine to list", error });
+  }
+});
+
+app.get("/api/vaccine-list", async (req, res) => {
+  try {
+    const vaccines = await VaccineListModel.find();
+    res.json(vaccines);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching vaccines", error });
+  }
+});
+
+app.delete("/api/vaccine-list/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deletedVaccine = await VaccineListModel.findByIdAndDelete(id);
+    if (!deletedVaccine) {
+      return res.status(404).json({ message: "Vaccine not found" });
+    }
+    res.json({ message: "Vaccine deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting vaccine", error });
+  }
+});
+
+app.put("/api/vaccine-list/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
+
+    const updatedVaccine = await VaccineListModel.findByIdAndUpdate(
+      id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updatedVaccine) {
+      return res.status(404).json({ message: "Vaccine not found" });
+    }
+    res.json(updatedVaccine);
+  } catch (error) {
+    console.error("Error updating vaccine:", error.stack); // Full stack trace for debugging
+    res.status(500).json({ message: "Error updating vaccine", error });
+  }
+});
 
 // P H Y S I C A L E X A M   S T U D E N T
 app.post("/api/physical-exam-student", async (req, res) => {
@@ -54,7 +110,9 @@ app.get("/api/physical-exam-student", async (req, res) => {
 });
 
 // Updated backend route to fetch a physical exam by package number and patient ID
-app.get("/api/physical-exam-student/:packageNumber/:patientId", async (req, res) => {
+app.get(
+  "/api/physical-exam-student/:packageNumber/:patientId",
+  async (req, res) => {
     try {
       const { packageNumber, patientId } = req.params;
       const physicalExamData = await PhysicalExamStudentModel.findOne({
@@ -1217,6 +1275,7 @@ app.get("/api/clinicalRecords/:patientId", async (req, res) => {
 
 // X R A Y  R E C O R D S
 const XrayModel = require("./models/Xray");
+const VaccineList = require("./models/VaccineList");
 
 app.post("/api/xrayResults", async (req, res) => {
   const xrayResults = req.body;
@@ -1482,6 +1541,40 @@ app.get("/api/vaccines/patient/:id", async (req, res) => {
     res
       .status(500)
       .json({ message: "Internal server error", error: error.message });
+  }
+});
+
+// Delete laboratory record
+app.delete("/api/laboratory/:id", async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid laboratory ID format." });
+  }
+  try {
+    const labRecord = await LaboratoryModel.findByIdAndDelete(id);
+    if (!labRecord) {
+      return res.status(404).json({ message: "Lab record not found." });
+    }
+    res.json({ message: "Lab record deleted successfully." });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting lab record.", error });
+  }
+});
+
+// Delete X-ray record
+app.delete("/api/xrayResults/:id", async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid X-ray ID format." });
+  }
+  try {
+    const xrayRecord = await XrayModel.findByIdAndDelete(id);
+    if (!xrayRecord) {
+      return res.status(404).json({ message: "X-ray record not found." });
+    }
+    res.json({ message: "X-ray record deleted successfully." });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting X-ray record.", error });
   }
 });
 

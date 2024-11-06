@@ -141,23 +141,6 @@ function PatientsProfile() {
     }
   }, [id]);
 
-  // const fetchPhysicalExamStudent = useCallback(async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `http://localhost:3001/api/physical-exam-student/${id}`
-  //     );
-  //     const sortedPhysicalExamStudent = response.data.sort(
-  //       (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
-  //     );
-  //     setPhysicalExamStudent(sortedPhysicalExamStudent);
-  //   } catch (error) {
-  //     console.error(
-  //       "There was an error fetching the Physical Exam Student records!",
-  //       error
-  //     );
-  //   }
-  // }, [id]);
-
   useEffect(() => {
     fetchLabRecords();
     fetchXrayRecords();
@@ -422,27 +405,22 @@ function PatientsProfile() {
     }
 
     try {
-      // Get the logged-in user's ID (assuming it's stored in localStorage)
       const adminId = localStorage.getItem("userId");
       if (!adminId) {
         alert("Admin user not found. Please log in again.");
         return;
       }
 
-      // Send the selected vaccine to the backend API
       const response = await axios.post("http://localhost:3001/api/vaccines", {
         patient: id, // Use id from useParams (patient ID from URL)
         name: selectedVaccine, // Vaccine name
-        dateAdministered: new Date(), // You can modify the date if needed
-        administeredBy: adminId, // Add the admin user ID
+        dateAdministered: new Date(),
+        administeredBy: adminId,
       });
 
       console.log("Vaccine submitted successfully:", response.data);
-      // Close modal and reset form after successful submission
       handleVaccineModalClose();
-      await fetchVaccineRecords(); // This will refresh the vaccine records list in state
-
-      // Optionally, refresh vaccine records or notify the user
+      await fetchVaccineRecords();
     } catch (error) {
       console.error("Error submitting vaccine:", error.response || error);
       alert("Failed to submit vaccine. Please try again.");
@@ -1582,6 +1560,75 @@ function PatientsProfile() {
       fetchPhysicalExam(packageNumber, patientId);
     }
   }, [isPackageInfoModalOpen, selectedRecords, fetchPhysicalExam, id]);
+
+  const [vaccines, setVaccines] = useState([]);
+
+  useEffect(() => {
+    const fetchVaccines = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3001/api/vaccine-list"
+        );
+        setVaccines(response.data);
+      } catch (error) {
+        console.error("Error fetching vaccines:", error);
+      }
+    };
+
+    fetchVaccines();
+  }, []);
+
+  const handleDeletePackage = async (packageNumber) => {
+    try {
+      // Log the package number and associated records for debugging
+      console.log("Attempting to delete package:", packageNumber);
+      console.log("Lab records:", combinedRecords[packageNumber].labRecords);
+      console.log("X-ray records:", combinedRecords[packageNumber].xrayRecords);
+
+      // Delete lab records
+      const labDeletePromises = combinedRecords[packageNumber].labRecords.map(
+        async (record) => {
+          try {
+            await axios.delete(
+              `http://localhost:3001/api/laboratory/${record._id}`
+            );
+          } catch (error) {
+            if (error.response && error.response.status === 404) {
+              console.warn(`Lab record with ID ${record._id} not found.`);
+            } else {
+              throw error;
+            }
+          }
+        }
+      );
+
+      // Delete X-ray records
+      const xrayDeletePromises = combinedRecords[packageNumber].xrayRecords.map(
+        async (record) => {
+          try {
+            await axios.delete(
+              `http://localhost:3001/api/xrayResults/${record._id}`
+            );
+          } catch (error) {
+            if (error.response && error.response.status === 404) {
+              console.warn(`X-ray record with ID ${record._id} not found.`);
+            } else {
+              throw error;
+            }
+          }
+        }
+      );
+
+      await Promise.all([...labDeletePromises, ...xrayDeletePromises]);
+
+      // Refresh records after successful deletion
+      fetchLabRecords();
+      fetchXrayRecords();
+    } catch (error) {
+      console.error("Error deleting package:", error);
+      alert("Failed to delete package. Please try again.");
+    }
+  };
 
   return (
     <div>
@@ -3310,6 +3357,7 @@ function PatientsProfile() {
                         if (!records.labRecords[0]?.packageId) {
                           return null; // Skip rendering this item if packageId is missing
                         }
+
                         // Determine the status based on labResult and xrayResult
                         const isCompleted =
                           records.labRecords.every(
@@ -3385,7 +3433,7 @@ function PatientsProfile() {
                               </p>
                             </div>
 
-                            {/* Status and View Button */}
+                            {/* Status, View, and Delete Buttons */}
                             <div className="col-span-1 flex justify-between items-center">
                               {/* Status Display */}
                               <p
@@ -3399,28 +3447,45 @@ function PatientsProfile() {
                               </p>
 
                               {/* View Button Logic */}
-                              <button
-                                className="text-custom-red"
-                                onClick={() => {
-                                  if (role === "nurse") {
-                                    alert(
-                                      "You do not have permission to view this record."
-                                    );
-                                  } else if (
-                                    role === "doctor" &&
-                                    !isCompleted
-                                  ) {
-                                    alert(
-                                      "The results are still pending. Please wait until the results are available."
-                                    );
-                                  } else if (role === "doctor" && isCompleted) {
-                                    setSelectedRecords(records); // Store the selected records
-                                    setisPackageInfoModalOpen(true); // Open the modal for doctors
-                                  }
-                                }}
-                              >
-                                View
-                              </button>
+                              <div className="flex items-center space-x-3">
+                                <button
+                                  className="text-custom-red"
+                                  onClick={() => {
+                                    if (role === "nurse") {
+                                      alert(
+                                        "You do not have permission to view this record."
+                                      );
+                                    } else if (
+                                      role === "doctor" &&
+                                      !isCompleted
+                                    ) {
+                                      alert(
+                                        "The results are still pending. Please wait until the results are available."
+                                      );
+                                    } else if (
+                                      role === "doctor" &&
+                                      isCompleted
+                                    ) {
+                                      setSelectedRecords(records); // Store the selected records
+                                      setisPackageInfoModalOpen(true); // Open the modal for doctors
+                                    }
+                                  }}
+                                >
+                                  View
+                                </button>
+
+                                {/* Delete Button for Pending Packages */}
+                                {status === "Pending" && (
+                                  <button
+                                    className="text-red-500"
+                                    onClick={() =>
+                                      handleDeletePackage(packageNumber)
+                                    }
+                                  >
+                                    Cancel
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           </li>
                         );
@@ -6166,16 +6231,17 @@ function PatientsProfile() {
               </label>
               <select
                 value={selectedVaccine}
-                onChange={handleVaccineChange}
+                onChange={(e) => setSelectedVaccine(e.target.value)}
                 className="w-full mt-2 border rounded-md p-2"
               >
                 <option value="" disabled>
                   -- Select Vaccine --
                 </option>
-                <option value="Hepa B">Hepa B</option>
-                <option value="Hepa C">Hepa C</option>
-                <option value="Tetanus Toxide">Tetanus Toxide</option>
-                <option value="Flu Vaccine">Flu Vaccine</option>
+                {vaccines.map((vaccine) => (
+                  <option key={vaccine._id} value={vaccine.name}>
+                    {vaccine.name}
+                  </option>
+                ))}
               </select>
             </div>
 

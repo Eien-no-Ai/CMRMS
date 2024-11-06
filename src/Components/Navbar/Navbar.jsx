@@ -92,6 +92,9 @@ function Navbar() {
             <a href="/packages" className="hover:underline">
               Packages
             </a>
+            <a href="/vaccines" className="hover:underline">
+              Vaccines
+            </a>
           </>
         )}
         {role === "doctor" && (
@@ -106,20 +109,17 @@ function Navbar() {
         )}
 
         <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={toggleDropdown}
-            className="flex items-center cursor-pointer"
-          >
-            <VscAccount size={24} />
-          </button>
-
+        <button
+          onClick={toggleDropdown}
+          className="flex items-center cursor-pointer text-white hover:text-gray-300"
+        >
+          <VscAccount size={24} />
+          <span className="ml-2">
+            {userData.firstname ? `${userData.firstname}` : "Hello, User"}
+          </span>
+        </button>
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg py-2 z-10">
-              <div className="px-4 py-2 text-sm text-gray-800 border-b">
-                {userData.firstname
-                  ? `Hello, ${userData.firstname}`
-                  : "Hello, User"}
-              </div>
               <a
                 href="/profile"
                 className="block px-4 py-2 text-sm hover:bg-gray-100"
@@ -134,6 +134,7 @@ function Navbar() {
               </button>
             </div>
           )}
+          
         </div>
       </div>
     </div>
