@@ -8,6 +8,7 @@ import { GiBiceps } from "react-icons/gi";
 import { BiChevronDown } from "react-icons/bi";
 
 function PatientsProfile() {
+  const [selectedXray, setSelectedXray] = useState(null);
   const { id } = useParams();
   const [patient, setPatient] = useState(null);
   const [selectedTab, setSelectedTab] = useState("clinical");
@@ -6188,79 +6189,59 @@ function PatientsProfile() {
           </div>
         </div>
       </div>
-      {isNewTherapyRecordModalOpen && selectedXrayRecord && (
+      {isNewTherapyRecordModalOpen && selectedXrayRecords && selectedXrayRecords.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg z-50">
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-lg shadow-lg z-50 max-w-3xl w-full overflow-auto h-auto max-h-[90vh]">
             {/* Form Title */}
-            <h2 className="text-xl font-semibold mb-4">Result Form</h2>
+            <h2 className="text-xl font-semibold mb-4 text-center">Result Form</h2>
 
             {/* Main Form Content */}
-            <div className="flex-grow flex flex-col mb-4">
-              <form className="flex flex-row items-start gap-4">
+            <div className="flex flex-wrap mb-4 gap-4">
+              <form className="flex flex-row items-start gap-4 w-full">
                 {/* X-ray Result Image - Left Side */}
-                <div className="w-1/2">
-                  <label className="block text-gray-700">X-ray Result</label>
-                  <img
-                    src={selectedXrayRecord.imageFile}
-                    alt="X-ray"
-                    className="w-auto h-full object-cover cursor-pointer"
-                  />
+                <div className="w-full md:w-1/2">
+                  <label className="block text-gray-700">X-ray Results</label>
+
+                  {/* Dropdown to select X-ray record */}
+                  <select
+                    className="w-full px-3 py-2 border rounded mb-4"
+                    onChange={(e) => setSelectedXray(e.target.value)}
+                  >
+                    <option value="">Select X-ray</option>
+                    {selectedXrayRecords.map((xray, index) => (
+                      <option key={index} value={index}>
+                        X-ray {index + 1} - {new Date(xray.isCreatedAt).toLocaleDateString()}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Display selected X-ray record */}
+                  {selectedXray !== null && selectedXrayRecords[selectedXray] && (
+                    <div>
+                      <img
+                        src={selectedXrayRecords[selectedXray].imageFile}
+                        alt="X-ray"
+                        className="w-full h-auto object-contain cursor-pointer mb-4 max-h-[60vh] overflow-hidden mx-auto" // Modified styles
+                      />
+                    </div>
+                  )}
                 </div>
 
-                {/* Details Section - Right Side */}
-                <div className="w-1/2">
-                  {/* Xray No. and Date */}
-                  <div className="flex mb-4">
-                    <div className="w-1/3 mr-2">
-                      <label className="block text-gray-700">OR No.</label>
-                      <input
-                        type="text"
-                        name="XrayNo"
-                        value={selectedXrayRecord.ORNumber || "N/A"}
-                        className="w-full px-3 py-2 border rounded"
-                        readOnly
-                      />
-                    </div>
-                    <div className="w-1/3 mr-2">
-                      <label className="block text-gray-700">Case No.</label>
-                      <input
-                        type="text"
-                        name="XrayNo"
-                        value={selectedXrayRecord.XrayNo || "N/A"}
-                        className="w-full px-3 py-2 border rounded"
-                        readOnly
-                      />
-                    </div>
-
-                    <div className="w-1/3">
-                      <label className="block text-gray-700">Date</label>
-                      <input
-                        type="text"
-                        name="date"
-                        value={new Date(
-                          selectedXrayRecord.isCreatedAt
-                        ).toLocaleString()}
-                        className="w-full px-3 py-2 border rounded"
-                        readOnly
-                      />
-                    </div>
-                  </div>
-
-                  {/* Name, Age, and Sex */}
-                  <div className="flex mb-4">
-                    <div className="w-1/2 mr-2">
+                {/* Patient Details Section - Right Side */}
+                <div className="w-full md:w-1/2">
+                  {/* Patient Information */}
+                  <div className="flex mb-4 gap-2">
+                    <div className="w-1/2">
                       <label className="block text-gray-700">Name</label>
                       <input
                         type="text"
                         name="name"
-                        value={
-                          `${patient.firstname} ${patient.lastname}` || "N/A"
-                        }
+                        value={`${patient.firstname} ${patient.lastname}` || "N/A"}
                         readOnly
                         className="w-full px-3 py-2 border rounded bg-gray-100"
                       />
                     </div>
-                    <div className="w-1/4 mr-2">
+                    <div className="w-1/4">
                       <label className="block text-gray-700">Age</label>
                       <input
                         type="text"
@@ -6285,44 +6266,71 @@ function PatientsProfile() {
                   {/* Course/Dept. or Position */}
                   <div className="mb-4">
                     <label className="block text-gray-700">
-                      {patient.patientType === "Student"
-                        ? "Course/Dept."
-                        : "Position"}
+                      {patient.patientType === "Student" ? "Course/Dept." : "Position"}
                     </label>
                     <input
                       type="text"
                       name="courseDept"
-                      value={
-                        patient.patientType === "Student"
-                          ? patient.course || "N/A"
-                          : patient.position || "N/A"
-                      }
+                      value={patient.patientType === "Student" ? patient.course || "N/A" : patient.position || "N/A"}
                       readOnly
                       className="w-full px-3 py-2 border rounded bg-gray-100"
                     />
                   </div>
 
-                  {/* Diagnosis (Interpretation) */}
-                  <div className="w-full">
-                    <label className="block text-gray-700">
-                      Interpretation
-                    </label>
-                    <textarea
-                      name="diagnosis"
-                      className="w-full px-3 py-2 border rounded"
-                      rows="4"
-                      placeholder="Enter an interpretation..."
-                      value={selectedXrayRecord.diagnosis || ""}
-                      readOnly
-                    />
+                  {/* X-ray Information (OR No., Case No., Date, Interpretation) */}
+                  <div className="mb-4">
+                    <div className="flex mb-4 gap-2">
+                      <div className="w-1/3">
+                        <label className="block text-gray-700">OR No.</label>
+                        <input
+                          type="text"
+                          name="XrayNo"
+                          value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].ORNumber || "N/A" : "N/A"}
+                          className="w-full px-3 py-2 border rounded"
+                          readOnly
+                        />
+                      </div>
+                      <div className="w-1/3">
+                        <label className="block text-gray-700">Case No.</label>
+                        <input
+                          type="text"
+                          name="XrayNo"
+                          value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].XrayNo || "N/A" : "N/A"}
+                          className="w-full px-3 py-2 border rounded"
+                          readOnly
+                        />
+                      </div>
+                      <div className="w-1/3">
+                        <label className="block text-gray-700">Date</label>
+                        <input
+                          type="text"
+                          name="date"
+                          value={selectedXray !== null && selectedXrayRecords[selectedXray] ? new Date(selectedXrayRecords[selectedXray].isCreatedAt).toLocaleString() : "N/A"}
+                          className="w-full px-3 py-2 border rounded"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+
+                    {/* Diagnosis */}
+                    <div className="w-full">
+                      <label className="block text-gray-700">Interpretation</label>
+                      <textarea
+                        name="diagnosis"
+                        className="w-full px-3 py-2 border rounded"
+                        rows="4"
+                        placeholder="Enter an interpretation..."
+                        value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].diagnosis || "" : ""}
+                        readOnly
+                      />
+                    </div>
                   </div>
                 </div>
               </form>
             </div>
 
-            <h2 className="text-lg font-bold mb-4 text-center">
-              New Physical Therapy Record
-            </h2>
+            {/* New Physical Therapy Record Section */}
+            <h2 className="text-lg font-bold mb-4 text-center">New Physical Therapy Record</h2>
             <form onSubmit={handleNewTherapySubmit}>
               <div className="mb-4">
                 <label className="block text-sm font-medium">Diagnosis</label>
@@ -6354,6 +6362,7 @@ function PatientsProfile() {
           </div>
         </div>
       )}
+
 
       {/* Vaccine Modal */}
       {isVaccineModalOpen && (
@@ -8018,25 +8027,14 @@ function PatientsProfile() {
                     <FaXRay className="mr-2" /> X-Ray Request
                   </button>
 
-                  {/* Conditionally Render the PT Refer Buttons */}
+                  {/* Conditionally Render the PT Refer Button Once */}
                   {selectedXrayRecords && selectedXrayRecords.length > 0 && (
-                    <ul>
-                      {selectedXrayRecords
-                        .sort(
-                          (a, b) =>
-                            new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
-                        )
-                        .map((xray, index) => (
-                          <li key={index}>
-                            <button
-                              className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                              onClick={() => handleNewTherapyRecordOpen(xray)}
-                            >
-                              <GiBiceps className="mr-2" /> Refer to PT
-                            </button>
-                          </li>
-                        ))}
-                    </ul>
+                    <button
+                      className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                      onClick={() => handleNewTherapyRecordOpen(selectedXrayRecords)} // Pass all X-ray records
+                    >
+                      <GiBiceps className="mr-2" /> Refer to PT
+                    </button>
                   )}
                 </div>
               )}
