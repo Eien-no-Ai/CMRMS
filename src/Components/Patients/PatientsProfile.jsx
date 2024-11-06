@@ -1579,15 +1579,19 @@ function PatientsProfile() {
     fetchVaccines();
   }, []);
 
-  const handleDeletePackage = async (packageNumber) => {
-    try {
-      // Log the package number and associated records for debugging
-      console.log("Attempting to delete package:", packageNumber);
-      console.log("Lab records:", combinedRecords[packageNumber].labRecords);
-      console.log("X-ray records:", combinedRecords[packageNumber].xrayRecords);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [packageToDelete, setPackageToDelete] = useState(null);
 
-      // Delete lab records
-      const labDeletePromises = combinedRecords[packageNumber].labRecords.map(
+  const handleDeletePackage = (packageNumber) => {
+    setPackageToDelete(packageNumber); // Track the package to delete
+    setIsConfirmModalOpen(true); // Open the modal
+  };
+
+  const confirmDeletePackage = async () => {
+    if (!packageToDelete) return;
+
+    try {
+      const labDeletePromises = combinedRecords[packageToDelete].labRecords.map(
         async (record) => {
           try {
             await axios.delete(
@@ -1603,31 +1607,34 @@ function PatientsProfile() {
         }
       );
 
-      // Delete X-ray records
-      const xrayDeletePromises = combinedRecords[packageNumber].xrayRecords.map(
-        async (record) => {
-          try {
-            await axios.delete(
-              `http://localhost:3001/api/xrayResults/${record._id}`
-            );
-          } catch (error) {
-            if (error.response && error.response.status === 404) {
-              console.warn(`X-ray record with ID ${record._id} not found.`);
-            } else {
-              throw error;
-            }
+      const xrayDeletePromises = combinedRecords[
+        packageToDelete
+      ].xrayRecords.map(async (record) => {
+        try {
+          await axios.delete(
+            `http://localhost:3001/api/xrayResults/${record._id}`
+          );
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            console.warn(`X-ray record with ID ${record._id} not found.`);
+          } else {
+            throw error;
           }
         }
-      );
+      });
 
       await Promise.all([...labDeletePromises, ...xrayDeletePromises]);
 
-      // Refresh records after successful deletion
+      // Refresh records and close modal
       fetchLabRecords();
       fetchXrayRecords();
+      setIsConfirmModalOpen(false);
+      setPackageToDelete(null);
     } catch (error) {
       console.error("Error deleting package:", error);
       alert("Failed to delete package. Please try again.");
+      setIsConfirmModalOpen(false);
+      setPackageToDelete(null);
     }
   };
 
@@ -3476,7 +3483,7 @@ function PatientsProfile() {
                                 </button>
 
                                 {/* Delete Button for Pending Packages */}
-                                {status === "Pending" && (
+                                {role === "nurse" && status === "Pending" && (
                                   <button
                                     className="text-red-500"
                                     onClick={() =>
@@ -6182,19 +6189,17 @@ function PatientsProfile() {
         </div>
       </div>
       {isNewTherapyRecordModalOpen && selectedXrayRecord && (
-         <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
           <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg z-50">
-          {/* Form Title */}
-          <h2 className="text-xl font-semibold mb-4">Result Form</h2>
+            {/* Form Title */}
+            <h2 className="text-xl font-semibold mb-4">Result Form</h2>
 
             {/* Main Form Content */}
             <div className="flex-grow flex flex-col mb-4">
               <form className="flex flex-row items-start gap-4">
                 {/* X-ray Result Image - Left Side */}
                 <div className="w-1/2">
-                  <label className="block text-gray-700">
-                    X-ray Result
-                  </label>
+                  <label className="block text-gray-700">X-ray Result</label>
                   <img
                     src={selectedXrayRecord.imageFile}
                     alt="X-ray"
@@ -6207,9 +6212,7 @@ function PatientsProfile() {
                   {/* Xray No. and Date */}
                   <div className="flex mb-4">
                     <div className="w-1/3 mr-2">
-                      <label className="block text-gray-700">
-                        OR No.
-                      </label>
+                      <label className="block text-gray-700">OR No.</label>
                       <input
                         type="text"
                         name="XrayNo"
@@ -6219,9 +6222,7 @@ function PatientsProfile() {
                       />
                     </div>
                     <div className="w-1/3 mr-2">
-                      <label className="block text-gray-700">
-                        Case No.
-                      </label>
+                      <label className="block text-gray-700">Case No.</label>
                       <input
                         type="text"
                         name="XrayNo"
@@ -6253,8 +6254,7 @@ function PatientsProfile() {
                         type="text"
                         name="name"
                         value={
-                          `${patient.firstname} ${patient.lastname}` ||
-                          "N/A"
+                          `${patient.firstname} ${patient.lastname}` || "N/A"
                         }
                         readOnly
                         className="w-full px-3 py-2 border rounded bg-gray-100"
@@ -6319,7 +6319,7 @@ function PatientsProfile() {
                 </div>
               </form>
             </div>
-            
+
             <h2 className="text-lg font-bold mb-4 text-center">
               New Physical Therapy Record
             </h2>
@@ -8022,7 +8022,10 @@ function PatientsProfile() {
                   {selectedXrayRecords && selectedXrayRecords.length > 0 && (
                     <ul>
                       {selectedXrayRecords
-                        .sort((a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt))
+                        .sort(
+                          (a, b) =>
+                            new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
+                        )
                         .map((xray, index) => (
                           <li key={index}>
                             <button
@@ -8628,6 +8631,38 @@ function PatientsProfile() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {isConfirmModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-4 px-6 rounded-lg w-full max-w-lg shadow-lg">
+            <h2 className="text-lg font-semibold text-center">
+              Confirm Delete
+            </h2>
+            <p className="mt-4 text-center">
+              Are you sure you want to cancel the package{" "}
+              <span className="font-bold">
+                Package:{" "}
+                {combinedRecords[packageToDelete]?.labRecords[0]?.packageId
+                  ?.name || "Package"}
+              </span>
+              ?
+            </p>
+            <div className="flex justify-end mt-6 space-x-3">
+              <button
+                className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border"
+                onClick={() => setIsConfirmModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-red-600 hover:border-red-600 border"
+                onClick={confirmDeletePackage}
+              >
+                Confirm
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar/Navbar";
 import { BiSearch } from "react-icons/bi";
 import axios from "axios";
-import { IoArchiveOutline } from "react-icons/io5";
 import { FaRegEdit } from "react-icons/fa";
 import { MdOutlineDelete } from "react-icons/md";
 
@@ -13,7 +12,6 @@ const VaccineList = () => {
   const [vaccines, setVaccines] = useState([]);
   const [isVaccineModalOpen, setIsVaccineModalOpen] = useState(false);
   const [newVaccine, setNewVaccine] = useState({ name: "" });
-  const [selectedVaccineId, setSelectedVaccineId] = useState(null);
 
   const vaccinesPerPage = 4;
 
@@ -54,17 +52,6 @@ const VaccineList = () => {
       setNewVaccine({ name: "" });
     } catch (error) {
       console.error("Error adding vaccine:", error);
-    }
-  };
-
-  const handleDeleteVaccine = async (id) => {
-    try {
-      await axios.delete(`http://localhost:3001/api/vaccine-list/${id}`);
-
-      // Re-fetch vaccines to ensure the list is updated and sorted properly
-      await fetchVaccines();
-    } catch (error) {
-      console.error("Error deleting vaccine:", error);
     }
   };
 

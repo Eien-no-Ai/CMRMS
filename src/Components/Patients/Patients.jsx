@@ -354,7 +354,7 @@ function Patients() {
                           {patient.patientType === "Employee"
                             ? patient.position
                             : patient.course}
-                        </td>{" "}
+                        </td>
                         <td className="py-4">
                           <div
                             className="relative"
