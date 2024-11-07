@@ -6,6 +6,7 @@ import { FaXRay } from "react-icons/fa6";
 import { SlChemistry } from "react-icons/sl";
 import { GiBiceps } from "react-icons/gi";
 import { BiChevronDown } from "react-icons/bi";
+import jsPDF from 'jspdf';
 
 function PatientsProfile() {
   const [selectedXray, setSelectedXray] = useState(null);
@@ -1638,6 +1639,152 @@ function PatientsProfile() {
       setPackageToDelete(null);
     }
   };
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    const [userData, setUserData] = useState({});
+    const userId = localStorage.getItem("userId"); // Get the user ID from localStorage
+    const [remarks, setRemarks] = useState('');
+    const [bp, setBp] = useState('');
+    const [pr, setPr] = useState('');
+    const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
+    const [isMedCert, setIsMedCert] = useState(false);
+    const [inputValue, setInputValue] = useState('');
+  
+
+    useEffect(() => {
+      if (userId) {
+        axios
+          .get(`http://localhost:3001/user/${userId}`)
+          .then((response) => {
+            setUserData(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching user data:", error);
+          });
+      }
+    }, [userId]);
+
+    const handleMedCertClose = () => {
+      setIsMedCert(false);
+      setInputValue('');   
+    };
+  
+    const handleMedCert = (e) => {
+      e.preventDefault();
+    
+      const today = new Date();
+      const formattedDate = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
+    
+      // Set margins and document size (8.5 x 11 inches = 612 x 792 points)
+      const margin = 0.5 * 72;  // 0.5 inches to points (36 points)
+      const docWidth = 612;  // 8.5 inches in points
+      const docHeight = 792; // 11 inches in points
+    
+      const doc = new jsPDF({
+        unit: 'pt',
+        format: [docWidth, docHeight],
+      });
+    
+      // Set font to Times New Roman and font size to 12
+      doc.setFont("times", "normal");
+      doc.setFontSize(12);
+    
+      let yPos = margin + 20; // Starting y-position just after top margin
+    
+      // Header Section: University of Baguio, Medical Clinic, etc.
+      doc.setFont("times", "bold");
+      doc.text("UNIVERSITY OF BAGUIO", docWidth / 2, yPos, { align: 'center' });
+      yPos += 20;
+      doc.text("MEDICAL CLINIC", docWidth / 2, yPos, { align: 'center' });
+      yPos += 20;
+      doc.text("Gen. Luna Rd., Baguio City", docWidth / 2, yPos, { align: 'center' });
+      yPos += 20;
+    
+      // Date (right aligned)
+      doc.text(`Date: ${formattedDate}`, docWidth - margin, yPos, { align: 'right' });
+      yPos += 40;
+    
+      // Main Title: Health Certificate (centered)
+      doc.setFont("times", "bold");
+      doc.text("HEALTH CERTIFICATE", docWidth / 2, yPos, { align: 'center' });
+      yPos += 20;
+    
+      // Add a tab before the first paragraph: simulate tab by adding spaces
+      const tabSpace = '    '; // Four spaces to simulate a tab
+      doc.setFont("times", "bold");
+      doc.text("TO WHOM IT MAY CONCERN:", margin, yPos);
+      yPos += 20;
+    
+      doc.setFont("times", "normal");
+      const longText = `${tabSpace}${tabSpace}This is to certify that ${patient.firstname} ${patient.lastname} has been examined and found to be physically and mentally fit upon examination.`;
+      const maxWidth = docWidth - 2 * margin;  // Max width for the text to wrap
+    
+      const wrappedText = doc.splitTextToSize(longText, maxWidth);
+    
+      wrappedText.forEach(line => {
+        doc.text(line, margin, yPos);
+        yPos += 20; // Move down for next line
+      });
+    
+      // Ensure the gap is not too big
+      yPos += 10; // Adjust the spacing if needed
+    
+      // Add the second paragraph with tab space
+      doc.text(`${tabSpace}${tabSpace}This certification is issued upon the request of the above person for any purpose it may serve.`, margin, yPos);
+      yPos += 30;
+    
+      // Insert dynamic values for Remarks, BP, Pulse Rate
+      const printText = (label, value, yPos) => {
+        doc.setFont("times", "bold");
+        doc.text(label, margin, yPos);
+        doc.setFont("times", "normal");
+        doc.text(value, margin + 80, yPos);
+        return yPos + 20; // Return new y-position after printing
+      };
+    
+      yPos = printText("Remarks:", remarks, yPos);
+      yPos = printText("Blood Pressure:", bp, yPos);
+      yPos = printText("Pulse Rate:", pr, yPos);
+    
+    // var signatureUrl = userData.signature;
+    //   doc.addImage(signatureUrl, 'png', docWidth - margin - 100, yPos, 80, 40);
+    //   yPos += 50;
+    
+    const fullName = `${userData.firstname} ${userData.lastname} M.D.`;
+    doc.text(fullName, docWidth - margin - 80, yPos, { align: 'right' });
+
+    const textWidth = doc.getTextWidth(fullName);  // Get width of the text
+    const underlineY = yPos + 2; // Position for the underline (just below the text)
+
+    // Draw the line (underline)
+    doc.line(docWidth - margin - 80 - textWidth, underlineY, docWidth - margin - 80, underlineY);  // Start and end of the underline
+
+    // Step 3: Add "University Physician" below the underlined text
+    yPos += 10;  // Move down to a new position
+    doc.text('University Physician', docWidth - margin - 80, yPos, { align: 'right' });
+
+
+      // Check if text exceeds available space (720 points) and add new page if needed
+      if (yPos + 50 > docHeight - margin) {
+        doc.addPage();  // Add a new page if there's overflow
+        yPos = margin + 20;  // Reset yPos for the new page
+      }
+    
+      // Generate PDF and create object URL for preview
+      const pdfBlob = doc.output('blob');
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+    
+      // Set the preview URL and switch to PDF preview mode
+      setPdfPreviewUrl(pdfUrl);
+      setIsMedCert(false); // Hide form and show the PDF preview
+    };
+                          
+  const closePreview = () => {
+      setPdfPreviewUrl(null);  // Clear the preview URL
+      setIsMedCert(true);       // Optionally reopen modal/form
+    };
+  
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////  
 
   return (
     <div>
@@ -3475,7 +3622,7 @@ function PatientsProfile() {
                                       role === "doctor" &&
                                       isCompleted
                                     ) {
-                                      setSelectedRecords(records); // Store the selected records
+                                      setSelectedRecords(records); // Store the selected records trial
                                       setisPackageInfoModalOpen(true); // Open the modal for doctors
                                     }
                                   }}
@@ -3528,6 +3675,7 @@ function PatientsProfile() {
                                 Has any of the applicant suffered from, or been
                                 told he had any of the following conditions:
                               </label>
+
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                                 <label>
                                   <input
@@ -4635,30 +4783,41 @@ function PatientsProfile() {
                         </div>
                       </div>
 
-                      {/* Bottom section - Close button */}
-                      <div className="flex justify-end mt-4">
-                        <button
-                          className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200 mr-4"
-                          onClick={() => {
-                            setisPackageInfoModalOpen(false); // Close the modal
-                          }}
-                        >
-                          Close
-                        </button>
-                        <button
-                          className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                          onClick={() =>
-                            handlePESubmit(
-                              selectedRecords.labRecords[0].packageNumber
-                            )
-                          }
-                        >
-                          Submit
-                        </button>
-                      </div>
+                      <div className="flex justify-between mt-4">
+                      {/* //////////////////////////////////////////////////////////////////////////////////////////////////////// */}
+                      <button
+                        className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200 mr-4"
+                        onClick={() => {
+                          setIsMedCert(true); // Only set this to true when this button is clicked
+                        }}
+                      >
+                        Print Medical Certificate
+                      </button>
+                      {/* //////////////////////////////////////////////////////////////////////////////////////////////////////// */}
+                            <div className="flex">
+                              <button
+                                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200 mr-4"
+                                onClick={() => {
+                                  setisPackageInfoModalOpen(false); // Close the modal
+                                }}
+                              >
+                                Close
+                              </button>
+                              <button
+                                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                                onClick={() =>
+                                  handlePESubmit(selectedRecords.labRecords[0].packageNumber)
+                                }
+                              >
+                                Submit
+                              </button>
+                            </div>
+                          </div>
+
                     </div>
                   </div>
                 )}
+
 
                 {isPackageResultModalOpen && (
                   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -8664,6 +8823,101 @@ function PatientsProfile() {
           </div>
         </div>
       )}
+{/* ////////////////////////////////////////////////////////////////////////////////////////////////////////  */}
+{isMedCert && (
+      <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+          <h2 className="text-xl font-semibold mb-4">Medical Certificate Details</h2>
+
+          <form onSubmit={handleMedCert}>
+
+            <div className="mb-4">
+              <label htmlFor="remarks" className="block text-sm font-medium">Remarks</label>
+              <textarea
+                id="remarks"
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+                className="mt-1 p-2 border rounded-lg w-full"
+                rows="4"
+                placeholder="Enter remarks..."
+              />
+            </div>
+
+            {/* Blood Pressure (BP) Input */}
+            <div className="mb-4">
+              <label htmlFor="bp" className="block text-sm font-medium">Blood Pressure (BP)</label>
+              <input
+                type="text"
+                id="bp"
+                value={bp}
+                onChange={(e) => setBp(e.target.value)}
+                className="mt-1 p-2 border rounded-lg w-full"
+              />
+            </div>
+
+            {/* Pulse Rate (PR) Input */}
+            <div className="mb-4">
+              <label htmlFor="pr" className="block text-sm font-medium">Pulse Rate (PR)</label>
+              <input
+                type="text"
+                id="pr"
+                value={pr}
+                onChange={(e) => setPr(e.target.value)}
+                className="mt-1 p-2 border rounded-lg w-full"
+              />
+            </div>
+
+            {/* Button Container */}
+            <div className="flex justify-end mt-4 space-x-4">
+              <button
+                type="button"
+                onClick={() => setIsMedCert(false)}  // Close form modal
+                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+
+    {/* PDF Preview Modal */}
+    {pdfPreviewUrl && (
+        pdfPreviewUrl && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-2xl max-w-5xl overflow-y-auto flex flex-col justify-between relative">
+              <h2 className="text-xl font-semibold mb-4">PDF Preview</h2>
+              <div className="mb-4">
+                {/* Display PDF in an iframe */}
+                <iframe
+                  src={pdfPreviewUrl}
+                  width="100%"
+                  height="400px"
+                  title="PDF Preview"
+                  frameBorder="0"
+                ></iframe>
+              </div>
+              <div className="flex justify-end mt-4 space-x-4">
+                <button
+                  onClick={closePreview}
+                  className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                >
+                  Close Preview
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+
+{/* ////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
     </div>
   );
 }
