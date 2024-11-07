@@ -101,37 +101,6 @@ function PhysicalTherapy() {
     setIsNewTherapyRecordModalOpen(true); // Open the modal
   };
   
-
-  const handleGenerateReport = () => {
-    const pdf = new jsPDF();
-  
-    // Set the title of the report
-    pdf.text("Physical Therapy Report", 20, 20);
-  
-    // Table headers
-    const headers = ["Date", "Diagnosis","SOAP Summary"];
-  
-    // Use filteredPhysicalTherapyRecords instead of currentPhysicalTherapyRecords
-    const tableData = filteredPhysicalTherapyRecords.map((record) => [
-      new Date(record.isCreatedAt).toLocaleString(),
-      record.Diagnosis,
-      record.SOAPSummary,
-      
-    ]);
-  
-    // Generate the table using autoTable
-    pdf.autoTable({
-      head: [headers],
-      body: tableData,
-      startY: 30, // Start table below the title
-    });
-  
-    // Save the PDF with a dynamic filename
-    pdf.save("Physical_Therapy_Report.pdf");
-  };
-  
-
-  
   useEffect(() => {
     fetchPhysicalTherapyRecords(); // Fetch physical therapy records on component mount
   }, []);
@@ -197,6 +166,139 @@ function PhysicalTherapy() {
     setShowFullList(!showFullList);
   };
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
+  const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false); 
+  
+  const calculateAge = (birthdate) => {
+    const today = new Date();
+    const birthDate = new Date(birthdate);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+  
+    return age;
+  };
+
+  const handleGenerateReport = () => {
+    if (!selectedRecord) {
+      alert("No record selected for report generation");
+      return;
+    }
+  
+    const pdf = new jsPDF(); 
+    pdf.setFont("times", "normal");
+    pdf.setFontSize(12);
+  
+    const margin = 14;
+    const docWidth = 210; 
+  
+    let yPosition = margin;
+  
+    // pdf.addImage("/ub.png", "PNG", margin, yPosition, 30, 30);
+    // yPosition += 30;
+  
+    pdf.setFont("times", "bold");
+    const textWidth = pdf.getTextWidth("SCHOOL OF NATURAL SCIENCES");
+    pdf.text("SCHOOL OF NATURAL SCIENCES", (docWidth - textWidth) / 2, yPosition);
+    yPosition += 5;
+  
+    const addressWidth = pdf.getTextWidth("General Luna Road, Baguio City Philippines 2600");
+    pdf.text("General Luna Road, Baguio City Philippines 2600", (docWidth - addressWidth) / 2, yPosition);
+    yPosition += 1;
+  
+    pdf.setLineWidth(0.5);
+    pdf.line(margin, yPosition + 3, docWidth - margin, yPosition + 3);
+    yPosition += 2; 
+    pdf.setLineWidth(0.5);
+    pdf.line(margin, yPosition + 3, docWidth - margin, yPosition + 3);
+    yPosition += 8; 
+
+    pdf.setFont("times", "normal").setFontSize(10);
+    const text = "Website: www.ubaguio.edu                   Telefax No.: (074) 442-3071                   E-mail Address: sns@ubaguio.edu";
+    pdf.text(text, margin + 10, yPosition);
+    yPosition += 8;
+
+    pdf.setFont("times", "bold").setFontSize(10);
+    const daily = pdf.getTextWidth("DAILY TREATMENT NOTES");
+    pdf.text("DAILY TREATMENT NOTES", (docWidth - daily) / 2, yPosition);
+    yPosition += 8;
+  
+    const age = calculateAge(selectedRecord.birthdate);
+    
+    const patientName = `${selectedRecord.patient?.firstname} ${selectedRecord.patient?.lastname}`;
+    const diagnosis = selectedRecord.Diagnosis || "No diagnosis provided";
+    const precautions = selectedRecord.Precautions || "No precautions available";
+    const soapSummary = selectedRecord.SOAPSummary || "No SOAP summary available";
+  
+    pdf.setFont("times", "bold").setFontSize(12);
+
+    pdf.text("Patient:", margin, yPosition); 
+    pdf.setFont("times", "normal");
+    pdf.text(`${patientName}`, margin + 30, yPosition);
+    yPosition += 5;
+
+    pdf.setFont("times", "bold");
+    pdf.text("Age:", margin, yPosition); 
+    pdf.setFont("times", "normal");
+    pdf.text(`${age}`, margin + 30, yPosition);
+    yPosition += 5;
+
+    pdf.setFont("times", "bold");
+    pdf.text("Diagnosis:", margin, yPosition); 
+    pdf.setFont("times", "normal");
+    pdf.text(`${diagnosis}`, margin + 30, yPosition);
+    yPosition += 5;
+
+    pdf.setFont("times", "bold");
+    pdf.text("Precautions:", margin, yPosition); 
+    pdf.setFont("times", "normal");
+    pdf.text(`${precautions}`, margin + 30, yPosition);
+    yPosition += 5;
+
+  
+    const tableData = [
+      ["Date", "SOAP Summary"], 
+      [
+        new Date(selectedRecord.isCreatedAt).toLocaleDateString(), 
+        selectedRecord.SOAPSummary || "No summary available", 
+      ],
+    ];
+
+    pdf.autoTable({
+      startY: yPosition + 10, 
+      head: tableData.slice(0, 1),
+      body: tableData.slice(1), 
+      theme: "grid",
+      styles: {
+        fontSize: 12,
+        font: "times",
+        cellPadding: 3,
+        textColor: [0, 0, 0],
+      },
+      headStyles: {
+        fillColor: [169, 169, 169],
+        textColor: [0, 0, 0],
+        fontSize: 12,
+        font: "times",
+      },
+      columnStyles: {
+        0: { cellWidth: 40 },
+        1: { cellWidth: 150 },
+      },
+    });
+
+    const pdfBlob = pdf.output("blob");
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    setPdfPreviewUrl(pdfUrl);
+
+    setIsPdfPreviewOpen(true);
+  };
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   return (
     <div>
       <Navbar />
@@ -214,14 +316,6 @@ function PhysicalTherapy() {
           </p>
 
           <div className="flex items-center space-x-4">
-            <div className="relative">
-            <button
-              className="bg-custom-red text-white py-2 px-4 rounded-lg w-full"
-              onClick={handleGenerateReport}
-              >
-              Generate Report
-            </button>
-            </div>
             <div className="relative">
               <input
                 type="text"
@@ -479,7 +573,13 @@ function PhysicalTherapy() {
               </table>
             </div>
 
-            <div className="flex justify-end mt-4">
+            <div className="flex justify-between mt-4">
+              <button
+                className="bg-custom-red text-white py-1 px-3 rounded-lg w-auto"
+                onClick={handleGenerateReport}
+              >
+                Print S.O.A.P. Summary
+              </button>
               <button
                 className="bg-custom-red text-white px-4 py-2 rounded-lg"
                 onClick={closeViewRecordModal} // Close the modal
@@ -487,10 +587,29 @@ function PhysicalTherapy() {
                 Close
               </button>
             </div>
+
           </div>
         </div>
       )}
       </div>
+
+      {pdfPreviewUrl && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-4xl max-h-[80vh] overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4">PDF Preview</h2>
+            <embed src={pdfPreviewUrl} type="application/pdf" width="100%" height="500px" />
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-gray-500 text-white py-1 px-3 rounded-lg ml-4"
+                onClick={() => setPdfPreviewUrl(null)} // Close the preview
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

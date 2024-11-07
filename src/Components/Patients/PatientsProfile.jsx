@@ -581,7 +581,6 @@ function PatientsProfile() {
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
 
-    // Adjust age if the birthday hasn't occurred this year yet
     if (
       monthDiff < 0 ||
       (monthDiff === 0 && today.getDate() < birthDate.getDate())
@@ -1675,23 +1674,20 @@ function PatientsProfile() {
       const today = new Date();
       const formattedDate = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
     
-      // Set margins and document size (8.5 x 11 inches = 612 x 792 points)
-      const margin = 0.5 * 72;  // 0.5 inches to points (36 points)
-      const docWidth = 612;  // 8.5 inches in points
-      const docHeight = 792; // 11 inches in points
+      const margin = 0.5 * 72; 
+      const docWidth = 612; 
+      const docHeight = 792; 
     
       const doc = new jsPDF({
         unit: 'pt',
         format: [docWidth, docHeight],
       });
     
-      // Set font to Times New Roman and font size to 12
       doc.setFont("times", "normal");
       doc.setFontSize(12);
     
-      let yPos = margin + 20; // Starting y-position just after top margin
+      let yPos = margin + 20;
     
-      // Header Section: University of Baguio, Medical Clinic, etc.
       doc.setFont("times", "bold");
       doc.text("UNIVERSITY OF BAGUIO", docWidth / 2, yPos, { align: 'center' });
       yPos += 20;
@@ -1700,46 +1696,40 @@ function PatientsProfile() {
       doc.text("Gen. Luna Rd., Baguio City", docWidth / 2, yPos, { align: 'center' });
       yPos += 20;
     
-      // Date (right aligned)
       doc.text(`Date: ${formattedDate}`, docWidth - margin, yPos, { align: 'right' });
       yPos += 40;
     
-      // Main Title: Health Certificate (centered)
       doc.setFont("times", "bold");
       doc.text("HEALTH CERTIFICATE", docWidth / 2, yPos, { align: 'center' });
       yPos += 20;
     
-      // Add a tab before the first paragraph: simulate tab by adding spaces
-      const tabSpace = '    '; // Four spaces to simulate a tab
+      const tabSpace = '    '; 
       doc.setFont("times", "bold");
       doc.text("TO WHOM IT MAY CONCERN:", margin, yPos);
       yPos += 20;
     
       doc.setFont("times", "normal");
       const longText = `${tabSpace}${tabSpace}This is to certify that ${patient.firstname} ${patient.lastname} has been examined and found to be physically and mentally fit upon examination.`;
-      const maxWidth = docWidth - 2 * margin;  // Max width for the text to wrap
+      const maxWidth = docWidth - 2 * margin; 
     
       const wrappedText = doc.splitTextToSize(longText, maxWidth);
     
       wrappedText.forEach(line => {
         doc.text(line, margin, yPos);
-        yPos += 20; // Move down for next line
+        yPos += 20;
       });
     
-      // Ensure the gap is not too big
-      yPos += 10; // Adjust the spacing if needed
+      yPos += 10; 
     
-      // Add the second paragraph with tab space
       doc.text(`${tabSpace}${tabSpace}This certification is issued upon the request of the above person for any purpose it may serve.`, margin, yPos);
       yPos += 30;
     
-      // Insert dynamic values for Remarks, BP, Pulse Rate
       const printText = (label, value, yPos) => {
         doc.setFont("times", "bold");
         doc.text(label, margin, yPos);
         doc.setFont("times", "normal");
         doc.text(value, margin + 80, yPos);
-        return yPos + 20; // Return new y-position after printing
+        return yPos + 20; 
       };
     
       yPos = printText("Remarks:", remarks, yPos);
@@ -1753,35 +1743,28 @@ function PatientsProfile() {
     const fullName = `${userData.firstname} ${userData.lastname} M.D.`;
     doc.text(fullName, docWidth - margin - 80, yPos, { align: 'right' });
 
-    const textWidth = doc.getTextWidth(fullName);  // Get width of the text
-    const underlineY = yPos + 2; // Position for the underline (just below the text)
+    const textWidth = doc.getTextWidth(fullName);  
+    const underlineY = yPos + 2; 
 
-    // Draw the line (underline)
-    doc.line(docWidth - margin - 80 - textWidth, underlineY, docWidth - margin - 80, underlineY);  // Start and end of the underline
+    doc.line(docWidth - margin - 80 - textWidth, underlineY, docWidth - margin - 80, underlineY); 
 
-    // Step 3: Add "University Physician" below the underlined text
-    yPos += 10;  // Move down to a new position
+    yPos += 10;  
     doc.text('University Physician', docWidth - margin - 80, yPos, { align: 'right' });
 
-
-      // Check if text exceeds available space (720 points) and add new page if needed
       if (yPos + 50 > docHeight - margin) {
-        doc.addPage();  // Add a new page if there's overflow
-        yPos = margin + 20;  // Reset yPos for the new page
+        doc.addPage(); 
+        yPos = margin + 20;  
       }
+    const pdfBlob = doc.output('blob');
+    const pdfUrl = URL.createObjectURL(pdfBlob);
     
-      // Generate PDF and create object URL for preview
-      const pdfBlob = doc.output('blob');
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-    
-      // Set the preview URL and switch to PDF preview mode
       setPdfPreviewUrl(pdfUrl);
       setIsMedCert(false); // Hide form and show the PDF preview
     };
                           
   const closePreview = () => {
-      setPdfPreviewUrl(null);  // Clear the preview URL
-      setIsMedCert(true);       // Optionally reopen modal/form
+      setPdfPreviewUrl(null);
+      setIsMedCert(true); 
     };
   
     ////////////////////////////////////////////////////////////////////////////////////////////////////////  
