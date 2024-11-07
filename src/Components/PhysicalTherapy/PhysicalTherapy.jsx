@@ -1,4 +1,4 @@
-import React, { useState, useEffect ,useRef} from "react";
+import React, { useState, useEffect ,useRef, useCallback} from "react";
 import { BiSearch } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
@@ -215,12 +215,12 @@ function PhysicalTherapy() {
 
           <div className="flex items-center space-x-4">
             <div className="relative">
-            <button
+            {/* <button
               className="bg-custom-red text-white py-2 px-4 rounded-lg w-full"
               onClick={handleGenerateReport}
               >
               Generate Report
-            </button>
+            </button> */}
             </div>
             <div className="relative">
               <input
@@ -248,7 +248,7 @@ function PhysicalTherapy() {
                 <thead>
                   <tr className="text-left text-gray-600">
                     <th className="py-3 w-1/4">Patient Info</th>
-                    <th className="py-3 w-1/4">Diagnosis</th>
+                    <th className="py-3 w-1/4">Tentative Diagnosis</th>
                     <th className="py-3 w-1/4">SOAP Summary</th>
                     <th className="py-3 w-1/12"></th>
                   </tr>
@@ -457,9 +457,11 @@ function PhysicalTherapy() {
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/2">
             <h2 className="text-xl font-semibold mb-4">Record Details</h2>
             <p><strong>Patient Info:</strong> {selectedRecord.patient?.firstname} {selectedRecord.patient?.lastname}</p>
-            <p><strong>Diagnosis:</strong> {selectedRecord.Diagnosis}</p>
-            <p><strong>Gender:</strong> {selectedRecord.patient?.gender}</p>
-            <p><strong>Precautions:</strong> {selectedRecord.Precautions}</p>
+            <p><strong>Tentative Diagnosis:</strong> {selectedRecord.Diagnosis}</p>
+            <p><strong>Chief Complaints:</strong> {selectedRecord.ChiefComplaints}</p>
+            <p><strong>History of Present Illness:</strong> {selectedRecord.HistoryOfPresentIllness}</p>
+            <p><strong>Gender:</strong> {selectedRecord.patient?.sex}</p>
+            {/* <p><strong>Precautions:</strong> {selectedRecord.Precautions}</p> */}
 
             {/* Date and SOAP Summary Table */}
             <div className="mt-4">
