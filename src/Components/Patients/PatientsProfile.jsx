@@ -1642,6 +1642,11 @@ function PatientsProfile() {
     }
   };
 
+  const [isEditingTreatment, setIsEditingTreatment] = useState(false);
+  const [isEditingDiagnosis, setIsEditingDiagnosis] = useState(false);
+  const [editingTreatmentIndex, setEditingTreatmentIndex] = useState(null);
+  const [editingDiagnosisIndex, setEditingDiagnosisIndex] = useState(null);
+
   return (
     <div>
       <Navbar />
@@ -6610,7 +6615,7 @@ function PatientsProfile() {
               <div className="mb-4 w-full">
                 <div className="flex justify-between items-center">
                   <div className="block text-sm font-medium">Treatments</div>
-                  {role === "doctor" && (
+                  {role === "doctor" && !selectedRecord.treatments && (
                     <button
                       className="text-sm text-custom-red underline italic hover:text-custom-red focus:outline-none"
                       onClick={() => setIsTreatmentModalOpen(true)}
@@ -6651,6 +6656,19 @@ function PatientsProfile() {
                               {treatment}
                             </p>
                           </div>
+                          {role === "doctor" && (
+                            <button
+                              className="text-custom-red"
+                              onClick={() => {
+                                setIsTreatmentModalOpen(true);
+                                setNewTreatment(treatment);
+                                setIsEditingTreatment(true);
+                                setEditingTreatmentIndex(index);
+                              }}
+                            >
+                              Edit
+                            </button>
+                          )}
                         </div>
                       ))}
                   </div>
@@ -6662,7 +6680,7 @@ function PatientsProfile() {
               <div className="mb-4 w-full">
                 <div className="flex justify-between items-center">
                   <div className="block text-sm font-medium">Diagnosis</div>
-                  {role === "doctor" && (
+                  {role === "doctor" && !selectedRecord.diagnosis && (
                     <button
                       className="text-sm text-custom-red underline italic hover:text-custom-red focus:outline-none"
                       onClick={() => setIsDiagnosisModalOpen(true)}
@@ -6692,6 +6710,19 @@ function PatientsProfile() {
                               {diagnosis}
                             </p>
                           </div>
+                          {role === "doctor" && (
+                            <button
+                              className="text-custom-red"
+                              onClick={() => {
+                                setIsDiagnosisModalOpen(true);
+                                setNewDiagnosis(diagnosis);
+                                setIsEditingDiagnosis(true);
+                                setEditingDiagnosisIndex(index);
+                              }}
+                            >
+                              Edit
+                            </button>
+                          )}
                         </div>
                       ))}
                   </div>
@@ -8145,50 +8176,64 @@ function PatientsProfile() {
           </div>
         </div>
       )}
-      {/* { isModalOpen && selectedPackage && (
-        <div>
-          {renderLabTests("Blood Chemistry", selectedPackage.bloodChemistry)}
-          {renderLabTests("Hematology", selectedPackage.hematology)}
-          {renderLabTests("Clinical Microscopy & Parasitology", selectedPackage.clinicalMicroscopyParasitology)}
-          {renderLabTests("Blood Banking & Serology", selectedPackage.bloodBankingSerology)}
-          {renderLabTests("Microbiology", selectedPackage.microbiology)}
-          <p className="font-semibold">X-ray</p>
-        </div>
-      )} */}
       {isTreatmentModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
             <h2 className="text-lg font-bold mb-4 text-center">
-              Add Treatment
+              {isEditingTreatment ? "Edit Treatment" : "Add Treatment"}
             </h2>
             <input
               type="text"
               className="border rounded-lg w-full p-2 mb-4"
               value={newTreatment}
               onChange={(e) => setNewTreatment(e.target.value)}
-              placeholder="Enter new treatment"
+              placeholder="Enter treatment"
             />
             <div className="flex justify-end space-x-3">
               <button
                 className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border transition duration-200"
-                onClick={() => setIsTreatmentModalOpen(false)}
+                onClick={() => {
+                  setIsTreatmentModalOpen(false);
+                  setNewTreatment("");
+                  setIsEditingTreatment(false);
+                  setEditingTreatmentIndex(null);
+                }}
               >
                 Cancel
               </button>
               <button
                 className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
                 onClick={() => {
-                  setSelectedRecord({
-                    ...selectedRecord,
-                    treatments: selectedRecord.treatments
-                      ? `${selectedRecord.treatments}, ${newTreatment}`
-                      : newTreatment,
-                  });
+                  if (isEditingTreatment) {
+                    // Edit existing treatment
+                    const updatedTreatments = selectedRecord.treatments
+                      .split(", ")
+                      .map((treatment, index) =>
+                        index === editingTreatmentIndex
+                          ? newTreatment
+                          : treatment
+                      )
+                      .join(", ");
+                    setSelectedRecord({
+                      ...selectedRecord,
+                      treatments: updatedTreatments,
+                    });
+                  } else {
+                    // Add new treatment
+                    setSelectedRecord({
+                      ...selectedRecord,
+                      treatments: selectedRecord.treatments
+                        ? `${selectedRecord.treatments}, ${newTreatment}`
+                        : newTreatment,
+                    });
+                  }
                   setIsTreatmentModalOpen(false);
                   setNewTreatment("");
+                  setIsEditingTreatment(false);
+                  setEditingTreatmentIndex(null);
                 }}
               >
-                Add
+                {isEditingTreatment ? "Save" : "Add"}
               </button>
             </div>
           </div>
@@ -8199,35 +8244,59 @@ function PatientsProfile() {
       {isDiagnosisModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-bold mb-4">Add Diagnosis</h2>
+            <h2 className="text-lg font-bold mb-4">
+              {isEditingDiagnosis ? "Edit Diagnosis" : "Add Diagnosis"}
+            </h2>
             <input
               type="text"
               className="border rounded-lg w-full p-2 mb-4"
               value={newDiagnosis}
               onChange={(e) => setNewDiagnosis(e.target.value)}
-              placeholder="Enter new diagnosis"
+              placeholder="Enter diagnosis"
             />
             <div className="flex justify-end space-x-3">
               <button
                 className="bg-gray-500 text-white py-2 px-4 rounded-lg"
-                onClick={() => setIsDiagnosisModalOpen(false)}
+                onClick={() => {
+                  setIsDiagnosisModalOpen(false);
+                  setNewDiagnosis("");
+                  setIsEditingDiagnosis(false);
+                  setEditingDiagnosisIndex(null);
+                }}
               >
                 Cancel
               </button>
               <button
                 className="bg-custom-red text-white py-2 px-4 rounded-lg"
                 onClick={() => {
-                  setSelectedRecord({
-                    ...selectedRecord,
-                    diagnosis: selectedRecord.diagnosis
-                      ? `${selectedRecord.diagnosis}, ${newDiagnosis}`
-                      : newDiagnosis,
-                  });
+                  if (isEditingDiagnosis) {
+                    // Edit existing diagnosis
+                    const updatedDiagnosis = selectedRecord.diagnosis
+                      .split(", ")
+                      .map((diag, index) =>
+                        index === editingDiagnosisIndex ? newDiagnosis : diag
+                      )
+                      .join(", ");
+                    setSelectedRecord({
+                      ...selectedRecord,
+                      diagnosis: updatedDiagnosis,
+                    });
+                  } else {
+                    // Add new diagnosis
+                    setSelectedRecord({
+                      ...selectedRecord,
+                      diagnosis: selectedRecord.diagnosis
+                        ? `${selectedRecord.diagnosis}, ${newDiagnosis}`
+                        : newDiagnosis,
+                    });
+                  }
                   setIsDiagnosisModalOpen(false);
-                  setNewDiagnosis(""); // Clear the diagnosis input after adding
+                  setNewDiagnosis("");
+                  setIsEditingDiagnosis(false);
+                  setEditingDiagnosisIndex(null);
                 }}
               >
-                Add
+                {isEditingDiagnosis ? "Save" : "Add"}
               </button>
             </div>
           </div>
