@@ -1375,7 +1375,7 @@ app.put(
   "/api/xrayResults/:id",
   uploadd.single("imageFile"),
   async (req, res) => {
-    const { patientId, clinicId, ORNumber, XrayNo, diagnosis } = req.body;
+    const { patientId, clinicId, ORNumber, XrayNo, diagnosis ,xrayFindings} = req.body;
     const imageFile = req.file ? req.file.filename : ""; // Check if a new file was uploaded
 
     try {
@@ -1392,7 +1392,7 @@ app.put(
       existingRecord.ORNumber = ORNumber; // Update ORNumber here
       existingRecord.XrayNo = XrayNo;
       existingRecord.diagnosis = diagnosis || "";
-
+      existingRecord.xrayFindings = xrayFindings || "";
       // Only update imageFile if a new image is uploaded
       if (imageFile) {
         const imageUrl = `http://localhost:3001/xrayResultUpload/${imageFile}`;

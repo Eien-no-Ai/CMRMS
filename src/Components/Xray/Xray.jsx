@@ -24,6 +24,7 @@ function Xray() {
     courseDept: "",
     patientType: "",
     diagnosis: "",
+    xrayFindings: "", // New state for X-ray findings
     imageFile: "",
   });
   const fetchXrayRecords = useCallback(() => {
@@ -90,6 +91,7 @@ function Xray() {
       courseDept: record.patient.course || record.patient.position,
       patientType: record.patient.patientType,
       diagnosis: record.diagnosis || "", // If there's an existing diagnosis
+      xrayFindings: record.xrayFindings || "", // If there's an existing xrayFindings
       imageFile: record.imageFile || "", // If there's an existing image file
     });
     setIsModalOpen(true); // Open the modal
@@ -109,6 +111,7 @@ function Xray() {
     formDataToSubmit.append("ORNumber", formData.ORNumber);
     formDataToSubmit.append("XrayNo", formData.XrayNo);
     formDataToSubmit.append("diagnosis", formData.diagnosis);
+    formDataToSubmit.append("xrayFindings", formData.xrayFindings);
     formDataToSubmit.append("patientId", selectedRecord.patient._id);
     formDataToSubmit.append("clinicId", selectedRecord.clinicId);
 
@@ -578,6 +581,23 @@ function Xray() {
                           rows="4"
                           placeholder="Enter a diagnosis..."
                           value={formData.diagnosis}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    )}
+
+                    {/* Diagnosis Input - only visible if userRole is 'dentist' */}
+                    {userRole === "radiologic technologist" && (
+                      <div className="mb-4">
+                        <label className="block text-gray-700">
+                          X-ray Description
+                        </label>
+                        <textarea
+                          name="xrayFindings"
+                          className="w-full px-3 py-2 border rounded"
+                          rows="4"
+                          placeholder="Enter a diagnosis..."
+                          value={formData.xrayFindings}
                           onChange={handleInputChange}
                         />
                       </div>

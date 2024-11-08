@@ -47,6 +47,7 @@ function PatientsProfile() {
     xrayResult: "",
     xrayType: "",
     xrayDescription: "",
+    xrayFindings: "",
   });
   const [role, setRole] = useState(null); // Store the user role
   // Inside your component definition
@@ -6102,6 +6103,22 @@ function PatientsProfile() {
                                         readOnly
                                       />
                                     </div>
+
+                                    {/* X-ray Findings */}
+                                    <div className="w-full">
+                                      <label className="block text-gray-700">
+                                        Findings
+                                      </label>
+                                      <textarea
+                                        name="xrayFindings"
+                                        className="w-full px-3 py-2 border rounded"
+                                        rows="4"
+                                        placeholder="Enter the findings..."
+                                        value={xrayResult.xrayFindings || ""}
+                                        readOnly
+                                      />
+                                      </div>
+
                                   </div>
                                 </form>
                               </div>
@@ -6321,11 +6338,25 @@ function PatientsProfile() {
                         name="diagnosis"
                         className="w-full px-3 py-2 border rounded"
                         rows="4"
-                        placeholder="Enter an interpretation..."
+                        placeholder="No Interpretation available."
                         value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].diagnosis || "" : ""}
                         readOnly
                       />
                     </div>
+
+                    {/*X-ray Findings*/}
+                    <div className="w-full">
+                      <label className="block text-gray-700">X-ray Findings</label>
+                      <textarea
+                        name="xrayFindings"
+                        className="w-full px-3 py-2 border rounded"
+                        rows="4"
+                        placeholder="No X-ray findings available."
+                        value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].xrayFindings || "" : ""}
+                        required
+                      />
+                      </div>
+
                   </div>
                 </div>
               </form>
@@ -8005,7 +8036,7 @@ function PatientsProfile() {
                         {/* Diagnosis (Interpretation) */}
                         <div className="w-full">
                           <label className="block text-gray-700">
-                            Interpretation
+                            Description
                           </label>
                           <textarea
                             name="diagnosis"

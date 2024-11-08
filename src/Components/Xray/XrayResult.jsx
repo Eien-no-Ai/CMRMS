@@ -26,6 +26,7 @@ function XrayResult() {
     courseDept: "",
     patientType: "",
     diagnosis: "",
+    xrayFindings: "",
     imageFile: "",
   });
 
@@ -93,6 +94,7 @@ function XrayResult() {
       courseDept: record.patient.course || record.patient.position,
       patientType: record.patient.patientType,
       diagnosis: record.diagnosis || "", // If there's an existing diagnosis
+      xrayFindings: record.xrayFindings || "", // If there's an existing xrayFindings
       imageFile: record.imageFile || "", // If there's an existing image file
     });
     setIsModalOpen(true); // Open the modal
@@ -112,6 +114,7 @@ function XrayResult() {
     formDataToSubmit.append("ORNumber", formData.ORNumber);
     formDataToSubmit.append("XrayNo", formData.XrayNo);
     formDataToSubmit.append("diagnosis", formData.diagnosis);
+    formDataToSubmit.append("xrayFindings", formData.xrayFindings);
     formDataToSubmit.append("patientId", selectedRecord.patient._id);
     formDataToSubmit.append("clinicId", selectedRecord.clinicId);
 
@@ -499,6 +502,20 @@ function XrayResult() {
                         readOnly={userRole === "radiologic technologist"}
                       />
                     </div>
+
+                    {/* X-ray Findings */}
+                    <div className="w-full mt-4">
+                      <label className="block text-gray-700">X-ray Description</label>
+                      <textarea
+                        name="xrayFindings"
+                        className="w-full px-3 py-2 border rounded"
+                        rows="4"
+                        // placeholder="Enter findings..."
+                        value={formData.xrayFindings}
+                        onChange={handleInputChange}
+                        readOnly={userRole === "radiologist"}
+                      />
+                      </div>
                   </div>
                 </form>
               </div>

@@ -13,6 +13,7 @@ const XraySchema = new mongoose.Schema({
   XrayNo: { type: String, default: "" },
   xrayType: { type: String, default: "" },
   xrayDescription: { type: String, default: "" },
+  xrayFindings: { type: String, default: "" },
   xrayResult: { type: String, default: "" },
   isCreatedAt: { type: Date, default: Date.now },
   diagnosis: { type: String, default: "" },
