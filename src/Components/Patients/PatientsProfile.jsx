@@ -6,6 +6,7 @@ import { FaXRay } from "react-icons/fa6";
 import { SlChemistry } from "react-icons/sl";
 import { GiBiceps } from "react-icons/gi";
 import { BiChevronDown } from "react-icons/bi";
+import { MdKeyboardArrowDown } from "react-icons/md";
 
 function PatientsProfile() {
   const [selectedXray, setSelectedXray] = useState(null);
@@ -1642,6 +1643,30 @@ function PatientsProfile() {
     }
   };
 
+  const [isEditingTreatment, setIsEditingTreatment] = useState(false);
+  const [isEditingDiagnosis, setIsEditingDiagnosis] = useState(false);
+
+  const [editingTreatmentIndex, setEditingTreatmentIndex] = useState(null);
+  const [editingDiagnosisIndex, setEditingDiagnosisIndex] = useState(null);
+
+  const [isComplaintsModalOpen, setIsComplaintsModalOpen] = useState(false);
+  const [newComplaint, setNewComplaint] = useState("");
+
+  // Function to handle opening the complaint edit modal
+  const handleEditComplaint = () => {
+    setNewComplaint(selectedRecord.complaints); // Set current complaint text in the modal
+    setIsComplaintsModalOpen(true);
+  };
+
+  // Function to handle saving the edited complaint
+  const handleSaveComplaint = () => {
+    setSelectedRecord((prevRecord) => ({
+      ...prevRecord,
+      complaints: newComplaint,
+    }));
+    setIsComplaintsModalOpen(false);
+  };
+
   return (
     <div>
       <Navbar />
@@ -1696,10 +1721,15 @@ function PatientsProfile() {
                           </button> */}
                         <div className="relative" ref={requestDropdownRef}>
                           <button
-                            className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
+                            className="mt-4 bg-custom-red text-white py-2 px-2 rounded-lg w-full flex items-center justify-between"
                             onClick={handleMakeRequest}
                           >
                             New Transaction
+                            <MdKeyboardArrowDown
+                              className={`h-5 w-5 transition-transform duration-200 ${
+                                showRequestOptions ? "rotate-180" : ""
+                              }`}
+                            />
                           </button>
                           {/* Request options */}
                           {showRequestOptions && (
@@ -1721,10 +1751,15 @@ function PatientsProfile() {
                         </div>
                         <div className="relative" ref={packageDropdownRef}>
                           <button
-                            className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
+                            className="mt-4 bg-custom-red text-white py-2 px-9 rounded-lg w-full flex items-center justify-between"
                             onClick={handleAddPackage}
                           >
                             Packages
+                            <MdKeyboardArrowDown
+                              className={`h-5 w-5 transition-transform duration-200 ${
+                                showPackageOptions ? "rotate-180" : ""
+                              }`}
+                            />
                           </button>
                           {showPackageOptions && (
                             <div className="absolute mt-2 w-full bg-white border rounded-lg shadow-lg">
@@ -6554,16 +6589,38 @@ function PatientsProfile() {
           </div>
         </div>
       )}
-      {isViewModalOpen && selectedRecord && (
+       {isViewModalOpen && selectedRecord && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col">
-            <div className="mb-4">
-              <h2 className="text-lg font-bold">{selectedRecord.complaints}</h2>
-              <p className="text-gray-500">
-                {selectedRecord?.isCreatedAt
-                  ? new Date(selectedRecord.isCreatedAt).toLocaleString()
-                  : "No date available"}
-              </p>
+            <div className="mb-4 flex items-center justify-between">
+              {/* Complaint Text */}
+              <div>
+                <h2 className="text-lg font-bold">
+                  {selectedRecord.complaints || "No complaints available"}
+                </h2>
+                <p className="text-gray-500">
+                  {selectedRecord?.isCreatedAt
+                    ? new Date(selectedRecord.isCreatedAt).toLocaleString()
+                    : "No date available"}
+                </p>
+              </div>
+
+              {/* Edit Button */}
+              {role === "nurse" &&
+                !selectedRecord.treatments &&
+                !selectedRecord.diagnosis && (
+                  <button
+                    className="text-sm text-custom-red underline italic hover:text-custom-red focus:outline-none"
+                    onClick={handleEditComplaint}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: "0",
+                    }}
+                  >
+                    Edit
+                  </button>
+                )}
             </div>
 
             <div className="flex-grow">
@@ -6597,8 +6654,8 @@ function PatientsProfile() {
                   </div>
                 )}
 
-                {selectedRecord.treatments &&
-                  selectedRecord.treatments.length > 0 ? (
+{selectedRecord.treatments &&
+                selectedRecord.treatments.length > 0 ? (
                   <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                     {selectedRecord.treatments
                       .split(", ")
@@ -6612,6 +6669,21 @@ function PatientsProfile() {
                               {treatment}
                             </p>
                           </div>
+                          {role === "doctor" &&
+                            !selectedLabTests.length && // Check if lab records are empty
+                            !selectedXrayRecords.length && ( // Check if x-ray records are empty
+                              <button
+                                className="text-custom-red"
+                                onClick={() => {
+                                  setIsTreatmentModalOpen(true);
+                                  setNewTreatment(treatment);
+                                  setIsEditingTreatment(true);
+                                  setEditingTreatmentIndex(index);
+                                }}
+                              >
+                                Edit
+                              </button>
+                            )}
                         </div>
                       ))}
                   </div>
@@ -6639,7 +6711,7 @@ function PatientsProfile() {
                 </div>
 
                 {selectedRecord.diagnosis &&
-                  selectedRecord.diagnosis.length > 0 ? (
+                selectedRecord.diagnosis.length > 0 ? (
                   <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                     {selectedRecord.diagnosis
                       .split(", ")
@@ -6653,6 +6725,21 @@ function PatientsProfile() {
                               {diagnosis}
                             </p>
                           </div>
+                          {role === "doctor" &&
+                            !selectedLabTests.length && // Check if lab records are empty
+                            !selectedXrayRecords.length && ( // Check if x-ray records are empty
+                              <button
+                                className="text-custom-red"
+                                onClick={() => {
+                                  setIsDiagnosisModalOpen(true);
+                                  setNewDiagnosis(diagnosis);
+                                  setIsEditingDiagnosis(true);
+                                  setEditingDiagnosisIndex(index);
+                                }}
+                              >
+                                Edit
+                              </button>
+                            )}
                         </div>
                       ))}
                   </div>
@@ -8124,79 +8211,156 @@ function PatientsProfile() {
           <p className="font-semibold">X-ray</p>
         </div>
       )} */}
-      {isTreatmentModalOpen && (
+    {isTreatmentModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
             <h2 className="text-lg font-bold mb-4 text-center">
-              Add Treatment
+              {isEditingTreatment ? "Edit Treatment" : "Add Treatment"}
             </h2>
             <input
               type="text"
               className="border rounded-lg w-full p-2 mb-4"
               value={newTreatment}
               onChange={(e) => setNewTreatment(e.target.value)}
-              placeholder="Enter new treatment"
+              placeholder="Enter treatment"
             />
             <div className="flex justify-end space-x-3">
               <button
                 className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border transition duration-200"
-                onClick={() => setIsTreatmentModalOpen(false)}
+                onClick={() => {
+                  setIsTreatmentModalOpen(false);
+                  setNewTreatment("");
+                  setIsEditingTreatment(false);
+                  setEditingTreatmentIndex(null);
+                }}
               >
                 Cancel
               </button>
               <button
                 className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
                 onClick={() => {
-                  setSelectedRecord({
-                    ...selectedRecord,
-                    treatments: selectedRecord.treatments
-                      ? `${selectedRecord.treatments}, ${newTreatment}`
-                      : newTreatment,
-                  });
+                  if (isEditingTreatment) {
+                    // Edit existing treatment
+                    const updatedTreatments = selectedRecord.treatments
+                      .split(", ")
+                      .map((treatment, index) =>
+                        index === editingTreatmentIndex
+                          ? newTreatment
+                          : treatment
+                      )
+                      .join(", ");
+                    setSelectedRecord({
+                      ...selectedRecord,
+                      treatments: updatedTreatments,
+                    });
+                  } else {
+                    // Add new treatment
+                    setSelectedRecord({
+                      ...selectedRecord,
+                      treatments: selectedRecord.treatments
+                        ? `${selectedRecord.treatments}, ${newTreatment}`
+                        : newTreatment,
+                    });
+                  }
                   setIsTreatmentModalOpen(false);
                   setNewTreatment("");
+                  setIsEditingTreatment(false);
+                  setEditingTreatmentIndex(null);
                 }}
               >
-                Add
+                {isEditingTreatment ? "Save" : "Add"}
               </button>
             </div>
           </div>
         </div>
       )}
 
+{isComplaintsModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-bold mb-4 text-center">
+              Edit Complaint
+            </h2>
+            <textarea
+              className="border rounded-lg w-full p-2 mb-4"
+              value={newComplaint}
+              onChange={(e) => setNewComplaint(e.target.value)}
+              placeholder="Enter updated complaint"
+            />
+            <div className="flex justify-end space-x-3">
+              <button
+                className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border transition duration-200"
+                onClick={() => setIsComplaintsModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                onClick={handleSaveComplaint}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Modal for adding Diagnosis */}
       {isDiagnosisModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-bold mb-4">Add Diagnosis</h2>
+            <h2 className="text-lg font-bold mb-4">
+              {isEditingDiagnosis ? "Edit Diagnosis" : "Add Diagnosis"}
+            </h2>
             <input
               type="text"
               className="border rounded-lg w-full p-2 mb-4"
               value={newDiagnosis}
               onChange={(e) => setNewDiagnosis(e.target.value)}
-              placeholder="Enter new diagnosis"
+              placeholder="Enter diagnosis"
             />
             <div className="flex justify-end space-x-3">
               <button
                 className="bg-gray-500 text-white py-2 px-4 rounded-lg"
-                onClick={() => setIsDiagnosisModalOpen(false)}
+                onClick={() => {
+                  setIsDiagnosisModalOpen(false);
+                  setNewDiagnosis("");
+                  setIsEditingDiagnosis(false);
+                  setEditingDiagnosisIndex(null);
+                }}
               >
                 Cancel
               </button>
               <button
                 className="bg-custom-red text-white py-2 px-4 rounded-lg"
                 onClick={() => {
-                  setSelectedRecord({
-                    ...selectedRecord,
-                    diagnosis: selectedRecord.diagnosis
-                      ? `${selectedRecord.diagnosis}, ${newDiagnosis}`
-                      : newDiagnosis,
-                  });
+                  if (isEditingDiagnosis) {
+                    // Edit existing diagnosis
+                    const updatedDiagnosis = selectedRecord.diagnosis
+                      .split(", ")
+                      .map((diag, index) =>
+                        index === editingDiagnosisIndex ? newDiagnosis : diag
+                      )
+                      .join(", ");
+                    setSelectedRecord({
+                      ...selectedRecord,
+                      diagnosis: updatedDiagnosis,
+                    });
+                  } else {
+                    // Add new diagnosis
+                    setSelectedRecord({
+                      ...selectedRecord,
+                      diagnosis: selectedRecord.diagnosis
+                        ? `${selectedRecord.diagnosis}, ${newDiagnosis}`
+                        : newDiagnosis,
+                    });
+                  }
                   setIsDiagnosisModalOpen(false);
-                  setNewDiagnosis(""); // Clear the diagnosis input after adding
+                  setNewDiagnosis("");
+                  setIsEditingDiagnosis(false);
+                  setEditingDiagnosisIndex(null);
                 }}
               >
-                Add
+                {isEditingDiagnosis ? "Save" : "Add"}
               </button>
             </div>
           </div>
