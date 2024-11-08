@@ -6,7 +6,6 @@ import { FaXRay } from "react-icons/fa6";
 import { SlChemistry } from "react-icons/sl";
 import { GiBiceps } from "react-icons/gi";
 import { BiChevronDown } from "react-icons/bi";
-import { MdKeyboardArrowDown } from "react-icons/md";
 
 function PatientsProfile() {
   const [selectedXray, setSelectedXray] = useState(null);
@@ -476,14 +475,14 @@ function PatientsProfile() {
     selectedTab === "clinical"
       ? clinicalRecords
       : selectedTab === "laboratory"
-      ? laboratoryRecords
-      : selectedTab === "xray"
-      ? xrayRecords
-      : selectedTab === "physical therapy"
-      ? physicalTherapyRecords
-      : selectedTab === "vaccine"
-      ? vaccineRecords // <-- New condition for vaccines
-      : [];
+        ? laboratoryRecords
+        : selectedTab === "xray"
+          ? xrayRecords
+          : selectedTab === "physical therapy"
+            ? physicalTherapyRecords
+            : selectedTab === "vaccine"
+              ? vaccineRecords // <-- New condition for vaccines
+              : [];
 
   const initialFormData = {
     bloodChemistry: {
@@ -1643,30 +1642,6 @@ function PatientsProfile() {
     }
   };
 
-  const [isEditingTreatment, setIsEditingTreatment] = useState(false);
-  const [isEditingDiagnosis, setIsEditingDiagnosis] = useState(false);
-
-  const [editingTreatmentIndex, setEditingTreatmentIndex] = useState(null);
-  const [editingDiagnosisIndex, setEditingDiagnosisIndex] = useState(null);
-
-  const [isComplaintsModalOpen, setIsComplaintsModalOpen] = useState(false);
-  const [newComplaint, setNewComplaint] = useState("");
-
-  // Function to handle opening the complaint edit modal
-  const handleEditComplaint = () => {
-    setNewComplaint(selectedRecord.complaints); // Set current complaint text in the modal
-    setIsComplaintsModalOpen(true);
-  };
-
-  // Function to handle saving the edited complaint
-  const handleSaveComplaint = () => {
-    setSelectedRecord((prevRecord) => ({
-      ...prevRecord,
-      complaints: newComplaint,
-    }));
-    setIsComplaintsModalOpen(false);
-  };
-
   return (
     <div>
       <Navbar />
@@ -1721,15 +1696,10 @@ function PatientsProfile() {
                           </button> */}
                         <div className="relative" ref={requestDropdownRef}>
                           <button
-                            className="mt-4 bg-custom-red text-white py-2 px-2 rounded-lg w-full flex items-center justify-between"
+                            className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                             onClick={handleMakeRequest}
                           >
                             New Transaction
-                            <MdKeyboardArrowDown
-                              className={`h-5 w-5 transition-transform duration-200 ${
-                                showRequestOptions ? "rotate-180" : ""
-                              }`}
-                            />
                           </button>
                           {/* Request options */}
                           {showRequestOptions && (
@@ -1751,15 +1721,10 @@ function PatientsProfile() {
                         </div>
                         <div className="relative" ref={packageDropdownRef}>
                           <button
-                            className="mt-4 bg-custom-red text-white py-2 px-9 rounded-lg w-full flex items-center justify-between"
+                            className="mt-4 bg-custom-red text-white py-2 px-4 rounded-lg w-full"
                             onClick={handleAddPackage}
                           >
                             Packages
-                            <MdKeyboardArrowDown
-                              className={`h-5 w-5 transition-transform duration-200 ${
-                                showPackageOptions ? "rotate-180" : ""
-                              }`}
-                            />
                           </button>
                           {showPackageOptions && (
                             <div className="absolute mt-2 w-full bg-white border rounded-lg shadow-lg">
@@ -3176,11 +3141,10 @@ function PatientsProfile() {
             <div className="flex justify-between items-center">
               <div className="space-x-4">
                 <button
-                  className={`${
-                    selectedTab === "clinical"
+                  className={`${selectedTab === "clinical"
                       ? "text-custom-red font-semibold"
                       : ""
-                  }`}
+                    }`}
                   onClick={() => handleTabChange("clinical")}
                 >
                   Consultation Records
@@ -3207,33 +3171,30 @@ function PatientsProfile() {
                 </button> */}
                 {(role === "physical therapist" ||
                   role === "special trainee") && (
-                  <button
-                    className={`${
-                      selectedTab === "physical therapy"
-                        ? "text-custom-red font-semibold"
-                        : ""
-                    }`}
-                    onClick={() => handleTabChange("physical therapy")}
-                  >
-                    Physical Therapy Records
-                  </button>
-                )}
+                    <button
+                      className={`${selectedTab === "physical therapy"
+                          ? "text-custom-red font-semibold"
+                          : ""
+                        }`}
+                      onClick={() => handleTabChange("physical therapy")}
+                    >
+                      Physical Therapy Records
+                    </button>
+                  )}
                 <button
-                  className={`${
-                    selectedTab === "package"
+                  className={`${selectedTab === "package"
                       ? "text-custom-red font-semibold"
                       : ""
-                  }`}
+                    }`}
                   onClick={() => handleTabChange("package")}
                 >
                   Physical Examination
                 </button>
                 <button
-                  className={`${
-                    selectedTab === "vaccine"
+                  className={`${selectedTab === "vaccine"
                       ? "text-custom-red font-semibold"
                       : ""
-                  }`}
+                    }`}
                   onClick={() => handleTabChange("vaccine")}
                 >
                   Vaccine Records
@@ -3425,7 +3386,7 @@ function PatientsProfile() {
                               <p className="text-gray-500 text-sm">
                                 {new Date(
                                   records.labRecords[0]?.isCreatedAt ||
-                                    records.xrayRecords[0]?.isCreatedAt
+                                  records.xrayRecords[0]?.isCreatedAt
                                 ).toLocaleString() || "Invalid Date"}
                               </p>
                               <p className="font-semibold">
@@ -3442,25 +3403,25 @@ function PatientsProfile() {
                               <p className="text-gray-500">
                                 {records.labRecords.length > 0
                                   ? records.labRecords
-                                      .flatMap((record) => [
-                                        ...Object.values(
-                                          record.bloodChemistry || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.hematology || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.clinicalMicroscopyParasitology ||
-                                            {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.bloodBankingSerology || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.microbiology || {}
-                                        ).filter((value) => value),
-                                      ])
-                                      .join(", ") || "No test data available"
+                                    .flatMap((record) => [
+                                      ...Object.values(
+                                        record.bloodChemistry || {}
+                                      ).filter((value) => value),
+                                      ...Object.values(
+                                        record.hematology || {}
+                                      ).filter((value) => value),
+                                      ...Object.values(
+                                        record.clinicalMicroscopyParasitology ||
+                                        {}
+                                      ).filter((value) => value),
+                                      ...Object.values(
+                                        record.bloodBankingSerology || {}
+                                      ).filter((value) => value),
+                                      ...Object.values(
+                                        record.microbiology || {}
+                                      ).filter((value) => value),
+                                    ])
+                                    .join(", ") || "No test data available"
                                   : "No Lab Tests Available"}
                               </p>
                             </div>
@@ -3470,12 +3431,12 @@ function PatientsProfile() {
                               <p className="text-gray-500">
                                 {records.xrayRecords.length > 0
                                   ? records.xrayRecords.map((record, idx) => (
-                                      <span key={idx}>
-                                        {record.xrayType}
-                                        {idx < records.xrayRecords.length - 1 &&
-                                          ", "}
-                                      </span>
-                                    ))
+                                    <span key={idx}>
+                                      {record.xrayType}
+                                      {idx < records.xrayRecords.length - 1 &&
+                                        ", "}
+                                    </span>
+                                  ))
                                   : "No X-ray Data"}
                               </p>
                             </div>
@@ -3484,11 +3445,10 @@ function PatientsProfile() {
                             <div className="col-span-1 flex justify-between items-center">
                               {/* Status Display */}
                               <p
-                                className={`font-semibold ${
-                                  isCompleted
+                                className={`font-semibold ${isCompleted
                                     ? "text-green-500"
                                     : "text-red-500"
-                                }`}
+                                  }`}
                               >
                                 {status}
                               </p>
@@ -4829,9 +4789,8 @@ function PatientsProfile() {
                                       I. Hematology
                                     </h3>
                                     <BiChevronDown
-                                      className={`transform transition-transform duration-300 ${
-                                        isHematologyVisible ? "rotate-180" : ""
-                                      }`}
+                                      className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
+                                        }`}
                                       size={24}
                                     />
                                   </div>
@@ -5096,11 +5055,10 @@ function PatientsProfile() {
                                     II. Clinical Microscopy and Parasitology
                                   </h3>
                                   <BiChevronDown
-                                    className={`transform transition-transform duration-300 ${
-                                      isClinicalMicroscopyVisible
+                                    className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible
                                         ? "rotate-180"
                                         : ""
-                                    }`}
+                                      }`}
                                     size={24}
                                   />
                                 </div>
@@ -5525,9 +5483,8 @@ function PatientsProfile() {
                                     III. Serology
                                   </h3>
                                   <BiChevronDown
-                                    className={`transform transition-transform duration-300 ${
-                                      isSerologyVisible ? "rotate-180" : ""
-                                    }`}
+                                    className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
+                                      }`}
                                     size={24}
                                   />
                                 </div>
@@ -5607,10 +5564,10 @@ function PatientsProfile() {
                                           ?.hepatitisBSurfaceAntigen
                                           ?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5625,10 +5582,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.antiHAVTest?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.antiHAVTest.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.antiHAVTest.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5726,10 +5683,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.serumPregnancy?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.serumPregnancy.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.serumPregnancy.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5745,10 +5702,10 @@ function PatientsProfile() {
                                           ?.treponemaPallidumTest
                                           ?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5844,10 +5801,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.salmonellaTyphi?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.salmonellaTyphi.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.salmonellaTyphi.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5934,10 +5891,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.testDengue?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.testDengue.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.testDengue.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5952,10 +5909,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology?.others
                                           ?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.others.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.others.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -6152,7 +6109,7 @@ function PatientsProfile() {
                                         value={xrayResult.xrayFindings || ""}
                                         readOnly
                                       />
-                                      </div>
+                                    </div>
 
                                   </div>
                                 </form>
@@ -6243,252 +6200,215 @@ function PatientsProfile() {
           </div>
         </div>
       </div>
-      {isNewTherapyRecordModalOpen &&
-        selectedXrayRecords &&
-        selectedXrayRecords.length > 0 && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
-            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-lg shadow-lg z-50 max-w-3xl w-full overflow-auto h-auto max-h-[90vh]">
-              {/* Form Title */}
-              <h2 className="text-xl font-semibold mb-4 text-center">
-                Result Form
-              </h2>
+      {isNewTherapyRecordModalOpen && selectedXrayRecords && selectedXrayRecords.length > 0 && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-lg shadow-lg z-50 max-w-3xl w-full overflow-auto h-auto max-h-[90vh]">
+            {/* Form Title */}
+            <h2 className="text-xl font-semibold mb-4 text-center">Result Form</h2>
 
-              {/* Main Form Content */}
-              <div className="flex flex-wrap mb-4 gap-4">
-                <form className="flex flex-row items-start gap-4 w-full">
-                  {/* X-ray Result Image - Left Side */}
-                  <div className="w-full md:w-1/2">
-                    <label className="block text-gray-700">X-ray Results</label>
+            {/* Main Form Content */}
+            <div className="flex flex-wrap mb-4 gap-4">
+              <form className="flex flex-row items-start gap-4 w-full">
+                {/* X-ray Result Image - Left Side */}
+                <div className="w-full md:w-1/2">
+                  <label className="block text-gray-700">X-ray Results</label>
 
-                    {/* Dropdown to select X-ray record */}
-                    <select
-                      className="w-full px-3 py-2 border rounded mb-4"
-                      onChange={(e) => setSelectedXray(e.target.value)}
-                    >
-                      <option value="">Select X-ray</option>
-                      {selectedXrayRecords.map((xray, index) => (
-                        <option key={index} value={index}>
-                          X-ray {index + 1} -{" "}
-                          {new Date(xray.isCreatedAt).toLocaleDateString()}
-                        </option>
-                      ))}
-                    </select>
+                  {/* Dropdown to select X-ray record */}
+                  <select
+                    className="w-full px-3 py-2 border rounded mb-4"
+                    onChange={(e) => setSelectedXray(e.target.value)}
+                  >
+                    <option value="">Select X-ray</option>
+                    {selectedXrayRecords.map((xray, index) => (
+                      <option key={index} value={index}>
+                        X-ray {index + 1} - {new Date(xray.isCreatedAt).toLocaleDateString()}
+                      </option>
+                    ))}
+                  </select>
 
-                    {/* Display selected X-ray record */}
-                    {selectedXray !== null &&
-                      selectedXrayRecords[selectedXray] && (
-                        <div>
-                          <img
-                            src={selectedXrayRecords[selectedXray].imageFile}
-                            alt="X-ray"
-                            className="w-full h-auto object-contain cursor-pointer mb-4 max-h-[60vh] overflow-hidden mx-auto" // Modified styles
-                          />
-                        </div>
-                      )}
-                  </div>
-
-                  {/* Patient Details Section - Right Side */}
-                  <div className="w-full md:w-1/2">
-                    {/* Patient Information */}
-                    <div className="flex mb-4 gap-2">
-                      <div className="w-1/2">
-                        <label className="block text-gray-700">Name</label>
-                        <input
-                          type="text"
-                          name="name"
-                          value={
-                            `${patient.firstname} ${patient.lastname}` || "N/A"
-                          }
-                          readOnly
-                          className="w-full px-3 py-2 border rounded bg-gray-100"
-                        />
-                      </div>
-                      <div className="w-1/4">
-                        <label className="block text-gray-700">Age</label>
-                        <input
-                          type="text"
-                          name="age"
-                          value={calculateAge(patient.birthdate)}
-                          readOnly
-                          className="w-full px-3 py-2 border rounded bg-gray-100"
-                        />
-                      </div>
-                      <div className="w-1/4">
-                        <label className="block text-gray-700">Sex</label>
-                        <input
-                          type="text"
-                          name="sex"
-                          value={patient.sex || "N/A"}
-                          readOnly
-                          className="w-full px-3 py-2 border rounded bg-gray-100"
-                        />
-                      </div>
+                  {/* Display selected X-ray record */}
+                  {selectedXray !== null && selectedXrayRecords[selectedXray] && (
+                    <div>
+                      <img
+                        src={selectedXrayRecords[selectedXray].imageFile}
+                        alt="X-ray"
+                        className="w-full h-auto object-contain cursor-pointer mb-4 max-h-[60vh] overflow-hidden mx-auto" // Modified styles
+                      />
                     </div>
+                  )}
+                </div>
 
-                    {/* Course/Dept. or Position */}
-                    <div className="mb-4">
-                      <label className="block text-gray-700">
-                        {patient.patientType === "Student"
-                          ? "Course/Dept."
-                          : "Position"}
-                      </label>
+                {/* Patient Details Section - Right Side */}
+                <div className="w-full md:w-1/2">
+                  {/* Patient Information */}
+                  <div className="flex mb-4 gap-2">
+                    <div className="w-1/2">
+                      <label className="block text-gray-700">Name</label>
                       <input
                         type="text"
-                        name="courseDept"
-                        value={
-                          patient.patientType === "Student"
-                            ? patient.course || "N/A"
-                            : patient.position || "N/A"
-                        }
+                        name="name"
+                        value={`${patient.firstname} ${patient.lastname}` || "N/A"}
                         readOnly
                         className="w-full px-3 py-2 border rounded bg-gray-100"
                       />
                     </div>
+                    <div className="w-1/4">
+                      <label className="block text-gray-700">Age</label>
+                      <input
+                        type="text"
+                        name="age"
+                        value={calculateAge(patient.birthdate)}
+                        readOnly
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="w-1/4">
+                      <label className="block text-gray-700">Sex</label>
+                      <input
+                        type="text"
+                        name="sex"
+                        value={patient.sex || "N/A"}
+                        readOnly
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                      />
+                    </div>
+                  </div>
 
-                    {/* X-ray Information (OR No., Case No., Date, Interpretation) */}
-                    <div className="mb-4">
-                      <div className="flex mb-4 gap-2">
-                        <div className="w-1/3">
-                          <label className="block text-gray-700">OR No.</label>
-                          <input
-                            type="text"
-                            name="XrayNo"
-                            value={
-                              selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
-                                ? selectedXrayRecords[selectedXray].ORNumber ||
-                                  "N/A"
-                                : "N/A"
-                            }
-                            className="w-full px-3 py-2 border rounded"
-                            readOnly
-                          />
-                        </div>
-                        <div className="w-1/3">
-                          <label className="block text-gray-700">
-                            Case No.
-                          </label>
-                          <input
-                            type="text"
-                            name="XrayNo"
-                            value={
-                              selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
-                                ? selectedXrayRecords[selectedXray].XrayNo ||
-                                  "N/A"
-                                : "N/A"
-                            }
-                            className="w-full px-3 py-2 border rounded"
-                            readOnly
-                          />
-                        </div>
-                        <div className="w-1/3">
-                          <label className="block text-gray-700">Date</label>
-                          <input
-                            type="text"
-                            name="date"
-                            value={
-                              selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
-                                ? new Date(
-                                    selectedXrayRecords[
-                                      selectedXray
-                                    ].isCreatedAt
-                                  ).toLocaleString()
-                                : "N/A"
-                            }
-                            className="w-full px-3 py-2 border rounded"
-                            readOnly
-                          />
-                        </div>
-                      </div>
+                  {/* Course/Dept. or Position */}
+                  <div className="mb-4">
+                    <label className="block text-gray-700">
+                      {patient.patientType === "Student" ? "Course/Dept." : "Position"}
+                    </label>
+                    <input
+                      type="text"
+                      name="courseDept"
+                      value={patient.patientType === "Student" ? patient.course || "N/A" : patient.position || "N/A"}
+                      readOnly
+                      className="w-full px-3 py-2 border rounded bg-gray-100"
+                    />
+                  </div>
 
-                      {/* Diagnosis */}
-                      <div className="w-full">
-                        <label className="block text-gray-700">
-                          Interpretation
-                        </label>
-                        <textarea
-                          name="diagnosis"
+                  {/* X-ray Information (OR No., Case No., Date, Interpretation) */}
+                  <div className="mb-4">
+                    <div className="flex mb-4 gap-2">
+                      <div className="w-1/3">
+                        <label className="block text-gray-700">OR No.</label>
+                        <input
+                          type="text"
+                          name="XrayNo"
+                          value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].ORNumber || "N/A" : "N/A"}
                           className="w-full px-3 py-2 border rounded"
-                          rows="4"
-                          placeholder="Enter an interpretation..."
-                          value={
-                            selectedXray !== null &&
-                            selectedXrayRecords[selectedXray]
-                              ? selectedXrayRecords[selectedXray].diagnosis ||
-                                ""
-                              : ""
-                          }
+                          readOnly
+                        />
+                      </div>
+                      <div className="w-1/3">
+                        <label className="block text-gray-700">Case No.</label>
+                        <input
+                          type="text"
+                          name="XrayNo"
+                          value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].XrayNo || "N/A" : "N/A"}
+                          className="w-full px-3 py-2 border rounded"
+                          readOnly
+                        />
+                      </div>
+                      <div className="w-1/3">
+                        <label className="block text-gray-700">Date</label>
+                        <input
+                          type="text"
+                          name="date"
+                          value={selectedXray !== null && selectedXrayRecords[selectedXray] ? new Date(selectedXrayRecords[selectedXray].isCreatedAt).toLocaleString() : "N/A"}
+                          className="w-full px-3 py-2 border rounded"
                           readOnly
                         />
                       </div>
                     </div>
+
+                    {/* Diagnosis */}
+                    <div className="w-full">
+                      <label className="block text-gray-700">Interpretation</label>
+                      <textarea
+                        name="diagnosis"
+                        className="w-full px-3 py-2 border rounded"
+                        rows="4"
+                        placeholder="No Interpretation available."
+                        value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].diagnosis || "" : ""}
+                        readOnly
+                      />
+                    </div>
+
+                    {/*X-ray Findings*/}
+                    <div className="w-full">
+                      <label className="block text-gray-700">X-ray Findings</label>
+                      <textarea
+                        name="xrayFindings"
+                        className="w-full px-3 py-2 border rounded"
+                        rows="4"
+                        placeholder="No X-ray findings available."
+                        value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].xrayFindings || "" : ""}
+                        required
+                      />
+                    </div>
+
                   </div>
-                </form>
-              </div>
-
-              {/* New Physical Therapy Record Section */}
-              <h2 className="text-lg font-bold mb-4 text-center">
-                New Physical Therapy Record
-              </h2>
-              <form onSubmit={handleNewTherapySubmit}>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium">
-                    Tentative Diagnosis
-                  </label>
-                  <textarea
-                    type="text"
-                    name="Diagnosis"
-                    value={newTherapyRecord.Diagnosis}
-                    onChange={handleNewTherapyRecordChange}
-                    required
-                    className="border rounded-lg w-full p-2 mt-1"
-                  />
-
-                  <label className="block text-sm font-medium">
-                    Chief Complaints
-                  </label>
-                  <textarea
-                    type="text"
-                    name="ChiefComplaints"
-                    value={newTherapyRecord.ChiefComplaints}
-                    onChange={handleNewTherapyRecordChange}
-                    required
-                    className="border rounded-lg w-full p-2 mt-1"
-                  />
-
-                  <label className="block text-sm font-medium">
-                    History Of Present Illness
-                  </label>
-                  <textarea
-                    type="text"
-                    name="HistoryOfPresentIllness"
-                    value={newTherapyRecord.HistoryOfPresentIllness}
-                    onChange={handleNewTherapyRecordChange}
-                    required
-                    className="border rounded-lg w-full p-2 mt-1"
-                  />
-                </div>
-                <div className="flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    className="bg-gray-500 text-white py-2 px-4 rounded-lg"
-                    onClick={handleNewTherapyRecordClose}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="bg-custom-red text-white py-2 px-4 rounded-lg"
-                  >
-                    Submit
-                  </button>
                 </div>
               </form>
             </div>
+
+            {/* New Physical Therapy Record Section */}
+            <h2 className="text-lg font-bold mb-4 text-center">New Physical Therapy Record</h2>
+            <form onSubmit={handleNewTherapySubmit}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium">Tentative Diagnosis</label>
+                <textarea
+                  type="text"
+                  name="Diagnosis"
+                  value={newTherapyRecord.Diagnosis}
+                  onChange={handleNewTherapyRecordChange}
+                  required
+                  className="border rounded-lg w-full p-2 mt-1"
+                />
+
+                <label className="block text-sm font-medium">Chief Complaints</label>
+                <textarea
+                  type="text"
+                  name="ChiefComplaints"
+                  value={newTherapyRecord.ChiefComplaints}
+                  onChange={handleNewTherapyRecordChange}
+                  required
+                  className="border rounded-lg w-full p-2 mt-1"
+                />
+
+                <label className="block text-sm font-medium">History Of Present Illness</label>
+                <textarea
+                  type="text"
+                  name="HistoryOfPresentIllness"
+                  value={newTherapyRecord.HistoryOfPresentIllness}
+                  onChange={handleNewTherapyRecordChange}
+                  required
+                  className="border rounded-lg w-full p-2 mt-1"
+                />
+
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                  onClick={handleNewTherapyRecordClose}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
           </div>
-        )}
+        </div>
+      )}
+
 
       {/* Vaccine Modal */}
       {isVaccineModalOpen && (
@@ -6637,35 +6557,13 @@ function PatientsProfile() {
       {isViewModalOpen && selectedRecord && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col">
-            <div className="mb-4 flex items-center justify-between">
-              {/* Complaint Text */}
-              <div>
-                <h2 className="text-lg font-bold">
-                  {selectedRecord.complaints || "No complaints available"}
-                </h2>
-                <p className="text-gray-500">
-                  {selectedRecord?.isCreatedAt
-                    ? new Date(selectedRecord.isCreatedAt).toLocaleString()
-                    : "No date available"}
-                </p>
-              </div>
-
-              {/* Edit Button */}
-              {role === "nurse" &&
-                !selectedRecord.treatments &&
-                !selectedRecord.diagnosis && (
-                  <button
-                    className="text-sm text-custom-red underline italic hover:text-custom-red focus:outline-none"
-                    onClick={handleEditComplaint}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      padding: "0",
-                    }}
-                  >
-                    Edit
-                  </button>
-                )}
+            <div className="mb-4">
+              <h2 className="text-lg font-bold">{selectedRecord.complaints}</h2>
+              <p className="text-gray-500">
+                {selectedRecord?.isCreatedAt
+                  ? new Date(selectedRecord.isCreatedAt).toLocaleString()
+                  : "No date available"}
+              </p>
             </div>
 
             <div className="flex-grow">
@@ -6673,7 +6571,7 @@ function PatientsProfile() {
               <div className="mb-4 w-full">
                 <div className="flex justify-between items-center">
                   <div className="block text-sm font-medium">Treatments</div>
-                  {role === "doctor" && !selectedRecord.treatments && (
+                  {role === "doctor" && (
                     <button
                       className="text-sm text-custom-red underline italic hover:text-custom-red focus:outline-none"
                       onClick={() => setIsTreatmentModalOpen(true)}
@@ -6700,7 +6598,7 @@ function PatientsProfile() {
                 )}
 
                 {selectedRecord.treatments &&
-                selectedRecord.treatments.length > 0 ? (
+                  selectedRecord.treatments.length > 0 ? (
                   <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                     {selectedRecord.treatments
                       .split(", ")
@@ -6714,21 +6612,6 @@ function PatientsProfile() {
                               {treatment}
                             </p>
                           </div>
-                          {role === "doctor" &&
-                            !selectedLabTests.length && // Check if lab records are empty
-                            !selectedXrayRecords.length && ( // Check if x-ray records are empty
-                              <button
-                                className="text-custom-red"
-                                onClick={() => {
-                                  setIsTreatmentModalOpen(true);
-                                  setNewTreatment(treatment);
-                                  setIsEditingTreatment(true);
-                                  setEditingTreatmentIndex(index);
-                                }}
-                              >
-                                Edit
-                              </button>
-                            )}
                         </div>
                       ))}
                   </div>
@@ -6740,7 +6623,7 @@ function PatientsProfile() {
               <div className="mb-4 w-full">
                 <div className="flex justify-between items-center">
                   <div className="block text-sm font-medium">Diagnosis</div>
-                  {role === "doctor" && !selectedRecord.diagnosis && (
+                  {role === "doctor" && (
                     <button
                       className="text-sm text-custom-red underline italic hover:text-custom-red focus:outline-none"
                       onClick={() => setIsDiagnosisModalOpen(true)}
@@ -6756,7 +6639,7 @@ function PatientsProfile() {
                 </div>
 
                 {selectedRecord.diagnosis &&
-                selectedRecord.diagnosis.length > 0 ? (
+                  selectedRecord.diagnosis.length > 0 ? (
                   <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                     {selectedRecord.diagnosis
                       .split(", ")
@@ -6770,21 +6653,6 @@ function PatientsProfile() {
                               {diagnosis}
                             </p>
                           </div>
-                          {role === "doctor" &&
-                            !selectedLabTests.length && // Check if lab records are empty
-                            !selectedXrayRecords.length && ( // Check if x-ray records are empty
-                              <button
-                                className="text-custom-red"
-                                onClick={() => {
-                                  setIsDiagnosisModalOpen(true);
-                                  setNewDiagnosis(diagnosis);
-                                  setIsEditingDiagnosis(true);
-                                  setEditingDiagnosisIndex(index);
-                                }}
-                              >
-                                Edit
-                              </button>
-                            )}
                         </div>
                       ))}
                   </div>
@@ -7031,9 +6899,8 @@ function PatientsProfile() {
                           I. Hematology
                         </h3>
                         <BiChevronDown
-                          className={`transform transition-transform duration-300 ${
-                            isHematologyVisible ? "rotate-180" : ""
-                          }`}
+                          className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
+                            }`}
                           size={24}
                         />
                       </div>
@@ -7237,9 +7104,8 @@ function PatientsProfile() {
                         II. Clinical Microscopy and Parasitology
                       </h3>
                       <BiChevronDown
-                        className={`transform transition-transform duration-300 ${
-                          isClinicalMicroscopyVisible ? "rotate-180" : ""
-                        }`}
+                        className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible ? "rotate-180" : ""
+                          }`}
                         size={24}
                       />
                     </div>
@@ -7618,9 +7484,8 @@ function PatientsProfile() {
                         III. Serology
                       </h3>
                       <BiChevronDown
-                        className={`transform transition-transform duration-300 ${
-                          isSerologyVisible ? "rotate-180" : ""
-                        }`}
+                        className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
+                          }`}
                         size={24}
                       />
                     </div>
@@ -7687,10 +7552,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology
                               ?.hepatitisBSurfaceAntigen?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7703,10 +7568,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.antiHAVTest
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.antiHAVTest.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.antiHAVTest.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7791,10 +7656,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.serumPregnancy
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.serumPregnancy.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.serumPregnancy.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7807,10 +7672,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology
                               ?.treponemaPallidumTest?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7895,10 +7760,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.salmonellaTyphi
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7973,10 +7838,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.testDengue
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.testDengue.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.testDengue.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7989,10 +7854,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.others
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.others.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.others.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -8160,7 +8025,7 @@ function PatientsProfile() {
                         {/* Diagnosis (Interpretation) */}
                         <div className="w-full">
                           <label className="block text-gray-700">
-                            Description
+                            Interpretation
                           </label>
                           <textarea
                             name="diagnosis"
@@ -8168,6 +8033,19 @@ function PatientsProfile() {
                             rows="4"
                             placeholder="Enter an interpretation..."
                             value={selectedXrayRecord.xrayDescription || ""}
+                            readOnly
+                          />
+                        </div>
+                        <div className="w-full">
+                          <label className="block text-gray-700">
+                            Findings
+                          </label>
+                          <textarea
+                            name="xrayFindings"
+                            className="w-full px-3 py-2 border rounded"
+                            rows="4"
+                            placeholder="Enter the findings..."
+                            value={selectedXrayRecord.xrayFindings || ""}
                             readOnly
                           />
                         </div>
@@ -8209,9 +8087,7 @@ function PatientsProfile() {
                   {selectedXrayRecords && selectedXrayRecords.length > 0 && (
                     <button
                       className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                      onClick={() =>
-                        handleNewTherapyRecordOpen(selectedXrayRecords)
-                      } // Pass all X-ray records
+                      onClick={() => handleNewTherapyRecordOpen(selectedXrayRecords)} // Pass all X-ray records
                     >
                       <GiBiceps className="mr-2" /> Refer to PT
                     </button>
@@ -8238,94 +8114,50 @@ function PatientsProfile() {
           </div>
         </div>
       )}
-
-      {isComplaintsModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-bold mb-4 text-center">
-              Edit Complaint
-            </h2>
-            <textarea
-              className="border rounded-lg w-full p-2 mb-4"
-              value={newComplaint}
-              onChange={(e) => setNewComplaint(e.target.value)}
-              placeholder="Enter updated complaint"
-            />
-            <div className="flex justify-end space-x-3">
-              <button
-                className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border transition duration-200"
-                onClick={() => setIsComplaintsModalOpen(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                onClick={handleSaveComplaint}
-              >
-                Save
-              </button>
-            </div>
-          </div>
+      {/* { isModalOpen && selectedPackage && (
+        <div>
+          {renderLabTests("Blood Chemistry", selectedPackage.bloodChemistry)}
+          {renderLabTests("Hematology", selectedPackage.hematology)}
+          {renderLabTests("Clinical Microscopy & Parasitology", selectedPackage.clinicalMicroscopyParasitology)}
+          {renderLabTests("Blood Banking & Serology", selectedPackage.bloodBankingSerology)}
+          {renderLabTests("Microbiology", selectedPackage.microbiology)}
+          <p className="font-semibold">X-ray</p>
         </div>
-      )}
+      )} */}
       {isTreatmentModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
             <h2 className="text-lg font-bold mb-4 text-center">
-              {isEditingTreatment ? "Edit Treatment" : "Add Treatment"}
+              Add Treatment
             </h2>
             <input
               type="text"
               className="border rounded-lg w-full p-2 mb-4"
               value={newTreatment}
               onChange={(e) => setNewTreatment(e.target.value)}
-              placeholder="Enter treatment"
+              placeholder="Enter new treatment"
             />
             <div className="flex justify-end space-x-3">
               <button
                 className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border transition duration-200"
-                onClick={() => {
-                  setIsTreatmentModalOpen(false);
-                  setNewTreatment("");
-                  setIsEditingTreatment(false);
-                  setEditingTreatmentIndex(null);
-                }}
+                onClick={() => setIsTreatmentModalOpen(false)}
               >
                 Cancel
               </button>
               <button
                 className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
                 onClick={() => {
-                  if (isEditingTreatment) {
-                    // Edit existing treatment
-                    const updatedTreatments = selectedRecord.treatments
-                      .split(", ")
-                      .map((treatment, index) =>
-                        index === editingTreatmentIndex
-                          ? newTreatment
-                          : treatment
-                      )
-                      .join(", ");
-                    setSelectedRecord({
-                      ...selectedRecord,
-                      treatments: updatedTreatments,
-                    });
-                  } else {
-                    // Add new treatment
-                    setSelectedRecord({
-                      ...selectedRecord,
-                      treatments: selectedRecord.treatments
-                        ? `${selectedRecord.treatments}, ${newTreatment}`
-                        : newTreatment,
-                    });
-                  }
+                  setSelectedRecord({
+                    ...selectedRecord,
+                    treatments: selectedRecord.treatments
+                      ? `${selectedRecord.treatments}, ${newTreatment}`
+                      : newTreatment,
+                  });
                   setIsTreatmentModalOpen(false);
                   setNewTreatment("");
-                  setIsEditingTreatment(false);
-                  setEditingTreatmentIndex(null);
                 }}
               >
-                {isEditingTreatment ? "Save" : "Add"}
+                Add
               </button>
             </div>
           </div>
@@ -8336,59 +8168,35 @@ function PatientsProfile() {
       {isDiagnosisModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
-            <h2 className="text-lg font-bold mb-4">
-              {isEditingDiagnosis ? "Edit Diagnosis" : "Add Diagnosis"}
-            </h2>
+            <h2 className="text-lg font-bold mb-4">Add Diagnosis</h2>
             <input
               type="text"
               className="border rounded-lg w-full p-2 mb-4"
               value={newDiagnosis}
               onChange={(e) => setNewDiagnosis(e.target.value)}
-              placeholder="Enter diagnosis"
+              placeholder="Enter new diagnosis"
             />
             <div className="flex justify-end space-x-3">
               <button
                 className="bg-gray-500 text-white py-2 px-4 rounded-lg"
-                onClick={() => {
-                  setIsDiagnosisModalOpen(false);
-                  setNewDiagnosis("");
-                  setIsEditingDiagnosis(false);
-                  setEditingDiagnosisIndex(null);
-                }}
+                onClick={() => setIsDiagnosisModalOpen(false)}
               >
                 Cancel
               </button>
               <button
                 className="bg-custom-red text-white py-2 px-4 rounded-lg"
                 onClick={() => {
-                  if (isEditingDiagnosis) {
-                    // Edit existing diagnosis
-                    const updatedDiagnosis = selectedRecord.diagnosis
-                      .split(", ")
-                      .map((diag, index) =>
-                        index === editingDiagnosisIndex ? newDiagnosis : diag
-                      )
-                      .join(", ");
-                    setSelectedRecord({
-                      ...selectedRecord,
-                      diagnosis: updatedDiagnosis,
-                    });
-                  } else {
-                    // Add new diagnosis
-                    setSelectedRecord({
-                      ...selectedRecord,
-                      diagnosis: selectedRecord.diagnosis
-                        ? `${selectedRecord.diagnosis}, ${newDiagnosis}`
-                        : newDiagnosis,
-                    });
-                  }
+                  setSelectedRecord({
+                    ...selectedRecord,
+                    diagnosis: selectedRecord.diagnosis
+                      ? `${selectedRecord.diagnosis}, ${newDiagnosis}`
+                      : newDiagnosis,
+                  });
                   setIsDiagnosisModalOpen(false);
-                  setNewDiagnosis("");
-                  setIsEditingDiagnosis(false);
-                  setEditingDiagnosisIndex(null);
+                  setNewDiagnosis(""); // Clear the diagnosis input after adding
                 }}
               >
-                {isEditingDiagnosis ? "Save" : "Add"}
+                Add
               </button>
             </div>
           </div>
