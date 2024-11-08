@@ -26,6 +26,8 @@ function PatientsProfile() {
   const [physicalTherapyRecords, setPhysicalTherapyRecords] = useState([]);
   const [newTherapyRecord, setNewTherapyRecord] = useState({
     date: new Date().toLocaleDateString(),
+    ChiefComplaints: "",
+    HistoryOfPresentIllness: "",
     Diagnosis: "",
     Precautions: "",
     SOAPSummary: "",
@@ -6475,11 +6477,29 @@ function PatientsProfile() {
             <h2 className="text-lg font-bold mb-4 text-center">New Physical Therapy Record</h2>
             <form onSubmit={handleNewTherapySubmit}>
               <div className="mb-4">
-                <label className="block text-sm font-medium">Diagnosis</label>
+                <label className="block text-sm font-medium">Tentative Diagnosis</label>
                 <textarea
                   type="text"
                   name="Diagnosis"
                   value={newTherapyRecord.Diagnosis}
+                  onChange={handleNewTherapyRecordChange}
+                  required
+                  className="border rounded-lg w-full p-2 mt-1"
+                />
+                <label className="block text-sm font-medium">Chief Complaints</label>
+                <textarea
+                  type="text"
+                  name="ChiefComplaints"
+                  value={newTherapyRecord.ChiefComplaints}
+                  onChange={handleNewTherapyRecordChange}
+                  required
+                  className="border rounded-lg w-full p-2 mt-1"
+                />
+                <label className="block text-sm font-medium">History Of Present Illness</label>
+                <textarea
+                  type="text"
+                  name="HistoryOfPresentIllness"
+                  value={newTherapyRecord.HistoryOfPresentIllness}
                   onChange={handleNewTherapyRecordChange}
                   required
                   className="border rounded-lg w-full p-2 mt-1"

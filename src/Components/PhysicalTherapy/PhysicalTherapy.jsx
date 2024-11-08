@@ -1,4 +1,4 @@
-import React, { useState, useEffect ,useRef} from "react";
+import React, { useState, useEffect ,useRef,useCallback} from "react";
 import { BiSearch } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
@@ -233,7 +233,10 @@ function PhysicalTherapy() {
     const diagnosis = selectedRecord.Diagnosis || "No diagnosis provided";
     const precautions = selectedRecord.Precautions || "No precautions available";
     const soapSummary = selectedRecord.SOAPSummary || "No SOAP summary available";
-  
+    const sex = selectedRecord.patient?.sex
+    const chiefComplaints = selectedRecord.ChiefComplaints || "No chief complaints available";
+    const historyOfPresentIllness = selectedRecord.HistoryOfPresentIllness || "No history of present illness available";
+
     pdf.setFont("times", "bold").setFontSize(12);
 
     pdf.text("Patient:", margin, yPosition); 
@@ -248,9 +251,27 @@ function PhysicalTherapy() {
     yPosition += 5;
 
     pdf.setFont("times", "bold");
-    pdf.text("Diagnosis:", margin, yPosition); 
+    pdf.text("Tentative Diagnosis:", margin, yPosition); 
     pdf.setFont("times", "normal");
     pdf.text(`${diagnosis}`, margin + 30, yPosition);
+    yPosition += 5;
+
+    pdf.setFont("times", "bold");
+    pdf.text("Chief Complaints:", margin, yPosition);
+    pdf.setFont("times", "normal");
+    pdf.text(`${chiefComplaints}`, margin + 30, yPosition);
+    yPosition += 5;
+
+    pdf.setFont("times", "bold");
+    pdf.text("History of Present Illness:", margin, yPosition);
+    pdf.setFont("times", "normal");
+    pdf.text(`${historyOfPresentIllness}`, margin + 30, yPosition);
+    yPosition += 5;
+
+    pdf.setFont("times", "bold");
+    pdf.text("Sex:", margin, yPosition);
+    pdf.setFont("times", "normal");
+    pdf.text(`${sex}`, margin + 30, yPosition);
     yPosition += 5;
 
     pdf.setFont("times", "bold");
@@ -342,7 +363,7 @@ function PhysicalTherapy() {
                 <thead>
                   <tr className="text-left text-gray-600">
                     <th className="py-3 w-1/4">Patient Info</th>
-                    <th className="py-3 w-1/4">Diagnosis</th>
+                    <th className="py-3 w-1/4">Tentative Diagnosis</th>
                     <th className="py-3 w-1/4">SOAP Summary</th>
                     <th className="py-3 w-1/12"></th>
                   </tr>
@@ -552,7 +573,9 @@ function PhysicalTherapy() {
             <h2 className="text-xl font-semibold mb-4">Record Details</h2>
             <p><strong>Patient Info:</strong> {selectedRecord.patient?.firstname} {selectedRecord.patient?.lastname}</p>
             <p><strong>Diagnosis:</strong> {selectedRecord.Diagnosis}</p>
-            <p><strong>Gender:</strong> {selectedRecord.patient?.gender}</p>
+            <p><strong>Chief Complaints:</strong> {selectedRecord.ChiefComplaints}</p>
+            <p><strong>History of Present Illness:</strong> {selectedRecord.HistoryOfPresentIllness}</p>
+            <p><strong>Gender:</strong> {selectedRecord.patient?.sex}</p>
             <p><strong>Precautions:</strong> {selectedRecord.Precautions}</p>
 
             {/* Date and SOAP Summary Table */}
