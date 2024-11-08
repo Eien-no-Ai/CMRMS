@@ -1644,8 +1644,27 @@ function PatientsProfile() {
 
   const [isEditingTreatment, setIsEditingTreatment] = useState(false);
   const [isEditingDiagnosis, setIsEditingDiagnosis] = useState(false);
+
   const [editingTreatmentIndex, setEditingTreatmentIndex] = useState(null);
   const [editingDiagnosisIndex, setEditingDiagnosisIndex] = useState(null);
+
+  const [isComplaintsModalOpen, setIsComplaintsModalOpen] = useState(false);
+  const [newComplaint, setNewComplaint] = useState("");
+
+  // Function to handle opening the complaint edit modal
+  const handleEditComplaint = () => {
+    setNewComplaint(selectedRecord.complaints); // Set current complaint text in the modal
+    setIsComplaintsModalOpen(true);
+  };
+
+  // Function to handle saving the edited complaint
+  const handleSaveComplaint = () => {
+    setSelectedRecord((prevRecord) => ({
+      ...prevRecord,
+      complaints: newComplaint,
+    }));
+    setIsComplaintsModalOpen(false);
+  };
 
   return (
     <div>
@@ -6601,13 +6620,35 @@ function PatientsProfile() {
       {isViewModalOpen && selectedRecord && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col">
-            <div className="mb-4">
-              <h2 className="text-lg font-bold">{selectedRecord.complaints}</h2>
-              <p className="text-gray-500">
-                {selectedRecord?.isCreatedAt
-                  ? new Date(selectedRecord.isCreatedAt).toLocaleString()
-                  : "No date available"}
-              </p>
+            <div className="mb-4 flex items-center justify-between">
+              {/* Complaint Text */}
+              <div>
+                <h2 className="text-lg font-bold">
+                  {selectedRecord.complaints || "No complaints available"}
+                </h2>
+                <p className="text-gray-500">
+                  {selectedRecord?.isCreatedAt
+                    ? new Date(selectedRecord.isCreatedAt).toLocaleString()
+                    : "No date available"}
+                </p>
+              </div>
+
+              {/* Edit Button */}
+              {role === "nurse" &&
+                !selectedRecord.treatments &&
+                !selectedRecord.diagnosis && (
+                  <button
+                    className="text-sm text-custom-red underline italic hover:text-custom-red focus:outline-none"
+                    onClick={handleEditComplaint}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: "0",
+                    }}
+                  >
+                    Edit
+                  </button>
+                )}
             </div>
 
             <div className="flex-grow">
@@ -6656,19 +6697,21 @@ function PatientsProfile() {
                               {treatment}
                             </p>
                           </div>
-                          {role === "doctor" && (
-                            <button
-                              className="text-custom-red"
-                              onClick={() => {
-                                setIsTreatmentModalOpen(true);
-                                setNewTreatment(treatment);
-                                setIsEditingTreatment(true);
-                                setEditingTreatmentIndex(index);
-                              }}
-                            >
-                              Edit
-                            </button>
-                          )}
+                          {role === "doctor" &&
+                            !selectedLabTests.length && // Check if lab records are empty
+                            !selectedXrayRecords.length && ( // Check if x-ray records are empty
+                              <button
+                                className="text-custom-red"
+                                onClick={() => {
+                                  setIsTreatmentModalOpen(true);
+                                  setNewTreatment(treatment);
+                                  setIsEditingTreatment(true);
+                                  setEditingTreatmentIndex(index);
+                                }}
+                              >
+                                Edit
+                              </button>
+                            )}
                         </div>
                       ))}
                   </div>
@@ -6710,19 +6753,21 @@ function PatientsProfile() {
                               {diagnosis}
                             </p>
                           </div>
-                          {role === "doctor" && (
-                            <button
-                              className="text-custom-red"
-                              onClick={() => {
-                                setIsDiagnosisModalOpen(true);
-                                setNewDiagnosis(diagnosis);
-                                setIsEditingDiagnosis(true);
-                                setEditingDiagnosisIndex(index);
-                              }}
-                            >
-                              Edit
-                            </button>
-                          )}
+                          {role === "doctor" &&
+                            !selectedLabTests.length && // Check if lab records are empty
+                            !selectedXrayRecords.length && ( // Check if x-ray records are empty
+                              <button
+                                className="text-custom-red"
+                                onClick={() => {
+                                  setIsDiagnosisModalOpen(true);
+                                  setNewDiagnosis(diagnosis);
+                                  setIsEditingDiagnosis(true);
+                                  setEditingDiagnosisIndex(index);
+                                }}
+                              >
+                                Edit
+                              </button>
+                            )}
                         </div>
                       ))}
                   </div>
@@ -8172,6 +8217,36 @@ function PatientsProfile() {
                   Submit
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isComplaintsModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
+            <h2 className="text-lg font-bold mb-4 text-center">
+              Edit Complaint
+            </h2>
+            <textarea
+              className="border rounded-lg w-full p-2 mb-4"
+              value={newComplaint}
+              onChange={(e) => setNewComplaint(e.target.value)}
+              placeholder="Enter updated complaint"
+            />
+            <div className="flex justify-end space-x-3">
+              <button
+                className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border transition duration-200"
+                onClick={() => setIsComplaintsModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                onClick={handleSaveComplaint}
+              >
+                Save
+              </button>
             </div>
           </div>
         </div>
