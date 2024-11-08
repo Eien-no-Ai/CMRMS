@@ -103,7 +103,7 @@ function Navbar() {
               Patients
             </a>
             <a href="/admin" className="hover:underline">
-              Accounts
+              Manage Accounts
             </a>
           </>
         )}
