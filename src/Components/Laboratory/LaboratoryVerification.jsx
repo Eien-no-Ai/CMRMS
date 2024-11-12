@@ -11,6 +11,7 @@ function LaboratoryVerification() {
   const [showFullList, setShowFullList] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [labDetails, setLabDetails] = useState(null);
+  const [isBloodChemistryVisible, setIsBloodChemistryVisible] = useState(false);
   const [isHematologyVisible, setHematologyVisible] = useState(false);
   const [isClinicalMicroscopyVisible, setClinicalMicroscopyVisible] =
     useState(false);
@@ -112,7 +113,9 @@ function LaboratoryVerification() {
   const toggleListVisibility = () => {
     setShowFullList(!showFullList);
   };
-
+  const toggleBloodChemistryVisibility = () => {
+    setIsBloodChemistryVisible(!isBloodChemistryVisible);
+  };
   const toggleHematologyVisibility = () =>
     setHematologyVisible(!isHematologyVisible);
   const toggleClinicalMicroscopyVisibility = () =>
@@ -169,6 +172,10 @@ function LaboratoryVerification() {
 
     // Prepare the updated data for LaboratoryResultsModel
     const updatedLabResultData = {
+      bloodChemistry: {
+        ...labDetails.bloodChemistry,
+        signature: labDetails.bloodChemistry?.signature,
+      },
       Hematology: {
         ...labDetails.Hematology,
         signature: hematologySignatureUrl || labDetails.Hematology?.signature, // Fallback to existing signature if not updated
@@ -519,6 +526,255 @@ function LaboratoryVerification() {
                   readOnly
                 />
               </div>
+      {/* Blood Chemistry Section */}
+      <div className="mb-0">
+        <div
+          className="flex items-center justify-between cursor-pointer"
+          onClick={toggleBloodChemistryVisibility}
+        >
+          <h3 className="text-lg font-semibold my-0 py-2">I. Blood Chemistry</h3>
+          <BiChevronDown
+            className={`transform transition-transform duration-300 ${
+              isBloodChemistryVisible ? "rotate-180" : ""
+            }`}
+            size={24}
+          />
+        </div>
+        <div className="w-full h-px bg-gray-300 my-0"></div>
+
+        {isBloodChemistryVisible && (
+          <div className="grid grid-cols-3 gap-4 p-4">
+            <div className="col-span-1 font-semibold">Test</div>
+            <div className="col-span-1 font-semibold">Result</div>
+            <div className="col-span-1 font-semibold">Reference Range</div>
+
+            {/* FBS */}
+            <div className="col-span-1">FBS</div>
+            <div className="col-span-1">
+              <input
+                type="text"
+                name="bloodSugar"
+                className="w-full px-3 py-1 border rounded bg-gray-100"
+                value={labDetails.bloodChemistry?.bloodSugar || ""}
+                onChange={(e) =>
+                  setLabDetails({
+                    ...labDetails,
+                    bloodChemistry: {
+                      ...labDetails.bloodChemistry,
+                      bloodSugar: e.target.value,
+                    },
+                  })
+                }
+              />
+            </div>
+            <div className="col-span-1">70 - 105 mg/dL</div>
+
+            {/* Total Cholesterol */}
+            <div className="col-span-1">Total Cholesterol</div>
+            <div className="col-span-1">
+              <input
+                type="text"
+                name="totalCholesterol"
+                className="w-full px-3 py-1 border rounded bg-gray-100"
+                value={labDetails.bloodChemistry?.totalCholesterol || ""}
+                onChange={(e) =>
+                  setLabDetails({
+                    ...labDetails,
+                    bloodChemistry: {
+                      ...labDetails.bloodChemistry,
+                      totalCholesterol: e.target.value,
+                    },
+                  })
+                }
+              />
+            </div>
+            <div className="col-span-1">140 - 200 mg/dL</div>
+
+            {/* Triglycerides */}
+            <div className="col-span-1">Triglycerides</div>
+            <div className="col-span-1">
+              <input
+                type="text"
+                name="triglyceride"
+                className="w-full px-3 py-1 border rounded bg-gray-100"
+                value={labDetails.bloodChemistry?.triglyceride || ""}
+                onChange={(e) =>
+                  setLabDetails({
+                    ...labDetails,
+                    bloodChemistry: {
+                      ...labDetails.bloodChemistry,
+                      triglyceride: e.target.value,
+                    },
+                  })
+                }
+              />
+            </div>
+            <div className="col-span-1">{"<200 mg/dL"}</div>
+
+            {/* Blood Uric Acid */}
+            <div className="col-span-1">Blood Uric Acid</div>
+            <div className="col-span-1">
+              <input
+                type="text"
+                name="bloodUricAcid"
+                className="w-full px-3 py-1 border rounded bg-gray-100"
+                value={labDetails.bloodChemistry?.bloodUricAcid || ""}
+                onChange={(e) =>
+                  setLabDetails({
+                    ...labDetails,
+                    bloodChemistry: {
+                      ...labDetails.bloodChemistry,
+                      bloodUricAcid: e.target.value,
+                    },
+                  })
+                }
+              />
+            </div>
+            <div className="col-span-1">
+              MEN: 3.5 - 7.2 mg/dL <br />
+              WOMEN: 2.6 - 6.0 mg/dL
+            </div>
+
+            {/* Blood Urea Nitrogen */}
+            <div className="col-span-1">Blood Urea Nitrogen</div>
+            <div className="col-span-1">
+              <input
+                type="text"
+                name="bloodUreaNitrogen"
+                className="w-full px-3 py-1 border rounded bg-gray-100"
+                value={labDetails.bloodChemistry?.bloodUreaNitrogen || ""}
+                onChange={(e) =>
+                  setLabDetails({
+                    ...labDetails,
+                    bloodChemistry: {
+                      ...labDetails.bloodChemistry,
+                      bloodUreaNitrogen: e.target.value,
+                    },
+                  })
+                }
+              />
+            </div>
+            <div className="col-span-1">4.67 - 23.35 mg/dL</div>
+
+            {/* Creatinine */}
+            <div className="col-span-1">Creatinine</div>
+            <div className="col-span-1">
+              <input
+                type="text"
+                name="creatinine"
+                className="w-full px-3 py-1 border rounded bg-gray-100"
+                value={labDetails.bloodChemistry?.creatinine || ""}
+                onChange={(e) =>
+                  setLabDetails({
+                    ...labDetails,
+                    bloodChemistry: {
+                      ...labDetails.bloodChemistry,
+                      creatinine: e.target.value,
+                    },
+                  })
+                }
+              />
+            </div>
+            <div className="col-span-1">
+              MEN: 0.7 - 1.2 mg/dL <br />
+              WOMEN: 0.6 - 1.1 mg/dL
+            </div>
+
+            {/* AST/SGOT */}
+            <div className="col-span-1">AST/SGOT</div>
+            <div className="col-span-1">
+              <input
+                type="text"
+                name="SGOT_AST"
+                className="w-full px-3 py-1 border rounded bg-gray-100"
+                value={labDetails.bloodChemistry?.SGOT_AST || ""}
+                onChange={(e) =>
+                  setLabDetails({
+                    ...labDetails,
+                    bloodChemistry: {
+                      ...labDetails.bloodChemistry,
+                      SGOT_AST: e.target.value,
+                    },
+                  })
+                }
+              />
+            </div>
+            <div className="col-span-1">
+              MEN: UP TO 40 U/L <br />
+              WOMEN: UP TO 33 U/L
+            </div>
+
+            {/* ALT/SGPT */}
+            <div className="col-span-1">ALT/SGPT</div>
+            <div className="col-span-1">
+              <input
+                type="text"
+                name="SGPT_ALT"
+                className="w-full px-3 py-1 border rounded bg-gray-100"
+                value={labDetails.bloodChemistry?.SGPT_ALT || ""}
+                onChange={(e) =>
+                  setLabDetails({
+                    ...labDetails,
+                    bloodChemistry: {
+                      ...labDetails.bloodChemistry,
+                      SGPT_ALT: e.target.value,
+                    },
+                  })
+                }
+              />
+            </div>
+            <div className="col-span-1">
+              MEN: UP TO 41 U/L <br />
+              WOMEN: UP TO 32 U/L
+            </div>
+
+            {/* Direct HDL */}
+            <div className="col-span-1">Direct HDL</div>
+            <div className="col-span-1">
+              <input
+                type="text"
+                name="HDL_cholesterol"
+                className="w-full px-3 py-1 border rounded bg-gray-100"
+                value={labDetails.bloodChemistry?.HDL_cholesterol || ""}
+                onChange={(e) =>
+                  setLabDetails({
+                    ...labDetails,
+                    bloodChemistry: {
+                      ...labDetails.bloodChemistry,
+                      HDL_cholesterol: e.target.value,
+                    },
+                  })
+                }
+              />
+            </div>
+            <div className="col-span-1">
+              MEN: 40 - 50 mg/dL <br />
+              WOMEN: 45 - 60 mg/dL
+            </div>
+
+            {/* Direct LDL */}
+            <div className="col-span-1">Direct LDL</div>
+            <div className="col-span-1">
+              <input
+                type="text"
+                name="LDL_cholesterol"
+                className="w-full px-3 py-1 border rounded bg-gray-100"
+                value={labDetails.bloodChemistry?.LDL_cholesterol || ""}
+                onChange={(e) =>
+                  setLabDetails({
+                    ...labDetails,
+                    bloodChemistry: {
+                      ...labDetails.bloodChemistry,
+                      LDL_cholesterol: e.target.value,
+                    },
+                  })
+                }
+              />
+            </div>
+            <div className="col-span-1">{"<130 mg/dL"}</div>
+          </div>
+        )}
+      </div>
 
               {/* Hematology Section */}
               <div className="mb-0">
@@ -527,7 +783,7 @@ function LaboratoryVerification() {
                   onClick={toggleHematologyVisibility}
                 >
                   <h3 className="text-lg font-semibold my-0 py-2">
-                    I. Hematology
+                    II. Hematology
                   </h3>
                   <BiChevronDown
                     className={`transform transition-transform duration-300 ${
@@ -867,7 +1123,7 @@ function LaboratoryVerification() {
                 onClick={toggleClinicalMicroscopyVisibility}
               >
                 <h3 className="text-lg font-semibold mb-0 py-2">
-                  II. Clinical Microscopy and Parasitology
+                  III. Clinical Microscopy and Parasitology
                 </h3>
                 <BiChevronDown
                   className={`transform transition-transform duration-300 ${
@@ -1669,7 +1925,7 @@ function LaboratoryVerification() {
                 onClick={toggleSerologyVisibility}
               >
                 <h3 className="text-lg font-semibold mb-0 py-2">
-                  III. Serology
+                  IV. Serology
                 </h3>
                 <BiChevronDown
                   className={`transform transition-transform duration-300 ${

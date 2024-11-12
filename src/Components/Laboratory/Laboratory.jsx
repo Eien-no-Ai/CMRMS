@@ -854,6 +854,7 @@ function Laboratory() {
                       </div>
                     )}
                   </div>
+                  
                   {/* Hematology Section */}
                   <div className="mb-0">
                     <div
