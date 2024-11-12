@@ -7,6 +7,18 @@ const LaboratoryResultsSchema = new mongoose.Schema({
     laboratoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'laboratory' },
     ORNumber: { type: String, default: "" },
     labNumber: { type: String, default: "" },
+    bloodChemistry: {
+        bloodSugar: { type: String, default: "" },
+        bloodUreaNitrogen: { type: String, default: "" },
+        bloodUricAcid: { type: String, default: "" },
+        creatinine: { type: String, default: "" },
+        SGOT_AST: { type: String, default: "" },
+        SGPT_ALT: { type: String, default: "" },
+        totalCholesterol: { type: String, default: "" },
+        triglyceride: { type: String, default: "" },
+        HDL_cholesterol: { type: String, default: "" },
+        LDL_cholesterol: { type: String, default: "" },
+      },
     Hematology: {
         redBloodCellCount: { type: String, default: "" },
         Hemoglobin: { type: String, default: "" },

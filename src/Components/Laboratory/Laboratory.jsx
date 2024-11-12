@@ -20,6 +20,18 @@ function Laboratory() {
     labNumber: "", // Lab number
     patient: "", // Patient ID or name (you can adjust this as needed)
     clinicId: "", // Clinic ID
+    bloodChemistry: {
+      bloodSugar: "",
+      bloodUreaNitrogen: "",
+      bloodUricAcid: "",
+      creatinine: "",
+      SGOT_AST: "",
+      SGPT_ALT: "",
+      totalCholesterol: "",
+      triglyceride: "",
+      HDL_cholesterol: "",
+      LDL_cholesterol: "",
+    },
     Hematology: {
       redBloodCellCount: "",
       Hemoglobin: "",
@@ -253,6 +265,7 @@ function Laboratory() {
       patient,
       clinicId,
       laboratoryId, // Include laboratoryId in the data to be sent
+      bloodChemistry,
       Hematology,
       clinicalMicroscopyParasitology,
       bloodBankingSerology,
@@ -264,6 +277,7 @@ function Laboratory() {
       patient,
       clinicId,
       laboratoryId, // Include laboratoryId here
+      bloodChemistry,
       Hematology,
       clinicalMicroscopyParasitology,
       bloodBankingSerology,
@@ -294,6 +308,9 @@ function Laboratory() {
           patient: "",
           clinicId: "",
           laboratoryId: "",
+          bloodChemistry: {
+            /* reset bloodChemistry fields */
+          },
           Hematology: {
             /* reset Hematology fields */
           },
@@ -685,10 +702,12 @@ function Laboratory() {
                         <div className="col-span-1">
                           <input
                             type="text"
-                            name="FBS"
+                            name="bloodSugar"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.FBS || ""}
-                            onChange={(e) => handleInputChange(e, "FBS")}
+                            value={formData.bloodChemistry?.bloodSugar || ""}
+                            onChange={(e) =>
+                              handleInputChange(e, "bloodChemistry", "bloodSugar")
+                            }
                           />
                         </div>
                         <div className="col-span-1">70 - 105 mg/dL</div>
@@ -698,11 +717,11 @@ function Laboratory() {
                         <div className="col-span-1">
                           <input
                             type="text"
-                            name="TotalCholesterol"
+                            name="totalCholesterol"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.TotalCholesterol || ""}
+                            value={formData.bloodChemistry?.totalCholesterol || ""}
                             onChange={(e) =>
-                              handleInputChange(e, "TotalCholesterol")
+                              handleInputChange(e, "bloodChemistry", "totalCholesterol")
                             }
                           />
                         </div>
@@ -713,11 +732,11 @@ function Laboratory() {
                         <div className="col-span-1">
                           <input
                             type="text"
-                            name="Triglycerides"
+                            name="triglyceride"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.Triglycerides || ""}
+                            value={formData.bloodChemistry?.triglyceride || ""}
                             onChange={(e) =>
-                              handleInputChange(e, "Triglycerides")
+                              handleInputChange(e, "bloodChemistry", "triglyceride")
                             }
                           />
                         </div>
@@ -728,11 +747,11 @@ function Laboratory() {
                         <div className="col-span-1">
                           <input
                             type="text"
-                            name="BloodUricAcid"
+                            name="bloodUricAcid"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.BloodUricAcid || ""}
+                            value={formData.bloodChemistry?.bloodUricAcid || ""}
                             onChange={(e) =>
-                              handleInputChange(e, "BloodUricAcid")
+                              handleInputChange(e, "bloodChemistry", "bloodUricAcid")
                             }
                           />
                         </div>
@@ -746,11 +765,11 @@ function Laboratory() {
                         <div className="col-span-1">
                           <input
                             type="text"
-                            name="BloodUreaNitrogen"
+                            name="bloodUreaNitrogen"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.BloodUreaNitrogen || ""}
+                            value={formData.bloodChemistry?.bloodUreaNitrogen || ""}
                             onChange={(e) =>
-                              handleInputChange(e, "BloodUreaNitrogen")
+                              handleInputChange(e, "bloodChemistry", "bloodUreaNitrogen")
                             }
                           />
                         </div>
@@ -761,10 +780,10 @@ function Laboratory() {
                         <div className="col-span-1">
                           <input
                             type="text"
-                            name="Creatinine"
+                            name="creatinine"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.Creatinine || ""}
-                            onChange={(e) => handleInputChange(e, "Creatinine")}
+                            value={formData.bloodChemistry?.creatinine || ""}
+                            onChange={(e) => handleInputChange(e, "bloodChemistry", "creatinine")}
                           />
                         </div>
                         <div className="col-span-1">
@@ -777,10 +796,10 @@ function Laboratory() {
                         <div className="col-span-1">
                           <input
                             type="text"
-                            name="AST_SGOT"
+                            name="SGOT_AST"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.AST_SGOT || ""}
-                            onChange={(e) => handleInputChange(e, "AST_SGOT")}
+                            value={formData.bloodChemistry?.SGOT_AST || ""}
+                            onChange={(e) => handleInputChange(e, "bloodChemistry", "SGOT_AST")}
                           />
                         </div>
                         <div className="col-span-1">
@@ -793,10 +812,10 @@ function Laboratory() {
                         <div className="col-span-1">
                           <input
                             type="text"
-                            name="ALT_SGPT"
+                            name="SGPT_ALT"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.ALT_SGPT || ""}
-                            onChange={(e) => handleInputChange(e, "ALT_SGPT")}
+                            value={formData.bloodChemistry?.SGPT_ALT || ""}
+                            onChange={(e) => handleInputChange(e, "bloodChemistry", "SGPT_ALT")}
                           />
                         </div>
                         <div className="col-span-1">
@@ -809,10 +828,10 @@ function Laboratory() {
                         <div className="col-span-1">
                           <input
                             type="text"
-                            name="DirectHDL"
+                            name="HDL_cholesterol"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.DirectHDL || ""}
-                            onChange={(e) => handleInputChange(e, "DirectHDL")}
+                            value={formData.bloodChemistry?.HDL_cholesterol || ""}
+                            onChange={(e) => handleInputChange(e, "bloodChemistry", "HDL_cholesterol")}
                           />
                         </div>
                         <div className="col-span-1">
@@ -825,10 +844,10 @@ function Laboratory() {
                         <div className="col-span-1">
                           <input
                             type="text"
-                            name="DirectLDL"
+                            name="LDL_cholesterol"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.DirectLDL || ""}
-                            onChange={(e) => handleInputChange(e, "DirectLDL")}
+                            value={formData.bloodChemistry?.LDL_cholesterol || ""}
+                            onChange={(e) => handleInputChange(e, "bloodChemistry", "LDL_cholesterol")}
                           />
                         </div>
                         <div className="col-span-1">{"<130 mg/dL"}</div>

@@ -541,6 +541,7 @@ app.post("/api/laboratory-results", async (req, res) => {
     patient,
     clinicId,
     laboratoryId, // Accept laboratoryId in the request
+    bloodChemistry,
     Hematology,
     clinicalMicroscopyParasitology,
     bloodBankingSerology,
@@ -553,6 +554,7 @@ app.post("/api/laboratory-results", async (req, res) => {
       patient,
       clinicId,
       laboratoryId, // Save laboratoryId in the database
+      bloodChemistry,
       Hematology,
       clinicalMicroscopyParasitology,
       bloodBankingSerology,
