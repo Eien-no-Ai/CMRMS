@@ -8752,34 +8752,6 @@ function PatientsProfile() {
                   </label>
                 </div>
               </div>
-
-              {/* V. Microbiology */}
-              <div className="md:col-span-3 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
-                <h3 className="font-semibold text-base mb-3">
-                  V. Microbiology
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.microbiology.gramsStain !== ""}
-                      onChange={() =>
-                        handleInputChange("microbiology", "gramsStain")
-                      }
-                    />{" "}
-                    Gram's Stain
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.microbiology.KOH !== ""}
-                      onChange={() => handleInputChange("microbiology", "KOH")}
-                    />{" "}
-                    KOH
-                  </label>
-                </div>
-              </div>
             </div>
 
             <div className="flex justify-end mt-4 space-x-3">

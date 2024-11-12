@@ -9,10 +9,11 @@ function Laboratory() {
   const labRecordsPerPage = 4;
   const [searchQuery, setSearchQuery] = useState("");
   const [showFullList, setShowFullList] = useState(false);
-  const [isHematologyVisible, setIsHematologyVisible] = useState(false); // Visibility state for Hematology
+  const [isBloodChemistryVisible, setIsBloodChemistryVisible] = useState(false);
+  const [isHematologyVisible, setIsHematologyVisible] = useState(false);
   const [isClinicalMicroscopyVisible, setIsClinicalMicroscopyVisible] =
-    useState(false); // Visibility state for Clinical Microscopy
-  const [isSerologyVisible, setIsSerologyVisible] = useState(false); // New visibility state for Serology section
+    useState(false);
+  const [isSerologyVisible, setIsSerologyVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     ORNumber: "",
@@ -131,6 +132,10 @@ function Laboratory() {
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+  const toggleBloodChemistryVisibility = () => {
+    setIsBloodChemistryVisible(!isBloodChemistryVisible);
+  };
 
   const toggleHematologyVisibility = () =>
     setIsHematologyVisible(!isHematologyVisible); // Toggle Hematology visibility
@@ -649,6 +654,187 @@ function Laboratory() {
               </div>
               {formData.ORNumber && (
                 <>
+                  {/* Blood Chemistry Section */}
+                  <div className="mb-0">
+                    <div
+                      className="flex items-center justify-between cursor-pointer"
+                      onClick={toggleBloodChemistryVisibility}
+                    >
+                      <h3 className="text-lg font-semibold my-0 py-2">
+                        I. Blood Chemistry
+                      </h3>
+                      <BiChevronDown
+                        className={`transform transition-transform duration-300 ${
+                          isBloodChemistryVisible ? "rotate-180" : ""
+                        }`}
+                        size={24}
+                      />
+                    </div>
+                    <div className="w-full h-px bg-gray-300 my-0"></div>
+
+                    {isBloodChemistryVisible && (
+                      <div className="grid grid-cols-3 gap-4 p-4">
+                        <div className="col-span-1 font-semibold">Test</div>
+                        <div className="col-span-1 font-semibold">Result</div>
+                        <div className="col-span-1 font-semibold">
+                          Reference Range
+                        </div>
+
+                        {/* FBS */}
+                        <div className="col-span-1">FBS</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="FBS"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={formData.FBS || ""}
+                            onChange={(e) => handleInputChange(e, "FBS")}
+                          />
+                        </div>
+                        <div className="col-span-1">70 - 105 mg/dL</div>
+
+                        {/* Total Cholesterol */}
+                        <div className="col-span-1">Total Cholesterol</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="TotalCholesterol"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={formData.TotalCholesterol || ""}
+                            onChange={(e) =>
+                              handleInputChange(e, "TotalCholesterol")
+                            }
+                          />
+                        </div>
+                        <div className="col-span-1">140 - 200 mg/dL</div>
+
+                        {/* Triglycerides */}
+                        <div className="col-span-1">Triglycerides</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="Triglycerides"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={formData.Triglycerides || ""}
+                            onChange={(e) =>
+                              handleInputChange(e, "Triglycerides")
+                            }
+                          />
+                        </div>
+                        <div className="col-span-1">{"<200 mg/dL"}</div>
+
+                        {/* Blood Uric Acid */}
+                        <div className="col-span-1">Blood Uric Acid</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="BloodUricAcid"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={formData.BloodUricAcid || ""}
+                            onChange={(e) =>
+                              handleInputChange(e, "BloodUricAcid")
+                            }
+                          />
+                        </div>
+                        <div className="col-span-1">
+                          MEN: 3.5 - 7.2 mg/dL <br />
+                          WOMEN: 2.6 - 6.0 mg/dL
+                        </div>
+
+                        {/* Blood Urea Nitrogen */}
+                        <div className="col-span-1">Blood Urea Nitrogen</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="BloodUreaNitrogen"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={formData.BloodUreaNitrogen || ""}
+                            onChange={(e) =>
+                              handleInputChange(e, "BloodUreaNitrogen")
+                            }
+                          />
+                        </div>
+                        <div className="col-span-1">4.67 - 23.35 mg/dL</div>
+
+                        {/* Creatinine */}
+                        <div className="col-span-1">Creatinine</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="Creatinine"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={formData.Creatinine || ""}
+                            onChange={(e) => handleInputChange(e, "Creatinine")}
+                          />
+                        </div>
+                        <div className="col-span-1">
+                          MEN: 0.7 - 1.2 mg/dL <br />
+                          WOMEN: 0.6 - 1.1 mg/dL
+                        </div>
+
+                        {/* AST/SGOT */}
+                        <div className="col-span-1">AST/SGOT</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="AST_SGOT"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={formData.AST_SGOT || ""}
+                            onChange={(e) => handleInputChange(e, "AST_SGOT")}
+                          />
+                        </div>
+                        <div className="col-span-1">
+                          MEN: UP TO 40 U/L <br />
+                          WOMEN: UP TO 33 U/L
+                        </div>
+
+                        {/* ALT/SGPT */}
+                        <div className="col-span-1">ALT/SGPT</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="ALT_SGPT"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={formData.ALT_SGPT || ""}
+                            onChange={(e) => handleInputChange(e, "ALT_SGPT")}
+                          />
+                        </div>
+                        <div className="col-span-1">
+                          MEN: UP TO 41 U/L <br />
+                          WOMEN: UP TO 32 U/L
+                        </div>
+
+                        {/* Direct HDL */}
+                        <div className="col-span-1">Direct HDL</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="DirectHDL"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={formData.DirectHDL || ""}
+                            onChange={(e) => handleInputChange(e, "DirectHDL")}
+                          />
+                        </div>
+                        <div className="col-span-1">
+                          MEN: 40 - 50 mg/dL <br />
+                          WOMEN: 45 - 60 mg/dL
+                        </div>
+
+                        {/* Direct LDL */}
+                        <div className="col-span-1">Direct LDL</div>
+                        <div className="col-span-1">
+                          <input
+                            type="text"
+                            name="DirectLDL"
+                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            value={formData.DirectLDL || ""}
+                            onChange={(e) => handleInputChange(e, "DirectLDL")}
+                          />
+                        </div>
+                        <div className="col-span-1">{"<130 mg/dL"}</div>
+                      </div>
+                    )}
+                  </div>
                   {/* Hematology Section */}
                   <div className="mb-0">
                     <div
@@ -656,7 +842,7 @@ function Laboratory() {
                       onClick={toggleHematologyVisibility}
                     >
                       <h3 className="text-lg font-semibold my-0 py-2">
-                        I. Hematology
+                        II. Hematology
                       </h3>
                       <BiChevronDown
                         className={`transform transition-transform duration-300 ${
@@ -921,7 +1107,7 @@ function Laboratory() {
                     onClick={toggleClinicalMicroscopyVisibility}
                   >
                     <h3 className="text-lg font-semibold mb-0 py-2">
-                      II. Clinical Microscopy and Parasitology
+                      III. Clinical Microscopy and Parasitology
                     </h3>
                     <BiChevronDown
                       className={`transform transition-transform duration-300 ${
@@ -1490,7 +1676,7 @@ function Laboratory() {
                     onClick={toggleSerologyVisibility}
                   >
                     <h3 className="text-lg font-semibold mb-0 py-2">
-                      III. Serology
+                      IV. Serology
                     </h3>
                     <BiChevronDown
                       className={`transform transition-transform duration-300 ${
