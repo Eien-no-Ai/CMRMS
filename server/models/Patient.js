@@ -18,6 +18,7 @@ const PatientSchema = new mongoose.Schema({
   phonenumber: { type: String },
   email: { type: String, required: true, unique: true },
   course: { type: String },
+  year: { type: String },
   sex: { type: String, required: true },
   patientType: { type: String, required: true },
   emergencyContact: { type: String },

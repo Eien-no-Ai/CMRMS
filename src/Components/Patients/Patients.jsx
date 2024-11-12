@@ -25,6 +25,7 @@ function Patients() {
   const [phonenumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [course, setCourse] = useState("");
+  const [year, setYear] = useState("");
   const [sex, setSex] = useState("");
   const [emergencyContact, setEmergencyContact] = useState("");
   const [position, setPosition] = useState("");
@@ -87,6 +88,7 @@ function Patients() {
       phonenumber,
       email,
       course,
+      year,
       sex,
       patientType,
       emergencyContact,
@@ -207,6 +209,7 @@ function Patients() {
       setPhoneNumber(patient.phonenumber);
       setEmail(patient.email);
       setCourse(patient.course);
+      setYear(patient.year);
       setSex(patient.sex);
       setEmergencyContact(patient.emergencyContact);
       setPosition(patient.position);
@@ -252,6 +255,29 @@ function Patients() {
     }
   }, []);
 
+  const [sortOption, setSortOption] = useState(""); // New state for sorting
+
+  const handleSortChange = (option) => {
+    setSortOption(option);
+    setCurrentPage(1);
+  };
+
+  const sortedPatients = filteredPatients
+    .filter((patient) => {
+      // Optional: Add search filtering here
+      return (
+        patient.lastname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        patient.firstname.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    })
+    .filter((patient) => {
+      // Sorting based on the selected option
+      if (sortOption === "Student") return patient.patientType === "Student";
+      if (sortOption === "Employee") return patient.patientType === "Employee";
+      if (sortOption === "OPD") return patient.patientType === "OPD";
+      return true; // Show all if no sorting option selected
+    });
+    
   return (
     <div>
       <Navbar />
@@ -351,9 +377,10 @@ function Patients() {
                         </td>
                         <td className="py-4">{patient.idnumber}</td>
                         <td className="py-4">
-                          {patient.patientType === "Employee"
-                            ? patient.position
-                            : patient.course}
+                        {patient.patientType === "Employee"
+                          ? patient.position
+                          : `${patient.course} - ${patient.year}`
+                        }
                         </td>
                         <td className="py-4">
                           <div
@@ -578,15 +605,25 @@ function Patients() {
                     {/* Course and Year */}
                     <div>
                       <label className="block mb-2">Course and Year</label>
-                      <input
-                        type="text"
-                        value={course}
-                        onChange={(e) => setCourse(e.target.value)}
-                        placeholder="Enter Course"
-                        className="px-4 py-2 border rounded w-full"
-                      />
+                      <div className="grid grid-cols-2 gap-4">
+                        <input
+                          type="text"
+                          value={course}
+                          onChange={(e) => setCourse(e.target.value)}
+                          placeholder="Enter Course"
+                          className="px-4 py-2 border rounded w-full"
+                        />
+                        <input
+                          type="text"
+                          value={year}
+                          onChange={(e) => setYear(e.target.value)}
+                          placeholder="Enter Year Lvl"
+                          className="px-4 py-2 border rounded w-full"
+                        />
+                      </div>
                     </div>
                   </div>
+
 
                   {/* Address */}
                   <div className="col-span-3">

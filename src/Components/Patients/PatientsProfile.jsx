@@ -1792,7 +1792,8 @@ function PatientsProfile() {
                         {" "}
                         {patient.patientType === "Employee"
                           ? patient.position
-                          : patient.course}
+                          : `${patient.course} - ${patient.year}`
+                        }
                       </p>
                     </div>
                     <div>
@@ -4802,11 +4803,10 @@ function PatientsProfile() {
                                     className="w-full px-3 py-2 border rounded bg-gray-100"
                                     value={
                                       labResult.patient
-                                        ? labResult.patient.patientType ===
-                                          "Student"
-                                          ? labResult.patient.course || "N/A" // Display course if patientType is student
-                                          : labResult.patient.position || "N/A" // Otherwise, display position
-                                        : "N/A"
+                                      ? labResult.patient.patientType === "Student"
+                                        ? `${labResult.patient.course || "N/A"} - ${labResult.patient.year || "N/A"}` // Display course and year if patientType is student
+                                        : labResult.patient.position || "N/A" // Otherwise, display position
+                                      : "N/A"                                    
                                     }
                                     readOnly
                                   />
@@ -6968,7 +6968,7 @@ function PatientsProfile() {
                         value={
                           labDetails.patient
                             ? labDetails.patient.patientType === "Student"
-                              ? labDetails.patient.course || "N/A" // Display course if patientType is student
+                              ? `${labDetails.patient.course || "N/A"} - ${labDetails.patient.year || "N/A"}` // Display course if patientType is student
                               : labDetails.patient.position || "N/A" // Otherwise, display position
                             : "N/A"
                         }
