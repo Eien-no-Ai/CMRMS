@@ -6628,7 +6628,7 @@ function PatientsProfile() {
               <div className="mb-4 w-full">
                 <div className="flex justify-between items-center">
                   <div className="block text-sm font-medium">Treatments</div>
-                  {role === "doctor" && (
+                  {role === "doctor" && !selectedRecord.treatments.length && (
                     <button
                       className="text-sm text-custom-red underline italic hover:text-custom-red focus:outline-none"
                       onClick={() => setIsTreatmentModalOpen(true)}
@@ -6695,7 +6695,7 @@ function PatientsProfile() {
               <div className="mb-4 w-full">
                 <div className="flex justify-between items-center">
                   <div className="block text-sm font-medium">Diagnosis</div>
-                  {role === "doctor" && (
+                  {role === "doctor" && !selectedRecord.diagnosis.length &&( 
                     <button
                       className="text-sm text-custom-red underline italic hover:text-custom-red focus:outline-none"
                       onClick={() => setIsDiagnosisModalOpen(true)}
