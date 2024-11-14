@@ -398,18 +398,18 @@ app.get("/api/physicalTherapy/:patientId", async (req, res) => {
 
 app.put("/api/physicalTherapy/:id", async (req, res) => {
   const { id } = req.params;
-  const updatedData = req.body;
+  const { SOAPSummary } = req.body;
 
   try {
     const updatedRecord = await PhysicalTherapyModel.findByIdAndUpdate(
       id,
-      updatedData,
+      { $push: { SOAPSummaries: { summary: SOAPSummary } } },
       { new: true }
     );
     if (updatedRecord) {
       res.json({
         success: true,
-        message: "Record updated successfully",
+        message: "SOAP summary added successfully",
         updatedRecord,
       });
     } else {
@@ -418,11 +418,12 @@ app.put("/api/physicalTherapy/:id", async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error updating record",
+      message: "Error adding SOAP summary",
       error: error.message,
     });
   }
 });
+
 
 const fs = require("fs");
 const path = require("path");

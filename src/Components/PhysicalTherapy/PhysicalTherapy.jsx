@@ -66,33 +66,29 @@ function PhysicalTherapy() {
   const handleNewTherapySubmit = async (e) => {
     e.preventDefault();
   
-    const therapyRecordId = selectedTherapyId; // Use the selected therapy ID
+    const therapyRecordId = selectedTherapyId;
   
     if (!therapyRecordId) {
       console.error("Error: ID is undefined. Cannot update record.");
-      return; // Prevent further execution if the ID is not valid
+      return;
     }
   
     try {
       const response = await axios.put(
-        `http://localhost:3001/api/physicalTherapy/${therapyRecordId}`, // Use the defined ID here
-        {
-          ...newTherapyRecord,
-          patient: id, // Assuming 'id' is the patient ID
-        }
+        `http://localhost:3001/api/physicalTherapy/${therapyRecordId}`,
+        { SOAPSummary: newTherapyRecord.SOAPSummary }
       );
   
       if (response.status === 200) {
-        handleNewTherapyRecordClose(); // Close the modal after successful submission
-        fetchPhysicalTherapyRecords(); // Fetch the updated records
-        setNewTherapyRecord({
-          SOAPSummary: "", // Reset the form state
-        });
+        handleNewTherapyRecordClose();
+        fetchPhysicalTherapyRecords();
+        setNewTherapyRecord({ SOAPSummary: "" });
       }
     } catch (error) {
-      console.error("Error updating therapy record:", error.response || error); // Log any errors
+      console.error("Error updating therapy record:", error.response || error);
     }
   };
+  
   
 
   const openNewTherapyModal = (id) => {
@@ -473,13 +469,20 @@ function PhysicalTherapy() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td className="border border-gray-300 px-4 py-2">{new Date(selectedRecord.isCreatedAt).toLocaleDateString()}</td>
-                    <td className="border border-gray-300 px-4 py-2">{selectedRecord.SOAPSummary}</td>
-                  </tr>
+                  {selectedRecord.SOAPSummaries?.map((entry, index) => (
+                    <tr key={index}>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {new Date(entry.date).toLocaleDateString()}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {entry.summary}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
+
 
             <div className="flex justify-end mt-4">
               <button
