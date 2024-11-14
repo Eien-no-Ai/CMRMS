@@ -1,4 +1,4 @@
-import React, { useState, useEffect ,useRef, useCallback} from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { BiSearch } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
@@ -9,7 +9,7 @@ import { useParams } from "react-router-dom";
 
 function PhysicalTherapy() {
   const { id } = useParams();
-  
+
   const [physicalTherapyRecords, setPhysicalTherapyRecords] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const physicalTherapyRecordsPerPage = 4;
@@ -19,8 +19,8 @@ function PhysicalTherapy() {
   // New state for the modal
   const [isViewRecordModalOpen, setIsViewRecordModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
-  const [newTherapyRecord, setNewTherapyRecord] = useState({ 
-    SOAPSummary:"" 
+  const [newTherapyRecord, setNewTherapyRecord] = useState({
+    SOAPSummary: ""
   });
   const [selectedTherapyId, setSelectedTherapyId] = useState(null);
 
@@ -28,18 +28,18 @@ function PhysicalTherapy() {
   const handleSelectRecord = (id) => {
     setSelectedTherapyId(id);
   };
-  
-   // Function to close the view record modal
-   const closeViewRecordModal = () => {
+
+  // Function to close the view record modal
+  const closeViewRecordModal = () => {
     setIsViewRecordModalOpen(false);
     setSelectedRecord(null);
   };
 
-    // Function to open the view record modal
-    const openViewRecordModal = (record) => {
-      setSelectedRecord(record);
-      setIsViewRecordModalOpen(true);
-    };
+  // Function to open the view record modal
+  const openViewRecordModal = (record) => {
+    setSelectedRecord(record);
+    setIsViewRecordModalOpen(true);
+  };
 
   // Use selectedTherapyId in handleNewTherapySubmit
   const [dropdownIndex, setDropdownIndex] = useState(null);
@@ -65,20 +65,20 @@ function PhysicalTherapy() {
 
   const handleNewTherapySubmit = async (e) => {
     e.preventDefault();
-  
+
     const therapyRecordId = selectedTherapyId;
-  
+
     if (!therapyRecordId) {
       console.error("Error: ID is undefined. Cannot update record.");
       return;
     }
-  
+
     try {
       const response = await axios.put(
         `http://localhost:3001/api/physicalTherapy/${therapyRecordId}`,
         { SOAPSummary: newTherapyRecord.SOAPSummary }
       );
-  
+
       if (response.status === 200) {
         handleNewTherapyRecordClose();
         fetchPhysicalTherapyRecords();
@@ -88,46 +88,45 @@ function PhysicalTherapy() {
       console.error("Error updating therapy record:", error.response || error);
     }
   };
-  
-  
+
 
   const openNewTherapyModal = (id) => {
     setSelectedTherapyId(id); // Set the selected therapy ID when opening the modal
     setNewTherapyRecord({ SOAPSummary: "" }); // Reset the form fields
     setIsNewTherapyRecordModalOpen(true); // Open the modal
   };
-  
+
 
   const handleGenerateReport = () => {
     const pdf = new jsPDF();
-  
+
     // Set the title of the report
     pdf.text("Physical Therapy Report", 20, 20);
-  
+
     // Table headers
-    const headers = ["Date", "Diagnosis","SOAP Summary"];
-  
+    const headers = ["Date", "Diagnosis", "SOAP Summary"];
+
     // Use filteredPhysicalTherapyRecords instead of currentPhysicalTherapyRecords
     const tableData = filteredPhysicalTherapyRecords.map((record) => [
       new Date(record.isCreatedAt).toLocaleString(),
       record.Diagnosis,
       record.SOAPSummary,
-      
+
     ]);
-  
+
     // Generate the table using autoTable
     pdf.autoTable({
       head: [headers],
       body: tableData,
       startY: 30, // Start table below the title
     });
-  
+
     // Save the PDF with a dynamic filename
     pdf.save("Physical_Therapy_Report.pdf");
   };
-  
 
-  
+
+
   useEffect(() => {
     fetchPhysicalTherapyRecords(); // Fetch physical therapy records on component mount
   }, []);
@@ -211,7 +210,7 @@ function PhysicalTherapy() {
 
           <div className="flex items-center space-x-4">
             <div className="relative">
-            {/* <button
+              {/* <button
               className="bg-custom-red text-white py-2 px-4 rounded-lg w-full"
               onClick={handleGenerateReport}
               >
@@ -245,7 +244,7 @@ function PhysicalTherapy() {
                   <tr className="text-left text-gray-600">
                     <th className="py-3 w-1/4">Patient Info</th>
                     <th className="py-3 w-1/4">Tentative Diagnosis</th>
-                    <th className="py-3 w-1/4">SOAP Summary</th>
+                    <th className="py-3 w-1/4">Chief Complaints</th>
                     <th className="py-3 w-1/12"></th>
                   </tr>
                 </thead>
@@ -260,7 +259,7 @@ function PhysicalTherapy() {
                       </td>
                     </tr>
                   ) : (
-                    currentPhysicalTherapyRecords.map((record,index) => (
+                    currentPhysicalTherapyRecords.map((record, index) => (
                       <tr key={record._id} className="border-b">
                         <td className="py-4">
                           {record.patient ? (
@@ -286,16 +285,16 @@ function PhysicalTherapy() {
                         </td>
                         <td className="py-4">
                           <p className="font-semibold">
-                            {record.SOAPSummary || "No SOAP Summary available"}
+                            {record.ChiefComplaints || "No SOAP Summary available"}
                           </p>
                         </td>
                         <td className="py-4">
-                       {/* Three dot button to trigger the modal
+                          {/* Three dot button to trigger the modal
                        <button key={record._id} onClick={() => openNewTherapyModal(record._id)}>
                         Result
                        </button>
                         </td> */}
-                        <div
+                          <div
                             className="relative"
                             ref={(el) => (dropdownRefs.current[index] = el)}
                           >
@@ -317,15 +316,15 @@ function PhysicalTherapy() {
                                     openViewRecordModal(record); // Open the therapy modal
                                     toggleDropdown(-1); // Close the dropdown after clicking
                                   }}
-                                  
+
                                 >
                                   View Records
                                 </button>
                                 <button
                                   className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
-                                  key={record._id} 
+                                  key={record._id}
                                   onClick={() => {
-                                    
+
                                     openNewTherapyModal(record._id); // Open the therapy modal
                                     toggleDropdown(-1); // Close the dropdown after clicking
                                   }}
@@ -335,12 +334,12 @@ function PhysicalTherapy() {
                               </div>
                             )}
                           </div>
-                          </td> 
+                        </td>
                       </tr>
 
                     ))
                   )}
-                  
+
                 </tbody>
               </table>
             </div>
@@ -354,22 +353,20 @@ function PhysicalTherapy() {
                 <button
                   onClick={paginatePrev}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 mr-2 rounded-lg border ${
-                    currentPage === 1
+                  className={`px-4 py-2 mr-2 rounded-lg border ${currentPage === 1
                       ? "bg-gray-300"
                       : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                  }`}
+                    }`}
                 >
                   Previous
                 </button>
                 <button
                   onClick={paginateNext}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg border ${
-                    currentPage === totalPages
+                  className={`px-4 py-2 rounded-lg border ${currentPage === totalPages
                       ? "bg-gray-300"
                       : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                  }`}
+                    }`}
                 >
                   Next
                 </button>
@@ -407,14 +404,14 @@ function PhysicalTherapy() {
                   <label className="block text-sm font-medium">
                     SOAP Summary
                   </label>
-                  <input
+                  <textarea
                     type="text"
                     name="SOAPSummary"
                     value={newTherapyRecord.SOAPSummary}
                     onChange={handleNewTherapyRecordChange}
                     // onChange={(e) => handleNewTherapyRecordChange(e.target.value)}
                     required
-                    className="border rounded-lg w-full p-2 mt-1"
+                    className="border rounded-lg w-full p-2 mt-1 h-80"
                   />
                 </div>
                 <div className="flex justify-end space-x-3">
@@ -426,75 +423,73 @@ function PhysicalTherapy() {
                     Cancel
                   </button>
                   <button
-                  type="submit"
-                  className="bg-custom-red text-white py-2 px-4 rounded-lg"
-                  // onClick={() => {
-                  //   setSelectedRecord({
-                  //     ...selectedRecord,
-                  //     SOAPSummary: selectedRecord.SOAPSummary
-                  //       ? `${newTherapyRecord.SOAPSummary}, ${newTherapyRecord}`
-                  //       : newTherapyRecord,
-                  //   });
-                  //   handleNewTherapyRecordClose();
-                  //   setNewTherapyRecord({ SOAPSummary: "" });
-                  // }}
-                >
-                  Submit
-                </button>
+                    type="submit"
+                    className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                  >
+                    Submit
+                  </button>
 
                 </div>
               </form>
             </div>
           </div>
         )}
-       {/* View Record Modal */}
-      {isViewRecordModalOpen && selectedRecord && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/2">
-            <h2 className="text-xl font-semibold mb-4">Record Details</h2>
-            <p><strong>Patient Info:</strong> {selectedRecord.patient?.firstname} {selectedRecord.patient?.lastname}</p>
-            <p><strong>Tentative Diagnosis:</strong> {selectedRecord.Diagnosis}</p>
-            <p><strong>Chief Complaints:</strong> {selectedRecord.ChiefComplaints}</p>
-            <p><strong>History of Present Illness:</strong> {selectedRecord.HistoryOfPresentIllness}</p>
-            <p><strong>Gender:</strong> {selectedRecord.patient?.sex}</p>
-            {/* <p><strong>Precautions:</strong> {selectedRecord.Precautions}</p> */}
+        {/* View Record Modal */}
+        {isViewRecordModalOpen && selectedRecord && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-1/2 overflow-hidden">
+              <h2 className="text-xl font-semibold mb-4">Record Details</h2>
+              <p><strong>Patient Info:</strong> {selectedRecord.patient?.firstname} {selectedRecord.patient?.lastname}</p>
+              <p><strong>Tentative Diagnosis:</strong> {selectedRecord.Diagnosis}</p>
+              <p><strong>Chief Complaints:</strong> {selectedRecord.ChiefComplaints}</p>
+              <p><strong>History of Present Illness:</strong> {selectedRecord.HistoryOfPresentIllness}</p>
+              <p><strong>Gender:</strong> {selectedRecord.patient?.sex}</p>
 
-            {/* Date and SOAP Summary Table */}
-            <div className="mt-4">
-              <table className="min-w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr>
-                    <th className="border border-gray-300 px-4 py-2">Date</th>
-                    <th className="border border-gray-300 px-4 py-2">SOAP Summary</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedRecord.SOAPSummaries?.map((entry, index) => (
-                    <tr key={index}>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {new Date(entry.date).toLocaleDateString()}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {entry.summary}
-                      </td>
+              {/* Date and SOAP Summary Table */}
+              <div className="mt-4 overflow-x-auto max-h-60"> {/* max-h-60 limits the height */}
+                <table className="min-w-full border-collapse border border-gray-300">
+                  <thead>
+                    <tr>
+                      <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
+                      <th className="border border-gray-300 px-4 py-2 text-left">SOAP Summary</th>
+                      <th className="border border-gray-300 px-4 py-2">Verification</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="overflow-y-auto">
+                    {selectedRecord.SOAPSummaries?.map((entry, index) => (
+                      <tr key={index}>
+                        <td className="border border-gray-300 px-4 py-2 text-left">
+                          {new Date(entry.date).toLocaleDateString()}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2 text-left break-words max-w-xs overflow-hidden text-ellipsis">
+                          {entry.summary}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          <button
+                            className="bg-custom-red text-white px-4 py-2 rounded-lg"
+                            onClick={() => openNewTherapyModal(selectedRecord._id) } 
+                          >
+                            Verify
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-
-            <div className="flex justify-end mt-4">
-              <button
-                className="bg-custom-red text-white px-4 py-2 rounded-lg"
-                onClick={closeViewRecordModal} // Close the modal
-              >
-                Close
-              </button>
+              <div className="flex justify-end mt-4">
+                <button
+                  className="bg-custom-red text-white px-4 py-2 rounded-lg"
+                  onClick={closeViewRecordModal} // Close the modal
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
       </div>
     </div>
   );
