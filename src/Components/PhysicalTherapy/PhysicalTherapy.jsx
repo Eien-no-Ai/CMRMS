@@ -20,8 +20,10 @@ function PhysicalTherapy() {
   const [isViewRecordModalOpen, setIsViewRecordModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [newTherapyRecord, setNewTherapyRecord] = useState({
-    SOAPSummary: ""
+    SOAPSummaries: { summary: "", date: Date.now() },
   });
+  const [editingEntryId, setEditingEntryId] = useState(null); // ID of the SOAP summary being edited
+  const [editSummary, setEditSummary] = useState(""); // Text for the current edit
   const [selectedTherapyId, setSelectedTherapyId] = useState(null);
 
   // Set the selected ID when a record is clicked
@@ -192,6 +194,32 @@ function PhysicalTherapy() {
     setShowFullList(!showFullList);
   };
 
+  // Function to enable editing mode
+  const handleEdit = (summaryId, summaryText) => {
+    setEditingEntryId(summaryId);
+    setEditSummary(summaryText);
+  };
+
+  // Function to save the edited SOAP summary
+  const handleSaveEdit = async (recordId, summaryId) => {
+    try {
+      const response = await axios.put(`http://localhost:3001/api/physicalTherapy/${recordId}/soapSummary/${summaryId}`, {
+        updatedSOAPSummary: editSummary,
+      });
+
+      if (response.data.success) {
+        // Update local state after successful save
+        const updatedSOAPSummaries = selectedRecord.SOAPSummaries.map((entry) =>
+          entry._id === summaryId ? { ...entry, summary: editSummary } : entry
+        );
+        setSelectedRecord({ ...selectedRecord, SOAPSummaries: updatedSOAPSummaries });
+        setEditingEntryId(null); // Exit editing mode
+      }
+    } catch (error) {
+      console.error("Error updating SOAP summary:", error);
+    }
+  };
+  
   return (
     <div>
       <Navbar />
@@ -354,8 +382,8 @@ function PhysicalTherapy() {
                   onClick={paginatePrev}
                   disabled={currentPage === 1}
                   className={`px-4 py-2 mr-2 rounded-lg border ${currentPage === 1
-                      ? "bg-gray-300"
-                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                    ? "bg-gray-300"
+                    : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
                     }`}
                 >
                   Previous
@@ -364,8 +392,8 @@ function PhysicalTherapy() {
                   onClick={paginateNext}
                   disabled={currentPage === totalPages}
                   className={`px-4 py-2 rounded-lg border ${currentPage === totalPages
-                      ? "bg-gray-300"
-                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                    ? "bg-gray-300"
+                    : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
                     }`}
                 >
                   Next
@@ -452,22 +480,59 @@ function PhysicalTherapy() {
                     <tr>
                       <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
                       <th className="border border-gray-300 px-4 py-2 text-left">SOAP Summary</th>
+                      <th className="border border-gray-300 px-4 py-2">Actions</th>
                       <th className="border border-gray-300 px-4 py-2">Verification</th>
                     </tr>
                   </thead>
-                  <tbody className="overflow-y-auto">
-                    {selectedRecord.SOAPSummaries?.map((entry, index) => (
-                      <tr key={index}>
+                  <tbody>
+                    {selectedRecord.SOAPSummaries?.map((entry) => (
+                      <tr key={entry._id}>
                         <td className="border border-gray-300 px-4 py-2 text-left">
                           {new Date(entry.date).toLocaleDateString()}
                         </td>
-                        <td className="border border-gray-300 px-4 py-2 text-left break-words max-w-xs overflow-hidden text-ellipsis">
-                          {entry.summary}
+                        <td className="border border-gray-300 px-4 py-2 text-left break-words max-w-xs">
+                          {editingEntryId === entry._id ? (
+                            <div className="overflow-auto max-h-40"> {/* Set max height for scroll */}
+                              <textarea
+                                value={editSummary}
+                                onChange={(e) => setEditSummary(e.target.value)}
+                                className="w-full h-24 border border-gray-300 px-2 py-1 resize-none"
+                                placeholder="Edit SOAP Summary"
+                              />
+                            </div>
+                          ) : (
+                            entry.summary
+                          )}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2 flex space-x-2">
+                          {editingEntryId === entry._id ? (
+                            <>
+                              <button
+                                className="bg-green-500 text-white px-2 py-1 rounded-lg"
+                                onClick={() => handleSaveEdit(selectedRecord._id, entry._id)}
+                              >
+                                Save
+                              </button>
+                              <button
+                                className="bg-gray-500 text-white px-2 py-1 rounded-lg"
+                                onClick={() => setEditingEntryId(null)}
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              className="bg-blue-500 text-white px-2 py-1 rounded-lg"
+                              onClick={() => handleEdit(entry._id, entry.summary)}
+                            >
+                              Edit
+                            </button>
+                          )}
                         </td>
                         <td className="border border-gray-300 px-4 py-2">
                           <button
-                            className="bg-custom-red text-white px-4 py-2 rounded-lg"
-                            onClick={() => openNewTherapyModal(selectedRecord._id) } 
+                            className="bg-custom-red text-white px-2 py-1 rounded-lg"
+                            onClick={''}
                           >
                             Verify
                           </button>
@@ -489,7 +554,6 @@ function PhysicalTherapy() {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
