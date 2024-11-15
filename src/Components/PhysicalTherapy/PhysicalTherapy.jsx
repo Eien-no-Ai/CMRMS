@@ -20,7 +20,11 @@ function PhysicalTherapy() {
   const [isViewRecordModalOpen, setIsViewRecordModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [newTherapyRecord, setNewTherapyRecord] = useState({
-    SOAPSummaries: { summary: "", date: Date.now() },
+    SOAPSummaries: {
+      summary: "",
+      date: Date.now(),
+      verifiedBy: "",
+    },
   });
   const [editingEntryId, setEditingEntryId] = useState(null); // ID of the SOAP summary being edited
   const [editSummary, setEditSummary] = useState(""); // Text for the current edit
@@ -219,7 +223,35 @@ function PhysicalTherapy() {
       console.error("Error updating SOAP summary:", error);
     }
   };
-  
+
+  const [records, setRecords] = useState([]);
+  const [userRole, setUserRole] = useState(null);
+  const [userData, setUserData] = useState({}); // State to store the user's data
+
+  useEffect(() => {
+    // Fetch the user data when the component is mounted
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      fetch(`http://localhost:3001/user/${userId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          setUserRole(data.role);
+          setUserData(data.firstname);
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        });
+    }
+  }, []);
+
+  useEffect(() => {
+    // Retrieve the role from localStorage
+    const storedRole = localStorage.getItem("role");
+    if (storedRole) {
+      setUserRole(storedRole);
+    }
+  }, []);
+
   return (
     <div>
       <Navbar />
@@ -480,7 +512,10 @@ function PhysicalTherapy() {
                     <tr>
                       <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
                       <th className="border border-gray-300 px-4 py-2 text-left">SOAP Summary</th>
-                      <th className="border border-gray-300 px-4 py-2">Actions</th>
+                      {/* Conditionally hide the Edit column based on userRole */}
+                      {userRole !== "special trainee" && (
+                        <th className="border border-gray-300 px-4 py-2"></th>
+                      )}
                       <th className="border border-gray-300 px-4 py-2">Verification</th>
                     </tr>
                   </thead>
@@ -492,7 +527,7 @@ function PhysicalTherapy() {
                         </td>
                         <td className="border border-gray-300 px-4 py-2 text-left break-words max-w-xs">
                           {editingEntryId === entry._id ? (
-                            <div className="overflow-auto max-h-40"> {/* Set max height for scroll */}
+                            <div className="overflow-auto max-h-40">
                               <textarea
                                 value={editSummary}
                                 onChange={(e) => setEditSummary(e.target.value)}
@@ -504,38 +539,49 @@ function PhysicalTherapy() {
                             entry.summary
                           )}
                         </td>
-                        <td className="border border-gray-300 px-4 py-2 flex space-x-2">
-                          {editingEntryId === entry._id ? (
-                            <>
-                              <button
-                                className="bg-green-500 text-white px-2 py-1 rounded-lg"
-                                onClick={() => handleSaveEdit(selectedRecord._id, entry._id)}
-                              >
-                                Save
-                              </button>
-                              <button
-                                className="bg-gray-500 text-white px-2 py-1 rounded-lg"
-                                onClick={() => setEditingEntryId(null)}
-                              >
-                                Cancel
-                              </button>
-                            </>
-                          ) : (
-                            <button
-                              className="bg-blue-500 text-white px-2 py-1 rounded-lg"
-                              onClick={() => handleEdit(entry._id, entry.summary)}
-                            >
-                              Edit
-                            </button>
-                          )}
-                        </td>
+                        {/* Conditionally hide the Edit button column */}
+                        {userRole !== "special trainee" && (
+                          <td className="border border-gray-300 px-4 py-2 flex space-x-2">
+                            {userRole === "physical therapist" ? (
+                              editingEntryId === entry._id ? (
+                                <>
+                                  <button
+                                    className="bg-green-500 text-white px-2 py-1 rounded-lg"
+                                    onClick={() => handleSaveEdit(selectedRecord._id, entry._id)}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    className="bg-gray-500 text-white px-2 py-1 rounded-lg"
+                                    onClick={() => setEditingEntryId(null)}
+                                  >
+                                    Cancel
+                                  </button>
+                                </>
+                              ) : (
+                                <button
+                                  className="bg-blue-500 text-white px-2 py-1 rounded-lg"
+                                  onClick={() => handleEdit(entry._id, entry.summary)}
+                                >
+                                  Edit
+                                </button>
+                              )
+                            ) : (
+                              <span className="text-gray-500 text-sm">View only</span>
+                            )}
+                          </td>
+                        )}
                         <td className="border border-gray-300 px-4 py-2">
-                          <button
-                            className="bg-custom-red text-white px-2 py-1 rounded-lg"
-                            onClick={''}
-                          >
-                            Verify
-                          </button>
+                          {userRole === "physical therapist" ? (
+                            <button
+                              className="bg-custom-red text-white px-2 py-1 rounded-lg"
+                              onClick={''}
+                            >
+                              Verify
+                            </button>
+                          ) : (
+                            <span className="text-gray-500 text-sm">No access</span>
+                          )}
                         </td>
                       </tr>
                     ))}

@@ -5,8 +5,8 @@ const PhysicalTherapySchema = new mongoose.Schema({
   clinicId: { type: mongoose.Schema.Types.ObjectId, ref: "clinics" },
   SOAPSummaries: [{
     summary: { type: String, required: true },
-    date: { type: Date, default: Date.now }
-    
+    date: { type: Date, default: Date.now },
+    verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'employees' },
   }],
   ChiefComplaints: { type: String },
   HistoryOfPresentIllness: { type: String },
