@@ -504,7 +504,15 @@ function PhysicalTherapy() {
               <p><strong>Chief Complaints:</strong> {selectedRecord.ChiefComplaints}</p>
               <p><strong>History of Present Illness:</strong> {selectedRecord.HistoryOfPresentIllness}</p>
               <p><strong>Gender:</strong> {selectedRecord.patient?.sex}</p>
-
+              {selectedRecord.record && (
+              <div>
+                <img
+                  src={selectedRecord.record}
+                  alt="X-ray"
+                  className="w-full h-auto object-contain cursor-pointer mb-4 max-h-[60vh] overflow-hidden mx-auto" 
+                />
+              </div>
+              )}
               {/* Date and SOAP Summary Table */}
               <div className="mt-4 overflow-x-auto max-h-60"> {/* max-h-60 limits the height */}
                 <table className="min-w-full border-collapse border border-gray-300">

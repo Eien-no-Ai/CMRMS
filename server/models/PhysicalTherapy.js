@@ -9,6 +9,7 @@ const PhysicalTherapySchema = new mongoose.Schema({
     verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'employees' },
   }],
   ChiefComplaints: { type: String },
+  record: { type: String, default: "" },
   HistoryOfPresentIllness: { type: String },
   Diagnosis: { type: String },
   Precautions: { type: String },

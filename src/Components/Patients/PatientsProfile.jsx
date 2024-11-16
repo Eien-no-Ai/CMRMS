@@ -194,14 +194,40 @@ function PatientsProfile() {
     }));
   };
 
+  // const handleNewTherapySubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const response = await axios.post(
+  //       "http://localhost:3001/api/physicalTherapy", // Fix the spelling here
+  //       {
+  //         ...newTherapyRecord,
+  //         patient: id,
+  //       }
+  //     );
+  //     if (response.status === 200) {
+  //       handleNewTherapyRecordClose();
+  //       fetchPhysicalTherapyRecords();
+  //       setNewTherapyRecord({
+  //         SOAPSummary: "",
+  //         Diagnosis: "",
+  //         Precautions: "",
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Error adding new record:", error.response || error);
+  //   }
+  // };
+
   const handleNewTherapySubmit = async (e) => {
     e.preventDefault();
+    const record = selectedXrayRecords[selectedXray].imageFile;
     try {
       const response = await axios.post(
         "http://localhost:3001/api/physicalTherapy", // Fix the spelling here
         {
           ...newTherapyRecord,
           patient: id,
+          record,
         }
       );
       if (response.status === 200) {
@@ -213,11 +239,12 @@ function PatientsProfile() {
           Precautions: "",
         });
       }
+      console.log(record);
     } catch (error) {
       console.error("Error adding new record:", error.response || error);
     }
   };
-
+  
   const handleNewRecordOpen = () => {
     setIsNewRecordModalOpen(true);
   };
