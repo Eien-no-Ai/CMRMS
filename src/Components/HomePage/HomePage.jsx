@@ -148,54 +148,56 @@ const Dashboard = () => {
                       </span>
                     </a>
                   )}
-                  {records.includes("Laboratory Records") && (
-                    <div className="grid grid-cols-3 gap-6">
-                      <a
-                        href="/laboratory/records"
-                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
-                      >
-                        <IoFileTrayFullOutline
-                          size={40}
-                          className="text-gray-500 mb-2"
-                        />
-                        <span className="font-semibold text-custom-red">
-                          LAB RECORDS
-                        </span>
-                      </a>
-                      <a
-                        href="/laboratory/verification"
-                        onClick={(e) => {
-                          if (
-                            userRole !== "senior medtech" &&
-                            userRole !== "pathologist"
-                          ) {
-                            e.preventDefault();
-                            alert(
-                              "You do not have permission to verify laboratory tests."
-                            );
-                          }
-                        }}
-                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
-                      >
-                        <MdOutlineVerifiedUser
-                          size={40}
-                          className="text-gray-500 mb-2"
-                        />
-                        <span className="font-semibold text-custom-red">
-                          LAB VERIFICATION
-                        </span>
-                      </a>
-                      <a
-                        href="/laboratory/requests"
-                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
-                      >
-                        <SlChemistry size={40} className="text-gray-500 mb-2" />
-                        <span className="font-semibold text-custom-red">
-                          LAB REQUESTS
-                        </span>
-                      </a>
-                    </div>
-                  )}
+                {records.includes("Laboratory Records") && (
+  <div className="grid grid-cols-3 gap-6">
+    <a
+      href="/laboratory/records"
+      className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+    >
+      <IoFileTrayFullOutline
+        size={40}
+        className="text-gray-500 mb-2"
+      />
+      <span className="font-semibold text-custom-red">
+        LAB RECORDS
+      </span>
+    </a>
+    <a
+      href={
+        userRole === "pathologist"
+          ? "/laboratory/verification/pathologist"
+          : "/laboratory/verification"
+      }
+      onClick={(e) => {
+        if (userRole !== "senior medtech" && userRole !== "pathologist") {
+          e.preventDefault();
+          alert(
+            "You do not have permission to verify laboratory tests."
+          );
+        }
+      }}
+      className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+    >
+      <MdOutlineVerifiedUser
+        size={40}
+        className="text-gray-500 mb-2"
+      />
+      <span className="font-semibold text-custom-red">
+        LAB VERIFICATION
+      </span>
+    </a>
+    <a
+      href="/laboratory/requests"
+      className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+    >
+      <SlChemistry size={40} className="text-gray-500 mb-2" />
+      <span className="font-semibold text-custom-red">
+        LAB REQUESTS
+      </span>
+    </a>
+  </div>
+)}
+
                   {records.includes("X-Ray Records") && (
                     <div className="grid grid-cols-2 gap-6">
                       <a

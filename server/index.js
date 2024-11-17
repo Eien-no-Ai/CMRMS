@@ -550,7 +550,6 @@ app.get("/api/employees/:employeeId", async (req, res) => {
   }
 });
 
-
 app.post("/api/laboratory-results", async (req, res) => {
   const {
     ORNumber,
@@ -858,6 +857,31 @@ app.get("/api/pathologist-signature", async (req, res) => {
     }
 
     // Construct the URL for the signature file
+    const signatureUrl = `http://localhost:3001/uploads/${pathologist.signature}`;
+    return res.json({ signature: signatureUrl });
+  } catch (error) {
+    console.error("Error fetching pathologist signature:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error while fetching signature" });
+  }
+});
+
+app.get("/api/pathologist-signature/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params; // Extract userId from request parameters
+
+    const pathologist = await EmployeeModel.findOne({
+      _id: userId,
+      role: "pathologist", // Ensure only pathologists are considered
+    }).select("signature");
+
+    if (!pathologist || !pathologist.signature) {
+      return res
+        .status(404)
+        .json({ message: "Pathologist or signature not found" });
+    }
+
     const signatureUrl = `http://localhost:3001/uploads/${pathologist.signature}`;
     return res.json({ signature: signatureUrl });
   } catch (error) {
@@ -1396,7 +1420,8 @@ app.put(
   "/api/xrayResults/:id",
   uploadd.single("imageFile"),
   async (req, res) => {
-    const { patientId, clinicId, ORNumber, XrayNo, diagnosis ,xrayFindings} = req.body;
+    const { patientId, clinicId, ORNumber, XrayNo, diagnosis, xrayFindings } =
+      req.body;
     const imageFile = req.file ? req.file.filename : ""; // Check if a new file was uploaded
 
     try {
@@ -1439,6 +1464,7 @@ app.put(
     }
   }
 );
+
 // Endpoint to get X-ray result by ID
 app.get("/api/xrayResults/id/:id", async (req, res) => {
   const { id } = req.params;

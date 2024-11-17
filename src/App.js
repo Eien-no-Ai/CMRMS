@@ -20,6 +20,7 @@ import PhysicalTherapy from "./Components/PhysicalTherapy/PhysicalTherapy";
 import XrayResult from "./Components/Xray/XrayResult";
 import LaboratoryVerification from "./Components/Laboratory/LaboratoryVerification";
 import Vaccine from "./Components/Vaccine/Vaccine";
+import LaboratoryPathologistVerification from "./Components/Laboratory/LaboratoryPathVerification";
 
 function App() {
   return (
@@ -199,6 +200,20 @@ function App() {
                 ]}
               >
                 <LaboratoryVerification />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/laboratory/verification/pathologist"
+            element={
+              <PrivateRoute
+                allowedRoles={[
+       
+                  "pathologist",
+                ]}
+              >
+                <LaboratoryPathologistVerification />
               </PrivateRoute>
             }
           />

@@ -17,6 +17,7 @@ function LaboratoryResult() {
     useState(false);
   const [isSerologyVisible, setSerologyVisible] = useState(false);
   const [verifiedByEmployee, setVerifiedByEmployee] = useState(null);
+  const [verifiedByPathologist, setVerifiedByPathologist] = useState(null);
 
   useEffect(() => {
     fetchLabRecords();
@@ -150,7 +151,28 @@ function LaboratoryResult() {
       console.error("Error fetching employee details:", error);
     }
   };
-  
+
+  const fetchPathologistDetails = async (pathologistId) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/employees/${pathologistId}`
+      );
+      if (response.status === 200 && response.data) {
+        setVerifiedByPathologist(response.data); // Store pathologist details
+      } else {
+        console.error("Pathologist not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching pathologist details:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (labDetails && labDetails.verifiedByPathologist) {
+      fetchPathologistDetails(labDetails.verifiedByPathologist); // Fetch pathologist details
+    }
+  }, [labDetails]);
+
   return (
     <div>
       <Navbar />
@@ -430,169 +452,173 @@ function LaboratoryResult() {
                 />
               </div>
 
-               {/* Blood Chemistry Section */}
-               <div className="mb-0">
-                    <div
-                      className="flex items-center justify-between cursor-pointer"
-                      onClick={toggleBloodChemistryVisibility}
-                    >
-                      <h3 className="text-lg font-semibold my-0 py-2">
-                        I. Blood Chemistry
-                      </h3>
-                      <BiChevronDown
-                        className={`transform transition-transform duration-300 ${
-                          isBloodChemistryVisible ? "rotate-180" : ""
-                        }`}
-                        size={24}
+              {/* Blood Chemistry Section */}
+              <div className="mb-0">
+                <div
+                  className="flex items-center justify-between cursor-pointer"
+                  onClick={toggleBloodChemistryVisibility}
+                >
+                  <h3 className="text-lg font-semibold my-0 py-2">
+                    I. Blood Chemistry
+                  </h3>
+                  <BiChevronDown
+                    className={`transform transition-transform duration-300 ${
+                      isBloodChemistryVisible ? "rotate-180" : ""
+                    }`}
+                    size={24}
+                  />
+                </div>
+                <div className="w-full h-px bg-gray-300 my-0"></div>
+
+                {isBloodChemistryVisible && (
+                  <div className="grid grid-cols-3 gap-4 p-4">
+                    <div className="col-span-1 font-semibold">Test</div>
+                    <div className="col-span-1 font-semibold">Result</div>
+                    <div className="col-span-1 font-semibold">
+                      Reference Range
+                    </div>
+
+                    {/* FBS */}
+                    <div className="col-span-1">FBS</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="bloodSugar"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={labDetails.bloodChemistry?.bloodSugar || ""}
                       />
                     </div>
-                    <div className="w-full h-px bg-gray-300 my-0"></div>
+                    <div className="col-span-1">70 - 105 mg/dL</div>
 
-                    {isBloodChemistryVisible && (
-                      <div className="grid grid-cols-3 gap-4 p-4">
-                        <div className="col-span-1 font-semibold">Test</div>
-                        <div className="col-span-1 font-semibold">Result</div>
-                        <div className="col-span-1 font-semibold">
-                          Reference Range
-                        </div>
+                    {/* Total Cholesterol */}
+                    <div className="col-span-1">Total Cholesterol</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="totalCholesterol"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={
+                          labDetails.bloodChemistry?.totalCholesterol || ""
+                        }
+                      />
+                    </div>
+                    <div className="col-span-1">140 - 200 mg/dL</div>
 
-                        {/* FBS */}
-                        <div className="col-span-1">FBS</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="bloodSugar"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.bloodChemistry?.bloodSugar || ""}
-                          />
-                        </div>
-                        <div className="col-span-1">70 - 105 mg/dL</div>
+                    {/* Triglycerides */}
+                    <div className="col-span-1">Triglycerides</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="triglyceride"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={labDetails.bloodChemistry?.triglyceride || ""}
+                      />
+                    </div>
+                    <div className="col-span-1">{"<200 mg/dL"}</div>
 
-                        {/* Total Cholesterol */}
-                        <div className="col-span-1">Total Cholesterol</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="totalCholesterol"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.bloodChemistry?.totalCholesterol || ""}
-                          />
-                        </div>
-                        <div className="col-span-1">140 - 200 mg/dL</div>
+                    {/* Blood Uric Acid */}
+                    <div className="col-span-1">Blood Uric Acid</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="bloodUricAcid"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={labDetails.bloodChemistry?.bloodUricAcid || ""}
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      MEN: 3.5 - 7.2 mg/dL <br />
+                      WOMEN: 2.6 - 6.0 mg/dL
+                    </div>
 
-                        {/* Triglycerides */}
-                        <div className="col-span-1">Triglycerides</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="triglyceride"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.bloodChemistry?.triglyceride || ""}
-                          />
-                        </div>
-                        <div className="col-span-1">{"<200 mg/dL"}</div>
+                    {/* Blood Urea Nitrogen */}
+                    <div className="col-span-1">Blood Urea Nitrogen</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="bloodUreaNitrogen"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={
+                          labDetails.bloodChemistry?.bloodUreaNitrogen || ""
+                        }
+                      />
+                    </div>
+                    <div className="col-span-1">4.67 - 23.35 mg/dL</div>
 
-                        {/* Blood Uric Acid */}
-                        <div className="col-span-1">Blood Uric Acid</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="bloodUricAcid"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.bloodChemistry?.bloodUricAcid || ""}
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          MEN: 3.5 - 7.2 mg/dL <br />
-                          WOMEN: 2.6 - 6.0 mg/dL
-                        </div>
+                    {/* Creatinine */}
+                    <div className="col-span-1">Creatinine</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="creatinine"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={labDetails.bloodChemistry?.creatinine || ""}
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      MEN: 0.7 - 1.2 mg/dL <br />
+                      WOMEN: 0.6 - 1.1 mg/dL
+                    </div>
 
-                        {/* Blood Urea Nitrogen */}
-                        <div className="col-span-1">Blood Urea Nitrogen</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="bloodUreaNitrogen"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.bloodChemistry?.bloodUreaNitrogen || ""}
-                          />
-                        </div>
-                        <div className="col-span-1">4.67 - 23.35 mg/dL</div>
+                    {/* AST/SGOT */}
+                    <div className="col-span-1">AST/SGOT</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="SGOT_AST"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={labDetails.bloodChemistry?.SGOT_AST || ""}
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      MEN: UP TO 40 U/L <br />
+                      WOMEN: UP TO 33 U/L
+                    </div>
 
-                        {/* Creatinine */}
-                        <div className="col-span-1">Creatinine</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="creatinine"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.bloodChemistry?.creatinine || ""}
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          MEN: 0.7 - 1.2 mg/dL <br />
-                          WOMEN: 0.6 - 1.1 mg/dL
-                        </div>
+                    {/* ALT/SGPT */}
+                    <div className="col-span-1">ALT/SGPT</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="SGPT_ALT"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={labDetails.bloodChemistry?.SGPT_ALT || ""}
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      MEN: UP TO 41 U/L <br />
+                      WOMEN: UP TO 32 U/L
+                    </div>
 
-                        {/* AST/SGOT */}
-                        <div className="col-span-1">AST/SGOT</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="SGOT_AST"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.bloodChemistry?.SGOT_AST || ""}
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          MEN: UP TO 40 U/L <br />
-                          WOMEN: UP TO 33 U/L
-                        </div>
+                    {/* Direct HDL */}
+                    <div className="col-span-1">Direct HDL</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="HDL_cholesterol"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={labDetails.bloodChemistry?.HDL_cholesterol || ""}
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      MEN: 40 - 50 mg/dL <br />
+                      WOMEN: 45 - 60 mg/dL
+                    </div>
 
-                        {/* ALT/SGPT */}
-                        <div className="col-span-1">ALT/SGPT</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="SGPT_ALT"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.bloodChemistry?.SGPT_ALT || ""}
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          MEN: UP TO 41 U/L <br />
-                          WOMEN: UP TO 32 U/L
-                        </div>
-
-                        {/* Direct HDL */}
-                        <div className="col-span-1">Direct HDL</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="HDL_cholesterol"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.bloodChemistry?.HDL_cholesterol || ""}
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          MEN: 40 - 50 mg/dL <br />
-                          WOMEN: 45 - 60 mg/dL
-                        </div>
-
-                        {/* Direct LDL */}
-                        <div className="col-span-1">Direct LDL</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="LDL_cholesterol"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={labDetails.bloodChemistry?.LDL_cholesterol || ""}
-                          />
-                        </div>
-                        <div className="col-span-1">{"<130 mg/dL"}</div>
-                      </div>
-                    )}
+                    {/* Direct LDL */}
+                    <div className="col-span-1">Direct LDL</div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        name="LDL_cholesterol"
+                        className="w-full px-3 py-1 border rounded bg-gray-100"
+                        value={labDetails.bloodChemistry?.LDL_cholesterol || ""}
+                      />
+                    </div>
+                    <div className="col-span-1">{"<130 mg/dL"}</div>
                   </div>
+                )}
+              </div>
 
               {/* Hematology Section */}
               <div className="mb-0">
@@ -1609,33 +1635,55 @@ function LaboratoryResult() {
                 </div>
               )}
             </form>
-            
+
             <div className="flex items-center gap-8">
-  {labDetails.pathologistSignature && (
-    
-    <div className="flex flex-col items-center">
-      <img
-        src={labDetails.pathologistSignature}
-        alt="Pathologist Signature"
-        className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
-      />
-      <p className="text-gray-600 text-xs mt-1 font-semibold text-center">
-        Rhesa Michelle M. Wong, MD, DPSP
-      </p>
-      <p className="text-gray-600 text-xs text-center">License Number: 0111589</p>
-      <p className="text-gray-600 text-xs text-center">Clinical Pathologist</p>
-    </div>
-  )}
-  {verifiedByEmployee && (
-    <div className="flex flex-col justify-start items-center" style={{ marginTop: '3.7rem' }}>
-      <p className="text-gray-600 text-xs font-semibold">
-        Verified by: {verifiedByEmployee.firstname} {verifiedByEmployee.lastname}
-      </p>
-      <p className="text-gray-600 text-xs">{verifiedByEmployee.role}</p>
-      <p className="text-gray-600 text-xs">{verifiedByEmployee.department}</p>
-    </div>
-  )}
-</div>
+              {labDetails.pathologistSignature && (
+                <div className="flex flex-col items-center">
+                  {/* Display Pathologist's Signature */}
+                  <img
+                    src={labDetails.pathologistSignature}
+                    alt="Pathologist Signature"
+                    className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
+                  />
+
+                  {/* Display Pathologist's Name and Details */}
+                  {verifiedByPathologist ? (
+                    <>
+                      <p className="text-gray-600 text-xs font-semibold text-center">
+                        {verifiedByPathologist.firstname}{" "}
+                        {verifiedByPathologist.lastname}
+                      </p>
+                      <p className="text-gray-600 text-xs text-center">
+                        {verifiedByPathologist.role || "Pathologist"}
+                      </p>
+                      <p className="text-gray-600 text-xs text-center">
+                        Department: {verifiedByPathologist.department || "N/A"}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-gray-600 text-xs text-center">
+                      Loading Pathologist Details...
+                    </p>
+                  )}
+                </div>
+              )}
+              {verifiedByEmployee && (
+                <div
+                  className="flex flex-col justify-start items-center"
+                  style={{ marginTop: "3.7rem" }}
+                >
+                  <p className="text-gray-600 text-xs font-semibold">
+                    {verifiedByEmployee.firstname} {verifiedByEmployee.lastname}
+                  </p>
+                  <p className="text-gray-600 text-xs">
+                    {verifiedByEmployee.role}
+                  </p>
+                  <p className="text-gray-600 text-xs">
+                    {verifiedByEmployee.department}
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* Buttons Wrapper */}
             <div className="flex justify-end space-x-4 mt-4">
