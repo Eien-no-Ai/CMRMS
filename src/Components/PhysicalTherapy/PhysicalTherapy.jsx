@@ -82,7 +82,10 @@ function PhysicalTherapy() {
     try {
       const response = await axios.put(
         `http://localhost:3001/api/physicalTherapy/${therapyRecordId}`,
-        { SOAPSummary: newTherapyRecord.SOAPSummary }
+        {
+          SOAPSummary: newTherapyRecord.SOAPSummary,
+          verifiedBy: ""
+        }
       );
 
       if (response.status === 200) {
@@ -141,17 +144,19 @@ function PhysicalTherapy() {
     axios
       .get("http://localhost:3001/api/physicalTherapy")
       .then((response) => {
-        console.log(response.data); // Add this line to inspect the response
+        console.log(response.data && response.data.records); // Add this line to inspect the response
         const sortedRecords = response.data.sort(
           (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
         );
         setPhysicalTherapyRecords(sortedRecords);
+        setRecords(response.data.records);
       })
       .catch((error) => {
         console.error("There was an error fetching the physical therapy records!", error);
       });
   };
 
+  
   const indexOfLastRecord = currentPage * physicalTherapyRecordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - physicalTherapyRecordsPerPage;
 
@@ -227,23 +232,24 @@ function PhysicalTherapy() {
   const [records, setRecords] = useState([]);
   const [userRole, setUserRole] = useState(null);
   const [userData, setUserData] = useState({}); // State to store the user's data
+  const [showXray, setShowXray] = useState(false); // State to toggle X-ray visibility
 
   useEffect(() => {
-    // Fetch the user data when the component is mounted
     const userId = localStorage.getItem("userId");
     if (userId) {
       fetch(`http://localhost:3001/user/${userId}`)
         .then((response) => response.json())
         .then((data) => {
           setUserRole(data.role);
-          setUserData(data.firstname);
+          setUserData(data); // Store the full user data including _id
+
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
         });
     }
   }, []);
-
+  
   useEffect(() => {
     // Retrieve the role from localStorage
     const storedRole = localStorage.getItem("role");
@@ -252,6 +258,32 @@ function PhysicalTherapy() {
     }
   }, []);
 
+  const handleVerify = async (therapyRecordId, summaryId) => {
+    if (!therapyRecordId || !summaryId) {
+      console.error("Error: Invalid therapy record or summary ID.");
+      return;
+    }
+  
+    try {
+      const response = await axios.put(
+        `http://localhost:3001/api/physicalTherapyVerification/${therapyRecordId}/soapSummary/${summaryId}`,
+        { 
+          updatedSOAPSummary: {
+            firstname: userData.firstname, // Send the user's first name
+            lastname: userData.lastname,  // Send the user's last name
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        fetchPhysicalTherapyRecords(); // Refresh the records to reflect the update
+        console.log("SOAP summary verified successfully.");
+      }
+    } catch (error) {
+      console.error("Error verifying SOAP summary:", error.response || error);
+    }
+  };
+  
   return (
     <div>
       <Navbar />
@@ -497,30 +529,45 @@ function PhysicalTherapy() {
         {/* View Record Modal */}
         {isViewRecordModalOpen && selectedRecord && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-1/2 overflow-hidden">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-1/2 max-h-[80vh] overflow-y-auto">
               <h2 className="text-xl font-semibold mb-4">Record Details</h2>
               <p><strong>Patient Info:</strong> {selectedRecord.patient?.firstname} {selectedRecord.patient?.lastname}</p>
               <p><strong>Tentative Diagnosis:</strong> {selectedRecord.Diagnosis}</p>
               <p><strong>Chief Complaints:</strong> {selectedRecord.ChiefComplaints}</p>
               <p><strong>History of Present Illness:</strong> {selectedRecord.HistoryOfPresentIllness}</p>
               <p><strong>Gender:</strong> {selectedRecord.patient?.sex}</p>
-              {selectedRecord.record && (
-              <div>
-                <img
-                  src={selectedRecord.record}
-                  alt="X-ray"
-                  className="w-full h-auto object-contain cursor-pointer mb-4 max-h-[60vh] overflow-hidden mx-auto" 
-                />
-              </div>
+              <p>
+
+                {selectedRecord.record && (
+                  <>
+                    <strong>X-ray Image:</strong>
+                    <button
+                      className="bg-custom-red text-white px-4 py-2 rounded-lg mt-2"
+                      onClick={() => setShowXray(!showXray)}
+                    >
+                      {showXray ? 'Hide X-ray' : 'View X-ray'}
+                    </button>
+                  </>
+                )}
+              </p>
+              {/* X-ray Image */}
+              {showXray && selectedRecord.record && (
+                <div className="mt-4">
+                  <img
+                    src={selectedRecord.record}
+                    alt="X-ray"
+                    className="w-full h-auto object-contain max-h-[60vh] mx-auto"
+                  />
+                </div>
               )}
+
               {/* Date and SOAP Summary Table */}
-              <div className="mt-4 overflow-x-auto max-h-60"> {/* max-h-60 limits the height */}
+              <div className="mt-4 overflow-x-auto max-h-60">
                 <table className="min-w-full border-collapse border border-gray-300">
                   <thead>
                     <tr>
                       <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
                       <th className="border border-gray-300 px-4 py-2 text-left">SOAP Summary</th>
-                      {/* Conditionally hide the Edit column based on userRole */}
                       {userRole !== "special trainee" && (
                         <th className="border border-gray-300 px-4 py-2"></th>
                       )}
@@ -535,22 +582,21 @@ function PhysicalTherapy() {
                         </td>
                         <td className="border border-gray-300 px-4 py-2 text-left break-words max-w-xs">
                           {editingEntryId === entry._id ? (
-                            <div className="overflow-auto max-h-40">
-                              <textarea
-                                value={editSummary}
-                                onChange={(e) => setEditSummary(e.target.value)}
-                                className="w-full h-24 border border-gray-300 px-2 py-1 resize-none"
-                                placeholder="Edit SOAP Summary"
-                              />
-                            </div>
+                            <textarea
+                              value={editSummary}
+                              onChange={(e) => setEditSummary(e.target.value)}
+                              className="w-full h-24 border border-gray-300 px-2 py-1 resize-none"
+                              placeholder="Edit SOAP Summary"
+                            />
                           ) : (
                             entry.summary
                           )}
                         </td>
-                        {/* Conditionally hide the Edit button column */}
                         {userRole !== "special trainee" && (
                           <td className="border border-gray-300 px-4 py-2 flex space-x-2">
-                            {userRole === "physical therapist" ? (
+                            {entry.verifiedBy ? (
+                              <span className="text-gray-500 text-sm">Already Verified</span>
+                            ) : (
                               editingEntryId === entry._id ? (
                                 <>
                                   <button
@@ -568,27 +614,30 @@ function PhysicalTherapy() {
                                 </>
                               ) : (
                                 <button
-                                  className="bg-blue-500 text-white px-2 py-1 rounded-lg"
+                                  className="bg-custom-red text-white px-2 py-1 rounded-lg"
                                   onClick={() => handleEdit(entry._id, entry.summary)}
                                 >
                                   Edit
                                 </button>
                               )
-                            ) : (
-                              <span className="text-gray-500 text-sm">View only</span>
                             )}
                           </td>
                         )}
+
                         <td className="border border-gray-300 px-4 py-2">
-                          {userRole === "physical therapist" ? (
+                          {entry.verifiedBy ? (
+                            <span className="text-green-500 text-sm">
+                              Verified by {entry.verifiedBy}
+                            </span>
+                          ) : userRole === "special trainee" ? (
+                            <span className="text-red-500 text-sm">Not yet verified</span>
+                          ) : (
                             <button
                               className="bg-custom-red text-white px-2 py-1 rounded-lg"
-                              onClick={''}
+                              onClick={() => handleVerify(selectedRecord._id, entry._id)}
                             >
                               Verify
                             </button>
-                          ) : (
-                            <span className="text-gray-500 text-sm">No access</span>
                           )}
                         </td>
                       </tr>
@@ -600,7 +649,7 @@ function PhysicalTherapy() {
               <div className="flex justify-end mt-4">
                 <button
                   className="bg-custom-red text-white px-4 py-2 rounded-lg"
-                  onClick={closeViewRecordModal} // Close the modal
+                  onClick={closeViewRecordModal}
                 >
                   Close
                 </button>

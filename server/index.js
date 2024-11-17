@@ -454,6 +454,41 @@ app.put("/api/physicalTherapy/:id/soapSummary/:summaryId", async (req, res) => {
 });
 
 
+app.put("/api/physicalTherapyVerification/:id/soapSummary/:summaryId", async (req, res) => {
+  const { id, summaryId } = req.params;
+  const { updatedSOAPSummary } = req.body; // Contains firstname and lastname
+
+  try {
+    // Update the verifiedBy field and fetch the updated record
+    const updatedRecord = await PhysicalTherapyModel.findOneAndUpdate(
+      { _id: id, "SOAPSummaries._id": summaryId },
+      { 
+        $set: { 
+          "SOAPSummaries.$.verifiedBy": `${updatedSOAPSummary.firstname} ${updatedSOAPSummary.lastname}` // Save the full name
+        } 
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (updatedRecord) {
+      res.json({
+        success: true,
+        message: "SOAP summary updated successfully",
+        updatedRecord,
+      });
+    } else {
+      res.status(404).json({ message: "Record or SOAP summary not found" });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error updating SOAP summary",
+      error: error.message,
+    });
+  }
+});
+
+
 const fs = require("fs");
 const path = require("path");
 
