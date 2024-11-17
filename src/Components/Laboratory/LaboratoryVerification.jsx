@@ -16,6 +16,7 @@ function LaboratoryVerification() {
   const [isClinicalMicroscopyVisible, setClinicalMicroscopyVisible] =
     useState(false);
   const [isSerologyVisible, setSerologyVisible] = useState(false);
+  const [verifiedByEmployee, setVerifiedByEmployee] = useState(null);
 
   // Separate signature URLs for each section
   const [hematologySignatureUrl, setHematologySignatureUrl] = useState(null);
@@ -169,7 +170,9 @@ function LaboratoryVerification() {
       alert("Lab details not found. Unable to verify.");
       return;
     }
-
+  
+    const employeeId = localStorage.getItem("userId"); // Get the employee ID (assuming logged-in user is the verifier)
+  
     // Prepare the updated data for LaboratoryResultsModel
     const updatedLabResultData = {
       bloodChemistry: {
@@ -178,7 +181,8 @@ function LaboratoryVerification() {
       },
       Hematology: {
         ...labDetails.Hematology,
-        signature: hematologySignatureUrl || labDetails.Hematology?.signature, // Fallback to existing signature if not updated
+        signature:
+          hematologySignatureUrl || labDetails.Hematology?.signature, // Fallback to existing signature if not updated
       },
       clinicalMicroscopyParasitology: {
         ...labDetails.clinicalMicroscopyParasitology,
@@ -193,33 +197,38 @@ function LaboratoryVerification() {
       },
       pathologistSignature:
         pathologistSignatureUrl || labDetails.pathologistSignature, // Add pathologist's signature with fallback
+      verifiedBy: employeeId, // Add the employee ID who verified the result
+      verificationDate: new Date(), // Track when it was verified
     };
-
+  
     // Debugging to see the updated data before the API call
     console.log("Updated Data for verification:", updatedLabResultData);
-
+  
     try {
       // First, update the laboratory results (in LaboratoryResultsModel)
       const response = await axios.put(
         `http://localhost:3001/api/laboratory-results/update/${labDetails._id}`,
         updatedLabResultData
       );
-
+  
       console.log("Response from LaboratoryResults API:", response.data);
-
+  
       if (response.status === 200) {
         // Second, update the labResult field in LaboratoryModel
         const labUpdateResponse = await axios.put(
           `http://localhost:3001/api/laboratory/${labDetails.laboratoryId}`, // Make sure labDetails has `laboratoryId`
           { labResult: "verified" }
         );
-
+  
         console.log("Response from Laboratory API:", labUpdateResponse.data);
-
+  
         if (labUpdateResponse.status === 200) {
           alert("Lab result successfully verified and marked as complete.");
           setIsModalOpen(false); // Close modal after successful update
           fetchLabRecords(); // Refresh the lab records list
+  
+          // Optionally, fetch the employee who verified the result
+          fetchVerifiedByEmployee(employeeId);
         } else {
           alert("Failed to update lab result status. Please try again.");
         }
@@ -231,7 +240,21 @@ function LaboratoryVerification() {
       alert("An error occurred while verifying the lab result.");
     }
   };
+  
 
+  const fetchVerifiedByEmployee = async (employeeId) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/employees/${employeeId}`
+      );
+      if (response.status === 200 && response.data) {
+        setVerifiedByEmployee(response.data); // Save the employee details who verified the record
+      }
+    } catch (error) {
+      console.error("Error fetching employee details:", error);
+    }
+  };
+  
   // Fetch the pathologist's signature
   const fetchPathologistSignature = async () => {
     try {
@@ -247,6 +270,7 @@ function LaboratoryVerification() {
       console.error("Error fetching pathologist signature:", error);
     }
   };
+
 
   return (
     <div>
@@ -1092,7 +1116,7 @@ function LaboratoryVerification() {
                     <div className="col-span-1"></div>
 
                     <div className="col-span-3 flex justify-end">
-                      {!hematologySignatureUrl && (
+                      {/* {!hematologySignatureUrl && (
                         <button
                           onClick={(e) => {
                             e.preventDefault(); // Prevents the page refresh
@@ -1101,7 +1125,7 @@ function LaboratoryVerification() {
                         >
                           Attach Signature
                         </button>
-                      )}
+                      )} */}
 
                       {/* Display fetched signature image */}
                       {hematologySignatureUrl && (
@@ -1895,7 +1919,7 @@ function LaboratoryVerification() {
                   />
                   {/* Signature Button for Clinical Microscopy */}
                   <div className="col-span-6 flex justify-end">
-                    {!clinicalMicroscopySignatureUrl && (
+                    {/* {!clinicalMicroscopySignatureUrl && (
                       <button
                         onClick={(e) => {
                           e.preventDefault(); // Prevents the page refresh
@@ -1904,7 +1928,7 @@ function LaboratoryVerification() {
                       >
                         Attach Signature
                       </button>
-                    )}
+                    )} */}
 
                     {clinicalMicroscopySignatureUrl && (
                       <div className="flex justify-end">
@@ -2658,7 +2682,7 @@ function LaboratoryVerification() {
                   />
                   {/* Signature Button for Clinical Microscopy */}
                   <div className="col-span-12 flex justify-end space-x-6 items-center">
-                    {!serologySignatureUrl && (
+                    {/* {!serologySignatureUrl && (
                       <button
                         onClick={(e) => {
                           e.preventDefault(); // Prevents the page refresh
@@ -2667,7 +2691,7 @@ function LaboratoryVerification() {
                       >
                         Attach Signature
                       </button>
-                    )}
+                    )} */}
 
                     {serologySignatureUrl && (
                       <div className="flex flex-col items-center">
@@ -2702,6 +2726,7 @@ function LaboratoryVerification() {
                 </div>
               </div>
             )}
+
             {/* Buttons Wrapper */}
             <div className="flex justify-end space-x-4 mt-4">
               <button

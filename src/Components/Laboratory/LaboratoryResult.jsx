@@ -16,6 +16,7 @@ function LaboratoryResult() {
   const [isClinicalMicroscopyVisible, setClinicalMicroscopyVisible] =
     useState(false);
   const [isSerologyVisible, setSerologyVisible] = useState(false);
+  const [verifiedByEmployee, setVerifiedByEmployee] = useState(null);
 
   useEffect(() => {
     fetchLabRecords();
@@ -127,6 +128,29 @@ function LaboratoryResult() {
     return age;
   };
 
+  useEffect(() => {
+    if (labDetails && labDetails.verifiedBy) {
+      // Fetch employee details when labDetails.verifiedBy is set
+      fetchEmployeeDetails(labDetails.verifiedBy);
+    }
+  }, [labDetails]); // Runs when labDetails changes
+
+  // Function to fetch employee details by ID
+  const fetchEmployeeDetails = async (employeeId) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/employees/${employeeId}`
+      );
+      if (response.status === 200 && response.data) {
+        setVerifiedByEmployee(response.data); // Set the employee details
+      } else {
+        console.error("Employee not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching employee details:", error);
+    }
+  };
+  
   return (
     <div>
       <Navbar />
@@ -1586,25 +1610,32 @@ function LaboratoryResult() {
               )}
             </form>
             
-            {labDetails.pathologistSignature && (
-              <div className="grid grid-cols-3">
-                <div className="flex flex-col items-center">
-                  <img
-                    src={labDetails.pathologistSignature}
-                    alt="Pathologist Signature"
-                    className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
-                  />
-                  <p className="text-gray-600 text-xs mt-1 font-semibold">
-                    Rhesa Michelle M. Wong, MD, DPSP
-                  </p>
-                  <p className="text-gray-600 text-xs">
-                    License Number: 0111589
-                  </p>
-                  <hr />
-                  <p className="text-gray-600 text-xs">Clinical Pathologist</p>
-                </div>
-              </div>
-            )}
+            <div className="flex items-center gap-8">
+  {labDetails.pathologistSignature && (
+    
+    <div className="flex flex-col items-center">
+      <img
+        src={labDetails.pathologistSignature}
+        alt="Pathologist Signature"
+        className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
+      />
+      <p className="text-gray-600 text-xs mt-1 font-semibold text-center">
+        Rhesa Michelle M. Wong, MD, DPSP
+      </p>
+      <p className="text-gray-600 text-xs text-center">License Number: 0111589</p>
+      <p className="text-gray-600 text-xs text-center">Clinical Pathologist</p>
+    </div>
+  )}
+  {verifiedByEmployee && (
+    <div className="flex flex-col justify-start items-center" style={{ marginTop: '3.7rem' }}>
+      <p className="text-gray-600 text-xs font-semibold">
+        Verified by: {verifiedByEmployee.firstname} {verifiedByEmployee.lastname}
+      </p>
+      <p className="text-gray-600 text-xs">{verifiedByEmployee.role}</p>
+      <p className="text-gray-600 text-xs">{verifiedByEmployee.department}</p>
+    </div>
+  )}
+</div>
 
             {/* Buttons Wrapper */}
             <div className="flex justify-end space-x-4 mt-4">

@@ -534,6 +534,23 @@ app.get("/api/signature/user/:id", async (req, res) => {
   }
 });
 
+// Express route example to fetch employee details
+app.get("/api/employees/:employeeId", async (req, res) => {
+  const employeeId = req.params.employeeId;
+  try {
+    const employee = await EmployeeModel.findById(employeeId); // Replace with your DB query logic
+    if (employee) {
+      res.status(200).json(employee);
+    } else {
+      res.status(404).send("Employee not found.");
+    }
+  } catch (error) {
+    console.error("Error fetching employee:", error);
+    res.status(500).send("Error fetching employee.");
+  }
+});
+
+
 app.post("/api/laboratory-results", async (req, res) => {
   const {
     ORNumber,
