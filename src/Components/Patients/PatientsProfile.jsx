@@ -6807,14 +6807,15 @@ function PatientsProfile() {
                                 </div>
 
                                 <div className="col-span-1 flex justify-end items-center">
-                                  <button
-                                    className="text-custom-red"
-                                    onClick={() =>
-                                      openLabResultModal(labTest._id)
-                                    }
-                                  >
-                                    View
-                                  </button>
+                                  {/* Only show the button if labResult is 'verified' */}
+                                  {labTest.labResult === 'verified' && (
+                                    <button
+                                      className="text-custom-red"
+                                      onClick={() => openLabResultModal(labTest._id)}
+                                    >
+                                      View
+                                    </button>
+                                  )}
                                 </div>
                               </li>
                             );
@@ -6857,12 +6858,15 @@ function PatientsProfile() {
                                 </p>
                               </div>
                               <div className="col-span-1 flex justify-end items-center">
-                                <button
-                                  className="text-custom-red"
-                                  onClick={() => handleXrayView(xray)}
-                                >
-                                  View
-                                </button>
+                                {/* Only show the button if xrayResult is not 'pending' */}
+                                {xray.xrayResult !== 'pending' && (
+                                  <button
+                                    className="text-custom-red"
+                                    onClick={() => handleXrayView(xray)}
+                                  >
+                                    View
+                                  </button>
+                                )}
                               </div>
                             </li>
                           ))}
