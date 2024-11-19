@@ -405,6 +405,157 @@ function Laboratory() {
     return age;
   };
 
+  // Patient details state
+  const [patientType, setPatientType] = useState("");
+  const [firstname, setFirstName] = useState("");
+  const [middlename, setMiddleName] = useState("");
+  const [lastname, setLastName] = useState("");
+  const [birthdate, setBirthDate] = useState("");
+  const [idnumber, setIdNumber] = useState("");
+  const [address, setAddress] = useState("");
+  const [phonenumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [course, setCourse] = useState("");
+  const [sex, setSex] = useState("");
+  const [emergencyContact, setEmergencyContact] = useState("");
+  const [position, setPosition] = useState("");
+  const [referredBy, setReferredBy] = useState(""); // State for "Referred by"
+  const [isLabModalOpen, setIsLabModalOpen] = useState(false);
+
+  const initialFormData = {
+    bloodChemistry: {
+      bloodSugar: "",
+      bloodUreaNitrogen: "",
+      bloodUricAcid: "",
+      creatinine: "",
+      SGOT_AST: "",
+      SGPT_ALT: "",
+      totalCholesterol: "",
+      triglyceride: "",
+      HDL_cholesterol: "",
+      LDL_cholesterol: "",
+    },
+    hematology: {
+      bleedingTimeClottingTime: "",
+      completeBloodCount: "",
+      hematocritAndHemoglobin: "",
+    },
+    clinicalMicroscopyParasitology: {
+      routineUrinalysis: "",
+      routineStoolExamination: "",
+      katoThickSmear: "",
+      fecalOccultBloodTest: "",
+    },
+    bloodBankingSerology: {
+      antiTreponemaPallidum: "",
+      antiHCV: "",
+      bloodTyping: "",
+      hepatitisBSurfaceAntigen: "",
+      pregnancyTest: "",
+      dengueTest: "",
+      HIVRapidTest: "",
+      HIVElsa: "",
+      testForSalmonellaTyphi: "",
+    },
+    microbiology: {
+      gramsStain: "",
+      KOH: "",
+    },
+  };
+
+
+
+  const [formReqData, setFormReqData] = useState(initialFormData);
+
+  const handleReqInputChange = (section, field) => {
+    setFormReqData((prevData) => ({
+      ...prevData,
+      [section]: {
+        ...prevData[section],
+        [field]: prevData[section][field] === "" ? field : "",
+      },
+    }));
+  };
+
+  const handleLabModalOpen = () => {
+    setIsLabModalOpen(true);
+  };
+  const handleModalClose = () => {
+    setIsLabModalOpen(false);
+  };
+
+  const handleAddOPDSubmit = async (e) => { 
+    e.preventDefault(); 
+  
+    const patientData = { 
+      firstname, 
+      middlename, 
+      lastname, 
+      birthdate, 
+      address, 
+      phonenumber, 
+      email, 
+      course, 
+      sex, 
+      patientType: "OPD", 
+    }; 
+  
+    try { 
+      // Step 1: Add the patient 
+      const patientResponse = await axios.post( 
+        "http://localhost:3001/add-patient", 
+        patientData 
+      ); 
+      const patientId = patientResponse.data.patient._id; // Extract the patient ID 
+  
+      // Step 2: Create the lab request data including selected tests
+      const labRequestData = { 
+        patient: patientId, 
+        ...formReqData, // Include selected laboratory tests 
+        labResult: "pending", // Initial status of the lab request 
+        referredBy, 
+      }; 
+  
+      await axios.post( 
+        "http://localhost:3001/api/laboratory", 
+        labRequestData 
+      ); 
+  
+      // Close modal and reset form 
+      setIsAddOPDModalOpen(false);
+      setIsLabModalOpen(false);
+      resetForm(); 
+    } catch (error) { 
+      console.error("Error adding OPD patient and X-ray request:", error); 
+    } 
+  };
+
+  const resetForm = () => {
+    setFirstName("");
+    setMiddleName("");
+    setLastName("");
+    setBirthDate("");
+    setIdNumber("");
+    setAddress("");
+    setPhoneNumber("");
+    setEmail("");
+    setCourse("");
+    setSex("");
+    setEmergencyContact("");
+    setPosition("");
+    setPatientType("OPD");
+  };
+
+  const [isAddOPDModalOpen, setIsAddOPDModalOpen] = useState(false);
+
+  const toggleAddOPDModal = () => {
+    setIsAddOPDModalOpen(!isAddOPDModalOpen);
+  };
+  const handleLabModalClose = () => {
+    setIsLabModalOpen(false);
+  };
+
+
   return (
     <div>
       <Navbar />
@@ -438,6 +589,12 @@ function Laboratory() {
                 size={24}
               />
             </div>
+            <button
+              onClick={toggleAddOPDModal}
+              className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
+            >
+              Add OPD Patient
+            </button>
           </div>
         </div>
 
@@ -2320,6 +2477,548 @@ function Laboratory() {
           </div>
         </div>
       )}
+
+      {isAddOPDModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white py-4 px-6 rounded-lg w-1/2 shadow-lg">
+              <h2 className="text-xl font-semibold mb-4">Add OPD Patient</h2>
+              <form onSubmit={handleAddOPDSubmit}>
+                <div className="grid grid-cols-3 gap-4">
+                  {/* Full Name Fields - Display only for Student */}
+                  <div className="col-span-3">
+                    <label className="block mb-2">Full Name</label>
+                    <div className="grid grid-cols-3 gap-4">
+                      <input
+                        type="text"
+                        value={firstname}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="First Name"
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                      <input
+                        type="text"
+                        value={middlename}
+                        onChange={(e) => setMiddleName(e.target.value)}
+                        placeholder="Middle Name"
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                      <input
+                        type="text"
+                        value={lastname}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Last Name"
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Date of Birth */}
+                  <div className="col-span-2">
+                    <label className="block mb-2">Date of Birth</label>
+                    <input
+                      type="date"
+                      value={birthdate}
+                      onChange={(e) => setBirthDate(e.target.value)}
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-span-1">
+                    <label className="block mb-2">Sex</label>
+                    <select
+                      value={sex}
+                      onChange={(e) => setSex(e.target.value)}
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    >
+                      <option value="">Select Sex</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+
+                  {/* Address */}
+                  <div className="col-span-3">
+                    <label className="block mb-2">Address</label>
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Address"
+                      className="px-4 py-2 border rounded w-full"
+                    />
+                  </div>
+
+                  {/* Phone Number and Email */}
+                  <div className="col-span-3 grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block mb-2">Phone Number</label>
+                      <input
+                        type="text"
+                        value={phonenumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="(000) 000-0000"
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block mb-2">E-mail Address</label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="example@example.com"
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="my-4">
+                  <label className="block text-sm font-medium">
+                    Referred by
+                  </label>
+                  <input
+                    type="text"
+                    name="referredBy"
+                    value={referredBy}
+                    onChange={(e) => setReferredBy(e.target.value)}
+                    className="border rounded-lg w-full p-2 mt-1"
+                    placeholder="Enter name of referrer"
+                  />
+                </div>
+
+                <div className="flex justify-end mt-4 space-x-3">
+                  <button
+                    className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:gray-500 hover:border-gray-500 border transition duration-200"
+                    onClick={toggleAddOPDModal}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                    onClick={handleLabModalOpen}
+                  >
+                    Laboratory Request Modal
+                  </button>
+                </div>
+
+
+              </form>
+            </div>
+          </div>
+        )}
+      {isLabModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto z-50">
+            <h2 className="text-lg font-bold mb-4 text-center">
+              Laboratory Request Form
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* I. Blood Chemistry */}
+              <div className="md:col-span-2 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+                <h3 className="font-semibold text-base mb-3">
+                  I. Blood Chemistry
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.bloodChemistry.bloodSugar !== ""}
+                      onChange={() =>
+                        handleReqInputChange("bloodChemistry", "bloodSugar")
+                      }
+                    />{" "}
+                    Blood Sugar (Fasting / Random)
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.bloodChemistry.bloodUreaNitrogen !== ""}
+                      onChange={() =>
+                        handleReqInputChange("bloodChemistry", "bloodUreaNitrogen")
+                      }
+                    />{" "}
+                    Blood Urea Nitrogen
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.bloodChemistry.bloodUricAcid !== ""}
+                      onChange={() =>
+                        handleReqInputChange("bloodChemistry", "bloodUricAcid")
+                      }
+                    />{" "}
+                    Blood Uric Acid
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.bloodChemistry.creatinine !== ""}
+                      onChange={() =>
+                        handleReqInputChange("bloodChemistry", "creatinine")
+                      }
+                    />{" "}
+                    Creatinine
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.bloodChemistry.SGOT_AST !== ""}
+                      onChange={() =>
+                        handleReqInputChange("bloodChemistry", "SGOT_AST")
+                      }
+                    />{" "}
+                    SGOT / AST
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.bloodChemistry.SGPT_ALT !== ""}
+                      onChange={() =>
+                        handleReqInputChange("bloodChemistry", "SGPT_ALT")
+                      }
+                    />{" "}
+                    SGPT / ALT
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.bloodChemistry.totalCholesterol !== ""}
+                      onChange={() =>
+                        handleReqInputChange("bloodChemistry", "totalCholesterol")
+                      }
+                    />{" "}
+                    Total Cholesterol
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.bloodChemistry.triglyceride !== ""}
+                      onChange={() =>
+                        handleReqInputChange("bloodChemistry", "triglyceride")
+                      }
+                    />{" "}
+                    Triglyceride
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.bloodChemistry.HDL_cholesterol !== ""}
+                      onChange={() =>
+                        handleReqInputChange("bloodChemistry", "HDL_cholesterol")
+                      }
+                    />{" "}
+                    HDL Cholesterol
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.bloodChemistry.LDL_cholesterol !== ""}
+                      onChange={() =>
+                        handleReqInputChange("bloodChemistry", "LDL_cholesterol")
+                      }
+                    />{" "}
+                    LDL Cholesterol
+                  </label>
+                </div>
+              </div>
+
+              {/* II. Hematology */}
+              <div className="border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+                <h3 className="font-semibold text-base mb-3">II. Hematology</h3>
+                <div className="space-y-2 text-sm">
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={
+                        formReqData.hematology.bleedingTimeClottingTime !== ""
+                      }
+                      onChange={() =>
+                        handleReqInputChange(
+                          "hematology",
+                          "bleedingTimeClottingTime"
+                        )
+                      }
+                    />{" "}
+                    Bleeding Time & Clotting Time
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.hematology.completeBloodCount !== ""}
+                      onChange={() =>
+                        handleReqInputChange("hematology", "completeBloodCount")
+                      }
+                    />{" "}
+                    Complete Blood Count with Platelet Count
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={
+                        formReqData.hematology.hematocritAndHemoglobin !== ""
+                      }
+                      onChange={() =>
+                        handleReqInputChange(
+                          "hematology",
+                          "hematocritAndHemoglobin"
+                        )
+                      }
+                    />{" "}
+                    Hematocrit and Hemoglobin
+                  </label>
+                </div>
+              </div>
+
+              {/* III. Clinical Microscopy & Parasitology */}
+              <div className="border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+                <h3 className="font-semibold text-base mb-3">
+                  III. Clinical Microscopy & Parasitology
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={
+                        formReqData.clinicalMicroscopyParasitology
+                          .routineUrinalysis !== ""
+                      }
+                      onChange={() =>
+                        handleReqInputChange(
+                          "clinicalMicroscopyParasitology",
+                          "routineUrinalysis"
+                        )
+                      }
+                    />{" "}
+                    Routine Urinalysis
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={
+                        formReqData.clinicalMicroscopyParasitology
+                          .routineStoolExamination !== ""
+                      }
+                      onChange={() =>
+                        handleReqInputChange(
+                          "clinicalMicroscopyParasitology",
+                          "routineStoolExamination"
+                        )
+                      }
+                    />{" "}
+                    Routine Stool Examination
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={
+                        formReqData.clinicalMicroscopyParasitology
+                          .katoThickSmear !== ""
+                      }
+                      onChange={() =>
+                        handleReqInputChange(
+                          "clinicalMicroscopyParasitology",
+                          "katoThickSmear"
+                        )
+                      }
+                    />{" "}
+                    Kato Thick Smear
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={
+                        formReqData.clinicalMicroscopyParasitology
+                          .fecalOccultBloodTest !== ""
+                      }
+                      onChange={() =>
+                        handleReqInputChange(
+                          "clinicalMicroscopyParasitology",
+                          "fecalOccultBloodTest"
+                        )
+                      }
+                    />{" "}
+                    Fecal Occult Blood Test
+                  </label>
+                </div>
+              </div>
+
+              {/* IV. Blood Banking And Serology */}
+              <div className="md:col-span-2 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+                <h3 className="font-semibold text-base mb-3">
+                  IV. Blood Banking And Serology
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={
+                        formReqData.bloodBankingSerology.antiTreponemaPallidum !==
+                        ""
+                      }
+                      onChange={() =>
+                        handleReqInputChange(
+                          "bloodBankingSerology",
+                          "antiTreponemaPallidum"
+                        )
+                      }
+                    />{" "}
+                    Anti-Treponema Pallidum
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.bloodBankingSerology.antiHCV !== ""}
+                      onChange={() =>
+                        handleReqInputChange("bloodBankingSerology", "antiHCV")
+                      }
+                    />{" "}
+                    Anti-HCV
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.bloodBankingSerology.bloodTyping !== ""}
+                      onChange={() =>
+                        handleReqInputChange("bloodBankingSerology", "bloodTyping")
+                      }
+                    />{" "}
+                    Blood Typing (ABO & Rh Grouping)
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={
+                        formReqData.bloodBankingSerology
+                          .hepatitisBSurfaceAntigen !== ""
+                      }
+                      onChange={() =>
+                        handleReqInputChange(
+                          "bloodBankingSerology",
+                          "hepatitisBSurfaceAntigen"
+                        )
+                      }
+                    />{" "}
+                    Hepatitis B Surface Antigen
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={
+                        formReqData.bloodBankingSerology.pregnancyTest !== ""
+                      }
+                      onChange={() =>
+                        handleReqInputChange(
+                          "bloodBankingSerology",
+                          "pregnancyTest"
+                        )
+                      }
+                    />{" "}
+                    Pregnancy Test (Plasma/Serum)
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.bloodBankingSerology.dengueTest !== ""}
+                      onChange={() =>
+                        handleReqInputChange("bloodBankingSerology", "dengueTest")
+                      }
+                    />{" "}
+                    Dengue Test
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={
+                        formReqData.bloodBankingSerology.HIVRapidTest !== ""
+                      }
+                      onChange={() =>
+                        handleReqInputChange(
+                          "bloodBankingSerology",
+                          "HIVRapidTest"
+                        )
+                      }
+                    />{" "}
+                    HIV Rapid Test Kit
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={formReqData.bloodBankingSerology.HIVElsa !== ""}
+                      onChange={() =>
+                        handleReqInputChange("bloodBankingSerology", "HIVElsa")
+                      }
+                    />{" "}
+                    HIV ELISA
+                  </label>
+
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={
+                        formReqData.bloodBankingSerology.testForSalmonellaTyphi !==
+                        ""
+                      }
+                      onChange={() =>
+                        handleReqInputChange(
+                          "bloodBankingSerology",
+                          "testForSalmonellaTyphi"
+                        )
+                      }
+                    />{" "}
+                    Test for Salmonella typhi
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end mt-4 space-x-3">
+              <button
+                className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:gray-500 hover:border-gray-500 border transition duration-200"
+                onClick={handleLabModalClose}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                onClick={handleAddOPDSubmit}
+              >
+                Add Patient
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
     </div>
   );
 }

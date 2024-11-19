@@ -6248,17 +6248,19 @@ function PatientsProfile() {
                 <div className="w-full md:w-1/2">
                   <label className="block text-gray-700">X-ray Results</label>
 
-                  {/* Dropdown to select X-ray record */}
-                  <select
+                  {/* Only Show Xray Result that is DONE */}
+                  <select 
                     className="w-full px-3 py-2 border rounded mb-4"
                     onChange={(e) => setSelectedXray(e.target.value)}
                   >
                     <option value="">Select X-ray</option>
-                    {selectedXrayRecords.map((xray, index) => (
-                      <option key={index} value={index}>
-                        X-ray {index + 1} - {new Date(xray.isCreatedAt).toLocaleDateString()}
-                      </option>
-                    ))}
+                    {selectedXrayRecords
+                      .filter((xray) => xray.xrayResult === "done") // Filter for xrayResult === "done"
+                      .map((xray, index) => (
+                        <option key={index} value={index}>
+                          X-ray {index + 1} - {new Date(xray.isCreatedAt).toLocaleDateString()}
+                        </option>
+                      ))}
                   </select>
 
                   {/* Display selected X-ray record */}
@@ -6805,14 +6807,15 @@ function PatientsProfile() {
                                 </div>
 
                                 <div className="col-span-1 flex justify-end items-center">
-                                  <button
-                                    className="text-custom-red"
-                                    onClick={() =>
-                                      openLabResultModal(labTest._id)
-                                    }
-                                  >
-                                    View
-                                  </button>
+                                  {/* Only show the button if labResult is 'verified' */}
+                                  {labTest.labResult === 'verified' && (
+                                    <button
+                                      className="text-custom-red"
+                                      onClick={() => openLabResultModal(labTest._id)}
+                                    >
+                                      View
+                                    </button>
+                                  )}
                                 </div>
                               </li>
                             );
@@ -6855,12 +6858,15 @@ function PatientsProfile() {
                                 </p>
                               </div>
                               <div className="col-span-1 flex justify-end items-center">
-                                <button
-                                  className="text-custom-red"
-                                  onClick={() => handleXrayView(xray)}
-                                >
-                                  View
-                                </button>
+                                {/* Only show the button if xrayResult is not 'pending' */}
+                                {xray.xrayResult !== 'pending' && (
+                                  <button
+                                    className="text-custom-red"
+                                    onClick={() => handleXrayView(xray)}
+                                  >
+                                    View
+                                  </button>
+                                )}
                               </div>
                             </li>
                           ))}
@@ -8171,7 +8177,8 @@ function PatientsProfile() {
                   </button>
 
                   {/* Conditionally Render the PT Refer Button Once */}
-                  {selectedXrayRecords && selectedXrayRecords.length > 0 && (
+                  {/* Only Show BUTTON that is DONE */}
+                  {selectedXrayRecords && selectedXrayRecords.length > 0 && selectedXrayRecords.some((xray) => xray.xrayResult === "done") && (
                     <button
                       className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
                       onClick={() => handleNewTherapyRecordOpen(selectedXrayRecords)} // Pass all X-ray records
