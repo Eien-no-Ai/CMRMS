@@ -3,7 +3,7 @@ import { BiSearch, BiChevronDown } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
 
-function LaboratoryVerification() {
+function LaboratoryPathologistVerification() {
   const [labRecords, setLabRecords] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const labRecordsPerPage = 4;
@@ -36,7 +36,9 @@ function LaboratoryVerification() {
       .get("http://localhost:3001/api/laboratory")
       .then((response) => {
         const completeRecords = response.data
-          .filter((record) => record.labResult === "for verification")
+          .filter(
+            (record) => record.labResult === "for pathologist verification"
+          )
           .sort((a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt));
         setLabRecords(completeRecords);
       })
@@ -171,68 +173,50 @@ function LaboratoryVerification() {
       return;
     }
 
-    const employeeId = localStorage.getItem("userId"); // Get the employee ID (assuming logged-in user is the verifier)
+    const employeeId = localStorage.getItem("userId"); // Get the logged-in pathologist's ID
 
-    // Prepare the updated data for LaboratoryResultsModel
+    // Fetch signature if not already available
+    if (!pathologistSignatureUrl) {
+      console.log("Fetching pathologist signature before verification...");
+      await fetchPathologistSignature();
+    }
+
+    // Ensure pathologistSignatureUrl is set
+    console.log("Pathologist Signature URL:", pathologistSignatureUrl); // Debug log
+
     const updatedLabResultData = {
-      bloodChemistry: {
-        ...labDetails.bloodChemistry,
-        signature: labDetails.bloodChemistry?.signature,
-      },
-      Hematology: {
-        ...labDetails.Hematology,
-        signature: hematologySignatureUrl || labDetails.Hematology?.signature, // Fallback to existing signature if not updated
-      },
-      clinicalMicroscopyParasitology: {
-        ...labDetails.clinicalMicroscopyParasitology,
-        signature:
-          clinicalMicroscopySignatureUrl ||
-          labDetails.clinicalMicroscopyParasitology?.signature,
-      },
-      bloodBankingSerology: {
-        ...labDetails.bloodBankingSerology,
-        signature:
-          serologySignatureUrl || labDetails.bloodBankingSerology?.signature,
-      },
-      pathologistSignature:
-        pathologistSignatureUrl || labDetails.pathologistSignature, // Add pathologist's signature with fallback
-      verifiedBy: employeeId, // Add the employee ID who verified the result
-      verificationDate: new Date(), // Track when it was verified
+      ...labDetails,
+      verifiedByPathologist: employeeId,
+      pathologistSignature: pathologistSignatureUrl, // Use the fetched signature URL
+      verificationDate: new Date(),
+      status: "verified",
     };
 
-    // Debugging to see the updated data before the API call
-    console.log("Updated Data for verification:", updatedLabResultData);
-
     try {
-      // First, update the laboratory results (in LaboratoryResultsModel)
       const response = await axios.put(
         `http://localhost:3001/api/laboratory-results/update/${labDetails._id}`,
         updatedLabResultData
       );
 
-      console.log("Response from LaboratoryResults API:", response.data);
-
       if (response.status === 200) {
-        // Second, update the labResult field in LaboratoryModel
         const labUpdateResponse = await axios.put(
-          `http://localhost:3001/api/laboratory/${labDetails.laboratoryId}`, // Make sure labDetails has `laboratoryId`
-          { labResult: "for pathologist verification" }
+          `http://localhost:3001/api/laboratory/${labDetails.laboratoryId}`,
+          { labResult: "verified" }
         );
 
-        console.log("Response from Laboratory API:", labUpdateResponse.data);
-
         if (labUpdateResponse.status === 200) {
-          alert("Lab result successfully verified and marked as complete.");
-          setIsModalOpen(false); // Close modal after successful update
-          fetchLabRecords(); // Refresh the lab records list
-
-          // Optionally, fetch the employee who verified the result
-          fetchVerifiedByEmployee(employeeId);
+          alert("Lab result successfully verified by pathologist.");
+          setIsModalOpen(false);
+          fetchLabRecords();
         } else {
-          alert("Failed to update lab result status. Please try again.");
+          alert(
+            "Failed to update lab result status in LaboratoryModel. Please try again."
+          );
         }
       } else {
-        alert("Failed to verify the lab result. Please try again.");
+        alert(
+          "Failed to verify the lab result in LaboratoryResultsModel. Please try again."
+        );
       }
     } catch (error) {
       console.error("Error verifying lab result:", error);
@@ -240,34 +224,34 @@ function LaboratoryVerification() {
     }
   };
 
-  const fetchVerifiedByEmployee = async (employeeId) => {
-    try {
-      const response = await axios.get(
-        `http://localhost:3001/api/employees/${employeeId}`
-      );
-      if (response.status === 200 && response.data) {
-        setVerifiedByEmployee(response.data); // Save the employee details who verified the record
-      }
-    } catch (error) {
-      console.error("Error fetching employee details:", error);
-    }
-  };
-
   // Fetch the pathologist's signature
   const fetchPathologistSignature = async () => {
+    const userId = localStorage.getItem("userId"); // Get the logged-in user ID from localStorage
+    console.log("Fetching pathologist signature for userId:", userId); // Debug log
+
     try {
       const response = await axios.get(
-        "http://localhost:3001/api/pathologist-signature"
+        `http://localhost:3001/api/pathologist-signature/${userId}`
       );
+      console.log("Pathologist signature response:", response.data); // Debug log
+
       if (response.data && response.data.signature) {
-        setPathologistSignatureUrl(response.data.signature);
+        setPathologistSignatureUrl(response.data.signature); // Save the signature URL
       } else {
-        console.error("No pathologist signature found.");
+        console.error("No pathologist signature found in response.");
       }
     } catch (error) {
       console.error("Error fetching pathologist signature:", error);
     }
   };
+
+  useEffect(() => {
+    fetchPathologistSignature();
+  }, []);
+
+  useEffect(() => {
+    console.log("Pathologist Signature URL updated:", pathologistSignatureUrl); // Debug log
+  }, [pathologistSignatureUrl]);
 
   return (
     <div>
@@ -2736,4 +2720,4 @@ function LaboratoryVerification() {
   );
 }
 
-export default LaboratoryVerification;
+export default LaboratoryPathologistVerification;
