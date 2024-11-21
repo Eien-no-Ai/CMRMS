@@ -29,6 +29,9 @@ function Patients() {
   const [sex, setSex] = useState("");
   const [emergencyContact, setEmergencyContact] = useState("");
   const [position, setPosition] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState('');
+  const [selectedYear, setSelectedYear] = useState('');
+  const [selectedPosition, setSelectedPosition] = useState('');
 
   const [accountToDelete, setAccountToDelete] = useState(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -149,12 +152,30 @@ function Patients() {
 
   const indexOfLastPatient = currentPage * patientsPerPage;
   const indexOfFirstPatient = indexOfLastPatient - patientsPerPage;
-  const filteredPatients = patients.filter(
-    (patient) =>
-      patient.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.lastname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.idnumber.includes(searchQuery)
-  );
+
+  // Extract unique course names
+  const courses = [...new Set(patients.map(patient => patient.course).filter(course => course))];
+  // Extract unique year levels
+  const years = [...new Set(patients.map(patient => patient.year).filter(year => year))];
+  // Extract unique positions
+  const positions = [...new Set(patients.map(patient => patient.position).filter(position => position))];
+
+  const filteredPatients = patients.filter(patient => {
+    const matchesSearch = patient.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.lastname.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Conditional filtering based on the role type
+    if (selectedPosition) {
+      // Filter only by position if a position is selected
+      return patient.position === selectedPosition && matchesSearch;
+    } else {
+      // Filter by course and year if no position is selected
+      const matchesCourse = selectedCourse ? patient.course === selectedCourse : true;
+      const matchesYear = selectedYear ? patient.year === selectedYear : true;
+      return matchesSearch && matchesCourse && matchesYear;
+    }
+  });
+
 
   const currentPatients = filteredPatients.slice(
     indexOfFirstPatient,
@@ -277,7 +298,7 @@ function Patients() {
       if (sortOption === "OPD") return patient.patientType === "OPD";
       return true; // Show all if no sorting option selected
     });
-    
+
   return (
     <div>
       <Navbar />
@@ -301,6 +322,39 @@ function Patients() {
           </p>
 
           <div className="flex items-center space-x-4">
+            {/* Course Dropdown */}
+            <select
+              value={selectedCourse}
+              onChange={(e) => setSelectedCourse(e.target.value)}
+              className="px-4 py-2 rounded border border-gray-300 ml-4"
+            >
+              <option value="">All Courses</option>
+              {courses.map((course, index) => (
+                <option key={index} value={course}>{course}</option>
+              ))}
+            </select>
+            {/* Year Dropdown */}
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              className="px-4 py-2 rounded border border-gray-300 ml-4"
+            >
+              <option value="">All Years</option>
+              {years.map((year, index) => (
+                <option key={index} value={year}>{year}</option>
+              ))}
+            </select>
+            {/* Position Dropdown */}
+            <select
+              value={selectedPosition}
+              onChange={(e) => setSelectedPosition(e.target.value)}
+              className="px-4 py-2 rounded border border-gray-300 ml-4"
+            >
+              <option value="">All Positions</option>
+              {positions.map((position, index) => (
+                <option key={index} value={position}>{position}</option>
+              ))}
+            </select>
             <div className="relative">
               <input
                 type="text"
@@ -316,6 +370,7 @@ function Patients() {
                 className="absolute right-2 top-2 text-gray-400"
                 size={24}
               />
+
             </div>
             {role === "nurse" && (
               <button
@@ -377,10 +432,10 @@ function Patients() {
                         </td>
                         <td className="py-4">{patient.idnumber}</td>
                         <td className="py-4">
-                        {patient.patientType === "Employee"
-                          ? patient.position
-                          : `${patient.course} - ${patient.year}`
-                        }
+                          {patient.patientType === "Employee"
+                            ? patient.position
+                            : `${patient.course} - ${patient.year}`
+                          }
                         </td>
                         <td className="py-4">
                           <div
@@ -438,22 +493,20 @@ function Patients() {
                 <button
                   onClick={paginatePrev}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 mr-2 rounded-lg border ${
-                    currentPage === 1
+                  className={`px-4 py-2 mr-2 rounded-lg border ${currentPage === 1
                       ? "bg-gray-300"
                       : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                  }`}
+                    }`}
                 >
                   Previous
                 </button>
                 <button
                   onClick={paginateNext}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg border ${
-                    currentPage === totalPages
+                  className={`px-4 py-2 rounded-lg border ${currentPage === totalPages
                       ? "bg-gray-300"
                       : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                  }`}
+                    }`}
                 >
                   Next
                 </button>
