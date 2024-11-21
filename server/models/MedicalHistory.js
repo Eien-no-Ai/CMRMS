@@ -75,8 +75,8 @@ const MedicalHistorySchema = new mongoose.Schema({
         },
         forWomen: {
             pregnant:{ type: String, enum: ['Yes', 'No'] },
-            months:{type:Date},
-            lastMenstrualPeriod:{type:Date},
+            months:{type: String},
+            lastMenstrualPeriod:{type: String},
             abortionOrMiscarriage:{type:String, enum:['Abortion','Miscarriage']},
             dysmenorrhea:{type:String, enum:['Yes','No']},
         },

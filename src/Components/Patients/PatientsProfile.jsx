@@ -7,6 +7,7 @@ import { SlChemistry } from "react-icons/sl";
 import { GiBiceps } from "react-icons/gi";
 import { BiChevronDown } from "react-icons/bi";
 import { MdKeyboardArrowDown } from "react-icons/md";
+import maleImage from "../assets/male.png";
 
 function PatientsProfile() {
   const [selectedXray, setSelectedXray] = useState(null);
@@ -479,14 +480,14 @@ function PatientsProfile() {
     selectedTab === "clinical"
       ? clinicalRecords
       : selectedTab === "laboratory"
-        ? laboratoryRecords
-        : selectedTab === "xray"
-          ? xrayRecords
-          : selectedTab === "physical therapy"
-            ? physicalTherapyRecords
-            : selectedTab === "vaccine"
-              ? vaccineRecords // <-- New condition for vaccines
-              : [];
+      ? laboratoryRecords
+      : selectedTab === "xray"
+      ? xrayRecords
+      : selectedTab === "physical therapy"
+      ? physicalTherapyRecords
+      : selectedTab === "vaccine"
+      ? vaccineRecords // <-- New condition for vaccines
+      : [];
 
   const initialFormData = {
     bloodChemistry: {
@@ -1685,15 +1686,15 @@ function PatientsProfile() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="text-center">
                     <img
-                      src="https://via.placeholder.com/150"
+                      src={maleImage}
                       alt="Placeholder"
-                      className="mx-auto h-20 w-20 rounded-full"
+                      className="mx-auto h-40 w-40 rounded-full border-4 border-gray-300 bg-gray-100 p-2"
                     />
-                    <h2 className="mt-4 text-xl font-semibold">
+                    <h2 className="text-xl font-semibold">
                       {patient.firstname} {patient.lastname}
                     </h2>
                     <p className="text-gray-500">{patient.email}</p>
-                    <div className="flex justify-center mt-2 space-x-6">
+                    <div className="flex justify-center space-x-6">
                       <div>
                         <p className="text-gray-700 text-lg font-semibold">
                           {clinicalRecords.length}
@@ -1795,8 +1796,7 @@ function PatientsProfile() {
                         {" "}
                         {patient.patientType === "Employee"
                           ? patient.position
-                          : `${patient.course} - ${patient.year}`
-                        }
+                          : `${patient.course} - ${patient.year}`}
                       </p>
                     </div>
                     <div>
@@ -1835,301 +1835,97 @@ function PatientsProfile() {
               </div>
             </>
           )}
-          <div className="bg-white p-6 rounded-lg shadow-sm h-full flex flex-col justify-between">
+          <div className="bg-white p-6 rounded-lg shadow-sm flex flex-col h-full justify-between">
+            {/* Header */}
             <div>
-              <h2 className="font-semibold text-lg">History</h2>
-              {/* {medicalRecords && medicalRecords.length > 0 ? (
-                <ul>
-                  {medicalRecords.map((record) => (
-                    <li
-                      key={record._id}
-                      className="mb-4 p-2 bg-gray-100 rounded-lg"
-                    >
-                      <p>
-                        <strong>Medical History:</strong>
-                      </p>
-                      <p>
-                        <strong>Nose/Throat Disorders:</strong>{" "}
-                        {record.conditions.noseThroatDisorders ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Ear Trouble:</strong>{" "}
-                        {record.conditions.earTrouble ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Tuberculosis:</strong>{" "}
-                        {record.conditions.tuberculosis ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Lung Diseases:</strong>{" "}
-                        {record.conditions.lungDiseases ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Rheumatic Fever:</strong>{" "}
-                        {record.conditions.rheumaticFever ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Endocrine Disorder:</strong>{" "}
-                        {record.conditions.endocrineDisorder ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Cancer Tumor:</strong>{" "}
-                        {record.conditions.cancerTumor ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Mental Disorder:</strong>{" "}
-                        {record.conditions.mentalDisorder ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Head/Neck Injury:</strong>{" "}
-                        {record.conditions.headNeckInjury ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Hernia:</strong>{" "}
-                        {record.conditions.hernia ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Rheumatism/Joint Pain:</strong>{" "}
-                        {record.conditions.rheumatismJointPain ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Stomach Pain/Ulcer:</strong>{" "}
-                        {record.conditions.stomachPainUlcer ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Abdominal Disorders:</strong>{" "}
-                        {record.conditions.abdominalDisorders ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Kidney/Bladder Diseases:</strong>{" "}
-                        {record.conditions.kidneyBladderDiseases ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>STD:</strong>{" "}
-                        {record.conditions.std ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Familial Disorder:</strong>{" "}
-                        {record.conditions.familialDisorder ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Tropical Diseases:</strong>{" "}
-                        {record.conditions.tropicalDiseases ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Chronic Cough:</strong>{" "}
-                        {record.conditions.chronicCough ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Fainting/Seizures:</strong>{" "}
-                        {record.conditions.faintingSeizures ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Frequent Headache:</strong>{" "}
-                        {record.conditions.frequentHeadache ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Dizziness:</strong>{" "}
-                        {record.conditions.dizziness ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Asthma:</strong>{" "}
-                        {record.conditions.asthma ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>High Blood Pressure:</strong>{" "}
-                        {record.conditions.highBloodPressure ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Heart Diseases:</strong>{" "}
-                        {record.conditions.heartDiseases ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Diabetes Mellitus:</strong>{" "}
-                        {record.conditions.diabetesMellitus ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <strong>Eye Disorders:</strong>{" "}
-                        {record.conditions.eyeDisorders ? "Yes" : "No"}
-                      </p>
-
-                      <p>
-                        <strong>Malaria:</strong>{" "}
-                        {record.malaria.hasMalaria ? "Yes" : "No"}
-                      </p>
-                      {record.malaria.hasMalaria && (
-                        <p>
-                          <strong>Last Malaria Attack:</strong>{" "}
-                          {record.malaria.lastAttackDate}
-                        </p>
-                      )}
-
-                      <p>
-                        <strong>Undergone Operation:</strong>{" "}
-                        {record.operations.undergoneOperation ? "Yes" : "No"}
-                      </p>
-                      {record.operations.undergoneOperation && (
-                        <p>
-                          <strong>List of Operations:</strong>{" "}
-                          {record.operations.listOperations}
-                        </p>
-                      )}
-                      <br />
-
-                      <p>
-                        <strong>Family History:</strong>
-                      </p>
-                      <p>
-                        <strong>Heart Disease:</strong>{" "}
-                        {record.familyHistory.diseases.heartDisease
-                          ? "Yes"
-                          : "No"}
-                      </p>
-                      <p>
-                        <strong>Tuberculosis:</strong>{" "}
-                        {record.familyHistory.diseases.tuberculosis
-                          ? "Yes"
-                          : "No"}
-                      </p>
-                      <p>
-                        <strong>Diabetes:</strong>{" "}
-                        {record.familyHistory.diseases.diabetes ? "Yes" : "No"}
-                      </p>
-                      <br />
-
-                      <p>
-                        <strong>Personal History:</strong>
-                      </p>
-                      <p>
-                        <strong>Uses Tobacco:</strong>{" "}
-                        {record.personalHistory.tobaccoUse.usesTobacco
-                          ? "Yes"
-                          : "No"}
-                      </p>
-                      {record.personalHistory.tobaccoUse.usesTobacco && (
-                        <>
-                          <p>
-                            <strong>Sticks Per Day:</strong>{" "}
-                            {record.personalHistory.tobaccoUse.sticksPerDay}
-                          </p>
-                          <p>
-                            <strong>Quit Smoking:</strong>{" "}
-                            {record.personalHistory.tobaccoUse.quitSmoking
-                              ? "Yes"
-                              : "No"}
-                          </p>
-                          <p>
-                            <strong>Quit When:</strong>{" "}
-                            {record.personalHistory.tobaccoUse.quitWhen}
-                          </p>
-                        </>
-                      )}
-
-                      <br />
-                      <p>
-                        <strong>Drinks Alcohol:</strong>{" "}
-                        {record.personalHistory.alcoholUse.drinksAlcohol
-                          ? "Yes"
-                          : "No"}
-                      </p>
-                      {record.personalHistory.alcoholUse.drinksAlcohol && (
-                        <>
-                          <p>
-                            <strong>Drinks Per Day:</strong>{" "}
-                            {record.personalHistory.alcoholUse.drinksPerDay}
-                          </p>
-                          <p>
-                            <strong>Quit Drinking:</strong>{" "}
-                            {record.personalHistory.alcoholUse.quitDrinking
-                              ? "Yes"
-                              : "No"}
-                          </p>
-                          <p>
-                            <strong>Quit When:</strong>{" "}
-                            {record.personalHistory.alcoholUse.quitWhen}
-                          </p>
-                        </>
-                      )}
-
-                      <br />
-                      <p>
-                        <strong>For Women:</strong>
-                      </p>
-                      <p>
-                        <strong>Pregnant:</strong>{" "}
-                        {record.personalHistory.forWomen.pregnant
-                          ? "Yes"
-                          : "No"}
-                      </p>
-                      {record.personalHistory.forWomen.pregnant && (
-                        <>
-                          <p>
-                            <strong>Months:</strong>{" "}
-                            {record.personalHistory.forWomen.months}
-                          </p>
-                          <p>
-                            <strong>Last Menstrual Period:</strong>{" "}
-                            {
-                              record.personalHistory.forWomen
-                                .lastMenstrualPeriod
-                            }
-                          </p>
-                          <p>
-                            <strong>Abortion/Miscarriage:</strong>{" "}
-                            {
-                              record.personalHistory.forWomen
-                                .abortionOrMiscarriage
-                            }
-                          </p>
-                          <p>
-                            <strong>Dysmenorrhea:</strong>{" "}
-                            {record.personalHistory.forWomen.dysmenorrhea
-                              ? "Yes"
-                              : "No"}
-                          </p>
-                        </>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No medical history available.</p>
-              )} */}
-            </div>
-            {role === "nurse" && (
-              <div className="relative mt-4" ref={historyDropdownRef}>
-                <button
-                  className="w-full bg-custom-red text-white p-2 rounded-lg"
-                  onClick={handleAddHistory}
-                >
-                  Add History
-                </button>
-                {showHistoryOptions && (
-                  <div className="absolute mt-2 w-full bg-white border rounded-lg shadow-lg">
-                    <button
-                      className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                      onClick={handleMedicalOpen}
-                    >
-                      Medical
-                    </button>
-
-                    <button
-                      className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                      onClick={handleFamilyPersonalOpen}
-                    >
-                      Family/ Personal
-                    </button>
-                  </div>
-                )}
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="font-semibold text-lg flex items-center space-x-2">
+                  History
+                </h2>
               </div>
-            )}
+
+              {/* Content */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Chronic Disease */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
+                    Chronic Disease
+                  </h3>
+                  <ul className="list-disc pl-5 text-gray-700">
+                    {Object.entries(medicalHistory.conditions)
+                      .filter(([key, value]) => value === true) // Get only the checked conditions
+                      .slice(0, 1) // Limit to the first 3 items
+                      .map(([key]) => (
+                        <li key={key}>
+                          {key.replace(/([A-Z])/g, " $1").toLowerCase()}{" "}
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+
+                {/* Diabetes */}
+                <div className=" border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
+                    Allergy
+                  </h3>
+                  <p className="text-gray-700">
+                    {medicalHistory.familyHistory.allergies.allergyList}
+                  </p>
+                </div>
+
+                {/* Surgery */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
+                    Surgery
+                  </h3>
+                  <p className="text-gray-700">
+                    {medicalHistory.operations.listOperations}
+                  </p>
+                </div>
+
+                {/* Family Disease */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
+                    Family Disease
+                  </h3>
+                  <ul className="list-disc pl-5 text-gray-700">
+                    {Object.entries(medicalHistory.familyHistory.diseases)
+                      .filter(([_, value]) => value) // Filter checked diseases
+                      .slice(0, 1) // Limit to the first 3 items
+                      .map(([key]) => (
+                        <li key={key}>
+                          {key.replace(/([A-Z])/g, " $1").toLowerCase()}
+                        </li> // Format and display
+                      ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+ 
+            {/* Buttons at the Bottom */}
+            <div className="flex space-x-4 mt-6">
+              <button
+                className="flex-1 bg-custom-red text-white p-2 rounded-lg"
+                onClick={handleMedicalOpen}
+              >
+                Medical
+              </button>
+              <button
+                className="flex-1 bg-custom-red text-white p-2 rounded-lg"
+                onClick={handleFamilyPersonalOpen}
+              >
+                Family/ Personal
+              </button>
+            </div>
           </div>
+
           {isMedicalModalOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
               <div className="bg-white py-4 px-6 rounded-lg w-full max-w-3xl shadow-lg overflow-y-auto max-h-[80vh]">
                 <h1 className="text-2xl font-semibold text-center mb-6">
                   Medical History Form
                 </h1>
+
 
                 {/* Conditions Section */}
                 <div className="mt-6">
@@ -2638,15 +2434,17 @@ function PatientsProfile() {
                   >
                     Close
                   </button>
-                  <button
-                    className="bg-custom-red text-white py-2 px-4 rounded-lg"
-                    onClick={async (e) => {
-                      await handleMedicalHistorySubmit(e); // Call the submit function
-                      handleMedicalClose(); // Close the modal
-                    }}
-                  >
-                    Save
-                  </button>
+                  {role === "nurse" && (
+                    <button
+                      className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                      onClick={async (e) => {
+                        await handleMedicalHistorySubmit(e); // Call the submit function
+                        handleMedicalClose(); // Close the modal
+                      }}
+                    >
+                      Update
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -2886,11 +2684,15 @@ function PatientsProfile() {
 
                       <select
                         className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        value={
+                          medicalHistory.personalHistory.tobaccoUse
+                            .usesTobacco || ""
+                        } // Preload value
                         onChange={(e) =>
                           handleTobaccoChange("usesTobacco", e.target.value)
                         }
                       >
-                        <option value="" disabled selected>
+                        <option value="" disabled>
                           Select
                         </option>
                         <option value="Yes">Yes</option>
@@ -2906,6 +2708,10 @@ function PatientsProfile() {
                           type="number"
                           placeholder="Enter number"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          value={
+                            medicalHistory.personalHistory.tobaccoUse
+                              .sticksPerDay || ""
+                          } // Preload value
                           onChange={(e) =>
                             handleTobaccoChange("sticksPerDay", e.target.value)
                           }
@@ -2918,11 +2724,15 @@ function PatientsProfile() {
                         </label>
                         <select
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          value={
+                            medicalHistory.personalHistory.tobaccoUse
+                              .quitSmoking || ""
+                          } // Preload value
                           onChange={(e) =>
                             handleTobaccoChange("quitSmoking", e.target.value)
                           }
                         >
-                          <option value="" disabled selected>
+                          <option value="" disabled>
                             Select
                           </option>
                           <option value="Yes">Yes</option>
@@ -2937,6 +2747,10 @@ function PatientsProfile() {
                         <input
                           type="date"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          value={
+                            medicalHistory.personalHistory.tobaccoUse
+                              .quitWhen || ""
+                          } // Preload value
                           onChange={(e) =>
                             handleTobaccoChange("quitWhen", e.target.value)
                           }
@@ -2953,11 +2767,15 @@ function PatientsProfile() {
 
                       <select
                         className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        value={
+                          medicalHistory.personalHistory.alcoholUse
+                            .drinksAlcohol || ""
+                        } // Preload value
                         onChange={(e) =>
                           handleAlcoholChange("drinksAlcohol", e.target.value)
                         }
                       >
-                        <option value="" disabled selected>
+                        <option value="" disabled>
                           Select
                         </option>
                         <option value="Yes">Yes</option>
@@ -2973,6 +2791,10 @@ function PatientsProfile() {
                           type="text"
                           placeholder="Enter amount"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          value={
+                            medicalHistory.personalHistory.alcoholUse
+                              .drinksPerDay || ""
+                          } // Preload value
                           onChange={(e) =>
                             handleAlcoholChange("drinksPerDay", e.target.value)
                           }
@@ -2985,12 +2807,15 @@ function PatientsProfile() {
                         </label>
                         <select
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          value={
+                            medicalHistory.personalHistory.alcoholUse
+                              .quitDrinking || ""
+                          } // Preload value
                           onChange={(e) =>
                             handleAlcoholChange("quitDrinking", e.target.value)
                           }
                         >
-                          <option value="" disabled selected>
-                            {" "}
+                          <option value="" disabled>
                             Select
                           </option>
                           <option value="Yes">Yes</option>
@@ -3005,6 +2830,10 @@ function PatientsProfile() {
                         <input
                           type="date"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          value={
+                            medicalHistory.personalHistory.alcoholUse
+                              .quitWhen || ""
+                          } // Preload value
                           onChange={(e) =>
                             handleAlcoholChange("quitWhen", e.target.value)
                           }
@@ -3028,11 +2857,14 @@ function PatientsProfile() {
 
                       <select
                         className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                        value={
+                          medicalHistory.personalHistory.forWomen.pregnant || ""
+                        } // Preload data
                         onChange={(e) =>
                           handleWomenHealthChange("pregnant", e.target.value)
                         }
                       >
-                        <option value="" disabled selected>
+                        <option value="" disabled>
                           Select
                         </option>
                         <option value="Yes">Yes</option>
@@ -3048,6 +2880,9 @@ function PatientsProfile() {
                           type="date"
                           placeholder="Enter amount"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          value={
+                            medicalHistory.personalHistory.forWomen.months || ""
+                          } // Preload data
                           onChange={(e) =>
                             handleWomenHealthChange("months", e.target.value)
                           }
@@ -3062,6 +2897,10 @@ function PatientsProfile() {
                           type="date"
                           placeholder="Enter amount"
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          value={
+                            medicalHistory.personalHistory.forWomen
+                              .lastMenstrualPeriod || ""
+                          } // Preload data
                           onChange={(e) =>
                             handleWomenHealthChange(
                               "lastMenstrualPeriod",
@@ -3077,6 +2916,10 @@ function PatientsProfile() {
                         </label>
                         <select
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          value={
+                            medicalHistory.personalHistory.forWomen
+                              .abortionOrMiscarriage || ""
+                          } // Preload data
                           onChange={(e) =>
                             handleWomenHealthChange(
                               "abortionOrMiscarriage",
@@ -3084,7 +2927,7 @@ function PatientsProfile() {
                             )
                           }
                         >
-                          <option value="" disabled selected>
+                          <option value="" disabled>
                             Select
                           </option>
                           <option value="Abortion">Abortion</option>
@@ -3098,6 +2941,10 @@ function PatientsProfile() {
 
                         <select
                           className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          value={
+                            medicalHistory.personalHistory.forWomen
+                              .dysmenorrhea || ""
+                          } // Preload data
                           onChange={(e) =>
                             handleWomenHealthChange(
                               "dysmenorrhea",
@@ -3105,7 +2952,7 @@ function PatientsProfile() {
                             )
                           }
                         >
-                          <option value="" disabled selected>
+                          <option value="" disabled>
                             Select
                           </option>
                           <option value="Yes">Yes</option>
@@ -3160,15 +3007,17 @@ function PatientsProfile() {
                   >
                     Close
                   </button>
-                  <button
-                    className="bg-custom-red text-white py-2 px-4 rounded-lg"
-                    onClick={() => {
-                      handleUpdateSubmit();
-                      handleFamilyClose();
-                    }}
-                  >
-                    Save
-                  </button>
+                  {role === "nurse" && (
+                    <button
+                      className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                      onClick={() => {
+                        handleUpdateSubmit();
+                        handleFamilyClose();
+                      }}
+                    >
+                      Update
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -3180,10 +3029,11 @@ function PatientsProfile() {
             <div className="flex justify-between items-center">
               <div className="space-x-4">
                 <button
-                  className={`${selectedTab === "clinical"
+                  className={`${
+                    selectedTab === "clinical"
                       ? "text-custom-red font-semibold"
                       : ""
-                    }`}
+                  }`}
                   onClick={() => handleTabChange("clinical")}
                 >
                   Consultation Records
@@ -3210,30 +3060,33 @@ function PatientsProfile() {
                 </button> */}
                 {(role === "physical therapist" ||
                   role === "special trainee") && (
-                    <button
-                      className={`${selectedTab === "physical therapy"
-                          ? "text-custom-red font-semibold"
-                          : ""
-                        }`}
-                      onClick={() => handleTabChange("physical therapy")}
-                    >
-                      Physical Therapy Records
-                    </button>
-                  )}
+                  <button
+                    className={`${
+                      selectedTab === "physical therapy"
+                        ? "text-custom-red font-semibold"
+                        : ""
+                    }`}
+                    onClick={() => handleTabChange("physical therapy")}
+                  >
+                    Physical Therapy Records
+                  </button>
+                )}
                 <button
-                  className={`${selectedTab === "package"
+                  className={`${
+                    selectedTab === "package"
                       ? "text-custom-red font-semibold"
                       : ""
-                    }`}
+                  }`}
                   onClick={() => handleTabChange("package")}
                 >
                   Physical Examination
                 </button>
                 <button
-                  className={`${selectedTab === "vaccine"
+                  className={`${
+                    selectedTab === "vaccine"
                       ? "text-custom-red font-semibold"
                       : ""
-                    }`}
+                  }`}
                   onClick={() => handleTabChange("vaccine")}
                 >
                   Vaccine Records
@@ -3425,7 +3278,7 @@ function PatientsProfile() {
                               <p className="text-gray-500 text-sm">
                                 {new Date(
                                   records.labRecords[0]?.isCreatedAt ||
-                                  records.xrayRecords[0]?.isCreatedAt
+                                    records.xrayRecords[0]?.isCreatedAt
                                 ).toLocaleString() || "Invalid Date"}
                               </p>
                               <p className="font-semibold">
@@ -3442,25 +3295,25 @@ function PatientsProfile() {
                               <p className="text-gray-500">
                                 {records.labRecords.length > 0
                                   ? records.labRecords
-                                    .flatMap((record) => [
-                                      ...Object.values(
-                                        record.bloodChemistry || {}
-                                      ).filter((value) => value),
-                                      ...Object.values(
-                                        record.hematology || {}
-                                      ).filter((value) => value),
-                                      ...Object.values(
-                                        record.clinicalMicroscopyParasitology ||
-                                        {}
-                                      ).filter((value) => value),
-                                      ...Object.values(
-                                        record.bloodBankingSerology || {}
-                                      ).filter((value) => value),
-                                      ...Object.values(
-                                        record.microbiology || {}
-                                      ).filter((value) => value),
-                                    ])
-                                    .join(", ") || "No test data available"
+                                      .flatMap((record) => [
+                                        ...Object.values(
+                                          record.bloodChemistry || {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.hematology || {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.clinicalMicroscopyParasitology ||
+                                            {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.bloodBankingSerology || {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.microbiology || {}
+                                        ).filter((value) => value),
+                                      ])
+                                      .join(", ") || "No test data available"
                                   : "No Lab Tests Available"}
                               </p>
                             </div>
@@ -3470,12 +3323,12 @@ function PatientsProfile() {
                               <p className="text-gray-500">
                                 {records.xrayRecords.length > 0
                                   ? records.xrayRecords.map((record, idx) => (
-                                    <span key={idx}>
-                                      {record.xrayType}
-                                      {idx < records.xrayRecords.length - 1 &&
-                                        ", "}
-                                    </span>
-                                  ))
+                                      <span key={idx}>
+                                        {record.xrayType}
+                                        {idx < records.xrayRecords.length - 1 &&
+                                          ", "}
+                                      </span>
+                                    ))
                                   : "No X-ray Data"}
                               </p>
                             </div>
@@ -3484,10 +3337,11 @@ function PatientsProfile() {
                             <div className="col-span-1 flex justify-between items-center">
                               {/* Status Display */}
                               <p
-                                className={`font-semibold ${isCompleted
+                                className={`font-semibold ${
+                                  isCompleted
                                     ? "text-green-500"
                                     : "text-red-500"
-                                  }`}
+                                }`}
                               >
                                 {status}
                               </p>
@@ -4806,10 +4660,15 @@ function PatientsProfile() {
                                     className="w-full px-3 py-2 border rounded bg-gray-100"
                                     value={
                                       labResult.patient
-                                      ? labResult.patient.patientType === "Student"
-                                        ? `${labResult.patient.course || "N/A"} - ${labResult.patient.year || "N/A"}` // Display course and year if patientType is student
-                                        : labResult.patient.position || "N/A" // Otherwise, display position
-                                      : "N/A"                                    
+                                        ? labResult.patient.patientType ===
+                                          "Student"
+                                          ? `${
+                                              labResult.patient.course || "N/A"
+                                            } - ${
+                                              labResult.patient.year || "N/A"
+                                            }` // Display course and year if patientType is student
+                                          : labResult.patient.position || "N/A" // Otherwise, display position
+                                        : "N/A"
                                     }
                                     readOnly
                                   />
@@ -4827,8 +4686,9 @@ function PatientsProfile() {
                                       I. Hematology
                                     </h3>
                                     <BiChevronDown
-                                      className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
-                                        }`}
+                                      className={`transform transition-transform duration-300 ${
+                                        isHematologyVisible ? "rotate-180" : ""
+                                      }`}
                                       size={24}
                                     />
                                   </div>
@@ -5093,10 +4953,11 @@ function PatientsProfile() {
                                     II. Clinical Microscopy and Parasitology
                                   </h3>
                                   <BiChevronDown
-                                    className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible
+                                    className={`transform transition-transform duration-300 ${
+                                      isClinicalMicroscopyVisible
                                         ? "rotate-180"
                                         : ""
-                                      }`}
+                                    }`}
                                     size={24}
                                   />
                                 </div>
@@ -5521,8 +5382,9 @@ function PatientsProfile() {
                                     III. Serology
                                   </h3>
                                   <BiChevronDown
-                                    className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
-                                      }`}
+                                    className={`transform transition-transform duration-300 ${
+                                      isSerologyVisible ? "rotate-180" : ""
+                                    }`}
                                     size={24}
                                   />
                                 </div>
@@ -5602,10 +5464,10 @@ function PatientsProfile() {
                                           ?.hepatitisBSurfaceAntigen
                                           ?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5620,10 +5482,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.antiHAVTest?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.antiHAVTest.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.antiHAVTest.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5721,10 +5583,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.serumPregnancy?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.serumPregnancy.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.serumPregnancy.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5740,10 +5602,10 @@ function PatientsProfile() {
                                           ?.treponemaPallidumTest
                                           ?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5839,10 +5701,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.salmonellaTyphi?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.salmonellaTyphi.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.salmonellaTyphi.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5929,10 +5791,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.testDengue?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.testDengue.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.testDengue.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5947,10 +5809,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology?.others
                                           ?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.others.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.others.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -6148,7 +6010,6 @@ function PatientsProfile() {
                                         readOnly
                                       />
                                     </div>
-
                                   </div>
                                 </form>
                               </div>
@@ -6238,215 +6099,273 @@ function PatientsProfile() {
           </div>
         </div>
       </div>
-      {isNewTherapyRecordModalOpen && selectedXrayRecords && selectedXrayRecords.length > 0 && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-lg shadow-lg z-50 max-w-3xl w-full overflow-auto h-auto max-h-[90vh]">
-            {/* Form Title */}
-            <h2 className="text-xl font-semibold mb-4 text-center">Result Form</h2>
+      {isNewTherapyRecordModalOpen &&
+        selectedXrayRecords &&
+        selectedXrayRecords.length > 0 && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
+            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-lg shadow-lg z-50 max-w-3xl w-full overflow-auto h-auto max-h-[90vh]">
+              {/* Form Title */}
+              <h2 className="text-xl font-semibold mb-4 text-center">
+                Result Form
+              </h2>
 
-            {/* Main Form Content */}
-            <div className="flex flex-wrap mb-4 gap-4">
-              <form className="flex flex-row items-start gap-4 w-full">
-                {/* X-ray Result Image - Left Side */}
-                <div className="w-full md:w-1/2">
-                  <label className="block text-gray-700">X-ray Results</label>
+              {/* Main Form Content */}
+              <div className="flex flex-wrap mb-4 gap-4">
+                <form className="flex flex-row items-start gap-4 w-full">
+                  {/* X-ray Result Image - Left Side */}
+                  <div className="w-full md:w-1/2">
+                    <label className="block text-gray-700">X-ray Results</label>
 
-                  {/* Dropdown to select X-ray record */}
-                  <select
-                    className="w-full px-3 py-2 border rounded mb-4"
-                    onChange={(e) => setSelectedXray(e.target.value)}
-                  >
-                    <option value="">Select X-ray</option>
-                    {selectedXrayRecords.map((xray, index) => (
-                      <option key={index} value={index}>
-                        X-ray {index + 1} - {new Date(xray.isCreatedAt).toLocaleDateString()}
-                      </option>
-                    ))}
-                  </select>
+                    {/* Dropdown to select X-ray record */}
+                    <select
+                      className="w-full px-3 py-2 border rounded mb-4"
+                      onChange={(e) => setSelectedXray(e.target.value)}
+                    >
+                      <option value="">Select X-ray</option>
+                      {selectedXrayRecords.map((xray, index) => (
+                        <option key={index} value={index}>
+                          X-ray {index + 1} -{" "}
+                          {new Date(xray.isCreatedAt).toLocaleDateString()}
+                        </option>
+                      ))}
+                    </select>
 
-                  {/* Display selected X-ray record */}
-                  {selectedXray !== null && selectedXrayRecords[selectedXray] && (
-                    <div>
-                      <img
-                        src={selectedXrayRecords[selectedXray].imageFile}
-                        alt="X-ray"
-                        className="w-full h-auto object-contain cursor-pointer mb-4 max-h-[60vh] overflow-hidden mx-auto" // Modified styles
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Patient Details Section - Right Side */}
-                <div className="w-full md:w-1/2">
-                  {/* Patient Information */}
-                  <div className="flex mb-4 gap-2">
-                    <div className="w-1/2">
-                      <label className="block text-gray-700">Name</label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={`${patient.firstname} ${patient.lastname}` || "N/A"}
-                        readOnly
-                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                      />
-                    </div>
-                    <div className="w-1/4">
-                      <label className="block text-gray-700">Age</label>
-                      <input
-                        type="text"
-                        name="age"
-                        value={calculateAge(patient.birthdate)}
-                        readOnly
-                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                      />
-                    </div>
-                    <div className="w-1/4">
-                      <label className="block text-gray-700">Sex</label>
-                      <input
-                        type="text"
-                        name="sex"
-                        value={patient.sex || "N/A"}
-                        readOnly
-                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                      />
-                    </div>
+                    {/* Display selected X-ray record */}
+                    {selectedXray !== null &&
+                      selectedXrayRecords[selectedXray] && (
+                        <div>
+                          <img
+                            src={selectedXrayRecords[selectedXray].imageFile}
+                            alt="X-ray"
+                            className="w-full h-auto object-contain cursor-pointer mb-4 max-h-[60vh] overflow-hidden mx-auto" // Modified styles
+                          />
+                        </div>
+                      )}
                   </div>
 
-                  {/* Course/Dept. or Position */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700">
-                      {patient.patientType === "Student" ? "Course/Dept." : "Position"}
-                    </label>
-                    <input
-                      type="text"
-                      name="courseDept"
-                      value={patient.patientType === "Student" ? patient.course || "N/A" : patient.position || "N/A"}
-                      readOnly
-                      className="w-full px-3 py-2 border rounded bg-gray-100"
-                    />
-                  </div>
-
-                  {/* X-ray Information (OR No., Case No., Date, Interpretation) */}
-                  <div className="mb-4">
+                  {/* Patient Details Section - Right Side */}
+                  <div className="w-full md:w-1/2">
+                    {/* Patient Information */}
                     <div className="flex mb-4 gap-2">
-                      <div className="w-1/3">
-                        <label className="block text-gray-700">OR No.</label>
+                      <div className="w-1/2">
+                        <label className="block text-gray-700">Name</label>
                         <input
                           type="text"
-                          name="XrayNo"
-                          value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].ORNumber || "N/A" : "N/A"}
-                          className="w-full px-3 py-2 border rounded"
+                          name="name"
+                          value={
+                            `${patient.firstname} ${patient.lastname}` || "N/A"
+                          }
                           readOnly
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
                         />
                       </div>
-                      <div className="w-1/3">
-                        <label className="block text-gray-700">Case No.</label>
+                      <div className="w-1/4">
+                        <label className="block text-gray-700">Age</label>
                         <input
                           type="text"
-                          name="XrayNo"
-                          value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].XrayNo || "N/A" : "N/A"}
-                          className="w-full px-3 py-2 border rounded"
+                          name="age"
+                          value={calculateAge(patient.birthdate)}
                           readOnly
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
                         />
                       </div>
-                      <div className="w-1/3">
-                        <label className="block text-gray-700">Date</label>
+                      <div className="w-1/4">
+                        <label className="block text-gray-700">Sex</label>
                         <input
                           type="text"
-                          name="date"
-                          value={selectedXray !== null && selectedXrayRecords[selectedXray] ? new Date(selectedXrayRecords[selectedXray].isCreatedAt).toLocaleString() : "N/A"}
-                          className="w-full px-3 py-2 border rounded"
+                          name="sex"
+                          value={patient.sex || "N/A"}
                           readOnly
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
                         />
                       </div>
                     </div>
 
-                    {/* Diagnosis */}
-                    <div className="w-full">
-                      <label className="block text-gray-700">Interpretation</label>
-                      <textarea
-                        name="diagnosis"
-                        className="w-full px-3 py-2 border rounded"
-                        rows="4"
-                        placeholder="No Interpretation available."
-                        value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].diagnosis || "" : ""}
+                    {/* Course/Dept. or Position */}
+                    <div className="mb-4">
+                      <label className="block text-gray-700">
+                        {patient.patientType === "Student"
+                          ? "Course/Dept."
+                          : "Position"}
+                      </label>
+                      <input
+                        type="text"
+                        name="courseDept"
+                        value={
+                          patient.patientType === "Student"
+                            ? patient.course || "N/A"
+                            : patient.position || "N/A"
+                        }
                         readOnly
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
                       />
                     </div>
 
-                    {/*X-ray Findings*/}
-                    <div className="w-full">
-                      <label className="block text-gray-700">X-ray Findings</label>
-                      <textarea
-                        name="xrayFindings"
-                        className="w-full px-3 py-2 border rounded"
-                        rows="4"
-                        placeholder="No X-ray findings available."
-                        value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].xrayFindings || "" : ""}
-                        required
-                      />
-                    </div>
+                    {/* X-ray Information (OR No., Case No., Date, Interpretation) */}
+                    <div className="mb-4">
+                      <div className="flex mb-4 gap-2">
+                        <div className="w-1/3">
+                          <label className="block text-gray-700">OR No.</label>
+                          <input
+                            type="text"
+                            name="XrayNo"
+                            value={
+                              selectedXray !== null &&
+                              selectedXrayRecords[selectedXray]
+                                ? selectedXrayRecords[selectedXray].ORNumber ||
+                                  "N/A"
+                                : "N/A"
+                            }
+                            className="w-full px-3 py-2 border rounded"
+                            readOnly
+                          />
+                        </div>
+                        <div className="w-1/3">
+                          <label className="block text-gray-700">
+                            Case No.
+                          </label>
+                          <input
+                            type="text"
+                            name="XrayNo"
+                            value={
+                              selectedXray !== null &&
+                              selectedXrayRecords[selectedXray]
+                                ? selectedXrayRecords[selectedXray].XrayNo ||
+                                  "N/A"
+                                : "N/A"
+                            }
+                            className="w-full px-3 py-2 border rounded"
+                            readOnly
+                          />
+                        </div>
+                        <div className="w-1/3">
+                          <label className="block text-gray-700">Date</label>
+                          <input
+                            type="text"
+                            name="date"
+                            value={
+                              selectedXray !== null &&
+                              selectedXrayRecords[selectedXray]
+                                ? new Date(
+                                    selectedXrayRecords[
+                                      selectedXray
+                                    ].isCreatedAt
+                                  ).toLocaleString()
+                                : "N/A"
+                            }
+                            className="w-full px-3 py-2 border rounded"
+                            readOnly
+                          />
+                        </div>
+                      </div>
 
+                      {/* Diagnosis */}
+                      <div className="w-full">
+                        <label className="block text-gray-700">
+                          Interpretation
+                        </label>
+                        <textarea
+                          name="diagnosis"
+                          className="w-full px-3 py-2 border rounded"
+                          rows="4"
+                          placeholder="No Interpretation available."
+                          value={
+                            selectedXray !== null &&
+                            selectedXrayRecords[selectedXray]
+                              ? selectedXrayRecords[selectedXray].diagnosis ||
+                                ""
+                              : ""
+                          }
+                          readOnly
+                        />
+                      </div>
+
+                      {/*X-ray Findings*/}
+                      <div className="w-full">
+                        <label className="block text-gray-700">
+                          X-ray Findings
+                        </label>
+                        <textarea
+                          name="xrayFindings"
+                          className="w-full px-3 py-2 border rounded"
+                          rows="4"
+                          placeholder="No X-ray findings available."
+                          value={
+                            selectedXray !== null &&
+                            selectedXrayRecords[selectedXray]
+                              ? selectedXrayRecords[selectedXray]
+                                  .xrayFindings || ""
+                              : ""
+                          }
+                          required
+                        />
+                      </div>
+                    </div>
                   </div>
+                </form>
+              </div>
+
+              {/* New Physical Therapy Record Section */}
+              <h2 className="text-lg font-bold mb-4 text-center">
+                New Physical Therapy Record
+              </h2>
+              <form onSubmit={handleNewTherapySubmit}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium">
+                    Tentative Diagnosis
+                  </label>
+                  <textarea
+                    type="text"
+                    name="Diagnosis"
+                    value={newTherapyRecord.Diagnosis}
+                    onChange={handleNewTherapyRecordChange}
+                    required
+                    className="border rounded-lg w-full p-2 mt-1"
+                  />
+
+                  <label className="block text-sm font-medium">
+                    Chief Complaints
+                  </label>
+                  <textarea
+                    type="text"
+                    name="ChiefComplaints"
+                    value={newTherapyRecord.ChiefComplaints}
+                    onChange={handleNewTherapyRecordChange}
+                    required
+                    className="border rounded-lg w-full p-2 mt-1"
+                  />
+
+                  <label className="block text-sm font-medium">
+                    History Of Present Illness
+                  </label>
+                  <textarea
+                    type="text"
+                    name="HistoryOfPresentIllness"
+                    value={newTherapyRecord.HistoryOfPresentIllness}
+                    onChange={handleNewTherapyRecordChange}
+                    required
+                    className="border rounded-lg w-full p-2 mt-1"
+                  />
+                </div>
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                    onClick={handleNewTherapyRecordClose}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                  >
+                    Submit
+                  </button>
                 </div>
               </form>
             </div>
-
-            {/* New Physical Therapy Record Section */}
-            <h2 className="text-lg font-bold mb-4 text-center">New Physical Therapy Record</h2>
-            <form onSubmit={handleNewTherapySubmit}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium">Tentative Diagnosis</label>
-                <textarea
-                  type="text"
-                  name="Diagnosis"
-                  value={newTherapyRecord.Diagnosis}
-                  onChange={handleNewTherapyRecordChange}
-                  required
-                  className="border rounded-lg w-full p-2 mt-1"
-                />
-
-                <label className="block text-sm font-medium">Chief Complaints</label>
-                <textarea
-                  type="text"
-                  name="ChiefComplaints"
-                  value={newTherapyRecord.ChiefComplaints}
-                  onChange={handleNewTherapyRecordChange}
-                  required
-                  className="border rounded-lg w-full p-2 mt-1"
-                />
-
-                <label className="block text-sm font-medium">History Of Present Illness</label>
-                <textarea
-                  type="text"
-                  name="HistoryOfPresentIllness"
-                  value={newTherapyRecord.HistoryOfPresentIllness}
-                  onChange={handleNewTherapyRecordChange}
-                  required
-                  className="border rounded-lg w-full p-2 mt-1"
-                />
-
-              </div>
-              <div className="flex justify-end space-x-3">
-                <button
-                  type="button"
-                  className="bg-gray-500 text-white py-2 px-4 rounded-lg"
-                  onClick={handleNewTherapyRecordClose}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-custom-red text-white py-2 px-4 rounded-lg"
-                >
-                  Submit
-                </button>
-              </div>
-            </form>
           </div>
-        </div>
-      )}
-
+        )}
 
       {/* Vaccine Modal */}
       {isVaccineModalOpen && (
@@ -6592,7 +6511,7 @@ function PatientsProfile() {
           </div>
         </div>
       )}
-       {isViewModalOpen && selectedRecord && (
+      {isViewModalOpen && selectedRecord && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col">
             <div className="mb-4 flex items-center justify-between">
@@ -6657,7 +6576,7 @@ function PatientsProfile() {
                   </div>
                 )}
 
-{selectedRecord.treatments &&
+                {selectedRecord.treatments &&
                 selectedRecord.treatments.length > 0 ? (
                   <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                     {selectedRecord.treatments
@@ -6698,7 +6617,7 @@ function PatientsProfile() {
               <div className="mb-4 w-full">
                 <div className="flex justify-between items-center">
                   <div className="block text-sm font-medium">Diagnosis</div>
-                  {role === "doctor" && !selectedRecord.diagnosis.length &&( 
+                  {role === "doctor" && !selectedRecord.diagnosis.length && (
                     <button
                       className="text-sm text-custom-red underline italic hover:text-custom-red focus:outline-none"
                       onClick={() => setIsDiagnosisModalOpen(true)}
@@ -6971,7 +6890,9 @@ function PatientsProfile() {
                         value={
                           labDetails.patient
                             ? labDetails.patient.patientType === "Student"
-                              ? `${labDetails.patient.course || "N/A"} - ${labDetails.patient.year || "N/A"}` // Display course if patientType is student
+                              ? `${labDetails.patient.course || "N/A"} - ${
+                                  labDetails.patient.year || "N/A"
+                                }` // Display course if patientType is student
                               : labDetails.patient.position || "N/A" // Otherwise, display position
                             : "N/A"
                         }
@@ -6989,8 +6910,9 @@ function PatientsProfile() {
                           I. Hematology
                         </h3>
                         <BiChevronDown
-                          className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
-                            }`}
+                          className={`transform transition-transform duration-300 ${
+                            isHematologyVisible ? "rotate-180" : ""
+                          }`}
                           size={24}
                         />
                       </div>
@@ -7194,8 +7116,9 @@ function PatientsProfile() {
                         II. Clinical Microscopy and Parasitology
                       </h3>
                       <BiChevronDown
-                        className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible ? "rotate-180" : ""
-                          }`}
+                        className={`transform transition-transform duration-300 ${
+                          isClinicalMicroscopyVisible ? "rotate-180" : ""
+                        }`}
                         size={24}
                       />
                     </div>
@@ -7574,8 +7497,9 @@ function PatientsProfile() {
                         III. Serology
                       </h3>
                       <BiChevronDown
-                        className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
-                          }`}
+                        className={`transform transition-transform duration-300 ${
+                          isSerologyVisible ? "rotate-180" : ""
+                        }`}
                         size={24}
                       />
                     </div>
@@ -7642,10 +7566,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology
                               ?.hepatitisBSurfaceAntigen?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7658,10 +7582,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.antiHAVTest
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.antiHAVTest.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.antiHAVTest.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7746,10 +7670,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.serumPregnancy
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.serumPregnancy.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.serumPregnancy.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7762,10 +7686,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology
                               ?.treponemaPallidumTest?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7850,10 +7774,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.salmonellaTyphi
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7928,10 +7852,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.testDengue
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.testDengue.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.testDengue.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7944,10 +7868,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.others
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.others.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.others.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -8177,7 +8101,9 @@ function PatientsProfile() {
                   {selectedXrayRecords && selectedXrayRecords.length > 0 && (
                     <button
                       className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                      onClick={() => handleNewTherapyRecordOpen(selectedXrayRecords)} // Pass all X-ray records
+                      onClick={() =>
+                        handleNewTherapyRecordOpen(selectedXrayRecords)
+                      } // Pass all X-ray records
                     >
                       <GiBiceps className="mr-2" /> Refer to PT
                     </button>
@@ -8214,7 +8140,7 @@ function PatientsProfile() {
           <p className="font-semibold">X-ray</p>
         </div>
       )} */}
-    {isTreatmentModalOpen && (
+      {isTreatmentModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
             <h2 className="text-lg font-bold mb-4 text-center">
@@ -8278,7 +8204,7 @@ function PatientsProfile() {
         </div>
       )}
 
-{isComplaintsModalOpen && (
+      {isComplaintsModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-full max-w-md shadow-lg">
             <h2 className="text-lg font-bold mb-4 text-center">
