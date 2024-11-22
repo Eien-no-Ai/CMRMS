@@ -12,28 +12,206 @@ import { IoFileTrayFullOutline } from "react-icons/io5";
 const Dashboard = () => {
   const [userRole, setUserRole] = useState(null);
   const [patients, setPatients] = useState([]);
-  const [updates, setUpdates] = useState([
-    {
-      name: "Andrew Thomas",
-      action: "has ordered Apple smart watch 2500mh battery.",
-      time: "25 seconds ago",
-      image: "https://via.placeholder.com/50",
-    },
-    {
-      name: "James Bond",
-      action: "has received Samsung gadget for charging battery.",
-      time: "30 minutes ago",
-      image: "https://via.placeholder.com/50",
-    },
-    {
-      name: "Iron Man",
-      action: "has ordered Apple smart watch, samsung Gear 2500mh battery.",
-      time: "2 hours ago",
-      image: "https://via.placeholder.com/50",
-    },
-  ]);
-
+  const [updates, setUpdates] = useState([]);
   const [records, setRecords] = useState([]);
+
+  // Helper function to calculate time ago
+  const calculateTimeAgo = (timestamp) => {
+    if (!timestamp) return "Unknown time";
+    const now = new Date();
+    const createdTime = new Date(timestamp);
+    const secondsAgo = Math.floor((now - createdTime) / 1000);
+
+    if (secondsAgo < 60) {
+      return `${secondsAgo} seconds ago`;
+    } else if (secondsAgo < 3600) {
+      const minutesAgo = Math.floor(secondsAgo / 60);
+      return `${minutesAgo} minute${minutesAgo > 1 ? "s" : ""} ago`;
+    } else {
+      const hoursAgo = Math.floor(secondsAgo / 3600);
+      return `${hoursAgo} hour${hoursAgo > 1 ? "s" : ""} ago`;
+    }
+  };
+
+  const extractRequestedLabTests = (lab) => {
+    const tests = [];
+
+    // Blood Chemistry
+    for (const [testName, value] of Object.entries(lab.bloodChemistry || {})) {
+      if (value) tests.push(formatTestName(testName));
+    }
+
+    // Hematology
+    for (const [testName, value] of Object.entries(lab.hematology || {})) {
+      if (value) tests.push(formatTestName(testName));
+    }
+
+    // Clinical Microscopy Parasitology
+    for (const [testName, value] of Object.entries(
+      lab.clinicalMicroscopyParasitology || {}
+    )) {
+      if (value) tests.push(formatTestName(testName));
+    }
+
+    // Blood Banking Serology
+    for (const [testName, value] of Object.entries(
+      lab.bloodBankingSerology || {}
+    )) {
+      if (value) tests.push(formatTestName(testName));
+    }
+
+    // Microbiology
+    for (const [testName, value] of Object.entries(lab.microbiology || {})) {
+      if (value) tests.push(formatTestName(testName));
+    }
+
+    return tests;
+  };
+
+  const formatTestName = (testName) => {
+    // Convert camelCase or snake_case to Regular Format
+    return testName
+      .replace(/([A-Z])/g, " $1") // Insert space before capital letters
+      .replace(/_/g, " ") // Replace underscores with spaces
+      .replace(/\b\w/g, (l) => l.toUpperCase()) // Capitalize first letter
+      .trim();
+  };
+
+  useEffect(() => {
+    const fetchUpdates = async () => {
+      try {
+        // Fetch the logged-in employee's details to determine their department
+        const userId = localStorage.getItem("userId");
+        const employeeResponse = await axios.get(
+          `http://localhost:3001/user/${userId}`
+        );
+        const department = employeeResponse.data.department;
+
+        console.log("Employee Department:", department);
+
+        // Fetch all updates (labs, xrays, clinics)
+        const [labs, xrays, clinics] = await Promise.all([
+          axios.get("http://localhost:3001/api/laboratory"),
+          axios.get("http://localhost:3001/api/xrayResults"),
+          axios.get("http://localhost:3001/api/clinicalRecords"),
+        ]);
+
+        let filteredUpdates = [];
+
+        if (department === "laboratory") {
+          // Only display labs
+          filteredUpdates = [
+            ...labs.data
+              .filter((lab) => lab.labResult === "pending")
+              .map((lab) => {
+                const testsRequested = extractRequestedLabTests(lab);
+                return {
+                  type: "Lab",
+                  name: `${lab.patient?.firstname || "Unknown"} ${
+                    lab.patient?.lastname || ""
+                  }`,
+                  action: `requested lab work: ${testsRequested.join(", ")}`,
+                  timestamp: new Date(
+                    lab.isCreatedAt || lab.createdAt || Date.now()
+                  ),
+                  time: calculateTimeAgo(
+                    lab.isCreatedAt || lab.createdAt || Date.now()
+                  ),
+                };
+              }),
+          ];
+        } else if (department === "xray") {
+          // Only display xrays
+          filteredUpdates = [
+            ...xrays.data
+              .filter((xray) => xray.xrayResult === "pending")
+              .map((xray) => ({
+                type: "X-Ray",
+                name: `${xray.patient?.firstname || "Unknown"} ${
+                  xray.patient?.lastname || ""
+                }`,
+                action: `requested an X-ray: ${
+                  xray.xrayType || "Unknown Type"
+                }`,
+                timestamp: new Date(
+                  xray.isCreatedAt || xray.createdAt || Date.now()
+                ),
+                time: calculateTimeAgo(
+                  xray.isCreatedAt || xray.createdAt || Date.now()
+                ),
+              })),
+          ];
+        } else {
+          // Display all (labs, xrays, clinics)
+          const labUpdates = labs.data
+            .filter((lab) => lab.labResult === "pending")
+            .map((lab) => {
+              const testsRequested = extractRequestedLabTests(lab);
+              return {
+                type: "Lab",
+                name: `${lab.patient?.firstname || "Unknown"} ${
+                  lab.patient?.lastname || ""
+                }`,
+                action: `requested lab work: ${testsRequested.join(", ")}`,
+                timestamp: new Date(
+                  lab.isCreatedAt || lab.createdAt || Date.now()
+                ),
+                time: calculateTimeAgo(
+                  lab.isCreatedAt || lab.createdAt || Date.now()
+                ),
+              };
+            });
+
+          const xrayUpdates = xrays.data
+            .filter((xray) => xray.xrayResult === "pending")
+            .map((xray) => ({
+              type: "X-Ray",
+              name: `${xray.patient?.firstname || "Unknown"} ${
+                xray.patient?.lastname || ""
+              }`,
+              action: `requested an X-ray: ${xray.xrayType || "Unknown Type"}`,
+              timestamp: new Date(
+                xray.isCreatedAt || xray.createdAt || Date.now()
+              ),
+              time: calculateTimeAgo(
+                xray.isCreatedAt || xray.createdAt || Date.now()
+              ),
+            }));
+
+          const clinicUpdates = clinics.data
+            .filter((clinic) => !clinic.treatments && !clinic.diagnosis)
+            .map((clinic) => ({
+              type: "Clinic",
+              name: `${clinic.patient?.firstname || "Unknown"} ${
+                clinic.patient?.lastname || ""
+              }`,
+              action: `complaint: ${
+                clinic.complaints || "No complaint provided"
+              }`,
+              timestamp: new Date(
+                clinic.isCreatedAt || clinic.createdAt || Date.now()
+              ),
+              time: calculateTimeAgo(
+                clinic.isCreatedAt || clinic.createdAt || Date.now()
+              ),
+            }));
+
+          filteredUpdates = [...labUpdates, ...xrayUpdates, ...clinicUpdates];
+        }
+
+        console.log("Filtered Updates:", filteredUpdates);
+
+        // Sort updates by timestamp (most recent first)
+        filteredUpdates.sort((a, b) => b.timestamp - a.timestamp);
+
+        setUpdates(filteredUpdates);
+      } catch (error) {
+        console.error("Error fetching updates:", error);
+      }
+    };
+
+    fetchUpdates();
+  }, []);
 
   useEffect(() => {
     // Fetch the user data when the component is mounted
@@ -86,7 +264,7 @@ const Dashboard = () => {
       "radiologic technologist": ["X-Ray Records"],
       radiologist: ["X-Ray Records"],
       dentist: ["X-Ray Records"],
-      "special trainee":[ "Physical Therapy Records"],
+      "special trainee": ["Physical Therapy Records"],
       "physical therapist": ["Physical Therapy Records"],
     };
 
@@ -148,55 +326,58 @@ const Dashboard = () => {
                       </span>
                     </a>
                   )}
-                {records.includes("Laboratory Records") && (
-  <div className="grid grid-cols-3 gap-6">
-    <a
-      href="/laboratory/records"
-      className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
-    >
-      <IoFileTrayFullOutline
-        size={40}
-        className="text-gray-500 mb-2"
-      />
-      <span className="font-semibold text-custom-red">
-        LAB RECORDS
-      </span>
-    </a>
-    <a
-      href={
-        userRole === "pathologist"
-          ? "/laboratory/verification/pathologist"
-          : "/laboratory/verification"
-      }
-      onClick={(e) => {
-        if (userRole !== "senior medtech" && userRole !== "pathologist") {
-          e.preventDefault();
-          alert(
-            "You do not have permission to verify laboratory tests."
-          );
-        }
-      }}
-      className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
-    >
-      <MdOutlineVerifiedUser
-        size={40}
-        className="text-gray-500 mb-2"
-      />
-      <span className="font-semibold text-custom-red">
-        LAB VERIFICATION
-      </span>
-    </a>
-    <a
-      href="/laboratory/requests"
-      className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
-    >
-      <SlChemistry size={40} className="text-gray-500 mb-2" />
-      <span className="font-semibold text-custom-red">
-        LAB REQUESTS
-      </span>
-    </a>
-  </div>
-)}
+                  {records.includes("Laboratory Records") && (
+                    <div className="grid grid-cols-3 gap-6">
+                      <a
+                        href="/laboratory/records"
+                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                      >
+                        <IoFileTrayFullOutline
+                          size={40}
+                          className="text-gray-500 mb-2"
+                        />
+                        <span className="font-semibold text-custom-red">
+                          LAB RECORDS
+                        </span>
+                      </a>
+                      <a
+                        href={
+                          userRole === "pathologist"
+                            ? "/laboratory/verification/pathologist"
+                            : "/laboratory/verification"
+                        }
+                        onClick={(e) => {
+                          if (
+                            userRole !== "senior medtech" &&
+                            userRole !== "pathologist"
+                          ) {
+                            e.preventDefault();
+                            alert(
+                              "You do not have permission to verify laboratory tests."
+                            );
+                          }
+                        }}
+                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                      >
+                        <MdOutlineVerifiedUser
+                          size={40}
+                          className="text-gray-500 mb-2"
+                        />
+                        <span className="font-semibold text-custom-red">
+                          LAB VERIFICATION
+                        </span>
+                      </a>
+                      <a
+                        href="/laboratory/requests"
+                        className="h-48 bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-end mb-1 transition-transform transform hover:scale-105 hover:shadow-lg"
+                      >
+                        <SlChemistry size={40} className="text-gray-500 mb-2" />
+                        <span className="font-semibold text-custom-red">
+                          LAB REQUESTS
+                        </span>
+                      </a>
+                    </div>
+                  )}
 
                   {records.includes("X-Ray Records") && (
                     <div className="grid grid-cols-2 gap-6">
@@ -322,11 +503,6 @@ const Dashboard = () => {
                       className="flex justify-between items-center py-4 border-b"
                     >
                       <div className="w-1/5 flex items-center space-x-4">
-                        <img
-                          src="https://via.placeholder.com/50"
-                          alt="patient"
-                          className="rounded-full"
-                        />
                         <span className="font-medium">
                           {patient.lastname}, {patient.firstname}
                         </span>
@@ -345,27 +521,29 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="col-span-1 h-full">
-            <div className="bg-white p-6 rounded-lg shadow-md flex flex-col h-full">
-              <h2 className="text-xl font-semibold mb-4">Updates</h2>
-              <div className="space-y-6 flex-grow">
-                {updates.map((update, index) => (
-                  <div key={index} className="flex items-center">
-                    <img
-                      src={update.image}
-                      alt="update"
-                      className="w-12 h-12 rounded-full mr-4"
-                    />
-                    <div>
-                      <p className="text-sm">
-                        <span className="font-semibold">{update.name}</span>{" "}
-                        {update.action}
-                      </p>
-                      <p className="text-gray-500 text-xs">{update.time}</p>
-                    </div>
+          <div className="col-span-1 bg-white p-6 rounded-lg shadow-md flex flex-col">
+            <h2 className="text-xl font-semibold mb-4">Updates</h2>
+            {/* Updates content with a fixed height and scroll */}
+            <div className="space-y-6 flex-grow overflow-y-auto h-96">
+              {updates.map((update, index) => (
+                <div key={index} className="flex items-center">
+                  <img
+                    src={`https://via.placeholder.com/50?text=${update.type}`}
+                    alt="update"
+                    className="w-12 h-12 rounded-full mr-4"
+                  />
+                  <div>
+                    <p className="text-sm">
+                      <span className="font-semibold">{update.name}</span>{" "}
+                      {update.action}
+                    </p>
+                    <p className="text-gray-500 text-xs">{update.time}</p>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
+              {updates.length === 0 && (
+                <p className="text-gray-500 text-sm">No recent updates.</p>
+              )}
             </div>
           </div>
         </div>

@@ -819,6 +819,7 @@ function PatientsProfile() {
 
       // Fetch the latest X-ray records after request(s) completion
       fetchXrayRecords();
+      setShowPackageOptions(false);
     } catch (error) {
       console.error("Error fetching package or creating requests:", error);
       alert("Failed to fetch package or create requests. Please try again.");
@@ -1901,7 +1902,7 @@ function PatientsProfile() {
                 </div>
               </div>
             </div>
- 
+
             {/* Buttons at the Bottom */}
             <div className="flex space-x-4 mt-6">
               <button
@@ -1925,7 +1926,6 @@ function PatientsProfile() {
                 <h1 className="text-2xl font-semibold text-center mb-6">
                   Medical History Form
                 </h1>
-
 
                 {/* Conditions Section */}
                 <div className="mt-6">
