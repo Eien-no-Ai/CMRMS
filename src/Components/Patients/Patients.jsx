@@ -148,6 +148,7 @@ function Patients() {
     setPhoneNumber("");
     setEmail("");
     setCourse("");
+    setYear("");
     setSex("");
     setEmergencyContact("");
     setPosition("");
@@ -315,85 +316,88 @@ function Patients() {
       return true; // Show all if no sorting option selected
     });
 
-  const [medicalHistory, setMedicalHistory] = useState({
-    conditions: {
-      noseThroatDisorders: false,
-      earTrouble: false,
-      asthma: false,
+// Initial state for medical history
+const initialMedicalHistoryState = {
+  conditions: {
+    noseThroatDisorders: false,
+    earTrouble: false,
+    asthma: false,
+    tuberculosis: false,
+    lungDiseases: false,
+    highBloodPressure: false,
+    heartDiseases: false,
+    rheumaticFever: false,
+    diabetesMellitus: false,
+    endocrineDisorder: false,
+    cancerTumor: false,
+    mentalDisorder: false,
+    headNeckInjury: false,
+    hernia: false,
+    rheumatismJointPain: false,
+    eyeDisorders: false,
+    stomachPainUlcer: false,
+    abdominalDisorders: false,
+    kidneyBladderDiseases: false,
+    std: false,
+    familialDisorder: false,
+    tropicalDiseases: false,
+    chronicCough: false,
+    faintingSeizures: false,
+    frequentHeadache: false,
+    dizziness: false,
+  },
+  malaria: {
+    hasMalaria: null,
+    lastAttackDate: "",
+  },
+  operations: {
+    undergoneOperation: null,
+    listOperations: "",
+  },
+  signature: {
+    fileName: null,
+    fileType: null,
+  },
+  familyHistory: {
+    diseases: {
+      heartDisease: false,
       tuberculosis: false,
-      lungDiseases: false,
-      highBloodPressure: false,
-      heartDiseases: false,
-      rheumaticFever: false,
-      diabetesMellitus: false,
-      endocrineDisorder: false,
-      cancerTumor: false,
-      mentalDisorder: false,
-      headNeckInjury: false,
-      hernia: false,
-      rheumatismJointPain: false,
-      eyeDisorders: false,
-      stomachPainUlcer: false,
-      abdominalDisorders: false,
-      kidneyBladderDiseases: false,
-      std: false,
-      familialDisorder: false,
-      tropicalDiseases: false,
-      chronicCough: false,
-      faintingSeizures: false,
-      frequentHeadache: false,
-      dizziness: false,
+      kidneyDisease: false,
+      asthma: false,
+      hypertension: false,
+      diabetes: false,
+      cancer: false,
     },
-    malaria: {
-      hasMalaria: null, // Radio buttons - Yes/No
-      lastAttackDate: "", // Malaria attack details
+    allergies: {
+      hasAllergies: null,
+      allergyList: "",
     },
-    operations: {
-      undergoneOperation: null, // Radio buttons - Yes/No
-      listOperations: "", // Details of operations
+  },
+  personalHistory: {
+    tobaccoUse: {
+      usesTobacco: null,
+      sticksPerDay: "",
+      quitSmoking: null,
+      quitWhen: "",
     },
-    signature: {
-      fileName: null,
-      fileType: null,
-      // fileSize: { type: Number, required: true, max: 5 * 1024 * 1024 }, // Max size 5MB
+    alcoholUse: {
+      drinksAlcohol: null,
+      drinksPerDay: "",
+      quitDrinking: null,
+      quitWhen: "",
     },
-    familyHistory: {
-      diseases: {
-        heartDisease: false,
-        tuberculosis: false,
-        kidneyDisease: false,
-        asthma: false,
-        hypertension: false,
-        diabetes: false,
-        cancer: false,
-      },
-      allergies: {
-        hasAllergies: null, // Radio buttons - Yes/No/Not Sure
-        allergyList: "", // List of allergies
-      },
+    forWomen: {
+      pregnant: null,
+      months: "",
+      lastMenstrualPeriod: "",
+      abortionOrMiscarriage: null,
+      dysmenorrhea: null,
     },
-    personalHistory: {
-      tobaccoUse: {
-        usesTobacco: null, // Radio buttons - Yes/No
-        sticksPerDay: "", // Number of sticks per day
-        quitSmoking: null, // Radio buttons - Yes/No
-        quitWhen: "", // Reason for quitting
-      },
-      alcoholUse: {
-        drinksAlcohol: null, // Radio buttons - Yes/No
-        drinksPerDay: "",
-        quitDrinking: null, // Radio buttons - Yes/No
-        quitWhen: "",
-      },
-      forWomen: {
-        pregnant: null, // Radio buttons - Yes/No
-        months: "", // Number of months pregnant
-        lastMenstrualPeriod: "", // Date of last menstrual period
-        abortionOrMiscarriage: null, // Radio buttons - Abortion/Miscarriage
-        dysmenorrhea: null, // Radio buttons - Yes/No
-      },
-    },
-  });
+  },
+};
+
+const [medicalHistory, setMedicalHistory] = useState(initialMedicalHistoryState);
+
 
   // FAMILY HISTORY FUNCTIONS
   const handleCheckboxFamChange = (section, field, disease) => {
@@ -535,6 +539,8 @@ function Patients() {
 
   const handleMedicalClose = () => {
     setIsMedicalModalOpen(false);
+    setMedicalHistory(initialMedicalHistoryState); // Reset the medical history form
+    resetForm();
   };
 
   const [showHistoryOptions, setShowHistoryOptions] = useState(false);
@@ -595,6 +601,7 @@ function Patients() {
       // Close modals and reset form
       setIsMedicalModalOpen(false);
       resetForm();
+      setMedicalHistory(initialMedicalHistoryState); // Reset the medical history form
       setMessage("Patient and history added successfully!");
       setTimeout(() => setMessage(""), 3000);
 
