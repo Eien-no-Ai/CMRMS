@@ -462,9 +462,7 @@ function Laboratory() {
       KOH: "",
     },
   };
-
-
-
+  
   const [formReqData, setFormReqData] = useState(initialFormData);
 
   const handleReqInputChange = (section, field) => {
@@ -477,57 +475,54 @@ function Laboratory() {
     }));
   };
 
-  const handleLabModalOpen = () => {
+  const handleLabModalOpen = (e) => {
+    e.preventDefault();
     setIsLabModalOpen(true);
   };
-  const handleModalClose = () => {
-    setIsLabModalOpen(false);
-  };
 
-  const handleAddOPDSubmit = async (e) => { 
-    e.preventDefault(); 
-  
-    const patientData = { 
-      firstname, 
-      middlename, 
-      lastname, 
-      birthdate, 
-      address, 
-      phonenumber, 
-      email, 
-      course, 
-      sex, 
-      patientType: "OPD", 
-    }; 
-  
-    try { 
-      // Step 1: Add the patient 
-      const patientResponse = await axios.post( 
-        "http://localhost:3001/add-patient", 
-        patientData 
-      ); 
-      const patientId = patientResponse.data.patient._id; // Extract the patient ID 
-  
+  const handleAddOPDSubmit = async (e) => {
+    e.preventDefault();
+
+    const patientData = {
+      firstname,
+      middlename,
+      lastname,
+      birthdate,
+      address,
+      phonenumber,
+      email,
+      course,
+      sex,
+      patientType: "OPD",
+    };
+
+    try {
+      // Step 1: Add the patient
+      const patientResponse = await axios.post(
+        "http://localhost:3001/add-patient",
+        patientData
+      );
+      const patientId = patientResponse.data.patient._id; // Extract the patient ID
+
       // Step 2: Create the lab request data including selected tests
-      const labRequestData = { 
-        patient: patientId, 
-        ...formReqData, // Include selected laboratory tests 
-        labResult: "pending", // Initial status of the lab request 
-        referredBy, 
-      }; 
-  
-      await axios.post( 
-        "http://localhost:3001/api/laboratory", 
-        labRequestData 
-      ); 
-  
-      // Close modal and reset form 
+      const labRequestData = {
+        patient: patientId,
+        ...formReqData, // Include selected laboratory tests
+        labResult: "pending", // Initial status of the lab request
+        referredBy,
+      };
+
+      await axios.post("http://localhost:3001/api/laboratory", labRequestData);
+
+      // Close modal and reset form
+      fetchLabRecords();
+
       setIsAddOPDModalOpen(false);
       setIsLabModalOpen(false);
-      resetForm(); 
-    } catch (error) { 
-      console.error("Error adding OPD patient and X-ray request:", error); 
-    } 
+      resetForm();
+    } catch (error) {
+      console.error("Error adding OPD patient and X-ray request:", error);
+    }
   };
 
   const resetForm = () => {
@@ -554,7 +549,6 @@ function Laboratory() {
   const handleLabModalClose = () => {
     setIsLabModalOpen(false);
   };
-
 
   return (
     <div>
@@ -863,7 +857,11 @@ function Laboratory() {
                             className="w-full px-3 py-1 border rounded bg-gray-100"
                             value={formData.bloodChemistry?.bloodSugar || ""}
                             onChange={(e) =>
-                              handleInputChange(e, "bloodChemistry", "bloodSugar")
+                              handleInputChange(
+                                e,
+                                "bloodChemistry",
+                                "bloodSugar"
+                              )
                             }
                           />
                         </div>
@@ -876,9 +874,15 @@ function Laboratory() {
                             type="text"
                             name="totalCholesterol"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.bloodChemistry?.totalCholesterol || ""}
+                            value={
+                              formData.bloodChemistry?.totalCholesterol || ""
+                            }
                             onChange={(e) =>
-                              handleInputChange(e, "bloodChemistry", "totalCholesterol")
+                              handleInputChange(
+                                e,
+                                "bloodChemistry",
+                                "totalCholesterol"
+                              )
                             }
                           />
                         </div>
@@ -893,7 +897,11 @@ function Laboratory() {
                             className="w-full px-3 py-1 border rounded bg-gray-100"
                             value={formData.bloodChemistry?.triglyceride || ""}
                             onChange={(e) =>
-                              handleInputChange(e, "bloodChemistry", "triglyceride")
+                              handleInputChange(
+                                e,
+                                "bloodChemistry",
+                                "triglyceride"
+                              )
                             }
                           />
                         </div>
@@ -908,7 +916,11 @@ function Laboratory() {
                             className="w-full px-3 py-1 border rounded bg-gray-100"
                             value={formData.bloodChemistry?.bloodUricAcid || ""}
                             onChange={(e) =>
-                              handleInputChange(e, "bloodChemistry", "bloodUricAcid")
+                              handleInputChange(
+                                e,
+                                "bloodChemistry",
+                                "bloodUricAcid"
+                              )
                             }
                           />
                         </div>
@@ -924,9 +936,15 @@ function Laboratory() {
                             type="text"
                             name="bloodUreaNitrogen"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.bloodChemistry?.bloodUreaNitrogen || ""}
+                            value={
+                              formData.bloodChemistry?.bloodUreaNitrogen || ""
+                            }
                             onChange={(e) =>
-                              handleInputChange(e, "bloodChemistry", "bloodUreaNitrogen")
+                              handleInputChange(
+                                e,
+                                "bloodChemistry",
+                                "bloodUreaNitrogen"
+                              )
                             }
                           />
                         </div>
@@ -940,7 +958,13 @@ function Laboratory() {
                             name="creatinine"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
                             value={formData.bloodChemistry?.creatinine || ""}
-                            onChange={(e) => handleInputChange(e, "bloodChemistry", "creatinine")}
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodChemistry",
+                                "creatinine"
+                              )
+                            }
                           />
                         </div>
                         <div className="col-span-1">
@@ -956,7 +980,9 @@ function Laboratory() {
                             name="SGOT_AST"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
                             value={formData.bloodChemistry?.SGOT_AST || ""}
-                            onChange={(e) => handleInputChange(e, "bloodChemistry", "SGOT_AST")}
+                            onChange={(e) =>
+                              handleInputChange(e, "bloodChemistry", "SGOT_AST")
+                            }
                           />
                         </div>
                         <div className="col-span-1">
@@ -972,7 +998,9 @@ function Laboratory() {
                             name="SGPT_ALT"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
                             value={formData.bloodChemistry?.SGPT_ALT || ""}
-                            onChange={(e) => handleInputChange(e, "bloodChemistry", "SGPT_ALT")}
+                            onChange={(e) =>
+                              handleInputChange(e, "bloodChemistry", "SGPT_ALT")
+                            }
                           />
                         </div>
                         <div className="col-span-1">
@@ -987,8 +1015,16 @@ function Laboratory() {
                             type="text"
                             name="HDL_cholesterol"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.bloodChemistry?.HDL_cholesterol || ""}
-                            onChange={(e) => handleInputChange(e, "bloodChemistry", "HDL_cholesterol")}
+                            value={
+                              formData.bloodChemistry?.HDL_cholesterol || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodChemistry",
+                                "HDL_cholesterol"
+                              )
+                            }
                           />
                         </div>
                         <div className="col-span-1">
@@ -1003,15 +1039,23 @@ function Laboratory() {
                             type="text"
                             name="LDL_cholesterol"
                             className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.bloodChemistry?.LDL_cholesterol || ""}
-                            onChange={(e) => handleInputChange(e, "bloodChemistry", "LDL_cholesterol")}
+                            value={
+                              formData.bloodChemistry?.LDL_cholesterol || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodChemistry",
+                                "LDL_cholesterol"
+                              )
+                            }
                           />
                         </div>
                         <div className="col-span-1">{"<130 mg/dL"}</div>
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Hematology Section */}
                   <div className="mb-0">
                     <div
@@ -2479,140 +2523,136 @@ function Laboratory() {
       )}
 
       {isAddOPDModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white py-4 px-6 rounded-lg w-1/2 shadow-lg">
-              <h2 className="text-xl font-semibold mb-4">Add OPD Patient</h2>
-              <form onSubmit={handleAddOPDSubmit}>
-                <div className="grid grid-cols-3 gap-4">
-                  {/* Full Name Fields - Display only for Student */}
-                  <div className="col-span-3">
-                    <label className="block mb-2">Full Name</label>
-                    <div className="grid grid-cols-3 gap-4">
-                      <input
-                        type="text"
-                        value={firstname}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="First Name"
-                        className="px-4 py-2 border rounded w-full"
-                        required
-                      />
-                      <input
-                        type="text"
-                        value={middlename}
-                        onChange={(e) => setMiddleName(e.target.value)}
-                        placeholder="Middle Name"
-                        className="px-4 py-2 border rounded w-full"
-                      />
-                      <input
-                        type="text"
-                        value={lastname}
-                        onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Last Name"
-                        className="px-4 py-2 border rounded w-full"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {/* Date of Birth */}
-                  <div className="col-span-2">
-                    <label className="block mb-2">Date of Birth</label>
-                    <input
-                      type="date"
-                      value={birthdate}
-                      onChange={(e) => setBirthDate(e.target.value)}
-                      className="px-4 py-2 border rounded w-full"
-                      required
-                    />
-                  </div>
-
-                  <div className="col-span-1">
-                    <label className="block mb-2">Sex</label>
-                    <select
-                      value={sex}
-                      onChange={(e) => setSex(e.target.value)}
-                      className="px-4 py-2 border rounded w-full"
-                      required
-                    >
-                      <option value="">Select Sex</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                    </select>
-                  </div>
-
-                  {/* Address */}
-                  <div className="col-span-3">
-                    <label className="block mb-2">Address</label>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-4 px-6 rounded-lg w-1/2 shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Add OPD Patient</h2>
+            <form onSubmit={handleAddOPDSubmit}>
+              <div className="grid grid-cols-3 gap-4">
+                {/* Full Name Fields - Display only for Student */}
+                <div className="col-span-3">
+                  <label className="block mb-2">Full Name</label>
+                  <div className="grid grid-cols-3 gap-4">
                     <input
                       type="text"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      placeholder="Address"
+                      value={firstname}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="First Name"
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    />
+                    <input
+                      type="text"
+                      value={middlename}
+                      onChange={(e) => setMiddleName(e.target.value)}
+                      placeholder="Middle Name"
                       className="px-4 py-2 border rounded w-full"
                     />
-                  </div>
-
-                  {/* Phone Number and Email */}
-                  <div className="col-span-3 grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block mb-2">Phone Number</label>
-                      <input
-                        type="text"
-                        value={phonenumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        placeholder="(000) 000-0000"
-                        className="px-4 py-2 border rounded w-full"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block mb-2">E-mail Address</label>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="example@example.com"
-                        className="px-4 py-2 border rounded w-full"
-                        required
-                      />
-                    </div>
+                    <input
+                      type="text"
+                      value={lastname}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Last Name"
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    />
                   </div>
                 </div>
-                <div className="my-4">
-                  <label className="block text-sm font-medium">
-                    Referred by
-                  </label>
+
+                {/* Date of Birth */}
+                <div className="col-span-2">
+                  <label className="block mb-2">Date of Birth</label>
                   <input
-                    type="text"
-                    name="referredBy"
-                    value={referredBy}
-                    onChange={(e) => setReferredBy(e.target.value)}
-                    className="border rounded-lg w-full p-2 mt-1"
-                    placeholder="Enter name of referrer"
+                    type="date"
+                    value={birthdate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    className="px-4 py-2 border rounded w-full"
+                    required
                   />
                 </div>
 
-                <div className="flex justify-end mt-4 space-x-3">
-                  <button
-                    className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:gray-500 hover:border-gray-500 border transition duration-200"
-                    onClick={toggleAddOPDModal}
+                <div className="col-span-1">
+                  <label className="block mb-2">Sex</label>
+                  <select
+                    value={sex}
+                    onChange={(e) => setSex(e.target.value)}
+                    className="px-4 py-2 border rounded w-full"
+                    required
                   >
-                    Cancel
-                  </button>
-
-                  <button
-                    className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                    onClick={handleLabModalOpen}
-                  >
-                    Laboratory Request Modal
-                  </button>
+                    <option value="">Select Sex</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
                 </div>
 
+                {/* Address */}
+                <div className="col-span-3">
+                  <label className="block mb-2">Address</label>
+                  <input
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Address"
+                    className="px-4 py-2 border rounded w-full"
+                  />
+                </div>
 
-              </form>
-            </div>
+                {/* Phone Number and Email */}
+                <div className="col-span-3 grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block mb-2">Phone Number</label>
+                    <input
+                      type="text"
+                      value={phonenumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      placeholder="(000) 000-0000"
+                      className="px-4 py-2 border rounded w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-2">E-mail Address</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="example@example.com"
+                      className="px-4 py-2 border rounded w-full"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="my-4">
+                <label className="block text-sm font-medium">Referred by</label>
+                <input
+                  type="text"
+                  name="referredBy"
+                  value={referredBy}
+                  onChange={(e) => setReferredBy(e.target.value)}
+                  className="border rounded-lg w-full p-2 mt-1"
+                  placeholder="Enter name of referrer"
+                />
+              </div>
+
+              <div className="flex justify-end mt-4 space-x-3">
+                <button
+                  className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:gray-500 hover:border-gray-500 border transition duration-200"
+                  onClick={toggleAddOPDModal}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                  onClick={handleLabModalOpen}
+                >
+                  Laboratory Request Modal
+                </button>
+              </div>
+            </form>
           </div>
-        )}
+        </div>
+      )}
       {isLabModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto z-50">
@@ -2641,9 +2681,14 @@ function Laboratory() {
                   <label className="block">
                     <input
                       type="checkbox"
-                      checked={formReqData.bloodChemistry.bloodUreaNitrogen !== ""}
+                      checked={
+                        formReqData.bloodChemistry.bloodUreaNitrogen !== ""
+                      }
                       onChange={() =>
-                        handleReqInputChange("bloodChemistry", "bloodUreaNitrogen")
+                        handleReqInputChange(
+                          "bloodChemistry",
+                          "bloodUreaNitrogen"
+                        )
                       }
                     />{" "}
                     Blood Urea Nitrogen
@@ -2696,9 +2741,14 @@ function Laboratory() {
                   <label className="block">
                     <input
                       type="checkbox"
-                      checked={formReqData.bloodChemistry.totalCholesterol !== ""}
+                      checked={
+                        formReqData.bloodChemistry.totalCholesterol !== ""
+                      }
                       onChange={() =>
-                        handleReqInputChange("bloodChemistry", "totalCholesterol")
+                        handleReqInputChange(
+                          "bloodChemistry",
+                          "totalCholesterol"
+                        )
                       }
                     />{" "}
                     Total Cholesterol
@@ -2718,9 +2768,14 @@ function Laboratory() {
                   <label className="block">
                     <input
                       type="checkbox"
-                      checked={formReqData.bloodChemistry.HDL_cholesterol !== ""}
+                      checked={
+                        formReqData.bloodChemistry.HDL_cholesterol !== ""
+                      }
                       onChange={() =>
-                        handleReqInputChange("bloodChemistry", "HDL_cholesterol")
+                        handleReqInputChange(
+                          "bloodChemistry",
+                          "HDL_cholesterol"
+                        )
                       }
                     />{" "}
                     HDL Cholesterol
@@ -2729,9 +2784,14 @@ function Laboratory() {
                   <label className="block">
                     <input
                       type="checkbox"
-                      checked={formReqData.bloodChemistry.LDL_cholesterol !== ""}
+                      checked={
+                        formReqData.bloodChemistry.LDL_cholesterol !== ""
+                      }
                       onChange={() =>
-                        handleReqInputChange("bloodChemistry", "LDL_cholesterol")
+                        handleReqInputChange(
+                          "bloodChemistry",
+                          "LDL_cholesterol"
+                        )
                       }
                     />{" "}
                     LDL Cholesterol
@@ -2874,8 +2934,8 @@ function Laboratory() {
                     <input
                       type="checkbox"
                       checked={
-                        formReqData.bloodBankingSerology.antiTreponemaPallidum !==
-                        ""
+                        formReqData.bloodBankingSerology
+                          .antiTreponemaPallidum !== ""
                       }
                       onChange={() =>
                         handleReqInputChange(
@@ -2901,9 +2961,14 @@ function Laboratory() {
                   <label className="block">
                     <input
                       type="checkbox"
-                      checked={formReqData.bloodBankingSerology.bloodTyping !== ""}
+                      checked={
+                        formReqData.bloodBankingSerology.bloodTyping !== ""
+                      }
                       onChange={() =>
-                        handleReqInputChange("bloodBankingSerology", "bloodTyping")
+                        handleReqInputChange(
+                          "bloodBankingSerology",
+                          "bloodTyping"
+                        )
                       }
                     />{" "}
                     Blood Typing (ABO & Rh Grouping)
@@ -2945,9 +3010,14 @@ function Laboratory() {
                   <label className="block">
                     <input
                       type="checkbox"
-                      checked={formReqData.bloodBankingSerology.dengueTest !== ""}
+                      checked={
+                        formReqData.bloodBankingSerology.dengueTest !== ""
+                      }
                       onChange={() =>
-                        handleReqInputChange("bloodBankingSerology", "dengueTest")
+                        handleReqInputChange(
+                          "bloodBankingSerology",
+                          "dengueTest"
+                        )
                       }
                     />{" "}
                     Dengue Test
@@ -2984,8 +3054,8 @@ function Laboratory() {
                     <input
                       type="checkbox"
                       checked={
-                        formReqData.bloodBankingSerology.testForSalmonellaTyphi !==
-                        ""
+                        formReqData.bloodBankingSerology
+                          .testForSalmonellaTyphi !== ""
                       }
                       onChange={() =>
                         handleReqInputChange(
@@ -3017,8 +3087,6 @@ function Laboratory() {
           </div>
         </div>
       )}
-
-
     </div>
   );
 }
