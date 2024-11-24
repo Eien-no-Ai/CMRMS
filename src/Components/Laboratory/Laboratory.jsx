@@ -15,6 +15,7 @@ function Laboratory() {
     useState(false);
   const [isSerologyVisible, setIsSerologyVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [requestedCategories, setRequestedCategories] = useState([]);
   const [formData, setFormData] = useState({
     ORNumber: "",
     labNumber: "", // Lab number
@@ -187,6 +188,46 @@ function Laboratory() {
           sex: patientData.sex || "",
           patientType: patientData.patientType,
         });
+
+        // Determine requested categories
+        const categories = [];
+
+        // Helper function to check if an object has any non-empty values
+        const hasNonEmptyFields = (obj) => {
+          return Object.values(obj).some(
+            (value) =>
+              value !== "" &&
+              (typeof value !== "object" || hasNonEmptyFields(value))
+          );
+        };
+
+        // Check Blood Chemistry
+        if (record.bloodChemistry && hasNonEmptyFields(record.bloodChemistry)) {
+          categories.push("Blood Chemistry");
+        }
+
+        // Check Hematology
+        if (record.hematology && hasNonEmptyFields(record.hematology)) {
+          categories.push("Hematology");
+        }
+
+        // Check Clinical Microscopy and Parasitology
+        if (
+          record.clinicalMicroscopyParasitology &&
+          hasNonEmptyFields(record.clinicalMicroscopyParasitology)
+        ) {
+          categories.push("Clinical Microscopy and Parasitology");
+        }
+
+        // Check Serology
+        if (
+          record.bloodBankingSerology &&
+          hasNonEmptyFields(record.bloodBankingSerology)
+        ) {
+          categories.push("Serology");
+        }
+
+        setRequestedCategories(categories);
 
         openModal();
       } catch (error) {
@@ -462,7 +503,7 @@ function Laboratory() {
       KOH: "",
     },
   };
-  
+
   const [formReqData, setFormReqData] = useState(initialFormData);
 
   const handleReqInputChange = (section, field) => {
@@ -823,1678 +864,1722 @@ function Laboratory() {
               {formData.ORNumber && (
                 <>
                   {/* Blood Chemistry Section */}
-                  <div className="mb-0">
-                    <div
-                      className="flex items-center justify-between cursor-pointer"
-                      onClick={toggleBloodChemistryVisibility}
-                    >
-                      <h3 className="text-lg font-semibold my-0 py-2">
-                        I. Blood Chemistry
-                      </h3>
-                      <BiChevronDown
-                        className={`transform transition-transform duration-300 ${
-                          isBloodChemistryVisible ? "rotate-180" : ""
-                        }`}
-                        size={24}
-                      />
-                    </div>
-                    <div className="w-full h-px bg-gray-300 my-0"></div>
-
-                    {isBloodChemistryVisible && (
-                      <div className="grid grid-cols-3 gap-4 p-4">
-                        <div className="col-span-1 font-semibold">Test</div>
-                        <div className="col-span-1 font-semibold">Result</div>
-                        <div className="col-span-1 font-semibold">
-                          Reference Range
-                        </div>
-
-                        {/* FBS */}
-                        <div className="col-span-1">FBS</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="bloodSugar"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.bloodChemistry?.bloodSugar || ""}
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodChemistry",
-                                "bloodSugar"
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">70 - 105 mg/dL</div>
-
-                        {/* Total Cholesterol */}
-                        <div className="col-span-1">Total Cholesterol</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="totalCholesterol"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              formData.bloodChemistry?.totalCholesterol || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodChemistry",
-                                "totalCholesterol"
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">140 - 200 mg/dL</div>
-
-                        {/* Triglycerides */}
-                        <div className="col-span-1">Triglycerides</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="triglyceride"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.bloodChemistry?.triglyceride || ""}
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodChemistry",
-                                "triglyceride"
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">{"<200 mg/dL"}</div>
-
-                        {/* Blood Uric Acid */}
-                        <div className="col-span-1">Blood Uric Acid</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="bloodUricAcid"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.bloodChemistry?.bloodUricAcid || ""}
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodChemistry",
-                                "bloodUricAcid"
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          MEN: 3.5 - 7.2 mg/dL <br />
-                          WOMEN: 2.6 - 6.0 mg/dL
-                        </div>
-
-                        {/* Blood Urea Nitrogen */}
-                        <div className="col-span-1">Blood Urea Nitrogen</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="bloodUreaNitrogen"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              formData.bloodChemistry?.bloodUreaNitrogen || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodChemistry",
-                                "bloodUreaNitrogen"
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">4.67 - 23.35 mg/dL</div>
-
-                        {/* Creatinine */}
-                        <div className="col-span-1">Creatinine</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="creatinine"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.bloodChemistry?.creatinine || ""}
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodChemistry",
-                                "creatinine"
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          MEN: 0.7 - 1.2 mg/dL <br />
-                          WOMEN: 0.6 - 1.1 mg/dL
-                        </div>
-
-                        {/* AST/SGOT */}
-                        <div className="col-span-1">AST/SGOT</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="SGOT_AST"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.bloodChemistry?.SGOT_AST || ""}
-                            onChange={(e) =>
-                              handleInputChange(e, "bloodChemistry", "SGOT_AST")
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          MEN: UP TO 40 U/L <br />
-                          WOMEN: UP TO 33 U/L
-                        </div>
-
-                        {/* ALT/SGPT */}
-                        <div className="col-span-1">ALT/SGPT</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="SGPT_ALT"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.bloodChemistry?.SGPT_ALT || ""}
-                            onChange={(e) =>
-                              handleInputChange(e, "bloodChemistry", "SGPT_ALT")
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          MEN: UP TO 41 U/L <br />
-                          WOMEN: UP TO 32 U/L
-                        </div>
-
-                        {/* Direct HDL */}
-                        <div className="col-span-1">Direct HDL</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="HDL_cholesterol"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              formData.bloodChemistry?.HDL_cholesterol || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodChemistry",
-                                "HDL_cholesterol"
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          MEN: 40 - 50 mg/dL <br />
-                          WOMEN: 45 - 60 mg/dL
-                        </div>
-
-                        {/* Direct LDL */}
-                        <div className="col-span-1">Direct LDL</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="LDL_cholesterol"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              formData.bloodChemistry?.LDL_cholesterol || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodChemistry",
-                                "LDL_cholesterol"
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">{"<130 mg/dL"}</div>
+                  {requestedCategories.includes("Blood Chemistry") && (
+                    <div className="mb-0">
+                      <div
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={toggleBloodChemistryVisibility}
+                      >
+                        <h3 className="text-lg font-semibold my-0 py-2">
+                          I. Blood Chemistry
+                        </h3>
+                        <BiChevronDown
+                          className={`transform transition-transform duration-300 ${
+                            isBloodChemistryVisible ? "rotate-180" : ""
+                          }`}
+                          size={24}
+                        />
                       </div>
-                    )}
-                  </div>
+                      <div className="w-full h-px bg-gray-300 my-0"></div>
+
+                      {isBloodChemistryVisible && (
+                        <div className="grid grid-cols-3 gap-4 p-4">
+                          <div className="col-span-1 font-semibold">Test</div>
+                          <div className="col-span-1 font-semibold">Result</div>
+                          <div className="col-span-1 font-semibold">
+                            Reference Range
+                          </div>
+
+                          {/* FBS */}
+                          <div className="col-span-1">FBS</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="bloodSugar"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={formData.bloodChemistry?.bloodSugar || ""}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "bloodChemistry",
+                                  "bloodSugar"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">70 - 105 mg/dL</div>
+
+                          {/* Total Cholesterol */}
+                          <div className="col-span-1">Total Cholesterol</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="totalCholesterol"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                formData.bloodChemistry?.totalCholesterol || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "bloodChemistry",
+                                  "totalCholesterol"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">140 - 200 mg/dL</div>
+
+                          {/* Triglycerides */}
+                          <div className="col-span-1">Triglycerides</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="triglyceride"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                formData.bloodChemistry?.triglyceride || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "bloodChemistry",
+                                  "triglyceride"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">{"<200 mg/dL"}</div>
+
+                          {/* Blood Uric Acid */}
+                          <div className="col-span-1">Blood Uric Acid</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="bloodUricAcid"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                formData.bloodChemistry?.bloodUricAcid || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "bloodChemistry",
+                                  "bloodUricAcid"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">
+                            MEN: 3.5 - 7.2 mg/dL <br />
+                            WOMEN: 2.6 - 6.0 mg/dL
+                          </div>
+
+                          {/* Blood Urea Nitrogen */}
+                          <div className="col-span-1">Blood Urea Nitrogen</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="bloodUreaNitrogen"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                formData.bloodChemistry?.bloodUreaNitrogen || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "bloodChemistry",
+                                  "bloodUreaNitrogen"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">4.67 - 23.35 mg/dL</div>
+
+                          {/* Creatinine */}
+                          <div className="col-span-1">Creatinine</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="creatinine"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={formData.bloodChemistry?.creatinine || ""}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "bloodChemistry",
+                                  "creatinine"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">
+                            MEN: 0.7 - 1.2 mg/dL <br />
+                            WOMEN: 0.6 - 1.1 mg/dL
+                          </div>
+
+                          {/* AST/SGOT */}
+                          <div className="col-span-1">AST/SGOT</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="SGOT_AST"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={formData.bloodChemistry?.SGOT_AST || ""}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "bloodChemistry",
+                                  "SGOT_AST"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">
+                            MEN: UP TO 40 U/L <br />
+                            WOMEN: UP TO 33 U/L
+                          </div>
+
+                          {/* ALT/SGPT */}
+                          <div className="col-span-1">ALT/SGPT</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="SGPT_ALT"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={formData.bloodChemistry?.SGPT_ALT || ""}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "bloodChemistry",
+                                  "SGPT_ALT"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">
+                            MEN: UP TO 41 U/L <br />
+                            WOMEN: UP TO 32 U/L
+                          </div>
+
+                          {/* Direct HDL */}
+                          <div className="col-span-1">Direct HDL</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="HDL_cholesterol"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                formData.bloodChemistry?.HDL_cholesterol || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "bloodChemistry",
+                                  "HDL_cholesterol"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">
+                            MEN: 40 - 50 mg/dL <br />
+                            WOMEN: 45 - 60 mg/dL
+                          </div>
+
+                          {/* Direct LDL */}
+                          <div className="col-span-1">Direct LDL</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="LDL_cholesterol"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                formData.bloodChemistry?.LDL_cholesterol || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "bloodChemistry",
+                                  "LDL_cholesterol"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">{"<130 mg/dL"}</div>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Hematology Section */}
-                  <div className="mb-0">
-                    <div
-                      className="flex items-center justify-between cursor-pointer"
-                      onClick={toggleHematologyVisibility}
-                    >
-                      <h3 className="text-lg font-semibold my-0 py-2">
-                        II. Hematology
-                      </h3>
-                      <BiChevronDown
-                        className={`transform transition-transform duration-300 ${
-                          isHematologyVisible ? "rotate-180" : ""
-                        }`}
-                        size={24}
-                      />
+                  {requestedCategories.includes("Hematology") && (
+                    <div className="mb-0">
+                      <div
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={toggleHematologyVisibility}
+                      >
+                        <h3 className="text-lg font-semibold my-0 py-2">
+                          II. Hematology
+                        </h3>
+                        <BiChevronDown
+                          className={`transform transition-transform duration-300 ${
+                            isHematologyVisible ? "rotate-180" : ""
+                          }`}
+                          size={24}
+                        />
+                      </div>
+                      <div className="w-full h-px bg-gray-300 my-0"></div>
+
+                      {isHematologyVisible && (
+                        <div className="grid grid-cols-3 gap-4 p-4">
+                          <div className="col-span-1 font-semibold">Tests</div>
+                          <div className="col-span-1 font-semibold">Result</div>
+                          <div className="col-span-1 font-semibold">
+                            Reference Range
+                          </div>
+
+                          <div className="col-span-1">Red Blood Cell Count</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="redBloodCellCount"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                formData.Hematology?.redBloodCellCount || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "Hematology",
+                                  "redBloodCellCount"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">
+                            Male: 4.0 - 5.5 x10^12/L; Female: 3.5 - 5.0 x10^12/L
+                          </div>
+
+                          <div className="col-span-1">Hemoglobin</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="hemoglobin"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={formData.Hematology?.Hemoglobin || ""}
+                              onChange={(e) =>
+                                handleInputChange(e, "Hematology", "Hemoglobin")
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">
+                            Male: 140 - 180 g/L; Female: 120 - 180 g/L
+                          </div>
+
+                          <div className="col-span-1">Hematocrit</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="hematocrit"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={formData.Hematology?.Hematocrit || ""}
+                              onChange={(e) =>
+                                handleInputChange(e, "Hematology", "Hematocrit")
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">
+                            Male: 0.40 - 0.54; Female: 0.37 - 0.47
+                          </div>
+
+                          <div className="col-span-1">Leukocyte Count</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="leukocyteCount"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={formData.Hematology?.LeukocyteCount || ""}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "Hematology",
+                                  "LeukocyteCount"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">5.0 - 10.0 x10^9/L</div>
+
+                          <div className="col-span-1">Differential Count</div>
+                          <div className="col-span-1"></div>
+                          <div className="col-span-1"></div>
+
+                          <div className="col-span-1 ml-9">Segmenters</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="segmenters"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                formData.Hematology?.DifferentialCount
+                                  ?.segmenters || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "Hematology",
+                                  "DifferentialCount",
+                                  "segmenters"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">0.50 - 0.70</div>
+
+                          <div className="col-span-1 ml-9">Lymphocytes</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="lymphocytes"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                formData.Hematology?.DifferentialCount
+                                  ?.lymphocytes || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "Hematology",
+                                  "DifferentialCount",
+                                  "lymphocytes"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">0.20 - 0.40</div>
+
+                          <div className="col-span-1 ml-9">Monocytes</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="monocytes"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                formData.Hematology?.DifferentialCount
+                                  ?.monocytes || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "Hematology",
+                                  "DifferentialCount",
+                                  "monocytes"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">0.00 - 0.07</div>
+
+                          <div className="col-span-1 ml-9">Eosinophils</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="eosinophils"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                formData.Hematology?.DifferentialCount
+                                  ?.eosinophils || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "Hematology",
+                                  "DifferentialCount",
+                                  "eosinophils"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">0.00 - 0.05</div>
+
+                          <div className="col-span-1 ml-9">Basophils</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="basophils"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                formData.Hematology?.DifferentialCount
+                                  ?.basophils || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "Hematology",
+                                  "DifferentialCount",
+                                  "basophils"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">0.00 - 0.01</div>
+
+                          <div className="col-span-1 ml-9">Total</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="total"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={
+                                formData.Hematology?.DifferentialCount?.total ||
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "Hematology",
+                                  "DifferentialCount",
+                                  "total"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1"></div>
+
+                          <div className="col-span-1">Platelet Count</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="plateletCount"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={formData.Hematology?.PlateletCount || ""}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "Hematology",
+                                  "PlateletCount"
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1">150 - 400 x10^9/L</div>
+
+                          <div className="col-span-1">Others</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="others"
+                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              value={formData.Hematology?.others || ""}
+                              onChange={(e) =>
+                                handleInputChange(e, "Hematology", "others")
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1"></div>
+                        </div>
+                      )}
                     </div>
-                    <div className="w-full h-px bg-gray-300 my-0"></div>
+                  )}
 
-                    {isHematologyVisible && (
-                      <div className="grid grid-cols-3 gap-4 p-4">
-                        <div className="col-span-1 font-semibold">Tests</div>
-                        <div className="col-span-1 font-semibold">Result</div>
-                        <div className="col-span-1 font-semibold">
-                          Reference Range
-                        </div>
+                  {/* Clinical Microscopy and Parasitology Section */}
+                  {requestedCategories.includes(
+                    "Clinical Microscopy and Parasitology"
+                  ) && (
+                    <div className="mb-0">
+                      <div
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={toggleClinicalMicroscopyVisibility}
+                      >
+                        <h3 className="text-lg font-semibold mb-0 py-2">
+                          III. Clinical Microscopy and Parasitology
+                        </h3>
+                        <BiChevronDown
+                          className={`transform transition-transform duration-300 ${
+                            isClinicalMicroscopyVisible ? "rotate-180" : ""
+                          }`}
+                          size={24}
+                        />
+                      </div>
+                      <div className="w-full h-px bg-gray-300 my-0"></div>
 
-                        <div className="col-span-1">Red Blood Cell Count</div>
-                        <div className="col-span-1">
+                      {isClinicalMicroscopyVisible && (
+                        <div className="grid grid-cols-6 gap-4 p-4">
+                          {/* Routine Urinalysis - Macroscopic Examination */}
+                          <label className="col-span-3 font-semibold">
+                            Routine Urinalysis
+                          </label>
+
+                          <label className="col-span-1">LMP</label>
                           <input
                             type="text"
-                            name="redBloodCellCount"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.Hematology?.redBloodCellCount || ""}
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "Hematology",
-                                "redBloodCellCount"
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          Male: 4.0 - 5.5 x10^12/L; Female: 3.5 - 5.0 x10^12/L
-                        </div>
-
-                        <div className="col-span-1">Hemoglobin</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="hemoglobin"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.Hematology?.Hemoglobin || ""}
-                            onChange={(e) =>
-                              handleInputChange(e, "Hematology", "Hemoglobin")
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          Male: 140 - 180 g/L; Female: 120 - 180 g/L
-                        </div>
-
-                        <div className="col-span-1">Hematocrit</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="hematocrit"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.Hematology?.Hematocrit || ""}
-                            onChange={(e) =>
-                              handleInputChange(e, "Hematology", "Hematocrit")
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">
-                          Male: 0.40 - 0.54; Female: 0.37 - 0.47
-                        </div>
-
-                        <div className="col-span-1">Leukocyte Count</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="leukocyteCount"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.Hematology?.LeukocyteCount || ""}
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "Hematology",
-                                "LeukocyteCount"
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">5.0 - 10.0 x10^9/L</div>
-
-                        <div className="col-span-1">Differential Count</div>
-                        <div className="col-span-1"></div>
-                        <div className="col-span-1"></div>
-
-                        <div className="col-span-1 ml-9">Segmenters</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="segmenters"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            className="col-span-2 border rounded px-3 py-1"
                             value={
-                              formData.Hematology?.DifferentialCount
-                                ?.segmenters || ""
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.LMP || ""
                             }
                             onChange={(e) =>
                               handleInputChange(
                                 e,
-                                "Hematology",
-                                "DifferentialCount",
-                                "segmenters"
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                null,
+                                "LMP"
                               )
                             }
                           />
-                        </div>
-                        <div className="col-span-1">0.50 - 0.70</div>
-
-                        <div className="col-span-1 ml-9">Lymphocytes</div>
-                        <div className="col-span-1">
+                          <h4 className="col-span-6 font-semibold">
+                            Macroscopic Examination
+                          </h4>
+                          <label className="col-span-1">Color</label>
                           <input
                             type="text"
-                            name="lymphocytes"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
+                            className="col-span-2 border rounded px-3 py-1"
                             value={
-                              formData.Hematology?.DifferentialCount
-                                ?.lymphocytes || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "Hematology",
-                                "DifferentialCount",
-                                "lymphocytes"
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">0.20 - 0.40</div>
-
-                        <div className="col-span-1 ml-9">Monocytes</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="monocytes"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              formData.Hematology?.DifferentialCount
-                                ?.monocytes || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "Hematology",
-                                "DifferentialCount",
-                                "monocytes"
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">0.00 - 0.07</div>
-
-                        <div className="col-span-1 ml-9">Eosinophils</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="eosinophils"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              formData.Hematology?.DifferentialCount
-                                ?.eosinophils || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "Hematology",
-                                "DifferentialCount",
-                                "eosinophils"
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">0.00 - 0.05</div>
-
-                        <div className="col-span-1 ml-9">Basophils</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="basophils"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              formData.Hematology?.DifferentialCount
-                                ?.basophils || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "Hematology",
-                                "DifferentialCount",
-                                "basophils"
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="col-span-1">0.00 - 0.01</div>
-
-                        <div className="col-span-1 ml-9">Total</div>
-                        <div className="col-span-1">
-                          <input
-                            type="text"
-                            name="total"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={
-                              formData.Hematology?.DifferentialCount?.total ||
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.macroscopicExam?.color ||
                               ""
                             }
                             onChange={(e) =>
                               handleInputChange(
                                 e,
-                                "Hematology",
-                                "DifferentialCount",
-                                "total"
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "macroscopicExam",
+                                "color"
                               )
                             }
                           />
-                        </div>
-                        <div className="col-span-1"></div>
-
-                        <div className="col-span-1">Platelet Count</div>
-                        <div className="col-span-1">
+                          <label className="col-span-1">Appearance</label>
                           <input
                             type="text"
-                            name="plateletCount"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.Hematology?.PlateletCount || ""}
+                            className="col-span-2 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.macroscopicExam
+                                ?.appearance || ""
+                            }
                             onChange={(e) =>
                               handleInputChange(
                                 e,
-                                "Hematology",
-                                "PlateletCount"
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "macroscopicExam",
+                                "appearance"
+                              )
+                            }
+                          />
+
+                          {/* Routine Urinalysis - Chemical Examination */}
+                          <h4 className="col-span-6 font-semibold mt-4">
+                            Chemical Examination
+                          </h4>
+                          <label className="col-span-1">Sugar</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam?.sugar || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "chemicalExam",
+                                "sugar"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Urobilinogen</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam
+                                ?.urobilinogen || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "chemicalExam",
+                                "urobilinogen"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Albumin</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam?.albumin || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "chemicalExam",
+                                "albumin"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Ketones</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam?.ketones || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "chemicalExam",
+                                "ketones"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Blood</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam?.blood || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "chemicalExam",
+                                "blood"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Nitrite</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam?.nitrites ||
+                              ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "chemicalExam",
+                                "nitrites"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Bilirubin</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam?.bilirubin ||
+                              ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "chemicalExam",
+                                "bilirubin"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Leukocyte</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam?.leukocytes ||
+                              ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "chemicalExam",
+                                "leukocytes"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Reaction</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam?.reaction ||
+                              ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "chemicalExam",
+                                "reaction"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Specific Gravity</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.chemicalExam
+                                ?.specificGravity || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "chemicalExam",
+                                "specificGravity"
+                              )
+                            }
+                          />
+
+                          {/* Routine Urinalysis - Microscopic Examination */}
+                          <h4 className="col-span-6 font-semibold mt-4">
+                            Microscopic Examination
+                          </h4>
+                          <label className="col-span-1">Pus Cells</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            placeholder="/hpf"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam
+                                ?.pusCells || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "microscopicExam",
+                                "pusCells"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Epithelial Cells</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            placeholder="/lpf"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam
+                                ?.epithelialCells || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "microscopicExam",
+                                "epithelialCells"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Red Blood Cells</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            placeholder="/hpf"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam?.RBC || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "microscopicExam",
+                                "RBC"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Mucus Threads</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            placeholder="/lpf"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam
+                                ?.mucusThreads || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "microscopicExam",
+                                "mucusThreads"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Bacteria</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            placeholder="/hpf"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam
+                                ?.bacteria || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "microscopicExam",
+                                "bacteria"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Crystals</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            placeholder="/lpf"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam
+                                ?.crystals || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "microscopicExam",
+                                "crystals"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Yeast Cells</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            placeholder="/hpf"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam
+                                ?.yeastCells || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "microscopicExam",
+                                "yeastCells"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Amorphous</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            placeholder="/lpf"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam
+                                ?.amorphous || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "microscopicExam",
+                                "amorphous"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Cast</label>
+                          <input
+                            type="text"
+                            className="col-span-1 border rounded px-3 py-1"
+                            placeholder="/lpf"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam?.casts ||
+                              ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "microscopicExam",
+                                "casts"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Others</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineUrinalysis?.microscopicExam?.others ||
+                              ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineUrinalysis",
+                                "microscopicExam",
+                                "others"
+                              )
+                            }
+                          />
+
+                          {/* Routine Fecalysis */}
+                          <h4 className="col-span-6 font-semibold mt-4">
+                            Routine Fecalysis
+                          </h4>
+                          <label className="col-span-1">Color</label>
+                          <input
+                            type="text"
+                            className="col-span-2 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineFecalysis?.color || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineFecalysis",
+                                "color"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Consistency</label>
+                          <input
+                            type="text"
+                            className="col-span-2 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineFecalysis?.consistency || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineFecalysis",
+                                "consistency"
+                              )
+                            }
+                          />
+
+                          {/* Microscopic Examination for Fecalysis */}
+                          <h4 className="col-span-6 font-semibold mt-4">
+                            Microscopic Examination
+                          </h4>
+                          <label className="col-span-1">
+                            Direct Fecal Smear
+                          </label>
+                          <input
+                            type="text"
+                            className="col-span-2 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineFecalysis?.microscopicExam
+                                ?.directFecalSmear || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineFecalysis",
+                                "microscopicExam",
+                                "directFecalSmear"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Kato Thick Smear</label>
+                          <input
+                            type="text"
+                            className="col-span-2 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineFecalysis?.microscopicExam
+                                ?.katoThickSmear || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineFecalysis",
+                                "microscopicExam",
+                                "katoThickSmear"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Others</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.clinicalMicroscopyParasitology
+                                ?.routineFecalysis?.others || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "clinicalMicroscopyParasitology",
+                                "routineFecalysis",
+                                "others"
                               )
                             }
                           />
                         </div>
-                        <div className="col-span-1">150 - 400 x10^9/L</div>
+                      )}
+                    </div>
+                  )}
+                  {/* Serology Section */}
+                  {requestedCategories.includes("Serology") && (
+                    <div className="mb-0">
+                      <div
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={toggleSerologyVisibility}
+                      >
+                        <h3 className="text-lg font-semibold mb-0 py-2">
+                          IV. Serology
+                        </h3>
+                        <BiChevronDown
+                          className={`transform transition-transform duration-300 ${
+                            isSerologyVisible ? "rotate-180" : ""
+                          }`}
+                          size={24}
+                        />
+                      </div>
+                      <div className="w-full h-px bg-gray-300 my-0"></div>
 
-                        <div className="col-span-1">Others</div>
-                        <div className="col-span-1">
+                      {isSerologyVisible && (
+                        <div className="grid grid-cols-12 gap-4 p-4">
+                          {/* Hepatitis B Surface Antigen Determination and Anti-HAV Test */}
+                          <h4 className="col-span-6 font-semibold">
+                            Hepatitis B Surface Antigen Determination (Screening
+                            Test Only)
+                          </h4>
+                          <h4 className="col-span-6 font-semibold">
+                            Anti-HAV Test (Screening Test Only)
+                          </h4>
+
+                          <label className="col-span-1">Method Used</label>
                           <input
                             type="text"
-                            name="others"
-                            className="w-full px-3 py-1 border rounded bg-gray-100"
-                            value={formData.Hematology?.others || ""}
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology
+                                ?.hepatitisBSurfaceAntigen?.methodUsed || ""
+                            }
                             onChange={(e) =>
-                              handleInputChange(e, "Hematology", "others")
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "hepatitisBSurfaceAntigen",
+                                null,
+                                "methodUsed"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Method Used</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.antiHAVTest
+                                ?.methodUsed || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "antiHAVTest",
+                                null,
+                                "methodUsed"
+                              )
+                            }
+                          />
+
+                          <label className="col-span-1">Lot No.</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology
+                                ?.hepatitisBSurfaceAntigen?.lotNumber || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "hepatitisBSurfaceAntigen",
+                                null,
+                                "lotNumber"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Lot No.</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.antiHAVTest
+                                ?.lotNumber || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "antiHAVTest",
+                                null,
+                                "lotNumber"
+                              )
+                            }
+                          />
+
+                          <label className="col-span-1">Expiration Date</label>
+                          <input
+                            type="date"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology
+                                ?.hepatitisBSurfaceAntigen?.expirationDate || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "hepatitisBSurfaceAntigen",
+                                null,
+                                "expirationDate"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Expiration Date</label>
+                          <input
+                            type="date"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.antiHAVTest
+                                ?.expirationDate || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "antiHAVTest",
+                                null,
+                                "expirationDate"
+                              )
+                            }
+                          />
+
+                          <label className="col-span-1">Result</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology
+                                ?.hepatitisBSurfaceAntigen?.result || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "hepatitisBSurfaceAntigen",
+                                null,
+                                "result"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Result</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.antiHAVTest
+                                ?.result || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "antiHAVTest",
+                                null,
+                                "result"
+                              )
+                            }
+                          />
+
+                          {/* Serum Pregnancy and Test for Treponema pallidum / Syphilis */}
+                          <h4 className="col-span-6 font-semibold">
+                            Serum Pregnancy
+                          </h4>
+                          <h4 className="col-span-6 font-semibold">
+                            Test for Treponema pallidum / Syphilis
+                          </h4>
+
+                          <label className="col-span-1">Method Used</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology
+                                ?.treponemaPallidumTest?.methodUsed || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "treponemaPallidumTest",
+                                null,
+                                "methodUsed"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Method Used</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.serumPregnancy
+                                ?.methodUsed || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "serumPregnancy",
+                                null,
+                                "methodUsed"
+                              )
+                            }
+                          />
+
+                          <label className="col-span-1">Lot No.</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology
+                                ?.treponemaPallidumTest?.lotNumber || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "treponemaPallidumTest",
+                                null,
+                                "lotNumber"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Lot No.</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.serumPregnancy
+                                ?.lotNumber || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "serumPregnancy",
+                                null,
+                                "lotNumber"
+                              )
+                            }
+                          />
+
+                          <label className="col-span-1">Expiration Date</label>
+                          <input
+                            type="date"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology
+                                ?.treponemaPallidumTest?.expirationDate || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "treponemaPallidumTest",
+                                null,
+                                "expirationDate"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Expiration Date</label>
+                          <input
+                            type="date"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.serumPregnancy
+                                ?.expirationDate || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "serumPregnancy",
+                                null,
+                                "expirationDate"
+                              )
+                            }
+                          />
+
+                          <label className="col-span-1">Result</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology
+                                ?.treponemaPallidumTest?.result || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "treponemaPallidumTest",
+                                null,
+                                "result"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Result</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.serumPregnancy
+                                ?.result || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "serumPregnancy",
+                                null,
+                                "result"
+                              )
+                            }
+                          />
+
+                          {/* Salmonella typhi and Blood Typing */}
+                          <h4 className="col-span-6 font-semibold">
+                            Salmonella typhi
+                          </h4>
+                          <h4 className="col-span-6 font-semibold">
+                            Blood Typing
+                          </h4>
+
+                          <label className="col-span-1">Method Used</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.salmonellaTyphi
+                                ?.methodUsed || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "salmonellaTyphi",
+                                null,
+                                "methodUsed"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">ABO Type</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.bloodTyping
+                                ?.ABOType || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "bloodTyping",
+                                null,
+                                "ABOType"
+                              )
+                            }
+                          />
+
+                          <label className="col-span-1">Lot No.</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.salmonellaTyphi
+                                ?.lotNumber || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "salmonellaTyphi",
+                                null,
+                                "lotNumber"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Rh Type</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.bloodTyping
+                                ?.RhType || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "bloodTyping",
+                                null,
+                                "RhType"
+                              )
+                            }
+                          />
+
+                          <label className="col-span-1">Expiration Date</label>
+                          <input
+                            type="date"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.salmonellaTyphi
+                                ?.expirationDate || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "salmonellaTyphi",
+                                null,
+                                "expirationDate"
+                              )
+                            }
+                          />
+
+                          <label className="col-span-6"></label>
+
+                          <label className="col-span-1">Result</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.salmonellaTyphi
+                                ?.result || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "salmonellaTyphi",
+                                null,
+                                "result"
+                              )
+                            }
+                          />
+                          <label className="col-span-6"></label>
+
+                          {/* Test for Dengue and Others */}
+                          <h4 className="col-span-6 font-semibold">
+                            Test for Dengue
+                          </h4>
+                          <h4 className="col-span-6 font-semibold">Others</h4>
+
+                          <label className="col-span-1">Method Used</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.testDengue
+                                ?.methodUsed || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "testDengue",
+                                null,
+                                "methodUsed"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Method Used</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.others
+                                ?.methodUsed || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "others",
+                                null,
+                                "methodUsed"
+                              )
+                            }
+                          />
+
+                          <label className="col-span-1">Lot No.</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.testDengue
+                                ?.lotNumber || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "testDengue",
+                                null,
+                                "lotNumber"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Lot No.</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.others
+                                ?.lotNumber || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "others",
+                                null,
+                                "lotNumber"
+                              )
+                            }
+                          />
+
+                          <label className="col-span-1">Expiration Date</label>
+                          <input
+                            type="date"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.testDengue
+                                ?.expirationDate || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "testDengue",
+                                null,
+                                "expirationDate"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Expiration Date</label>
+                          <input
+                            type="date"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.others
+                                ?.expirationDate || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "others",
+                                null,
+                                "expirationDate"
+                              )
+                            }
+                          />
+
+                          <label className="col-span-1">Result</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.testDengue
+                                ?.result || ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "testDengue",
+                                null,
+                                "result"
+                              )
+                            }
+                          />
+                          <label className="col-span-1">Result</label>
+                          <input
+                            type="text"
+                            className="col-span-5 border rounded px-3 py-1"
+                            value={
+                              formData.bloodBankingSerology?.others?.result ||
+                              ""
+                            }
+                            onChange={(e) =>
+                              handleInputChange(
+                                e,
+                                "bloodBankingSerology",
+                                "others",
+                                null,
+                                "result"
+                              )
                             }
                           />
                         </div>
-                        <div className="col-span-1"></div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div
-                    className="flex items-center justify-between cursor-pointer"
-                    onClick={toggleClinicalMicroscopyVisibility}
-                  >
-                    <h3 className="text-lg font-semibold mb-0 py-2">
-                      III. Clinical Microscopy and Parasitology
-                    </h3>
-                    <BiChevronDown
-                      className={`transform transition-transform duration-300 ${
-                        isClinicalMicroscopyVisible ? "rotate-180" : ""
-                      }`}
-                      size={24}
-                    />
-                  </div>
-                  <div className="w-full h-px bg-gray-300 my-0"></div>
-
-                  {isClinicalMicroscopyVisible && (
-                    <div className="grid grid-cols-6 gap-4 p-4">
-                      {/* Routine Urinalysis - Macroscopic Examination */}
-                      <label className="col-span-3 font-semibold">
-                        Routine Urinalysis
-                      </label>
-
-                      <label className="col-span-1">LMP</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.LMP || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            null,
-                            "LMP"
-                          )
-                        }
-                      />
-                      <h4 className="col-span-6 font-semibold">
-                        Macroscopic Examination
-                      </h4>
-                      <label className="col-span-1">Color</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.macroscopicExam?.color || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "macroscopicExam",
-                            "color"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Appearance</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.macroscopicExam?.appearance ||
-                          ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "macroscopicExam",
-                            "appearance"
-                          )
-                        }
-                      />
-
-                      {/* Routine Urinalysis - Chemical Examination */}
-                      <h4 className="col-span-6 font-semibold mt-4">
-                        Chemical Examination
-                      </h4>
-                      <label className="col-span-1">Sugar</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.sugar || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "chemicalExam",
-                            "sugar"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Urobilinogen</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.urobilinogen ||
-                          ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "chemicalExam",
-                            "urobilinogen"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Albumin</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.albumin || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "chemicalExam",
-                            "albumin"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Ketones</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.ketones || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "chemicalExam",
-                            "ketones"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Blood</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.blood || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "chemicalExam",
-                            "blood"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Nitrite</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.nitrites || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "chemicalExam",
-                            "nitrites"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Bilirubin</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.bilirubin || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "chemicalExam",
-                            "bilirubin"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Leukocyte</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.leukocytes || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "chemicalExam",
-                            "leukocytes"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Reaction</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.reaction || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "chemicalExam",
-                            "reaction"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Specific Gravity</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam
-                            ?.specificGravity || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "chemicalExam",
-                            "specificGravity"
-                          )
-                        }
-                      />
-
-                      {/* Routine Urinalysis - Microscopic Examination */}
-                      <h4 className="col-span-6 font-semibold mt-4">
-                        Microscopic Examination
-                      </h4>
-                      <label className="col-span-1">Pus Cells</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/hpf"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.pusCells || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "microscopicExam",
-                            "pusCells"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Epithelial Cells</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam
-                            ?.epithelialCells || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "microscopicExam",
-                            "epithelialCells"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Red Blood Cells</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/hpf"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.RBC || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "microscopicExam",
-                            "RBC"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Mucus Threads</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam
-                            ?.mucusThreads || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "microscopicExam",
-                            "mucusThreads"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Bacteria</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/hpf"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.bacteria || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "microscopicExam",
-                            "bacteria"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Crystals</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.crystals || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "microscopicExam",
-                            "crystals"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Yeast Cells</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/hpf"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.yeastCells ||
-                          ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "microscopicExam",
-                            "yeastCells"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Amorphous</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.amorphous ||
-                          ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "microscopicExam",
-                            "amorphous"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Cast</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.casts || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "microscopicExam",
-                            "casts"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Others</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.others || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineUrinalysis",
-                            "microscopicExam",
-                            "others"
-                          )
-                        }
-                      />
-
-                      {/* Routine Fecalysis */}
-                      <h4 className="col-span-6 font-semibold mt-4">
-                        Routine Fecalysis
-                      </h4>
-                      <label className="col-span-1">Color</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.color || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineFecalysis",
-                            "color"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Consistency</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.consistency || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineFecalysis",
-                            "consistency"
-                          )
-                        }
-                      />
-
-                      {/* Microscopic Examination for Fecalysis */}
-                      <h4 className="col-span-6 font-semibold mt-4">
-                        Microscopic Examination
-                      </h4>
-                      <label className="col-span-1">Direct Fecal Smear</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.microscopicExam
-                            ?.directFecalSmear || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineFecalysis",
-                            "microscopicExam",
-                            "directFecalSmear"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Kato Thick Smear</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.microscopicExam
-                            ?.katoThickSmear || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineFecalysis",
-                            "microscopicExam",
-                            "katoThickSmear"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Others</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.others || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "clinicalMicroscopyParasitology",
-                            "routineFecalysis",
-                            "others"
-                          )
-                        }
-                      />
-                    </div>
-                  )}
-
-                  {/* Serology Section */}
-                  <div
-                    className="flex items-center justify-between cursor-pointer"
-                    onClick={toggleSerologyVisibility}
-                  >
-                    <h3 className="text-lg font-semibold mb-0 py-2">
-                      IV. Serology
-                    </h3>
-                    <BiChevronDown
-                      className={`transform transition-transform duration-300 ${
-                        isSerologyVisible ? "rotate-180" : ""
-                      }`}
-                      size={24}
-                    />
-                  </div>
-                  <div className="w-full h-px bg-gray-300 my-0"></div>
-
-                  {isSerologyVisible && (
-                    <div className="grid grid-cols-12 gap-4 p-4">
-                      {/* Hepatitis B Surface Antigen Determination and Anti-HAV Test */}
-                      <h4 className="col-span-6 font-semibold">
-                        Hepatitis B Surface Antigen Determination (Screening
-                        Test Only)
-                      </h4>
-                      <h4 className="col-span-6 font-semibold">
-                        Anti-HAV Test (Screening Test Only)
-                      </h4>
-
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology
-                            ?.hepatitisBSurfaceAntigen?.methodUsed || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "hepatitisBSurfaceAntigen",
-                            null,
-                            "methodUsed"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.antiHAVTest
-                            ?.methodUsed || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "antiHAVTest",
-                            null,
-                            "methodUsed"
-                          )
-                        }
-                      />
-
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology
-                            ?.hepatitisBSurfaceAntigen?.lotNumber || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "hepatitisBSurfaceAntigen",
-                            null,
-                            "lotNumber"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.antiHAVTest
-                            ?.lotNumber || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "antiHAVTest",
-                            null,
-                            "lotNumber"
-                          )
-                        }
-                      />
-
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology
-                            ?.hepatitisBSurfaceAntigen?.expirationDate || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "hepatitisBSurfaceAntigen",
-                            null,
-                            "expirationDate"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.antiHAVTest
-                            ?.expirationDate || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "antiHAVTest",
-                            null,
-                            "expirationDate"
-                          )
-                        }
-                      />
-
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology
-                            ?.hepatitisBSurfaceAntigen?.result || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "hepatitisBSurfaceAntigen",
-                            null,
-                            "result"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.antiHAVTest?.result ||
-                          ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "antiHAVTest",
-                            null,
-                            "result"
-                          )
-                        }
-                      />
-
-                      {/* Serum Pregnancy and Test for Treponema pallidum / Syphilis */}
-                      <h4 className="col-span-6 font-semibold">
-                        Serum Pregnancy
-                      </h4>
-                      <h4 className="col-span-6 font-semibold">
-                        Test for Treponema pallidum / Syphilis
-                      </h4>
-
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.treponemaPallidumTest
-                            ?.methodUsed || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "treponemaPallidumTest",
-                            null,
-                            "methodUsed"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.serumPregnancy
-                            ?.methodUsed || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "serumPregnancy",
-                            null,
-                            "methodUsed"
-                          )
-                        }
-                      />
-
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.treponemaPallidumTest
-                            ?.lotNumber || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "treponemaPallidumTest",
-                            null,
-                            "lotNumber"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.serumPregnancy
-                            ?.lotNumber || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "serumPregnancy",
-                            null,
-                            "lotNumber"
-                          )
-                        }
-                      />
-
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.treponemaPallidumTest
-                            ?.expirationDate || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "treponemaPallidumTest",
-                            null,
-                            "expirationDate"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.serumPregnancy
-                            ?.expirationDate || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "serumPregnancy",
-                            null,
-                            "expirationDate"
-                          )
-                        }
-                      />
-
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.treponemaPallidumTest
-                            ?.result || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "treponemaPallidumTest",
-                            null,
-                            "result"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.serumPregnancy
-                            ?.result || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "serumPregnancy",
-                            null,
-                            "result"
-                          )
-                        }
-                      />
-
-                      {/* Salmonella typhi and Blood Typing */}
-                      <h4 className="col-span-6 font-semibold">
-                        Salmonella typhi
-                      </h4>
-                      <h4 className="col-span-6 font-semibold">Blood Typing</h4>
-
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.salmonellaTyphi
-                            ?.methodUsed || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "salmonellaTyphi",
-                            null,
-                            "methodUsed"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">ABO Type</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.bloodTyping?.ABOType ||
-                          ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "bloodTyping",
-                            null,
-                            "ABOType"
-                          )
-                        }
-                      />
-
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.salmonellaTyphi
-                            ?.lotNumber || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "salmonellaTyphi",
-                            null,
-                            "lotNumber"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Rh Type</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.bloodTyping?.RhType ||
-                          ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "bloodTyping",
-                            null,
-                            "RhType"
-                          )
-                        }
-                      />
-
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.salmonellaTyphi
-                            ?.expirationDate || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "salmonellaTyphi",
-                            null,
-                            "expirationDate"
-                          )
-                        }
-                      />
-
-                      <label className="col-span-6"></label>
-
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.salmonellaTyphi
-                            ?.result || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "salmonellaTyphi",
-                            null,
-                            "result"
-                          )
-                        }
-                      />
-                      <label className="col-span-6"></label>
-
-                      {/* Test for Dengue and Others */}
-                      <h4 className="col-span-6 font-semibold">
-                        Test for Dengue
-                      </h4>
-                      <h4 className="col-span-6 font-semibold">Others</h4>
-
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.testDengue
-                            ?.methodUsed || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "testDengue",
-                            null,
-                            "methodUsed"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.others?.methodUsed ||
-                          ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "others",
-                            null,
-                            "methodUsed"
-                          )
-                        }
-                      />
-
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.testDengue
-                            ?.lotNumber || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "testDengue",
-                            null,
-                            "lotNumber"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.others?.lotNumber || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "others",
-                            null,
-                            "lotNumber"
-                          )
-                        }
-                      />
-
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.testDengue
-                            ?.expirationDate || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "testDengue",
-                            null,
-                            "expirationDate"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.others
-                            ?.expirationDate || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "others",
-                            null,
-                            "expirationDate"
-                          )
-                        }
-                      />
-
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.testDengue?.result ||
-                          ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "testDengue",
-                            null,
-                            "result"
-                          )
-                        }
-                      />
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          formData.bloodBankingSerology?.others?.result || ""
-                        }
-                        onChange={(e) =>
-                          handleInputChange(
-                            e,
-                            "bloodBankingSerology",
-                            "others",
-                            null,
-                            "result"
-                          )
-                        }
-                      />
+                      )}
                     </div>
                   )}
                 </>
