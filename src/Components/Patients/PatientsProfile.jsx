@@ -692,6 +692,18 @@ function PatientsProfile() {
     setisFamilyPersonalModalOpen(false);
   };
 
+  const [isAnnualModalOpen, setisAnnualModalOpen] =
+  useState(false);
+
+const handleAnnualOpen = () => {
+  setisAnnualModalOpen(true);
+  setShowHistoryOptions(false);
+};
+
+const handleAnnualClose = () => {
+  setisAnnualModalOpen(false);
+};
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState({
     bloodChemistry: [],
@@ -1672,6 +1684,206 @@ function PatientsProfile() {
     setIsComplaintsModalOpen(false);
   };
 
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredPackages = packages.filter(
+    (pkg) =>
+      !pkg.isArchived && pkg.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  const [annual, setAnnual] = useState({
+    changes: {
+      year: new Date().getFullYear(),
+      bloodPressure: "",
+      pulseRate: "",
+      respirationRate: "",
+      height: "",
+      weight: "",
+      bmi: "",
+      wasteLine: "",
+      hipLine: "",
+      dateExamined: new Date().toISOString().split('T')[0],       
+    },
+    abnormalFindings: {
+      skin: { skin: false, remarks: "" },
+      headNeckScalp: { headNeckScalp: false, remarks: "" },
+      eyesExternal: { eyesExternal: false, remarks: "" },
+      ears: { ears: false, remarks: "" },
+      face: { face: false, remarks: "" },
+      neckThyroid: { neckThyroid: false, remarks: "" },
+      chestBreastsAxilla: { chestBreastsAxilla: false, remarks: "" },
+      lungs: { lungs: false, remarks: "" },
+      heart: { heart: false, remarks: "" },
+      abdomen: { abdomen: false, remarks: "" },
+      back: { back: false, remarks: "" },
+      guSystem: { guSystem: false, remarks: "" },
+      inguinalGenitals: { inguinalGenitals: false, remarks: "" },
+      extremities: { extremities: false, remarks: "" },
+    },
+    labExam: {
+      chestXray: "",
+      urinalysis: "",
+      completeBloodCount: "",
+      fecalysis: "",
+    },
+    others: {
+      medications: "",
+      remarksRecommendations: "",
+    }
+
+  });
+
+  const handleAnnualInputChange = (field, value) => {
+    setAnnual((prev) => {
+      const updatedChanges = { ...prev.changes, [field]: value };
+
+      // Automatically compute BMI if height and weight are provided
+      if (updatedChanges.height && updatedChanges.weight) {
+        const heightInMeters = parseFloat(updatedChanges.height) / 100; // Convert cm to meters
+        const weightInKg = parseFloat(updatedChanges.weight);
+        const bmi = weightInKg / (heightInMeters * heightInMeters);
+        updatedChanges.bmi = bmi.toFixed(2); // Round BMI to 2 decimal places
+      }
+
+      return {
+        ...prev,
+        changes: updatedChanges,
+      };
+    });
+  };
+
+  const handleAnnualSubmit = async (packageNumber) => {
+    try {
+      // Check if selectedRecords has labRecords with a valid packageId
+      const packageId = selectedRecords?.labRecords[0]?.packageId;
+
+      if (!packageId) {
+        alert("Package ID not found. Please select a valid package.");
+        return;
+      }
+
+      const response = await axios.post(
+        `http://localhost:3001/api/annual-check-up`,
+        {
+          patient: id,
+          packageId, // Add packageId to the request body
+          packageNumber, // Pass the packageNumber in the request
+          ...annual,
+        }
+      );
+
+      console.log("Annual Exam saved successfully:", response.data);
+      if (response.status === 200) {
+        setisPackageInfoModalOpen(false);
+        setAnnual({ ...annual });
+      }
+            setisAnnualModalOpen(false);
+    } catch (error) {
+      console.error(
+        "Error adding annual check-up:",
+        error.response?.data || error
+      );
+    }
+  };
+
+  const defaultAnnual = {
+    changes: {
+      year: "", 
+      bloodPressure: "",
+      pulseRate: "",
+      respirationRate: "",
+      height: "",
+      weight: "",
+      bmi: "",  
+      wasteLine: "", 
+      hipLine: "", 
+      dateExamined: "",
+    },
+    abnormalFindings: {
+      skin: { skin: false, remarks: "" },
+      headNeckScalp: { headNeckScalp: false, remarks: "" },
+      eyesExternal: { eyesExternal: false, remarks: "" },
+      ears: { ears: false, remarks: "" },
+      face: { face: false, remarks: "" },
+      neckThyroid: { neckThyroid: false, remarks: "" },
+      chestBreastsAxilla: { chestBreastsAxilla: false, remarks: "" },
+      lungs: { lungs: false, remarks: "" },
+      heart: { heart: false, remarks: "" },
+      abdomen: { abdomen: false, remarks: "" },
+      back: { back: false, remarks: "" },
+      guSystem: { guSystem: false, remarks: "" },
+      inguinalGenitals: { inguinalGenitals: false, remarks: "" },
+      extremities: { extremities: false, remarks: "" },
+    },
+    labExam: {
+      chestXray: "",
+      urinalysis: "",
+      completeBloodCount: "",
+      fecalysis: "",
+    },
+    others: {
+      medications: "",
+      remarksRecommendations: "",
+    }
+  };
+
+  // const fetchAnnualCheckup = useCallback(async (packageNumber, patientId) => {
+  //   try {
+  //     // Make a GET request to the API using fetch
+  //     const response = await fetch(
+  //       `http://localhost:3001/api/annual-check-up/${packageNumber}/${patientId}`
+  //     );
+
+  //     // Check if the response is ok (status 200-299)
+  //     if (!response.ok) {
+  //       throw new Error('Network response was not ok');
+  //     }
+
+  //     // Parse the response as JSON
+  //     const data = await response.json();
+
+  //     // Update the state with the fetched data
+  //     setAnnual({
+  //       ...defaultAnnual,  // Default structure
+  //       ...data,           // Data from the API
+  //       abnormalFindings: {
+  //         ...defaultAnnual.abnormalFindings,
+  //         ...data.abnormalFindings,
+  //         LMP: data.abnormalFindings?.LMP
+  //           ? new Date(data.abnormalFindings.LMP).toISOString().split("T")[0]  // Format LMP as yyyy-MM-dd
+  //           : null,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.error("Error fetching annual check-up data:", error);
+  //   }
+  // }, []);
+  const [annualData, setAnnualData] = useState(defaultAnnual);
+  const fetchAnnualCheckup = useCallback(async (packageNumber, patientId) => {
+    try {
+      const response = await axios.get(`http://localhost:3001/api/annual-check-up/${packageNumber}/${patientId}`);
+      const data = response.data || {};
+      
+      setAnnualData({
+        ...defaultAnnual,  // Default structure
+        ...data,           // Data from the API
+        abnormalFindings: {
+          ...defaultAnnual.abnormalFindings,
+          ...data.abnormalFindings,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching annual check-up data:", error);
+    }
+  }, []);
+
+
+
   return (
     <div>
       <Navbar />
@@ -1762,15 +1974,26 @@ function PatientsProfile() {
                             Packages
                             <MdKeyboardArrowDown
                               className={`h-5 w-5 transition-transform duration-200 ${
-                                showPackageOptions ? "rotate-180" : ""
+                                showPackageOptions ? 'rotate-180' : ''
                               }`}
                             />
                           </button>
                           {showPackageOptions && (
                             <div className="absolute mt-2 w-full bg-white border rounded-lg shadow-lg">
-                              {packages
-                                .filter((pkg) => !pkg.isArchived) // Only include packages where isArchived is false
-                                .map((pkg) => (
+                              {/* Search Input */}
+                              <div className="px-4 py-2">
+                                <input
+                                  type="text"
+                                  className="w-full px-3 py-2 border rounded-md"
+                                  placeholder="Search packages..."
+                                  value={searchQuery}
+                                  onChange={handleSearchChange}
+                                />
+                              </div>
+                              
+                              {/* Package List */}
+                              {filteredPackages.length > 0 ? (
+                                filteredPackages.map((pkg) => (
                                   <button
                                     key={pkg._id}
                                     className="block w-full px-4 py-2 text-left hover:bg-gray-100"
@@ -1778,7 +2001,10 @@ function PatientsProfile() {
                                   >
                                     {pkg.name}
                                   </button>
-                                ))}
+                                ))
+                              ) : (
+                                <div className="px-4 py-2 text-gray-500">No packages found</div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -1915,7 +2141,7 @@ function PatientsProfile() {
                 className="flex-1 bg-custom-red text-white p-2 rounded-lg"
                 onClick={handleFamilyPersonalOpen}
               >
-                Family/ Personal
+                Family/Personal
               </button>
             </div>
           </div>
@@ -2961,7 +3187,9 @@ function PatientsProfile() {
                       </div>
                     </div>
                   </div>
+                </div>
                   <div className="mt-7 flex flex-col space-y-4">
+                  {patient.patientType === 'Student' ? (
                     <label className="text-sm font-semibold text-gray-700">
                       I hereby certify that all the information I have disclosed
                       as reflected in this report is true to the best of my
@@ -2981,7 +3209,13 @@ function PatientsProfile() {
                       civil, administrative, ethical, and moral liability that
                       may arise from the above.
                     </label>
+                  ) : (
+                    <label className="text-sm font-semibold text-gray-700">
+                    I hereby certify that the foregoing answers are true and complete to the best of my knowledge. My health status is accurately represented in the above statements. I understand the University of Baguio may require me to have physical examination and I authorize the release of any information from such examination to UB personnel for use in considering my employment.
+                    </label>
+                  )}
 
+                  {patient.patientType === 'Student' ? (
                     <div className="flex justify-end mt-4">
                       <div className="w-1/2">
                         <label className="text-sm font-medium text-gray-700 block mb-2">
@@ -2997,8 +3231,24 @@ function PatientsProfile() {
                         </p>
                       </div>
                     </div>
+                  ) : (
+                    <div className="flex justify-end mt-4">
+                    <div className="w-1/2">
+                      <label className="text-sm font-medium text-gray-700 block mb-2">
+                        Upload Signature
+                      </label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Accepted file types: JPG, PNG. Max size: 5MB
+                      </p>
+                    </div>
                   </div>
-                </div>
+                  )}
+                  </div>
 
                 <div className="flex justify-end mt-4 space-x-3">
                   <button
@@ -3250,7 +3500,7 @@ function PatientsProfile() {
                     </p>
                   ))}
 
-                {selectedTab === "package" &&
+                {selectedTab === "package" && patient &&
                   (Object.keys(combinedRecords).length > 0 ? (
                     Object.entries(combinedRecords).map(
                       ([packageNumber, records], index) => {
@@ -3373,6 +3623,20 @@ function PatientsProfile() {
                                 >
                                   View
                                 </button>
+
+                                {/* Conditionally render the "Annual" button if selectedRecords.patient is available */}
+                                {patient.patientType === "Employee" && (
+                                    <button
+                                      className="text-custom-gray"
+                                      onClick={() => {
+                                        handleAnnualOpen(); // Open the annual form
+                                        setSelectedRecords(records); // Store the selected records
+                                      }}
+                                    >
+                                      Annual Form
+                                    </button>
+                                  )}
+
 
                                 {/* Delete Button for Pending Packages */}
                                 {role === "nurse" && status === "Pending" && (
@@ -8785,6 +9049,770 @@ function PatientsProfile() {
           </div>
         </div>
       )}
+      
+      {isAnnualModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white py-4 px-6 rounded-lg w-full max-w-3xl shadow-lg overflow-y-auto max-h-[80vh]">
+                <h1 className="text-2xl font-semibold text-center mb-6">
+                  Annual Check-up Form
+                </h1>
+                  <div>
+                        <div className="flex items-center justify-between mt-4">
+                          <div>
+                            <h3 className="text-lg font-semibold mr-4">
+                              III. PHYSICAL EXAMINATION:
+                            </h3>
+                            <label className="text-sm font-semibold">
+                              To be completed by examining physician.
+                            </label>
+                          </div>
+
+                        </div>
+                        {annual && (
+                          <div className="grid grid-cols-12 gap-4 p-4">
+                            <label className="col-span-2">Year</label>
+                            <div className="col-span-4 border rounded px-3 py-1">
+                              {annual.changes.year}
+                            </div>
+
+                            <label className="col-span-2">Date Examined</label>
+                            <div className="col-span-4 border rounded px-3 py-1">
+                              {annual.changes.dateExamined}
+                            </div>
+
+                            <label className="col-span-2">Height</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              // value={annual.changes.height}
+                              onChange={(e) =>
+                                handleAnnualInputChange("height", e.target.value)
+                              }
+                            />
+
+                            <label className="col-span-2">Blood Pressure</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              // value={annual.changes.bloodPressure}
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "bloodPressure",
+                                  e.target.value
+                                )
+                              }
+                            />
+
+                            <label className="col-span-2">Weight</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              // value={annual.changes.weight}
+                              onChange={(e) =>
+                                handleAnnualInputChange("weight", e.target.value)
+                              }
+                            />
+
+                            <label className="col-span-2">Pulse Rate</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              // value={annual.changes.pulseRate}
+                              onChange={(e) =>
+                                handleAnnualInputChange("pulseRate", e.target.value)
+                              }
+                            />
+
+                          <label className="col-span-2">BMI</label>
+                          <div className="col-span-4 border rounded px-3 py-1">
+                            {annual.changes.bmi || "Not available"} {/* Display BMI or a placeholder if not calculated */}
+                          </div>
+
+                            <label className="col-span-2">Respiration Rate</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              // value={annual.changes.respirationRate}
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "respirationRate",
+                                  e.target.value
+                                )
+                              }
+                            />
+
+                            <label className="col-span-2">Waste Line</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              // value={annual.changes.wasteLine}
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "wasteLine",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            
+                            <label className="col-span-2">Hip Line</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              // value={annual.changes.hipLine}
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "hipLine",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
+                        )}
+                        <hr />
+
+                        {/* Dropdowns with Remarks */}
+                        <div className="grid grid-cols-12 gap-4 mt-2 p-4">
+                          {/* Skin */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Skin</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "skin",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              // value={
+                              //   annual.abnormalFindings?.skin
+                              //     ?.remarks || ""
+                              // }
+                              onChange={(e) =>
+                                handleAnnualInputChange("skin", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* Lungs */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Lungs</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              // value={
+                              //   annual.abnormalFindings?.lungs
+                              //     ?.lungs
+                              //     ? "Yes"
+                              //     : "No"
+                              // } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "lungs",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              // value={
+                              //   annual.abnormalFindings?.lungs
+                              //     ?.remarks || ""
+                              // } // Use an empty string as a fallback
+                              onChange={(e) =>
+                                handleAnnualInputChange("lungs", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* Head, Neck, Scalp */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Head, Neck, Scalp</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              // value={
+                              //   annual.abnormalFindings
+                              //     ?.headNeckScalp?.headNeckScalp
+                              //     ? "Yes"
+                              //     : "No"
+                              // } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "headNeckScalp",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              // value={
+                              //   annual.abnormalFindings
+                              //     ?.headNeckScalp?.remarks || ""
+                              // } // Use an empty string as a fallback
+                              onChange={(e) =>
+                                handleAnnualInputChange("headNeckScalp", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* Heart */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Heart</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              // value={
+                              //   annual.abnormalFindings?.heart
+                              //     ?.heart
+                              //     ? "Yes"
+                              //     : "No"
+                              // } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "heart",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              // value={
+                              //   annual.abnormalFindings?.heart
+                              //     ?.remarks || ""
+                              // }
+                              onChange={(e) =>
+                                handleAnnualInputChange("heart", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* Eyes, External */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Eyes, External</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              // value={
+                              //   annual.abnormalFindings
+                              //     ?.eyesExternal?.eyesExternal
+                              //     ? "Yes"
+                              //     : "No"
+                              // } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "eyesExternal",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              // value={
+                              //   annual.abnormalFindings
+                              //     ?.eyesExternal?.remarks || ""
+                              // }
+                              onChange={(e) =>
+                                handleAnnualInputChange("eyesExternal", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* Abdomen */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Abdomen</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              // value={
+                              //   annual.abnormalFindings?.abdomen
+                              //     ?.abdomen
+                              //     ? "Yes"
+                              //     : "No"
+                              // } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "abdomen",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              // value={
+                              //   annual.abnormalFindings?.abdomen
+                              //     ?.remarks || ""
+                              // }
+                              onChange={(e) =>
+                                handleAnnualInputChange("abdomen", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* Ears */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Ears</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              // value={
+                              //   annual.abnormalFindings?.ears
+                              //     ?.ears
+                              //     ? "Yes"
+                              //     : "No"
+                              // } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "ears",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              // value={
+                              //   annual.abnormalFindings?.ears
+                              //     ?.remarks || ""
+                              // }
+                              onChange={(e) =>
+                                handleAnnualInputChange("ears", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* Back */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Back</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              // value={
+                              //   annual.abnormalFindings?.back?.back
+                              //     ? "Yes"
+                              //     : "No"
+                              // } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "back",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              // value={
+                              //   annual.abnormalFindings?.back
+                              //     ?.remarks || ""
+                              // }
+                              onChange={(e) =>
+                                handleAnnualInputChange("back", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* Face */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Face</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              // value={
+                              //   annual.abnormalFindings?.face?.face
+                              //     ? "Yes"
+                              //     : "No"
+                              // } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "face",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              // value={
+                              //   annual.abnormalFindings?.face
+                              //     ?.remarks || ""
+                              // }
+                              onChange={(e) =>
+                                handleAnnualInputChange("face", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* G-U System */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">G-U System</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              // value={
+                              //   annual.abnormalFindings?.guSystem
+                              //     ?.guSystemm
+                              //     ? "Yes"
+                              //     : "No"
+                              // } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "guSystem",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              // value={
+                              //   annual.abnormalFindings?.guSystem
+                              //     ?.remarks || ""
+                              // }
+                              onChange={(e) =>
+                                handleAnnualInputChange("guSystem", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* Chest Breast Axilla */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Chest, Breasts, Axilla</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              // value={
+                              //   annual.abnormalFindings
+                              //     ?.chestsBreastsAxilla?.chestsBreastsAxilla
+                              //     ? "Yes"
+                              //     : "No"
+                              // } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "chestsBreastsAxilla",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              // value={
+                              //   annual.abnormalFindings
+                              //     ?.chestsBreastsAxilla?.remarks || ""
+                              // } // Use an empty string if undefined
+                              onChange={(e) =>
+                                handleAnnualInputChange("chestsBreastsAxilla", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* Inguinal Genitals */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Inguinal Genitals</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              // value={
+                              //   annual.abnormalFindings
+                              //     ?.inguinalGenitals?.inguinalGenitals
+                              //     ? "Yes"
+                              //     : "No"
+                              // } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "inguinalGenitals",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              // value={
+                              //   annual.abnormalFindings
+                              //     ?.inguinalGenitals?.remarks || ""
+                              // }
+                              onChange={(e) =>
+                                handleAnnualInputChange("inguinalGenitals", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* Neck, Thyroid gland */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Neck, Thyroid gland</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              // value={
+                              //   annual.abnormalFindings
+                              //     ?.neckThyroid?.neckThyroid
+                              //     ? "Yes"
+                              //     : "No"
+                              // } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "neckThyroid",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              // value={
+                              //   annual.abnormalFindings
+                              //     ?.neckThyroid?.remarks || ""
+                              // }
+                              onChange={(e) =>
+                                handleAnnualInputChange("neckThyroid", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          {/* Extremities */}
+                          <div className="col-span-6 flex items-center">
+                            <label className="w-1/2">Extremities</label>
+                            <select
+                              className="border rounded w-1/3 px-2 py-1"
+                              // value={
+                              //   annual.abnormalFindings
+                              //     ?.extremities?.extremities
+                              //     ? "Yes"
+                              //     : "No"
+                              // } // Convert boolean to 'Yes' or 'No'
+                              onChange={(e) =>
+                                handleAnnualInputChange(
+                                  "extremities",
+                                  e.target.value === "Yes"
+                                )
+                              }
+                            >
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Remarks"
+                              className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                              // value={
+                              //   annual.abnormalFindings
+                              //     ?.extremities?.remarks || ""
+                              // }
+                              onChange={(e) =>
+                                handleAnnualInputChange("extremities", {
+                                  remarks: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                        </div>
+                      </div>
+
+                      {role === "doctor" && annual && (
+                        <div>
+                          <div className="flex items-center justify-between mt-4">
+                            <div>
+                              <h3 className="text-lg font-semibold mr-4">
+                                III. LABORATORY EXAMINATION:
+                              </h3>
+                              <label className="text-sm font-semibold">
+                                To be completed by examining physician.
+                              </label>
+                            </div>
+
+                            <button
+                              className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                              onClick={() => {
+                                handleViewPackage(selectedRecords); // Pass the stored selected records to the view function
+                                setIsPackageResultModalOpen(true); // Open the actual result modal
+                              }}
+                            >
+                              View Result
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-12 gap-4 p-4">
+                            <label className="col-span-2">Chest X-ray</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              // value={annual.labExam.chestXray}
+                              onChange={(e) => handleAnnualInputChange("chestXray", e.target.value)}
+                            />
+
+                            <label className="col-span-2">Urinalysis</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              // value={annual.labExam.urinalysis}
+                              onChange={(e) => handleAnnualInputChange("urinalysis", e.target.value)}
+                            />
+
+                            <label className="col-span-2">Fecalysis</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              // value={annual.labExam.fecalysis}
+                              onChange={(e) => handleAnnualInputChange("fecalysis", e.target.value)}
+                            />
+
+                            <label className="col-span-2">Complete Blood Count</label>
+                            <input
+                              type="text"
+                              className="col-span-4 border rounded px-3 py-1"
+                              // value={annual.labExam.completeBloodCount}
+                              onChange={(e) => handleAnnualInputChange("completeBloodCount", e.target.value)}
+                            />
+                          </div>
+
+                          <div>
+                            <div className="flex items-center justify-between mt-4">
+                              <div>
+                                <h3 className="text-lg font-semibold mr-4">
+                                  V. MEDICATIONS:
+                                </h3>
+                                <label className="text-sm font-semibold">
+                                  To be completed by examining physician.
+                                </label>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-12 gap-4 p-4">
+                              <input
+                                type="text"
+                                className="col-span-12 border rounded px-3 py-1 w-full h-auto resize-y"
+                                // value={annual.others.medications}
+                                onChange={(e) => handleAnnualInputChange("medications", e.target.value)}
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <div className="flex items-center justify-between mt-4">
+                              <div>
+                                <h3 className="text-lg font-semibold mr-4">
+                                  VI. REMARKS/RECOMMENDATIONS:
+                                </h3>
+                                <label className="text-sm font-semibold">
+                                  To be completed by examining physician.
+                                </label>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-12 gap-4 p-4">
+                              <input
+                                type="text"
+                                className="col-span-12 border rounded px-3 py-1 w-full h-auto resize-y"
+                                // value={annual.others.remarksRecommendations}
+                                onChange={(e) => handleAnnualInputChange("remarksRecommendations", e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Bottom section - Close button */}
+                      <div className="flex justify-end mt-4">
+                        <button
+                          className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200 mr-4"
+                          onClick={() => {
+                            handleAnnualClose(); // Close the modal
+                          }}
+                        >
+                          Close
+                        </button>
+                        <button
+                          className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                          onClick={() =>
+                            handleAnnualSubmit(
+                              selectedRecords.labRecords[0].packageNumber
+                            )
+                          }
+                        >
+                          Submit
+                        </button>
+                      </div>
+                  </div>
+              </div>
+          )}
+
     </div>
   );
 }

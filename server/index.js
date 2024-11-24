@@ -13,6 +13,7 @@ const MedicalHistoryModel = require("./models/MedicalHistory");
 const VaccineModel = require("./models/Vaccine"); // Path to your vaccine routes
 const PhysicalExamStudentModel = require("./models/PhysicalExamStudent");
 const VaccineListModel = require("./models/VaccineList");
+const AnnualCheckUp = require("./models/AnnualCheckUp");
 
 const app = express();
 app.use(cors());
@@ -1658,6 +1659,35 @@ app.delete("/api/xrayResults/:id", async (req, res) => {
     res.status(500).json({ message: "Error deleting X-ray record.", error });
   }
 });
+
+// A N N U A L C H E C K U P - E M P L O Y E E
+app.post("/api/annual-check-up", async (req, res) => {
+  try {
+    const annualCheckUpData = req.body;
+
+    // Ensure required fields are present in the request
+    if (!annualCheckUpData.patient || !annualCheckUpData.packageId || !annualCheckUpData.packageNumber) {
+      return res.status(400).json({
+        message: "Missing required fields: patient, packageId, or packageNumber",
+      });
+    }
+
+    // Create the new annual check-up entry in the database
+    const newAnnualCheckUp = await AnnualCheckUp.create(annualCheckUpData);
+
+    res.status(201).json({
+      message: "Annual Check-Up created successfully",
+      newAnnualCheckUp,
+    });
+  } catch (error) {
+    console.error("Error creating Annual Check-Up:", error.message);
+    res.status(500).json({
+      message: "Error creating Annual Check-Up",
+      error: error.message,
+    });
+  }
+});
+
 
 //console log
 app.listen(3001, () => {
