@@ -21,6 +21,7 @@ import XrayResult from "./Components/Xray/XrayResult";
 import LaboratoryVerification from "./Components/Laboratory/LaboratoryVerification";
 import Vaccine from "./Components/Vaccine/Vaccine";
 import LaboratoryPathologistVerification from "./Components/Laboratory/LaboratoryPathVerification";
+import LaboratoryCensus from "./Components/Laboratory/LaboratoryCensus";
 
 function App() {
   return (
@@ -30,6 +31,8 @@ function App() {
           {/* random url */}
           <Route path="*" element={<NotFound />} />
           <Route path="/packages" element={<Package />} />
+          <Route path="/laboratory/census" element={<LaboratoryCensus />} />
+
 
           <Route
             path="/vaccines"

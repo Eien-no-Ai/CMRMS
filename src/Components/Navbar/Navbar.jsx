@@ -107,6 +107,13 @@ function Navbar() {
             </a>
           </>
         )}
+        {role === "senior medtech" && role === "senior medtech" &&(
+          <>
+            <a href="/laboratory/census" className="hover:underline">
+              Census
+            </a>
+          </>
+        )}
 
         <div className="relative" ref={dropdownRef}>
         <button
