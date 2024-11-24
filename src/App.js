@@ -22,7 +22,7 @@ import LaboratoryVerification from "./Components/Laboratory/LaboratoryVerificati
 import Vaccine from "./Components/Vaccine/Vaccine";
 import LaboratoryPathologistVerification from "./Components/Laboratory/LaboratoryPathVerification";
 import LaboratoryCensus from "./Components/Laboratory/LaboratoryCensus";
-
+import XrayCensus from "./Components/Xray/XrayCensus";
 function App() {
   return (
     <div className="App">
@@ -32,7 +32,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
           <Route path="/packages" element={<Package />} />
           <Route path="/laboratory/census" element={<LaboratoryCensus />} />
-
+          <Route path="/xray/census" element={<XrayCensus />} />
 
           <Route
             path="/vaccines"
