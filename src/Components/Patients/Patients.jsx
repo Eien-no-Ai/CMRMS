@@ -32,6 +32,7 @@ function Patients() {
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedPosition, setSelectedPosition] = useState("");
+  const [bloodType, setBloodType] = useState("");
 
   const [patientInfo, setPatientInfo] = useState(null);
 
@@ -100,6 +101,7 @@ function Patients() {
       patientType,
       emergencyContact,
       position,
+      bloodType,
     };
 
     if (patientToEdit) {
@@ -153,6 +155,7 @@ function Patients() {
     setEmergencyContact("");
     setPosition("");
     setPatientType("");
+    setBloodType(""); // Reset bloodType
   };
 
   const indexOfLastPatient = currentPage * patientsPerPage;
@@ -251,6 +254,7 @@ function Patients() {
       setSex(patient.sex);
       setEmergencyContact(patient.emergencyContact);
       setPosition(patient.position);
+      setBloodType(patient.bloodType);
       setIsModalOpen(true);
     }
   };
@@ -316,88 +320,89 @@ function Patients() {
       return true; // Show all if no sorting option selected
     });
 
-// Initial state for medical history
-const initialMedicalHistoryState = {
-  conditions: {
-    noseThroatDisorders: false,
-    earTrouble: false,
-    asthma: false,
-    tuberculosis: false,
-    lungDiseases: false,
-    highBloodPressure: false,
-    heartDiseases: false,
-    rheumaticFever: false,
-    diabetesMellitus: false,
-    endocrineDisorder: false,
-    cancerTumor: false,
-    mentalDisorder: false,
-    headNeckInjury: false,
-    hernia: false,
-    rheumatismJointPain: false,
-    eyeDisorders: false,
-    stomachPainUlcer: false,
-    abdominalDisorders: false,
-    kidneyBladderDiseases: false,
-    std: false,
-    familialDisorder: false,
-    tropicalDiseases: false,
-    chronicCough: false,
-    faintingSeizures: false,
-    frequentHeadache: false,
-    dizziness: false,
-  },
-  malaria: {
-    hasMalaria: null,
-    lastAttackDate: "",
-  },
-  operations: {
-    undergoneOperation: null,
-    listOperations: "",
-  },
-  signature: {
-    fileName: null,
-    fileType: null,
-  },
-  familyHistory: {
-    diseases: {
-      heartDisease: false,
-      tuberculosis: false,
-      kidneyDisease: false,
+  // Initial state for medical history
+  const initialMedicalHistoryState = {
+    conditions: {
+      noseThroatDisorders: false,
+      earTrouble: false,
       asthma: false,
-      hypertension: false,
-      diabetes: false,
-      cancer: false,
+      tuberculosis: false,
+      lungDiseases: false,
+      highBloodPressure: false,
+      heartDiseases: false,
+      rheumaticFever: false,
+      diabetesMellitus: false,
+      endocrineDisorder: false,
+      cancerTumor: false,
+      mentalDisorder: false,
+      headNeckInjury: false,
+      hernia: false,
+      rheumatismJointPain: false,
+      eyeDisorders: false,
+      stomachPainUlcer: false,
+      abdominalDisorders: false,
+      kidneyBladderDiseases: false,
+      std: false,
+      familialDisorder: false,
+      tropicalDiseases: false,
+      chronicCough: false,
+      faintingSeizures: false,
+      frequentHeadache: false,
+      dizziness: false,
     },
-    allergies: {
-      hasAllergies: null,
-      allergyList: "",
+    malaria: {
+      hasMalaria: null,
+      lastAttackDate: "",
     },
-  },
-  personalHistory: {
-    tobaccoUse: {
-      usesTobacco: null,
-      sticksPerDay: "",
-      quitSmoking: null,
-      quitWhen: "",
+    operations: {
+      undergoneOperation: null,
+      listOperations: "",
     },
-    alcoholUse: {
-      drinksAlcohol: null,
-      drinksPerDay: "",
-      quitDrinking: null,
-      quitWhen: "",
+    signature: {
+      fileName: null,
+      fileType: null,
     },
-    forWomen: {
-      pregnant: null,
-      months: "",
-      lastMenstrualPeriod: "",
-      abortionOrMiscarriage: null,
-      dysmenorrhea: null,
+    familyHistory: {
+      diseases: {
+        heartDisease: false,
+        tuberculosis: false,
+        kidneyDisease: false,
+        asthma: false,
+        hypertension: false,
+        diabetes: false,
+        cancer: false,
+      },
+      allergies: {
+        hasAllergies: null,
+        allergyList: "",
+      },
     },
-  },
-};
+    personalHistory: {
+      tobaccoUse: {
+        usesTobacco: null,
+        sticksPerDay: "",
+        quitSmoking: null,
+        quitWhen: "",
+      },
+      alcoholUse: {
+        drinksAlcohol: null,
+        drinksPerDay: "",
+        quitDrinking: null,
+        quitWhen: "",
+      },
+      forWomen: {
+        pregnant: null,
+        months: "",
+        lastMenstrualPeriod: "",
+        abortionOrMiscarriage: null,
+        dysmenorrhea: null,
+      },
+    },
+  };
 
-const [medicalHistory, setMedicalHistory] = useState(initialMedicalHistoryState);
-
+  const [medicalHistory, setMedicalHistory] = useState(
+    initialMedicalHistoryState
+  );
 
   // FAMILY HISTORY FUNCTIONS
   const handleCheckboxFamChange = (section, field, disease) => {
@@ -530,6 +535,7 @@ const [medicalHistory, setMedicalHistory] = useState(initialMedicalHistoryState)
       patientType,
       emergencyContact,
       position,
+      bloodType,
     };
 
     setPatientInfo(patientData);
@@ -643,13 +649,21 @@ const [medicalHistory, setMedicalHistory] = useState(initialMedicalHistoryState)
               onChange={(e) => setSelectedCourse(e.target.value)}
               className="px-4 py-2 rounded border border-gray-300 ml-4"
             >
-              <option value="">All Courses</option>
-              {courses.map((course, index) => (
-                <option key={index} value={course}>
-                  {course}
-                </option>
-              ))}
+              <option value="">All Department</option>
+              <option value="UB-ELEM">UB-ELEM</option>
+              <option value="SHS">SHS</option>
+              <option value="SOD">SOD</option>
+              <option value="SNS">SNS</option>
+              <option value="SIHTM">SIHTM</option>
+              <option value="SCJPS">SCJPS</option>
+              <option value="SEA">SEA</option>
+              <option value="STELA">STELA</option>
+              <option value="SOL">SOL</option>
+              <option value="SIT">SIT</option>
+              <option value="SBAA">SBAA</option>
+              <option value="SON">SON</option>
             </select>
+
             {/* Year Dropdown */}
             <select
               value={selectedYear}
@@ -657,12 +671,12 @@ const [medicalHistory, setMedicalHistory] = useState(initialMedicalHistoryState)
               className="px-4 py-2 rounded border border-gray-300 ml-4"
             >
               <option value="">All Years</option>
-              {years.map((year, index) => (
-                <option key={index} value={year}>
-                  {year}
-                </option>
-              ))}
+              <option value="1">First Year</option>
+              <option value="2">Second Year</option>
+              <option value="3">Third Year</option>
+              <option value="4">Fourth Year</option>
             </select>
+
             {/* Position Dropdown */}
             <select
               value={selectedPosition}
@@ -980,34 +994,83 @@ const [medicalHistory, setMedicalHistory] = useState(initialMedicalHistoryState)
                     <div>
                       <label className="block mb-2">Course and Year</label>
                       <div className="grid grid-cols-2 gap-4">
-                        <input
-                          type="text"
+                        {/* Course Dropdown */}
+                        <select
                           value={course}
                           onChange={(e) => setCourse(e.target.value)}
-                          placeholder="Enter Course"
                           className="px-4 py-2 border rounded w-full"
-                        />
-                        <input
-                          type="text"
+                        >
+                          <option value="" disabled>
+                            Select Course
+                          </option>
+                          <option value="UB-ELEM">UB-ELEM</option>
+                          <option value="SHS">SHS</option>
+                          <option value="SOD">SOD</option>
+                          <option value="SNS">SNS</option>
+                          <option value="SIHTM">SIHTM</option>
+                          <option value="SCJPS">SCJPS</option>
+                          <option value="SEA">SEA</option>
+                          <option value="STELA">STELA</option>
+                          <option value="SOL">SOL</option>
+                          <option value="SIT">SIT</option>
+                          <option value="SBAA">SBAA</option>
+                          <option value="SON">SON</option>
+                        </select>
+
+                        {/* Year Dropdown */}
+                        <select
                           value={year}
                           onChange={(e) => setYear(e.target.value)}
-                          placeholder="Enter Year Lvl"
                           className="px-4 py-2 border rounded w-full"
-                        />
+                        >
+                          <option value="" disabled>
+                            Select Year Level
+                          </option>
+                          <option value="1">1st Year</option>
+                          <option value="2">2nd Year</option>
+                          <option value="3">3rd Year</option>
+                          <option value="4">4th Year</option>
+                          {/* Add more year levels if needed */}
+                        </select>
                       </div>
                     </div>
                   </div>
 
-                  {/* Address */}
-                  <div className="col-span-3">
-                    <label className="block mb-2">Address</label>
-                    <input
-                      type="text"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      placeholder="Address"
-                      className="px-4 py-2 border rounded w-full"
-                    />
+                  <div className="col-span-3 grid grid-cols-2 gap-4">
+                    {/* Address */}
+                    <div>
+                      <label className="block mb-2">Address</label>
+                      <input
+                        type="text"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Address"
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                    </div>
+
+                    {/* Blood Type */}
+                    <div>
+                      <label className="block mb-2">Blood Type</label>
+                      <select
+                        value={bloodType}
+                        onChange={(e) => setBloodType(e.target.value)}
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      >
+                        <option value="" disabled>
+                          Select Blood Type
+                        </option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                      </select>
+                    </div>
                   </div>
 
                   {/* Phone Number, Email, and Emergency Contact */}

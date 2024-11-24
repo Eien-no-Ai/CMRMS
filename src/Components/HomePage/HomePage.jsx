@@ -80,25 +80,46 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchUpdates = async () => {
       try {
-        // Fetch the logged-in employee's details to determine their department
+        // Fetch the logged-in employee's details to determine their department and role
         const userId = localStorage.getItem("userId");
         const employeeResponse = await axios.get(
           `http://localhost:3001/user/${userId}`
         );
-        const department = employeeResponse.data.department;
-
+        const { department, role } = employeeResponse.data;
+        console.log("Employee Role:", role);
         console.log("Employee Department:", department);
-
+  
         // Fetch all updates (labs, xrays, clinics)
         const [labs, xrays, clinics] = await Promise.all([
           axios.get("http://localhost:3001/api/laboratory"),
           axios.get("http://localhost:3001/api/xrayResults"),
           axios.get("http://localhost:3001/api/clinicalRecords"),
         ]);
-
+  
         let filteredUpdates = [];
-
-        if (department === "laboratory") {
+  
+        if (role === "nurse") {
+          // Only display clinics
+          filteredUpdates = [
+            ...clinics.data
+              .filter((clinic) => !clinic.treatments && !clinic.diagnosis)
+              .map((clinic) => ({
+                type: "Clinic",
+                name: `${clinic.patient?.firstname || "Unknown"} ${
+                  clinic.patient?.lastname || ""
+                }`,
+                action: `complaint: ${
+                  clinic.complaints || "No complaint provided"
+                }`,
+                timestamp: new Date(
+                  clinic.isCreatedAt || clinic.createdAt || Date.now()
+                ),
+                time: calculateTimeAgo(
+                  clinic.isCreatedAt || clinic.createdAt || Date.now()
+                ),
+              })),
+          ];
+        } else if (department === "laboratory") {
           // Only display labs
           filteredUpdates = [
             ...labs.data
@@ -161,7 +182,7 @@ const Dashboard = () => {
                 ),
               };
             });
-
+  
           const xrayUpdates = xrays.data
             .filter((xray) => xray.xrayResult === "pending")
             .map((xray) => ({
@@ -177,7 +198,7 @@ const Dashboard = () => {
                 xray.isCreatedAt || xray.createdAt || Date.now()
               ),
             }));
-
+  
           const clinicUpdates = clinics.data
             .filter((clinic) => !clinic.treatments && !clinic.diagnosis)
             .map((clinic) => ({
@@ -195,21 +216,21 @@ const Dashboard = () => {
                 clinic.isCreatedAt || clinic.createdAt || Date.now()
               ),
             }));
-
+  
           filteredUpdates = [...labUpdates, ...xrayUpdates, ...clinicUpdates];
         }
-
+  
         console.log("Filtered Updates:", filteredUpdates);
-
+  
         // Sort updates by timestamp (most recent first)
         filteredUpdates.sort((a, b) => b.timestamp - a.timestamp);
-
+  
         setUpdates(filteredUpdates);
       } catch (error) {
         console.error("Error fetching updates:", error);
       }
     };
-
+  
     fetchUpdates();
   }, []);
 

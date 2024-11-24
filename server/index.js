@@ -424,39 +424,42 @@ app.put("/api/physicalTherapy/:id", async (req, res) => {
   }
 });
 
-app.put("/api/physicalTherapyVerification/:id/soapSummary/:summaryId", async (req, res) => {
-  const { id, summaryId } = req.params;
-  const { updatedSOAPSummary } = req.body; // Contains firstname and lastname
+app.put(
+  "/api/physicalTherapyVerification/:id/soapSummary/:summaryId",
+  async (req, res) => {
+    const { id, summaryId } = req.params;
+    const { updatedSOAPSummary } = req.body; // Contains firstname and lastname
 
-  try {
-    // Update the verifiedBy field and fetch the updated record
-    const updatedRecord = await PhysicalTherapyModel.findOneAndUpdate(
-      { _id: id, "SOAPSummaries._id": summaryId },
-      { 
-        $set: { 
-          "SOAPSummaries.$.verifiedBy": `${updatedSOAPSummary.firstname} ${updatedSOAPSummary.lastname}` // Save the full name
-        } 
-      },
-      { new: true } // Return the updated document
-    );
+    try {
+      // Update the verifiedBy field and fetch the updated record
+      const updatedRecord = await PhysicalTherapyModel.findOneAndUpdate(
+        { _id: id, "SOAPSummaries._id": summaryId },
+        {
+          $set: {
+            "SOAPSummaries.$.verifiedBy": `${updatedSOAPSummary.firstname} ${updatedSOAPSummary.lastname}`, // Save the full name
+          },
+        },
+        { new: true } // Return the updated document
+      );
 
-    if (updatedRecord) {
-      res.json({
-        success: true,
-        message: "SOAP summary updated successfully",
-        updatedRecord,
+      if (updatedRecord) {
+        res.json({
+          success: true,
+          message: "SOAP summary updated successfully",
+          updatedRecord,
+        });
+      } else {
+        res.status(404).json({ message: "Record or SOAP summary not found" });
+      }
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Error updating SOAP summary",
+        error: error.message,
       });
-    } else {
-      res.status(404).json({ message: "Record or SOAP summary not found" });
     }
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error updating SOAP summary",
-      error: error.message,
-    });
   }
-});
+);
 
 const fs = require("fs");
 const path = require("path");
@@ -1047,6 +1050,7 @@ app.get("/search", (req, res) => {
       res.status(500).json({ message: "Error searching accounts", error: err })
     );
 });
+
 // P A T I E N T
 app.post("/add-patient", async (req, res) => {
   try {
@@ -1068,6 +1072,7 @@ app.post("/add-patient", async (req, res) => {
       patientType,
       emergencyContact,
       position,
+      bloodType,
     } = req.body;
 
     let generatedIdNumber = idnumber || null;
@@ -1122,6 +1127,7 @@ app.post("/add-patient", async (req, res) => {
       patientType,
       emergencyContact,
       position,
+      bloodType,
     });
 
     const savedPatient = await newPatient.save();

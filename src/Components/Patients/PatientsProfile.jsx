@@ -1792,9 +1792,12 @@ function PatientsProfile() {
                       <p className="font-semibold">{patient.idnumber}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500">Department/ Position</p>
+                      <p className="text-gray-500">
+                        {patient.patientType === "Student"
+                          ? "Department"
+                          : "Position"}
+                      </p>
                       <p className="font-semibold">
-                        {" "}
                         {patient.patientType === "Employee"
                           ? patient.position
                           : `${patient.course} - ${patient.year}`}
@@ -1815,10 +1818,8 @@ function PatientsProfile() {
                       <p className="font-semibold">{patient.address}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500">Birthday</p>
-                      <p className="font-semibold">
-                        {new Date(patient.birthdate).toLocaleDateString()}
-                      </p>
+                      <p className="text-gray-500">Blood Type</p>
+                      <p className="font-semibold">{patient.bloodType}</p>
                     </div>
 
                     <div>
@@ -1847,41 +1848,25 @@ function PatientsProfile() {
 
               {/* Content */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Chronic Disease */}
+                {/* Allergy */}
                 <div className="border border-gray-200 rounded-lg p-4">
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
-                    Chronic Disease
-                  </h3>
-                  <ul className="list-disc pl-5 text-gray-700">
-                    {Object.entries(medicalHistory.conditions)
-                      .filter(([key, value]) => value === true) // Get only the checked conditions
-                      .slice(0, 1) // Limit to the first 3 items
-                      .map(([key]) => (
-                        <li key={key}>
-                          {key.replace(/([A-Z])/g, " $1").toLowerCase()}{" "}
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-
-                {/* Diabetes */}
-                <div className=" border border-gray-200 rounded-lg p-4">
                   <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
                     Allergy
                   </h3>
-                  <p className="text-gray-700">
-                    {medicalHistory.familyHistory.allergies.allergyList}
-                  </p>
-                </div>
-
-                {/* Surgery */}
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
-                    Surgery
-                  </h3>
-                  <p className="text-gray-700">
-                    {medicalHistory.operations.listOperations}
-                  </p>
+                  {medicalHistory.familyHistory.allergies.allergyList ? (
+                    <div className="max-h-36 overflow-y-auto">
+                      <ul className="list-disc pl-5 text-gray-700">
+                        {medicalHistory.familyHistory.allergies.allergyList
+                          .split(/,|\n/) // Split by commas or newlines
+                          .filter((allergy) => allergy.trim() !== "") // Filter out empty strings
+                          .map((allergy, index) => (
+                            <li key={index}>{allergy.trim()}</li> // Trim whitespace and render
+                          ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">No allergies listed.</p> // Fallback for empty list
+                  )}
                 </div>
 
                 {/* Family Disease */}
@@ -1889,16 +1874,24 @@ function PatientsProfile() {
                   <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
                     Family Disease
                   </h3>
-                  <ul className="list-disc pl-5 text-gray-700">
-                    {Object.entries(medicalHistory.familyHistory.diseases)
-                      .filter(([_, value]) => value) // Filter checked diseases
-                      .slice(0, 1) // Limit to the first 3 items
-                      .map(([key]) => (
-                        <li key={key}>
-                          {key.replace(/([A-Z])/g, " $1").toLowerCase()}
-                        </li> // Format and display
-                      ))}
-                  </ul>
+                  {Object.entries(medicalHistory.familyHistory.diseases).filter(
+                    ([_, value]) => value
+                  ).length > 0 ? (
+                    <div className="max-h-36 overflow-y-auto">
+                      <ul className="list-disc pl-5 text-gray-700">
+                        {Object.entries(medicalHistory.familyHistory.diseases)
+                          .filter(([_, value]) => value) // Filter checked diseases
+                          .map(([key]) => (
+                            <li key={key}>
+                              {key.replace(/([A-Z])/g, " $1").toLowerCase()}{" "}
+                              {/* Format and display */}
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">No family diseases listed.</p> // Fallback for empty list
+                  )}
                 </div>
               </div>
             </div>
@@ -8762,7 +8755,6 @@ function PatientsProfile() {
             <p className="mt-4 text-center">
               Are you sure you want to cancel the package{" "}
               <span className="font-bold">
-                Package:{" "}
                 {combinedRecords[packageToDelete]?.labRecords[0]?.packageId
                   ?.name || "Package"}
               </span>
