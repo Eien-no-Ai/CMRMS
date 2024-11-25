@@ -480,14 +480,14 @@ function PatientsProfile() {
     selectedTab === "clinical"
       ? clinicalRecords
       : selectedTab === "laboratory"
-      ? laboratoryRecords
-      : selectedTab === "xray"
-      ? xrayRecords
-      : selectedTab === "physical therapy"
-      ? physicalTherapyRecords
-      : selectedTab === "vaccine"
-      ? vaccineRecords // <-- New condition for vaccines
-      : [];
+        ? laboratoryRecords
+        : selectedTab === "xray"
+          ? xrayRecords
+          : selectedTab === "physical therapy"
+            ? physicalTherapyRecords
+            : selectedTab === "vaccine"
+              ? vaccineRecords // <-- New condition for vaccines
+              : [];
 
   const initialFormData = {
     bloodChemistry: {
@@ -690,6 +690,18 @@ function PatientsProfile() {
 
   const handleFamilyClose = () => {
     setisFamilyPersonalModalOpen(false);
+  };
+
+  const [isAnnualModalOpen, setisAnnualModalOpen] =
+    useState(false);
+
+  const handleAnnualOpen = () => {
+    setisAnnualModalOpen(true);
+    setShowHistoryOptions(false);
+  };
+
+  const handleAnnualClose = () => {
+    setisAnnualModalOpen(false);
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1672,6 +1684,256 @@ function PatientsProfile() {
     setIsComplaintsModalOpen(false);
   };
 
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredPackages = packages.filter(
+    (pkg) =>
+      !pkg.isArchived && pkg.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  const [annual, setAnnual] = useState({
+    changes: {
+      year: new Date().getFullYear(),
+      bloodPressure: "",
+      pulseRate: "",
+      respirationRate: "",
+      height: "",
+      weight: "",
+      bmi: "",
+      wasteLine: "",
+      hipLine: "",
+      dateExamined: new Date().toISOString().split('T')[0],
+    },
+    abnormalFindings: {
+      skin: { skin: false, remarks: "" },
+      headNeckScalp: { headNeckScalp: false, remarks: "" },
+      eyesExternal: { eyesExternal: false, remarks: "" },
+      ears: { ears: false, remarks: "" },
+      face: { face: false, remarks: "" },
+      neckThyroid: { neckThyroid: false, remarks: "" },
+      chestBreastsAxilla: { chestBreastsAxilla: false, remarks: "" },
+      lungs: { lungs: false, remarks: "" },
+      heart: { heart: false, remarks: "" },
+      abdomen: { abdomen: false, remarks: "" },
+      back: { back: false, remarks: "" },
+      guSystem: { guSystem: false, remarks: "" },
+      inguinalGenitals: { inguinalGenitals: false, remarks: "" },
+      extremities: { extremities: false, remarks: "" },
+    },
+    labExam: {
+      chestXray: "",
+      urinalysis: "",
+      completeBloodCount: "",
+      fecalysis: "",
+    },
+    others: {
+      medications: "",
+      remarksRecommendations: "",
+    }
+
+  });
+
+  const handleAnnualInputChange = (field, value) => {
+    setAnnual((prev) => {
+      const updatedChanges = { ...prev.changes, [field]: value };
+
+      // Handle updates to the nested labExam fields
+      if (field === "chestXray" || field === "urinalysis" || field === "fecalysis" || field === "completeBloodCount") {
+        const updatedLabExam = { ...prev.labExam, [field]: value };
+        return {
+          ...prev,
+          labExam: updatedLabExam,
+          changes: updatedChanges,
+        };
+      }
+
+      // Handle updates to the nested others fields
+      if (field === "medications" || field === "remarksRecommendations") {
+        const updatedOthers = { ...prev.others, [field]: value };
+        return {
+          ...prev,
+          others: updatedOthers,
+          changes: updatedChanges,
+        };
+      }
+
+      // Automatically compute BMI if height and weight are provided
+      if (field === "height" || field === "weight") {
+        if (updatedChanges.height && updatedChanges.weight) {
+          const heightInMeters = parseFloat(updatedChanges.height) / 100; // Convert cm to meters
+          const weightInKg = parseFloat(updatedChanges.weight);
+          const bmi = weightInKg / (heightInMeters * heightInMeters);
+          updatedChanges.bmi = bmi.toFixed(2); // Round BMI to 2 decimal places
+        }
+      }
+      else if (field in annual.abnormalFindings) {
+        if (typeof value === "object" && value.remarks !== undefined) {
+          setAnnual((prevState) => ({
+            ...prevState,
+            abnormalFindings: {
+              ...prevState.abnormalFindings,
+              [field]: {
+                ...prevState.abnormalFindings[field],
+                remarks: value.remarks,
+              },
+            },
+          }));
+        } else {
+          setAnnual((prevState) => ({
+            ...prevState,
+            abnormalFindings: {
+              ...prevState.abnormalFindings,
+              [field]: {
+                ...prevState.abnormalFindings[field],
+                [field]: value,
+              },
+            },
+          }));
+        }
+      } else {
+        setAnnual((prevState) => ({
+          ...prevState,
+          [field]: value,
+        }));
+      }
+
+      return {
+        ...prev,
+        changes: updatedChanges
+      };
+    });
+  };
+
+  const handleAnnualSubmit = async (packageNumber) => {
+    try {
+      // Check if selectedRecords has labRecords with a valid packageId
+      const packageId = selectedRecords?.labRecords[0]?.packageId;
+
+      if (!packageId) {
+        alert("Package ID not found. Please select a valid package.");
+        return;
+      }
+
+      const response = await axios.post(
+        `http://localhost:3001/api/annual-check-up`,
+        {
+          patient: id,
+          packageId, // Add packageId to the request body
+          packageNumber, // Pass the packageNumber in the request
+          ...annual,
+        }
+      );
+
+      console.log("Annual Exam saved successfully:", response.data);
+      if (response.status === 200) {
+        setisPackageInfoModalOpen(false);
+        setAnnual({ ...annual });
+      }
+      setisAnnualModalOpen(false);
+    } catch (error) {
+      console.error(
+        "Error adding annual check-up:",
+        error.response?.data || error
+      );
+    }
+  };
+
+  const defaultAnnual = {
+    changes: {
+      year: "",
+      bloodPressure: "",
+      pulseRate: "",
+      respirationRate: "",
+      height: "",
+      weight: "",
+      bmi: "",
+      wasteLine: "",
+      hipLine: "",
+      dateExamined: "",
+    },
+    abnormalFindings: {
+      skin: { skin: false, remarks: "" },
+      headNeckScalp: { headNeckScalp: false, remarks: "" },
+      eyesExternal: { eyesExternal: false, remarks: "" },
+      ears: { ears: false, remarks: "" },
+      face: { face: false, remarks: "" },
+      neckThyroid: { neckThyroid: false, remarks: "" },
+      chestBreastsAxilla: { chestBreastsAxilla: false, remarks: "" },
+      lungs: { lungs: false, remarks: "" },
+      heart: { heart: false, remarks: "" },
+      abdomen: { abdomen: false, remarks: "" },
+      back: { back: false, remarks: "" },
+      guSystem: { guSystem: false, remarks: "" },
+      inguinalGenitals: { inguinalGenitals: false, remarks: "" },
+      extremities: { extremities: false, remarks: "" },
+    },
+    labExam: {
+      chestXray: "",
+      urinalysis: "",
+      completeBloodCount: "",
+      fecalysis: "",
+    },
+    others: {
+      medications: "",
+      remarksRecommendations: "",
+    }
+  };
+
+  // const fetchAnnualCheckup = useCallback(async (packageNumber, patientId) => {
+  //   try {
+  //     // Make a GET request to the API using fetch
+  //     const response = await fetch(
+  //       `http://localhost:3001/api/annual-check-up/${packageNumber}/${patientId}`
+  //     );
+
+  //     // Check if the response is ok (status 200-299)
+  //     if (!response.ok) {
+  //       throw new Error('Network response was not ok');
+  //     }
+
+  //     // Parse the response as JSON
+  //     const data = await response.json();
+
+  //     // Update the state with the fetched data
+  //     setAnnual({
+  //       ...defaultAnnual,  // Default structure
+  //       ...data,           // Data from the API
+  //       abnormalFindings: {
+  //         ...defaultAnnual.abnormalFindings,
+  //         ...data.abnormalFindings,
+  //         LMP: data.abnormalFindings?.LMP
+  //           ? new Date(data.abnormalFindings.LMP).toISOString().split("T")[0]  // Format LMP as yyyy-MM-dd
+  //           : null,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.error("Error fetching annual check-up data:", error);
+  //   }
+  // }, []);
+  const [annualData, setAnnualData] = useState(defaultAnnual);
+  const fetchAnnualCheckup = useCallback(async (packageNumber, patientId) => {
+    try {
+      const response = await axios.get(`http://localhost:3001/api/annual-check-up/${packageNumber}/${patientId}`);
+      const data = response.data || {};
+
+      setAnnualData({
+        ...defaultAnnual,  // Default structure
+        ...data,           // Data from the API
+        abnormalFindings: {
+          ...defaultAnnual.abnormalFindings,
+          ...data.abnormalFindings,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching annual check-up data:", error);
+    }
+  }, []);
+
   return (
     <div>
       <Navbar />
@@ -1731,9 +1993,8 @@ function PatientsProfile() {
                           >
                             New Transaction
                             <MdKeyboardArrowDown
-                              className={`h-5 w-5 transition-transform duration-200 ${
-                                showRequestOptions ? "rotate-180" : ""
-                              }`}
+                              className={`h-5 w-5 transition-transform duration-200 ${showRequestOptions ? "rotate-180" : ""
+                                }`}
                             />
                           </button>
                           {/* Request options */}
@@ -1761,16 +2022,26 @@ function PatientsProfile() {
                           >
                             Packages
                             <MdKeyboardArrowDown
-                              className={`h-5 w-5 transition-transform duration-200 ${
-                                showPackageOptions ? "rotate-180" : ""
-                              }`}
+                              className={`h-5 w-5 transition-transform duration-200 ${showPackageOptions ? 'rotate-180' : ''
+                                }`}
                             />
                           </button>
                           {showPackageOptions && (
                             <div className="absolute mt-2 w-full bg-white border rounded-lg shadow-lg">
-                              {packages
-                                .filter((pkg) => !pkg.isArchived) // Only include packages where isArchived is false
-                                .map((pkg) => (
+                              {/* Search Input */}
+                              <div className="px-4 py-2">
+                                <input
+                                  type="text"
+                                  className="w-full px-3 py-2 border rounded-md"
+                                  placeholder="Search packages..."
+                                  value={searchQuery}
+                                  onChange={handleSearchChange}
+                                />
+                              </div>
+
+                              {/* Package List */}
+                              {filteredPackages.length > 0 ? (
+                                filteredPackages.map((pkg) => (
                                   <button
                                     key={pkg._id}
                                     className="block w-full px-4 py-2 text-left hover:bg-gray-100"
@@ -1778,7 +2049,10 @@ function PatientsProfile() {
                                   >
                                     {pkg.name}
                                   </button>
-                                ))}
+                                ))
+                              ) : (
+                                <div className="px-4 py-2 text-gray-500">No packages found</div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -2955,41 +3229,65 @@ function PatientsProfile() {
                     </div>
                   </div>
                   <div className="mt-7 flex flex-col space-y-4">
-                    <label className="text-sm font-semibold text-gray-700">
-                      I hereby certify that all the information I have disclosed
-                      as reflected in this report is true to the best of my
-                      knowledge and belief, and that any misrepresentation or
-                      concealment on my part may lead to consequences, which may
-                      or may not include disqualification, etc.
-                      <br />
-                      <br />
-                      I hereby authorize UB Medical-Dental Clinic and its
-                      officially designated examining physicians and staff to
-                      conduct the examinations necessary to assess my fitness to
-                      undergo Internship/On-the-Job Training/Practicum.
-                      <br />
-                      <br />
-                      By signing this, I hold UB Medical-Dental Clinic and its
-                      authorized physicians and staff free from any criminal,
-                      civil, administrative, ethical, and moral liability that
-                      may arise from the above.
-                    </label>
+                    {patient.patientType === 'Student' ? (
+                      <label className="text-sm font-semibold text-gray-700">
+                        I hereby certify that all the information I have disclosed
+                        as reflected in this report is true to the best of my
+                        knowledge and belief, and that any misrepresentation or
+                        concealment on my part may lead to consequences, which may
+                        or may not include disqualification, etc.
+                        <br />
+                        <br />
+                        I hereby authorize UB Medical-Dental Clinic and its
+                        officially designated examining physicians and staff to
+                        conduct the examinations necessary to assess my fitness to
+                        undergo Internship/On-the-Job Training/Practicum.
+                        <br />
+                        <br />
+                        By signing this, I hold UB Medical-Dental Clinic and its
+                        authorized physicians and staff free from any criminal,
+                        civil, administrative, ethical, and moral liability that
+                        may arise from the above.
+                      </label>
+                    ) : (
+                      <label className="text-sm font-semibold text-gray-700">
+                        I hereby certify that the foregoing answers are true and complete to the best of my knowledge. My health status is accurately represented in the above statements. I understand the University of Baguio may require me to have physical examination and I authorize the release of any information from such examination to UB personnel for use in considering my employment.
+                      </label>
+                    )}
 
-                    <div className="flex justify-end mt-4">
-                      <div className="w-1/2">
-                        <label className="text-sm font-medium text-gray-700 block mb-2">
-                          Upload Signature
-                        </label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Accepted file types: JPG, PNG. Max size: 5MB
-                        </p>
+                    {patient.patientType === 'Student' ? (
+                      <div className="flex justify-end mt-4">
+                        <div className="w-1/2">
+                          <label className="text-sm font-medium text-gray-700 block mb-2">
+                            Upload Signature
+                          </label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Accepted file types: JPG, PNG. Max size: 5MB
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="flex justify-end mt-4">
+                        <div className="w-1/2">
+                          <label className="text-sm font-medium text-gray-700 block mb-2">
+                            Upload Signature
+                          </label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Accepted file types: JPG, PNG. Max size: 5MB
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -3022,11 +3320,10 @@ function PatientsProfile() {
             <div className="flex justify-between items-center">
               <div className="space-x-4">
                 <button
-                  className={`${
-                    selectedTab === "clinical"
-                      ? "text-custom-red font-semibold"
-                      : ""
-                  }`}
+                  className={`${selectedTab === "clinical"
+                    ? "text-custom-red font-semibold"
+                    : ""
+                    }`}
                   onClick={() => handleTabChange("clinical")}
                 >
                   Consultation Records
@@ -3053,33 +3350,30 @@ function PatientsProfile() {
                 </button> */}
                 {(role === "physical therapist" ||
                   role === "special trainee") && (
-                  <button
-                    className={`${
-                      selectedTab === "physical therapy"
+                    <button
+                      className={`${selectedTab === "physical therapy"
                         ? "text-custom-red font-semibold"
                         : ""
-                    }`}
-                    onClick={() => handleTabChange("physical therapy")}
-                  >
-                    Physical Therapy Records
-                  </button>
-                )}
+                        }`}
+                      onClick={() => handleTabChange("physical therapy")}
+                    >
+                      Physical Therapy Records
+                    </button>
+                  )}
                 <button
-                  className={`${
-                    selectedTab === "package"
-                      ? "text-custom-red font-semibold"
-                      : ""
-                  }`}
+                  className={`${selectedTab === "package"
+                    ? "text-custom-red font-semibold"
+                    : ""
+                    }`}
                   onClick={() => handleTabChange("package")}
                 >
                   Physical Examination
                 </button>
                 <button
-                  className={`${
-                    selectedTab === "vaccine"
-                      ? "text-custom-red font-semibold"
-                      : ""
-                  }`}
+                  className={`${selectedTab === "vaccine"
+                    ? "text-custom-red font-semibold"
+                    : ""
+                    }`}
                   onClick={() => handleTabChange("vaccine")}
                 >
                   Vaccine Records
@@ -3243,7 +3537,7 @@ function PatientsProfile() {
                     </p>
                   ))}
 
-                {selectedTab === "package" &&
+                {selectedTab === "package" && patient &&
                   (Object.keys(combinedRecords).length > 0 ? (
                     Object.entries(combinedRecords).map(
                       ([packageNumber, records], index) => {
@@ -3271,7 +3565,7 @@ function PatientsProfile() {
                               <p className="text-gray-500 text-sm">
                                 {new Date(
                                   records.labRecords[0]?.isCreatedAt ||
-                                    records.xrayRecords[0]?.isCreatedAt
+                                  records.xrayRecords[0]?.isCreatedAt
                                 ).toLocaleString() || "Invalid Date"}
                               </p>
                               <p className="font-semibold">
@@ -3288,25 +3582,25 @@ function PatientsProfile() {
                               <p className="text-gray-500">
                                 {records.labRecords.length > 0
                                   ? records.labRecords
-                                      .flatMap((record) => [
-                                        ...Object.values(
-                                          record.bloodChemistry || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.hematology || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.clinicalMicroscopyParasitology ||
-                                            {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.bloodBankingSerology || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.microbiology || {}
-                                        ).filter((value) => value),
-                                      ])
-                                      .join(", ") || "No test data available"
+                                    .flatMap((record) => [
+                                      ...Object.values(
+                                        record.bloodChemistry || {}
+                                      ).filter((value) => value),
+                                      ...Object.values(
+                                        record.hematology || {}
+                                      ).filter((value) => value),
+                                      ...Object.values(
+                                        record.clinicalMicroscopyParasitology ||
+                                        {}
+                                      ).filter((value) => value),
+                                      ...Object.values(
+                                        record.bloodBankingSerology || {}
+                                      ).filter((value) => value),
+                                      ...Object.values(
+                                        record.microbiology || {}
+                                      ).filter((value) => value),
+                                    ])
+                                    .join(", ") || "No test data available"
                                   : "No Lab Tests Available"}
                               </p>
                             </div>
@@ -3316,12 +3610,12 @@ function PatientsProfile() {
                               <p className="text-gray-500">
                                 {records.xrayRecords.length > 0
                                   ? records.xrayRecords.map((record, idx) => (
-                                      <span key={idx}>
-                                        {record.xrayType}
-                                        {idx < records.xrayRecords.length - 1 &&
-                                          ", "}
-                                      </span>
-                                    ))
+                                    <span key={idx}>
+                                      {record.xrayType}
+                                      {idx < records.xrayRecords.length - 1 &&
+                                        ", "}
+                                    </span>
+                                  ))
                                   : "No X-ray Data"}
                               </p>
                             </div>
@@ -3330,11 +3624,10 @@ function PatientsProfile() {
                             <div className="col-span-1 flex justify-between items-center">
                               {/* Status Display */}
                               <p
-                                className={`font-semibold ${
-                                  isCompleted
-                                    ? "text-green-500"
-                                    : "text-red-500"
-                                }`}
+                                className={`font-semibold ${isCompleted
+                                  ? "text-green-500"
+                                  : "text-red-500"
+                                  }`}
                               >
                                 {status}
                               </p>
@@ -3366,6 +3659,19 @@ function PatientsProfile() {
                                 >
                                   View
                                 </button>
+
+                                {/* Conditionally render the "Annual" button if selectedRecords.patient is available */}
+                                {patient.patientType === "Employee" && (
+                                  <button
+                                    className="text-custom-gray"
+                                    onClick={() => {
+                                      handleAnnualOpen(); // Open the annual form
+                                      setSelectedRecords(records); // Store the selected records
+                                    }}
+                                  >
+                                    Annual Form
+                                  </button>
+                                )}
 
                                 {/* Delete Button for Pending Packages */}
                                 {role === "nurse" && status === "Pending" && (
@@ -4655,11 +4961,9 @@ function PatientsProfile() {
                                       labResult.patient
                                         ? labResult.patient.patientType ===
                                           "Student"
-                                          ? `${
-                                              labResult.patient.course || "N/A"
-                                            } - ${
-                                              labResult.patient.year || "N/A"
-                                            }` // Display course and year if patientType is student
+                                          ? `${labResult.patient.course || "N/A"
+                                          } - ${labResult.patient.year || "N/A"
+                                          }` // Display course and year if patientType is student
                                           : labResult.patient.position || "N/A" // Otherwise, display position
                                         : "N/A"
                                     }
@@ -4679,9 +4983,8 @@ function PatientsProfile() {
                                       I. Hematology
                                     </h3>
                                     <BiChevronDown
-                                      className={`transform transition-transform duration-300 ${
-                                        isHematologyVisible ? "rotate-180" : ""
-                                      }`}
+                                      className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
+                                        }`}
                                       size={24}
                                     />
                                   </div>
@@ -4946,11 +5249,10 @@ function PatientsProfile() {
                                     II. Clinical Microscopy and Parasitology
                                   </h3>
                                   <BiChevronDown
-                                    className={`transform transition-transform duration-300 ${
-                                      isClinicalMicroscopyVisible
-                                        ? "rotate-180"
-                                        : ""
-                                    }`}
+                                    className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible
+                                      ? "rotate-180"
+                                      : ""
+                                      }`}
                                     size={24}
                                   />
                                 </div>
@@ -5375,9 +5677,8 @@ function PatientsProfile() {
                                     III. Serology
                                   </h3>
                                   <BiChevronDown
-                                    className={`transform transition-transform duration-300 ${
-                                      isSerologyVisible ? "rotate-180" : ""
-                                    }`}
+                                    className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
+                                      }`}
                                     size={24}
                                   />
                                 </div>
@@ -5457,10 +5758,10 @@ function PatientsProfile() {
                                           ?.hepatitisBSurfaceAntigen
                                           ?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5475,10 +5776,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.antiHAVTest?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.antiHAVTest.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.antiHAVTest.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5576,10 +5877,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.serumPregnancy?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.serumPregnancy.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.serumPregnancy.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5595,10 +5896,10 @@ function PatientsProfile() {
                                           ?.treponemaPallidumTest
                                           ?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5694,10 +5995,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.salmonellaTyphi?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.salmonellaTyphi.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.salmonellaTyphi.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5784,10 +6085,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.testDengue?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.testDengue.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.testDengue.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5802,10 +6103,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology?.others
                                           ?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.others.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.others.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -6204,9 +6505,9 @@ function PatientsProfile() {
                             name="XrayNo"
                             value={
                               selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
+                                selectedXrayRecords[selectedXray]
                                 ? selectedXrayRecords[selectedXray].ORNumber ||
-                                  "N/A"
+                                "N/A"
                                 : "N/A"
                             }
                             className="w-full px-3 py-2 border rounded"
@@ -6222,9 +6523,9 @@ function PatientsProfile() {
                             name="XrayNo"
                             value={
                               selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
+                                selectedXrayRecords[selectedXray]
                                 ? selectedXrayRecords[selectedXray].XrayNo ||
-                                  "N/A"
+                                "N/A"
                                 : "N/A"
                             }
                             className="w-full px-3 py-2 border rounded"
@@ -6238,12 +6539,12 @@ function PatientsProfile() {
                             name="date"
                             value={
                               selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
+                                selectedXrayRecords[selectedXray]
                                 ? new Date(
-                                    selectedXrayRecords[
-                                      selectedXray
-                                    ].isCreatedAt
-                                  ).toLocaleString()
+                                  selectedXrayRecords[
+                                    selectedXray
+                                  ].isCreatedAt
+                                ).toLocaleString()
                                 : "N/A"
                             }
                             className="w-full px-3 py-2 border rounded"
@@ -6264,9 +6565,9 @@ function PatientsProfile() {
                           placeholder="No Interpretation available."
                           value={
                             selectedXray !== null &&
-                            selectedXrayRecords[selectedXray]
+                              selectedXrayRecords[selectedXray]
                               ? selectedXrayRecords[selectedXray].diagnosis ||
-                                ""
+                              ""
                               : ""
                           }
                           readOnly
@@ -6285,9 +6586,9 @@ function PatientsProfile() {
                           placeholder="No X-ray findings available."
                           value={
                             selectedXray !== null &&
-                            selectedXrayRecords[selectedXray]
+                              selectedXrayRecords[selectedXray]
                               ? selectedXrayRecords[selectedXray]
-                                  .xrayFindings || ""
+                                .xrayFindings || ""
                               : ""
                           }
                           required
@@ -6570,7 +6871,7 @@ function PatientsProfile() {
                 )}
 
                 {selectedRecord.treatments &&
-                selectedRecord.treatments.length > 0 ? (
+                  selectedRecord.treatments.length > 0 ? (
                   <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                     {selectedRecord.treatments
                       .split(", ")
@@ -6626,7 +6927,7 @@ function PatientsProfile() {
                 </div>
 
                 {selectedRecord.diagnosis &&
-                selectedRecord.diagnosis.length > 0 ? (
+                  selectedRecord.diagnosis.length > 0 ? (
                   <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                     {selectedRecord.diagnosis
                       .split(", ")
@@ -6883,9 +7184,8 @@ function PatientsProfile() {
                         value={
                           labDetails.patient
                             ? labDetails.patient.patientType === "Student"
-                              ? `${labDetails.patient.course || "N/A"} - ${
-                                  labDetails.patient.year || "N/A"
-                                }` // Display course if patientType is student
+                              ? `${labDetails.patient.course || "N/A"} - ${labDetails.patient.year || "N/A"
+                              }` // Display course if patientType is student
                               : labDetails.patient.position || "N/A" // Otherwise, display position
                             : "N/A"
                         }
@@ -6903,9 +7203,8 @@ function PatientsProfile() {
                           I. Hematology
                         </h3>
                         <BiChevronDown
-                          className={`transform transition-transform duration-300 ${
-                            isHematologyVisible ? "rotate-180" : ""
-                          }`}
+                          className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
+                            }`}
                           size={24}
                         />
                       </div>
@@ -7109,9 +7408,8 @@ function PatientsProfile() {
                         II. Clinical Microscopy and Parasitology
                       </h3>
                       <BiChevronDown
-                        className={`transform transition-transform duration-300 ${
-                          isClinicalMicroscopyVisible ? "rotate-180" : ""
-                        }`}
+                        className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible ? "rotate-180" : ""
+                          }`}
                         size={24}
                       />
                     </div>
@@ -7490,9 +7788,8 @@ function PatientsProfile() {
                         III. Serology
                       </h3>
                       <BiChevronDown
-                        className={`transform transition-transform duration-300 ${
-                          isSerologyVisible ? "rotate-180" : ""
-                        }`}
+                        className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
+                          }`}
                         size={24}
                       />
                     </div>
@@ -7559,10 +7856,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology
                               ?.hepatitisBSurfaceAntigen?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7575,10 +7872,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.antiHAVTest
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.antiHAVTest.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.antiHAVTest.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7663,10 +7960,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.serumPregnancy
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.serumPregnancy.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.serumPregnancy.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7679,10 +7976,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology
                               ?.treponemaPallidumTest?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7767,10 +8064,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.salmonellaTyphi
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7845,10 +8142,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.testDengue
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.testDengue.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.testDengue.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7861,10 +8158,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.others
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.others.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.others.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -8772,6 +9069,736 @@ function PatientsProfile() {
                 onClick={confirmDeletePackage}
               >
                 Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isAnnualModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white py-4 px-6 rounded-lg w-full max-w-3xl shadow-lg overflow-y-auto max-h-[80vh]">
+            <h1 className="text-2xl font-semibold text-center mb-6">
+              Annual Check-up Form
+            </h1>
+            <div>
+              <div className="flex items-center justify-between mt-4">
+                <div>
+                  <h3 className="text-lg font-semibold mr-4">
+                    III. PHYSICAL EXAMINATION:
+                  </h3>
+                  <label className="text-sm font-semibold">
+                    To be completed by examining physician.
+                  </label>
+                </div>
+
+              </div>
+              {annual && (
+                <div className="grid grid-cols-12 gap-4 p-4">
+                  <label className="col-span-2">Year</label>
+                  <div className="col-span-4 border rounded px-3 py-1">
+                    {annual.changes.year}
+                  </div>
+
+                  <label className="col-span-2">Date Examined</label>
+                  <div className="col-span-4 border rounded px-3 py-1">
+                    {annual.changes.dateExamined}
+                  </div>
+
+                  <label className="col-span-2">Height</label>
+                  <input
+                    type="text"
+                    className="col-span-4 border rounded px-3 py-1"
+                    // value={annual.changes.height}
+                    onChange={(e) =>
+                      handleAnnualInputChange("height", e.target.value)
+                    }
+                  />
+
+                  <label className="col-span-2">Blood Pressure</label>
+                  <input
+                    type="text"
+                    className="col-span-4 border rounded px-3 py-1"
+                    // value={annual.changes.bloodPressure}
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "bloodPressure",
+                        e.target.value
+                      )
+                    }
+                  />
+
+                  <label className="col-span-2">Weight</label>
+                  <input
+                    type="text"
+                    className="col-span-4 border rounded px-3 py-1"
+                    // value={annual.changes.weight}
+                    onChange={(e) =>
+                      handleAnnualInputChange("weight", e.target.value)
+                    }
+                  />
+
+                  <label className="col-span-2">Pulse Rate</label>
+                  <input
+                    type="text"
+                    className="col-span-4 border rounded px-3 py-1"
+                    // value={annual.changes.pulseRate}
+                    onChange={(e) =>
+                      handleAnnualInputChange("pulseRate", e.target.value)
+                    }
+                  />
+
+                  <label className="col-span-2">BMI</label>
+                  <div className="col-span-4 border rounded px-3 py-1">
+                    {annual.changes.bmi || "Not available"} {/* Display BMI or a placeholder if not calculated */}
+                  </div>
+
+                  <label className="col-span-2">Respiration Rate</label>
+                  <input
+                    type="text"
+                    className="col-span-4 border rounded px-3 py-1"
+                    // value={annual.changes.respirationRate}
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "respirationRate",
+                        e.target.value
+                      )
+                    }
+                  />
+
+                  <label className="col-span-2">Waste Line</label>
+                  <input
+                    type="text"
+                    className="col-span-4 border rounded px-3 py-1"
+                    // value={annual.changes.wasteLine}
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "wasteLine",
+                        e.target.value
+                      )
+                    }
+                  />
+
+                  <label className="col-span-2">Hip Line</label>
+                  <input
+                    type="text"
+                    className="col-span-4 border rounded px-3 py-1"
+                    // value={annual.changes.hipLine}
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "hipLine",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+              )}
+              <hr />
+
+              {/* Dropdowns with Remarks */}
+              <div className="grid grid-cols-12 gap-4 mt-2 p-4">
+                {/* Skin */}
+                <div className="col-span-6 flex items-center">
+                  <label className="w-1/2">Skin</label>
+                  <select
+                    className="border rounded w-1/3 px-2 py-1"
+                    value={
+                      annual.abnormalFindings?.skin?.skin
+                        ? "Yes"
+                        : "No"
+                    }
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "skin",
+                        e.target.value === "Yes"
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Remarks"
+                    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                    value={annual.abnormalFindings?.skin?.remarks || ""} // Use an empty string as a fallback
+                    onChange={(e) =>
+                      handleAnnualInputChange("skin", {
+                        remarks: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Lungs */}
+                <div className="col-span-6 flex items-center">
+                  <label className="w-1/2">Lungs</label>
+                  <select
+                    className="border rounded w-1/3 px-2 py-1"
+                    value={
+                      annual.abnormalFindings
+                        ?.lungs
+                        ?.lungs
+                        ? "Yes"
+                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "lungs",
+                        e.target.value === "Yes"
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Remarks"
+                    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                    value={annual.abnormalFindings?.lungs?.remarks || ""} // Use an empty string as a fallback
+                    onChange={(e) =>
+                      handleAnnualInputChange("lungs", {
+                        remarks: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Head, Neck, Scalp */}
+                <div className="col-span-6 flex items-center">
+                  <label className="w-1/2">Head, Neck, Scalp</label>
+                  <select
+                    className="border rounded w-1/3 px-2 py-1"
+                    value={
+                      annual.abnormalFindings
+                        ?.headNeckScalp
+                        ?.headNeckScalp
+                        ? "Yes"
+                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "headNeckScalp",
+                        e.target.value === "Yes"
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Remarks"
+                    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                    value={annual.abnormalFindings?.headNeckScalp?.remarks || ""} // Use an empty string as a fallback
+                    onChange={(e) =>
+                      handleAnnualInputChange("headNeckScalp", {
+                        remarks: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Heart */}
+                <div className="col-span-6 flex items-center">
+                  <label className="w-1/2">Heart</label>
+                  <select
+                    className="border rounded w-1/3 px-2 py-1"
+                    value={
+                      annual.abnormalFindings
+                        ?.heart
+                        ?.heart
+                        ? "Yes"
+                        : "No"
+                    } // Convert boolean to 'Yes' or 'No'
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "heart",
+                        e.target.value === "Yes"
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Remarks"
+                    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                    value={annual.abnormalFindings?.heart?.remarks || ""} // Use an empty string as a fallback
+                    onChange={(e) =>
+                      handleAnnualInputChange("heart", {
+                        remarks: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Eyes, External */}
+                <div className="col-span-6 flex items-center">
+                  <label className="w-1/2">Eyes, External</label>
+                  <select
+                    className="border rounded w-1/3 px-2 py-1"
+                    value={
+                      annual.abnormalFindings
+                        ?.eyesExternal
+                        ?.eyesExternal
+                        ? "Yes"
+                        : "No"
+                    } // Convert boolean to 'Yes' or 'No'
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "eyesExternal",
+                        e.target.value === "Yes"
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Remarks"
+                    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                    value={annual.abnormalFindings?.eyesExternal?.remarks || ""} // Use an empty string as a fallback
+                    onChange={(e) =>
+                      handleAnnualInputChange("eyesExternal", {
+                        remarks: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Abdomen */}
+                <div className="col-span-6 flex items-center">
+                  <label className="w-1/2">Abdomen</label>
+                  <select
+                    className="border rounded w-1/3 px-2 py-1"
+                    value={
+                      annual.abnormalFindings
+                        ?.abdomen
+                        ?.abdomen
+                        ? "Yes"
+                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "abdomen",
+                        e.target.value === "Yes"
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Remarks"
+                    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                    value={annual.abnormalFindings?.abdomen?.remarks || ""} // Use an empty string as a fallback
+                    onChange={(e) =>
+                      handleAnnualInputChange("abdomen", {
+                        remarks: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Ears */}
+                <div className="col-span-6 flex items-center">
+                  <label className="w-1/2">Ears</label>
+                  <select
+                    className="border rounded w-1/3 px-2 py-1"
+                    value={
+                      annual.abnormalFindings
+                        ?.ears
+                        ?.ears
+                        ? "Yes"
+                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "ears",
+                        e.target.value === "Yes"
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Remarks"
+                    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                    value={annual.abnormalFindings?.ears?.remarks || ""} // Use an empty string as a fallback
+                    onChange={(e) =>
+                      handleAnnualInputChange("ears", {
+                        remarks: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Back */}
+                <div className="col-span-6 flex items-center">
+                  <label className="w-1/2">Back</label>
+                  <select
+                    className="border rounded w-1/3 px-2 py-1"
+                    value={
+                      annual.abnormalFindings
+                        ?.back
+                        ?.back
+                        ? "Yes"
+                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "back",
+                        e.target.value === "Yes"
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Remarks"
+                    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                    value={annual.abnormalFindings?.back?.remarks || ""} // Use an empty string as a fallback
+                    onChange={(e) =>
+                      handleAnnualInputChange("back", {
+                        remarks: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Face */}
+                <div className="col-span-6 flex items-center">
+                  <label className="w-1/2">Face</label>
+                  <select
+                    className="border rounded w-1/3 px-2 py-1"
+                    value={
+                      annual.abnormalFindings
+                        ?.face
+                        ?.face
+                        ? "Yes"
+                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "face",
+                        e.target.value === "Yes"
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Remarks"
+                    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                    value={annual.abnormalFindings?.face?.remarks || ""} // Use an empty string as a fallback
+                    onChange={(e) =>
+                      handleAnnualInputChange("face", {
+                        remarks: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* G-U System */}
+                <div className="col-span-6 flex items-center">
+                  <label className="w-1/2">G-U System</label>
+                  <select
+                    className="border rounded w-1/3 px-2 py-1"
+                    value={
+                      annual.abnormalFindings
+                        ?.guSystem
+                        ?.guSystem
+                        ? "Yes"
+                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "guSystem",
+                        e.target.value === "Yes"
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Remarks"
+                    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                    value={annual.abnormalFindings?.guSystem?.remarks || ""} // Use an empty string as a fallback
+                    onChange={(e) =>
+                      handleAnnualInputChange("guSystem", {
+                        remarks: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Chest Breast Axilla */}
+                <div className="col-span-6 flex items-center">
+                  <label className="w-1/2">Chest, Breasts, Axilla</label>
+                  <select
+                    className="border rounded w-1/3 px-2 py-1"
+                    value={
+                      annual.abnormalFindings
+                        ?.chestBreastsAxilla
+                        ?.chestBreastsAxilla
+                        ? "Yes"
+                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "chestBreastsAxilla",
+                        e.target.value === "Yes"
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Remarks"
+                    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                    value={annual.abnormalFindings?.chestBreastsAxilla?.remarks || ""} // Use an empty string as a fallback
+                    onChange={(e) =>
+                      handleAnnualInputChange("chestBreastsAxilla", {
+                        remarks: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Inguinal Genitals */}
+                <div className="col-span-6 flex items-center">
+                  <label className="w-1/2">Inguinal Genitals</label>
+                  <select
+                    className="border rounded w-1/3 px-2 py-1"
+                    value={
+                      annual.abnormalFindings
+                        ?.inguinalGenitals
+                        ?.inguinalGenitals
+                        ? "Yes"
+                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "inguinalGenitals",
+                        e.target.value === "Yes"
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Remarks"
+                    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                    value={annual.abnormalFindings?.inguinalGenitals?.remarks || ""} // Use an empty string as a fallback
+                    onChange={(e) =>
+                      handleAnnualInputChange("inguinalGenitals", {
+                        remarks: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Neck, Thyroid gland */}
+                <div className="col-span-6 flex items-center">
+                  <label className="w-1/2">Neck, Thyroid gland</label>
+                  <select
+                    className="border rounded w-1/3 px-2 py-1"
+                    value={
+                      annual.abnormalFindings
+                        ?.neckThyroid
+                        ?.neckThyroid
+                        ? "Yes"
+                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "neckThyroid",
+                        e.target.value === "Yes"
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Remarks"
+                    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                    value={annual.abnormalFindings?.neckThyroid?.remarks || ""} // Use an empty string as a fallback
+                    onChange={(e) =>
+                      handleAnnualInputChange("neckThyroid", {
+                        remarks: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Extremities */}
+                <div className="col-span-6 flex items-center">
+                  <label className="w-1/2">Extremities</label>
+                  <select
+                    className="border rounded w-1/3 px-2 py-1"
+                    value={
+                      annual.abnormalFindings
+                        ?.extremities
+                        ?.extremities
+                        ? "Yes"
+                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "extremities",
+                        e.target.value === "Yes"
+                      )
+                    }
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Remarks"
+                    className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
+                    value={annual.abnormalFindings?.extremities?.remarks || ""} // Use an empty string as a fallback
+                    onChange={(e) =>
+                      handleAnnualInputChange("extremities", {
+                        remarks: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+              </div>
+            </div>
+
+            {role === "doctor" && annual && (
+              <div>
+                <div className="flex items-center justify-between mt-4">
+                  <div>
+                    <h3 className="text-lg font-semibold mr-4">
+                      III. LABORATORY EXAMINATION:
+                    </h3>
+                    <label className="text-sm font-semibold">
+                      To be completed by examining physician.
+                    </label>
+                  </div>
+
+                  <button
+                    className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                    onClick={() => {
+                      handleViewPackage(selectedRecords); // Pass the stored selected records to the view function
+                      setIsPackageResultModalOpen(true); // Open the actual result modal
+                    }}
+                  >
+                    View Result
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-12 gap-4 p-4">
+                  <label className="col-span-2">Chest X-ray</label>
+                  <input
+                    type="text"
+                    className="col-span-4 border rounded px-3 py-1"
+                    // value={annual.labExam.chestXray}
+                    onChange={(e) => handleAnnualInputChange("chestXray", e.target.value)}
+                  />
+
+                  <label className="col-span-2">Urinalysis</label>
+                  <input
+                    type="text"
+                    className="col-span-4 border rounded px-3 py-1"
+                    // value={annual.labExam.urinalysis}
+                    onChange={(e) => handleAnnualInputChange("urinalysis", e.target.value)}
+                  />
+
+                  <label className="col-span-2">Fecalysis</label>
+                  <input
+                    type="text"
+                    className="col-span-4 border rounded px-3 py-1"
+                    // value={annual.labExam.fecalysis}
+                    onChange={(e) => handleAnnualInputChange("fecalysis", e.target.value)}
+                  />
+
+                  <label className="col-span-2">Complete Blood Count</label>
+                  <input
+                    type="text"
+                    className="col-span-4 border rounded px-3 py-1"
+                    // value={annual.labExam.completeBloodCount}
+                    onChange={(e) => handleAnnualInputChange("completeBloodCount", e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mt-4">
+                    <div>
+                      <h3 className="text-lg font-semibold mr-4">
+                        V. MEDICATIONS:
+                      </h3>
+                      <label className="text-sm font-semibold">
+                        To be completed by examining physician.
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-4 p-4">
+                    <input
+                      type="text"
+                      className="col-span-12 border rounded px-3 py-1 w-full h-auto resize-y"
+                      // value={annual.others.medications}
+                      onChange={(e) => handleAnnualInputChange("medications", e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mt-4">
+                    <div>
+                      <h3 className="text-lg font-semibold mr-4">
+                        VI. REMARKS/RECOMMENDATIONS:
+                      </h3>
+                      <label className="text-sm font-semibold">
+                        To be completed by examining physician.
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-4 p-4">
+                    <input
+                      type="text"
+                      className="col-span-12 border rounded px-3 py-1 w-full h-auto resize-y"
+                      // value={annual.others.remarksRecommendations}
+                      onChange={(e) => handleAnnualInputChange("remarksRecommendations", e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Bottom section - Close button */}
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200 mr-4"
+                onClick={() => {
+                  handleAnnualClose(); // Close the modal
+                }}
+              >
+                Close
+              </button>
+              <button
+                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                onClick={() =>
+                  handleAnnualSubmit(
+                    selectedRecords.labRecords[0].packageNumber
+                  )
+                }
+              >
+                Submit
               </button>
             </div>
           </div>
