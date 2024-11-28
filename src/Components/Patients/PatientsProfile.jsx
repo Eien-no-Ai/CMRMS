@@ -701,6 +701,7 @@ function PatientsProfile() {
 
   const handleAnnualClose = () => {
     setisAnnualModalOpen(false);
+    setAnnual(defaultAnnual); // Reset the form data when closing
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1937,7 +1938,7 @@ function PatientsProfile() {
   useEffect(() => {
     if (isAnnualModalOpen && selectedRecords) {
       const packageNumber = selectedRecords.labRecords[0].packageNumber;
-      const patientId = id; // Assuming `id` is the patientId from useParams() or some global state
+      const patientId = id; 
       fetchAnnualCheckup(packageNumber, patientId);
     }
   }, [isAnnualModalOpen, selectedRecords, fetchAnnualCheckup, id]);
@@ -3348,26 +3349,6 @@ function PatientsProfile() {
                 >
                   Consultation Records
                 </button>
-                {/* <button
-                  className={`${
-                    selectedTab === "laboratory"
-                      ? "text-custom-red font-semibold"
-                      : ""
-                  }`}
-                  onClick={() => handleTabChange("laboratory")}
-                >
-                  Laboratory Records
-                </button>
-                <button
-                  className={`${
-                    selectedTab === "xray"
-                      ? "text-custom-red font-semibold"
-                      : ""
-                  }`}
-                  onClick={() => handleTabChange("xray")}
-                >
-                  X-ray Records
-                </button> */}
                 {(role === "physical therapist" ||
                   role === "special trainee") && (
                   <button
@@ -3692,6 +3673,8 @@ function PatientsProfile() {
                                     onClick={() => {
                                       handleAnnualOpen(); // Open the annual form
                                       setSelectedRecords(records); // Store the selected records
+                                      // setAnnual(defaultAnnual); 
+                                      // fetchAnnualCheckup(records.packageNumber, records.patientId); 
                                     }}
                                   >
                                     Annual Form
@@ -9115,6 +9098,413 @@ function PatientsProfile() {
             <h1 className="text-2xl font-semibold text-center mb-6">
               Annual Check-up Form
             </h1>
+            {/* Medical Records List */}
+            <ul>
+              {medicalRecords.map((record) => (
+                <li key={record._id} className=" rounded-lg">
+                  {/* Conditions Section */}
+                  <div className="mt-6">
+                    <h2 className="font-semibold">I. Family History</h2>
+                    <label className="block text-sm font-semibold">
+                      Has any of the applicant's family members (maternal and
+                      paternal) had any of the following diseases:
+                    </label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                      <label>
+                        <input
+                          type="checkbox"
+                          className="mr-2"
+                          checked={
+                            medicalHistory.familyHistory.diseases.heartDisease
+                          } // Ensure it's never undefined
+                          readOnly
+                        />
+                        1. Heart Disease
+                      </label>
+                      <label>
+                        <input
+                          type="checkbox"
+                          className="mr-2"
+                          checked={
+                            medicalHistory.familyHistory.diseases.hypertension
+                          }
+                          readOnly
+                        />{" "}
+                        5. Hypertension
+                      </label>
+                      <label>
+                        <input
+                          type="checkbox"
+                          className="mr-2"
+                          checked={
+                            medicalHistory.familyHistory.diseases.tuberculosis
+                          }
+                          readOnly
+                        />{" "}
+                        2. Tuberculosis
+                      </label>
+                      <label>
+                        <input
+                          type="checkbox"
+                          className="mr-2"
+                          checked={
+                            medicalHistory.familyHistory.diseases.diabetes
+                          }
+                          readOnly
+                        />{" "}
+                        6. Diabetes
+                      </label>
+                      <label>
+                        <input
+                          type="checkbox"
+                          className="mr-2"
+                          checked={
+                            medicalHistory.familyHistory.diseases.kidneyDisease
+                          }
+                          readOnly
+                        />{" "}
+                        3. Kidney Disease (UTI, Etc.)
+                      </label>
+                      <label>
+                        <input
+                          type="checkbox"
+                          className="mr-2"
+                          checked={medicalHistory.familyHistory.diseases.cancer}
+                          readOnly
+                        />{" "}
+                        7. Cancer
+                      </label>
+                      <label>
+                        <input
+                          type="checkbox"
+                          className="mr-2"
+                          checked={medicalHistory.familyHistory.diseases.asthma}
+                          readOnly
+                        />{" "}
+                        4. Asthma
+                      </label>
+                    </div>
+
+                    <div className="mt-6">
+                      <p className="text-sm font-medium">
+                        Do you have any medication allergies?
+                      </p>
+                      <div className="flex space-x-4 mt-2">
+                        <label>
+                          <input
+                            type="radio"
+                            name="allergies"
+                            className="mr-2"
+                            value="Yes" // Set the value to "Yes"
+                            checked={
+                              medicalHistory.familyHistory.allergies
+                                .hasAllergies === "Yes"
+                            } // Check if the value is "Yes"
+                            readOnly
+                          />
+                          Yes
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="allergies"
+                            className="mr-2"
+                            value="No" // Set the value to "No"
+                            checked={
+                              medicalHistory.familyHistory.allergies
+                                .hasAllergies === "No"
+                            } // Check if the value is "No"
+                            readOnly
+                          />
+                          No
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="allergies"
+                            className="mr-2"
+                            value="Not Sure" // Set the value to "Not Sure"
+                            checked={
+                              medicalHistory.familyHistory.allergies
+                                .hasAllergies === "Not Sure"
+                            } // Check if the value is "Not Sure"
+                            readOnly
+                          />
+                          Not Sure
+                        </label>
+                      </div>
+                      <textarea
+                        placeholder="Please list them."
+                        className="textarea mt-2 border rounded-md p-2 w-full col-span-3"
+                        value={
+                          medicalHistory.familyHistory.allergies.allergyList
+                        }
+                        readOnly
+                      ></textarea>
+                    </div>
+                  </div>
+
+                  {/* Tobacco Usage Section */}
+                  <div className="mt-6">
+                    <h2 className="font-semibold">II. Personal History</h2>
+                    <div>
+                      <div className="flex items-center space-x-4">
+                        <label className="text-sm font-semibold text-gray-700 w-1/2">
+                          Do you use any kind of tobacco or have you ever used
+                          them?
+                        </label>
+
+                        <select
+                          className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          value={
+                            medicalHistory.personalHistory.tobaccoUse
+                              .usesTobacco || ""
+                          } // Preload value
+                          readOnly
+                        >
+                          <option value="" disabled>
+                            Select
+                          </option>
+                          <option value="Yes">Yes</option>
+                          <option value="No">No</option>
+                        </select>
+                      </div>
+                      <div className="space-y-4 mt-4">
+                        <div className="flex items-center space-x-4">
+                          <label className="text-sm font-medium text-gray-700 w-1/2">
+                            A. Sticks per day:
+                          </label>
+                          <input
+                            type="number"
+                            placeholder="Enter number"
+                            className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                            value={
+                              medicalHistory.personalHistory.tobaccoUse
+                                .sticksPerDay || ""
+                            } // Preload value
+                            readOnly
+                          />
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                          <label className="text-sm font-medium text-gray-700 w-1/2">
+                            B. Quit smoking?
+                          </label>
+                          <select
+                            className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                            value={
+                              medicalHistory.personalHistory.tobaccoUse
+                                .quitSmoking || ""
+                            } // Preload value
+                            readOnly
+                          >
+                            <option value="" disabled>
+                              Select
+                            </option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                          </select>
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                          <label className="text-sm font-medium text-gray-700 w-1/2">
+                            C. When?
+                          </label>
+                          <input
+                            type="date"
+                            className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                            value={
+                              medicalHistory.personalHistory.tobaccoUse
+                                .quitWhen || ""
+                            } // Preload value
+                            readOnly
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center space-x-4 mt-6">
+                        <label className="text-sm font-semibold text-gray-700 w-1/2">
+                          Do you drink alcoholic beverages?
+                        </label>
+
+                        <select
+                          className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          value={
+                            medicalHistory.personalHistory.alcoholUse
+                              .drinksAlcohol || ""
+                          } // Preload value
+                          readOnly
+                        >
+                          <option value="" disabled>
+                            Select
+                          </option>
+                          <option value="Yes">Yes</option>
+                          <option value="No">No</option>
+                        </select>
+                      </div>
+                      <div className="space-y-4 mt-4">
+                        <div className="flex items-center space-x-4">
+                          <label className="text-sm font-medium text-gray-700 w-1/2">
+                            A. Amount per day?
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Enter amount"
+                            className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                            value={
+                              medicalHistory.personalHistory.alcoholUse
+                                .drinksPerDay || ""
+                            } // Preload value
+                            readOnly
+                          />
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                          <label className="text-sm font-medium text-gray-700 w-1/2">
+                            B. Quit drinking?
+                          </label>
+                          <select
+                            className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                            value={
+                              medicalHistory.personalHistory.alcoholUse
+                                .quitDrinking || ""
+                            } // Preload value
+                            readOnly
+                          >
+                            <option value="" disabled>
+                              Select
+                            </option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                          </select>
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                          <label className="text-sm font-medium text-gray-700 w-1/2">
+                            C. When?
+                          </label>
+                          <input
+                            type="date"
+                            className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                            value={
+                              medicalHistory.personalHistory.alcoholUse
+                                .quitWhen || ""
+                            } // Preload value
+                            readOnly
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center space-x-4 mt-6">
+                        <label className="text-sm font-semibold text-gray-700 w-1/2">
+                          For Women
+                        </label>
+
+                        <label className="w-1/2"></label>
+                      </div>
+                      <div className="flex items-center space-x-4 mt-6">
+                        <label className="text-sm font-medium text-gray-700 w-1/2">
+                          A. Pregnant?
+                        </label>
+
+                        <select
+                          className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                          value={
+                            medicalHistory.personalHistory.forWomen.pregnant ||
+                            ""
+                          } // Preload data
+                          readOnly
+                        >
+                          <option value="" disabled>
+                            Select
+                          </option>
+                          <option value="Yes">Yes</option>
+                          <option value="No">No</option>
+                        </select>
+                      </div>
+                      <div className="space-y-4 mt-4">
+                        <div className="flex items-center space-x-4">
+                          <label className="text-sm font-medium text-gray-700 w-1/2">
+                            B. Month
+                          </label>
+                          <input
+                            type="date"
+                            placeholder="Enter amount"
+                            className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                            value={
+                              medicalHistory.personalHistory.forWomen.months ||
+                              ""
+                            } // Preload data
+                            readOnly
+                          />
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                          <label className="text-sm font-medium text-gray-700 w-1/2">
+                            C. Last Menstrual Period
+                          </label>
+                          <input
+                            type="date"
+                            placeholder="Enter amount"
+                            className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                            value={
+                              medicalHistory.personalHistory.forWomen
+                                .lastMenstrualPeriod || ""
+                            } // Preload data
+                            readOnly
+                          />
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                          <label className="text-sm font-medium text-gray-700 w-1/2">
+                            D. Abortion/ Miscarriage?
+                          </label>
+                          <select
+                            className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                            value={
+                              medicalHistory.personalHistory.forWomen
+                                .abortionOrMiscarriage || ""
+                            } // Preload data
+                            readOnly
+                          >
+                            <option value="" disabled>
+                              Select
+                            </option>
+                            <option value="Abortion">Abortion</option>
+                            <option value="Miscarriage">Miscarriage</option>
+                          </select>
+                        </div>
+                        <div className="flex items-center space-x-4 mt-6">
+                          <label className="text-sm font-medium text-gray-700 w-1/2">
+                            E. Dysmenorrhea?
+                          </label>
+
+                          <select
+                            className="w-1/2 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
+                            value={
+                              medicalHistory.personalHistory.forWomen
+                                .dysmenorrhea || ""
+                            } // Preload data
+                            readOnly
+                          >
+                            <option value="" disabled>
+                              Select
+                            </option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    
+                  </div>
+                </li>
+              ))}
+            </ul>
             <div>
               <div className="flex items-center justify-between mt-4">
                 <div>
