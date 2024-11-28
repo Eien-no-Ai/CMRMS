@@ -11,6 +11,7 @@
     "bcryptjs": "^2.4.3",
     "crypto": "^1.0.1",
     "express-session": "^1.18.0",
+    "html2pdf.js": "^0.10.2",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.3",
