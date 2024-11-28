@@ -6,6 +6,8 @@ import { BsThreeDots } from "react-icons/bs";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { useParams } from "react-router-dom";
+import PTCertificate from '../certificatesReports/PTCertificate.jsx'
+
 
 function PhysicalTherapy() {
   const { id } = useParams();
@@ -283,6 +285,17 @@ function PhysicalTherapy() {
       console.error("Error verifying SOAP summary:", error.response || error);
     }
   };
+
+  const [isPTCertificateOpen, setIsPTCertificate] = useState(false);
+
+  const handleOpenPTCertificate = (selectedRecord, ) => {
+    setIsPTCertificate(true);
+  };
+
+  const handleClosePTCertificate = () => {
+    setIsPTCertificate(false); // Close the modal
+  };
+
   
   return (
     <div>
@@ -541,8 +554,7 @@ function PhysicalTherapy() {
                 {selectedRecord.record && (
                   <>
                     <strong>X-ray Image:</strong>
-                    <button
-                      className="bg-custom-red text-white px-4 py-2 rounded-lg mt-2"
+                    <button className="text-red-500 px-4 py-2 rounded-lg mt-2"                      
                       onClick={() => setShowXray(!showXray)}
                     >
                       {showXray ? 'Hide X-ray' : 'View X-ray'}
@@ -614,7 +626,7 @@ function PhysicalTherapy() {
                                 </>
                               ) : (
                                 <button
-                                  className="bg-custom-red text-white px-2 py-1 rounded-lg"
+                                  className="text-red-500 px-4 py-2 rounded-lg mt-2"
                                   onClick={() => handleEdit(entry._id, entry.summary)}
                                 >
                                   Edit
@@ -646,14 +658,36 @@ function PhysicalTherapy() {
                 </table>
               </div>
 
-              <div className="flex justify-end mt-4">
-                <button
-                  className="bg-custom-red text-white px-4 py-2 rounded-lg"
-                  onClick={closeViewRecordModal}
-                >
-                  Close
-                </button>
+              {/* Buttons Section */}
+              <div className="flex justify-between mt-4">
+                {/* Left-aligned "Print SOAP Summary" button - only shown if all summaries are verified */}
+                <div className="flex-1 text-left">
+                  {selectedRecord.SOAPSummaries?.length > 0 && selectedRecord.SOAPSummaries.every(entry => entry.verifiedBy) && (
+                    <button
+                      className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                      onClick={() => {
+                        handleOpenPTCertificate(selectedRecord, newTherapyRecord);
+                      }} 
+                    >
+                      Print SOAP Summary
+                    </button>
+                  )}
+                </div>
+                <PTCertificate isOpen={isPTCertificateOpen} onClose={handleClosePTCertificate} selectedRecord={selectedRecord} newTherapyRecord={newTherapyRecord}/>
+
+
+                {/* Right-aligned "Close" button */}
+                <div className="flex-1 text-right">
+                  <button
+                    className="bg-custom-red text-white px-4 py-2 rounded-lg"
+                    onClick={closeViewRecordModal}
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
+
+              
             </div>
           </div>
         )}
