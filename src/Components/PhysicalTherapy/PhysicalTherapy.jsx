@@ -156,7 +156,7 @@ function PhysicalTherapy() {
       });
   };
 
-  
+
   const indexOfLastRecord = currentPage * physicalTherapyRecordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - physicalTherapyRecordsPerPage;
 
@@ -249,7 +249,7 @@ function PhysicalTherapy() {
         });
     }
   }, []);
-  
+
   useEffect(() => {
     // Retrieve the role from localStorage
     const storedRole = localStorage.getItem("role");
@@ -258,32 +258,45 @@ function PhysicalTherapy() {
     }
   }, []);
 
-  const handleVerify = async (therapyRecordId, summaryId) => {
+  const handleVerify = async (therapyRecordId, summaryId, entry) => {
     if (!therapyRecordId || !summaryId) {
       console.error("Error: Invalid therapy record or summary ID.");
       return;
     }
-  
+
     try {
       const response = await axios.put(
         `http://localhost:3001/api/physicalTherapyVerification/${therapyRecordId}/soapSummary/${summaryId}`,
-        { 
+        {
           updatedSOAPSummary: {
             firstname: userData.firstname, // Send the user's first name
             lastname: userData.lastname,  // Send the user's last name
           },
         }
       );
-  
+
       if (response.status === 200) {
-        fetchPhysicalTherapyRecords(); // Refresh the records to reflect the update
+        // Update the local state immediately to reflect the verified summary
+        const updatedSOAPSummaries = selectedRecord.SOAPSummaries.map((item) =>
+          item._id === entry._id
+            ? { ...item, verifiedBy: `${userData.firstname} ${userData.lastname}` }
+            : item
+        );
+
+        // Update the selectedRecord state (assuming you have this state in your component)
+        setSelectedRecord({
+          ...selectedRecord,
+          SOAPSummaries: updatedSOAPSummaries,
+        });
+
         console.log("SOAP summary verified successfully.");
       }
     } catch (error) {
       console.error("Error verifying SOAP summary:", error.response || error);
     }
   };
-  
+
+
   return (
     <div>
       <Navbar />
@@ -634,7 +647,7 @@ function PhysicalTherapy() {
                           ) : (
                             <button
                               className="bg-custom-red text-white px-2 py-1 rounded-lg"
-                              onClick={() => handleVerify(selectedRecord._id, entry._id)}
+                              onClick={() => handleVerify(selectedRecord._id, entry._id, entry)}  // Pass entry to the handler
                             >
                               Verify
                             </button>
@@ -643,6 +656,7 @@ function PhysicalTherapy() {
                       </tr>
                     ))}
                   </tbody>
+
                 </table>
               </div>
 
