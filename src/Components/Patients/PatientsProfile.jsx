@@ -1938,7 +1938,7 @@ function PatientsProfile() {
   useEffect(() => {
     if (isAnnualModalOpen && selectedRecords) {
       const packageNumber = selectedRecords.labRecords[0].packageNumber;
-      const patientId = id; 
+      const patientId = id;
       fetchAnnualCheckup(packageNumber, patientId);
     }
   }, [isAnnualModalOpen, selectedRecords, fetchAnnualCheckup, id]);
@@ -3673,8 +3673,8 @@ function PatientsProfile() {
                                     onClick={() => {
                                       handleAnnualOpen(); // Open the annual form
                                       setSelectedRecords(records); // Store the selected records
-                                      // setAnnual(defaultAnnual); 
-                                      // fetchAnnualCheckup(records.packageNumber, records.patientId); 
+                                      // setAnnual(defaultAnnual);
+                                      // fetchAnnualCheckup(records.packageNumber, records.patientId);
                                     }}
                                   >
                                     Annual Form
@@ -4859,7 +4859,7 @@ function PatientsProfile() {
                 )}
 
                 {isPackageResultModalOpen && (
-                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
                     <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
                       {/* Lab Results Section */}
                       {selectedPackageLabResults.length > 0 ? (
@@ -9094,17 +9094,19 @@ function PatientsProfile() {
 
       {isAnnualModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white py-4 px-6 rounded-lg w-full max-w-3xl shadow-lg overflow-y-auto max-h-[80vh]">
-            <h1 className="text-2xl font-semibold text-center mb-6">
-              Annual Check-up Form
-            </h1>
+          <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-2xl max-w-5xl overflow-y-auto flex flex-col justify-between relative">
+            {/* Top section */}
+            <h2 className="text-lg font-semibold">Annual Check up</h2>
+
             {/* Medical Records List */}
             <ul>
               {medicalRecords.map((record) => (
-                <li key={record._id} className=" rounded-lg">
+                <li key={record._id} className="mb-4 p-2  rounded-lg">
                   {/* Conditions Section */}
-                  <div className="mt-6">
-                    <h2 className="font-semibold">I. Family History</h2>
+                  <h3 className="text-lg font-semibold mt-4">
+                    I. FAMILY HISTORY:
+                  </h3>
+                  <div className="">
                     <label className="block text-sm font-semibold">
                       Has any of the applicant's family members (maternal and
                       paternal) had any of the following diseases:
@@ -9246,7 +9248,9 @@ function PatientsProfile() {
 
                   {/* Tobacco Usage Section */}
                   <div className="mt-6">
-                    <h2 className="font-semibold">II. Personal History</h2>
+                    <h3 className="text-lg font-semibold mt-4">
+                      II. Personal History
+                    </h3>
                     <div>
                       <div className="flex items-center space-x-4">
                         <label className="text-sm font-semibold text-gray-700 w-1/2">
@@ -9500,7 +9504,6 @@ function PatientsProfile() {
                         </div>
                       </div>
                     </div>
-                    
                   </div>
                 </li>
               ))}
