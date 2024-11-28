@@ -8,6 +8,7 @@ const PhysicalTherapySchema = new mongoose.Schema({
     date: { type: Date, default: Date.now },
     verifiedBy: { type:String },
   }],
+  referredBy: { type: String },
   ChiefComplaints: { type: String },
   record: { type: String, default: "" },
   HistoryOfPresentIllness: { type: String },

@@ -68,7 +68,7 @@ function PhysicalTherapy() {
     setNewTherapyRecord({ ...newTherapyRecord, [e.target.name]: e.target.value });
   };
 
-
+  
   const handleNewTherapySubmit = async (e) => {
     e.preventDefault();
 
@@ -296,6 +296,90 @@ function PhysicalTherapy() {
     }
   };
 
+  // Patient details state
+  const [patientType, setPatientType] = useState("");
+  const [firstname, setFirstName] = useState("");
+  const [middlename, setMiddleName] = useState("");
+  const [lastname, setLastName] = useState("");
+  const [birthdate, setBirthDate] = useState("");
+  const [idnumber, setIdNumber] = useState("");
+  const [address, setAddress] = useState("");
+  const [phonenumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [course, setCourse] = useState("");
+  const [sex, setSex] = useState("");
+  const [emergencyContact, setEmergencyContact] = useState("");
+  const [position, setPosition] = useState("");
+  const [referredBy, setReferredBy] = useState(""); // State for "Referred by"
+  const [ChiefComplaints, setChiefComplaints] = useState(""); // State for "Chief Complaints"
+  const [HistoryOfPresentIllness, setHistoryOfPresentIllness] = useState(""); // State for "History of Present Illness"
+  const [Diagnosis, setDiagnosis] = useState(""); // State for "Diagnosis"
+  const [isAddOPDModalOpen, setIsAddOPDModalOpen] = useState(false);
+  const handleAddOPDSubmit = async (e) => {
+    e.preventDefault();
+
+    const patientData = {
+      firstname,
+      middlename,
+      lastname,
+      birthdate,
+      address,
+      phonenumber,
+      email,
+      course,
+      sex,
+      patientType: "OPD",
+    };
+
+    try {
+      // Step 1: Add the patient
+      const patientResponse = await axios.post(
+        "http://localhost:3001/add-patient",
+        patientData
+      );
+      const patientId = patientResponse.data.patient._id; // Extract the patient ID
+
+      // Step 2: Wait for the patient ID and use it to create the associated X-ray request
+      const ptOPD = {
+        patient: patientId, // Pass the patient ID here
+        referredBy,
+        ChiefComplaints,
+        HistoryOfPresentIllness,
+        Diagnosis,
+      };
+
+      await axios.post(
+        "http://localhost:3001/api/physicalTherapy",
+        ptOPD
+      );
+
+      // Close modal and reset form
+      setIsAddOPDModalOpen(!isAddOPDModalOpen);
+      resetForm();
+    } catch (error) {
+      console.error("Error adding OPD patient and X-ray request:", error);
+    }
+  };
+
+  const resetForm = () => {
+    setFirstName("");
+    setMiddleName("");
+    setLastName("");
+    setBirthDate("");
+    setIdNumber("");
+    setAddress("");
+    setPhoneNumber("");
+    setEmail("");
+    setCourse("");
+    setSex("");
+    setEmergencyContact("");
+    setPosition("");
+    setPatientType("OPD");
+  };
+
+  const toggleAddOPDModal = () => {
+    setIsAddOPDModalOpen(!isAddOPDModalOpen);
+  };
 
   return (
     <div>
@@ -337,7 +421,14 @@ function PhysicalTherapy() {
                 className="absolute right-2 top-2 text-gray-400"
                 size={24}
               />
+
             </div>
+            <button
+              onClick={toggleAddOPDModal}
+              className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
+            >
+              Add OPD Patient
+            </button>
           </div>
         </div>
 
@@ -350,6 +441,7 @@ function PhysicalTherapy() {
                     <th className="py-3 w-1/4">Patient Info</th>
                     <th className="py-3 w-1/4">Tentative Diagnosis</th>
                     <th className="py-3 w-1/4">Chief Complaints</th>
+                    <th className="py-3 w-1/12">Patient Type</th>
                     <th className="py-3 w-1/12"></th>
                   </tr>
                 </thead>
@@ -393,6 +485,12 @@ function PhysicalTherapy() {
                             {record.ChiefComplaints || "No SOAP Summary available"}
                           </p>
                         </td>
+                        <td className="py-4">
+                          <p className="font-semibold">
+                            {record.patient?.patientType || "Unknown"}
+                          </p>
+                        </td>
+                        <td></td>
                         <td className="py-4">
                           {/* Three dot button to trigger the modal
                        <button key={record._id} onClick={() => openNewTherapyModal(record._id)}>
@@ -549,6 +647,11 @@ function PhysicalTherapy() {
               <p><strong>Chief Complaints:</strong> {selectedRecord.ChiefComplaints}</p>
               <p><strong>History of Present Illness:</strong> {selectedRecord.HistoryOfPresentIllness}</p>
               <p><strong>Gender:</strong> {selectedRecord.patient?.sex}</p>
+              {/* Conditionally render Referred By field based on patientType */}
+              {selectedRecord.patient?.patientType === "OPD" && (
+                <p><strong>Referred By:</strong> {selectedRecord.referredBy}</p>
+              )}
+              <p><strong>Patient:</strong> {selectedRecord.patient?.patientType}</p>
               <p>
 
                 {selectedRecord.record && (
@@ -671,6 +774,181 @@ function PhysicalTherapy() {
             </div>
           </div>
         )}
+        {/* Add OPD Patient Modal */}
+        {isAddOPDModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white py-4 px-6 rounded-lg w-1/2 shadow-lg max-h-[90vh] flex flex-col">
+              <h2 className="text-xl font-semibold mb-4">Add OPD Patient</h2>
+
+              {/* Scrollable form container */}
+              <div className="overflow-y-auto flex-1">
+                <form onSubmit={handleAddOPDSubmit}>
+                  <div className="grid grid-cols-3 gap-4">
+                    {/* Full Name Fields - Display only for Student */}
+                    <div className="col-span-3">
+                      <label className="block mb-2">Full Name</label>
+                      <div className="grid grid-cols-3 gap-4">
+                        <input
+                          type="text"
+                          value={firstname}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          placeholder="First Name"
+                          className="px-4 py-2 border rounded w-full"
+                          required
+                        />
+                        <input
+                          type="text"
+                          value={middlename}
+                          onChange={(e) => setMiddleName(e.target.value)}
+                          placeholder="Middle Name"
+                          className="px-4 py-2 border rounded w-full"
+                        />
+                        <input
+                          type="text"
+                          value={lastname}
+                          onChange={(e) => setLastName(e.target.value)}
+                          placeholder="Last Name"
+                          className="px-4 py-2 border rounded w-full"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    {/* Date of Birth */}
+                    <div className="col-span-2">
+                      <label className="block mb-2">Date of Birth</label>
+                      <input
+                        type="date"
+                        value={birthdate}
+                        onChange={(e) => setBirthDate(e.target.value)}
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      />
+                    </div>
+
+                    <div className="col-span-1">
+                      <label className="block mb-2">Sex</label>
+                      <select
+                        value={sex}
+                        onChange={(e) => setSex(e.target.value)}
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      >
+                        <option value="">Select Sex</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                    </div>
+
+                    {/* Address */}
+                    <div className="col-span-3">
+                      <label className="block mb-2">Address</label>
+                      <input
+                        type="text"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Address"
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                    </div>
+
+                    {/* Phone Number and Email */}
+                    <div className="col-span-3 grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block mb-2">Phone Number</label>
+                        <input
+                          type="text"
+                          value={phonenumber}
+                          onChange={(e) => setPhoneNumber(e.target.value)}
+                          placeholder="(000) 000-0000"
+                          className="px-4 py-2 border rounded w-full"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block mb-2">E-mail Address</label>
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="example@example.com"
+                          className="px-4 py-2 border rounded w-full"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Referred By field */}
+                  <div className="my-4">
+                    <label className="block text-sm font-medium">Referred by</label>
+                    <input
+                      type="text"
+                      name="referredBy"
+                      value={referredBy}
+                      onChange={(e) => setReferredBy(e.target.value)}
+                      className="border rounded-lg w-full p-2 mt-1"
+                      placeholder="Enter name of referrer"
+                    />
+                  </div>
+
+                  {/* New Physical Therapy Record Section */}
+                  <h2 className="text-lg font-bold mb-4 text-center">
+                    New Physical Therapy Record
+                  </h2>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium">Tentative Diagnosis</label>
+                    <textarea
+                      type="text"
+                      name="Diagnosis"
+                      value={Diagnosis}
+                      onChange={(e) => setDiagnosis(e.target.value)}
+                      required
+                      className="border rounded-lg w-full p-2 mt-1"
+                    />
+
+                    <label className="block text-sm font-medium">Chief Complaints</label>
+                    <textarea
+                      type="text"
+                      name="ChiefComplaints"
+                      value={ChiefComplaints}
+                      onChange={(e) => setChiefComplaints(e.target.value)}
+                      required
+                      className="border rounded-lg w-full p-2 mt-1"
+                    />
+
+                    <label className="block text-sm font-medium">History Of Present Illness</label>
+                    <textarea
+                      type="text"
+                      name="HistoryOfPresentIllness"
+                      value={HistoryOfPresentIllness}
+                      onChange={(e) => setHistoryOfPresentIllness(e.target.value)}
+                      required
+                      className="border rounded-lg w-full p-2 mt-1"
+                    />
+                  </div>
+
+                  <div className="flex justify-end space-x-4">
+                    <button
+                      type="button"
+                      onClick={toggleAddOPDModal}
+                      className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-custom-red text-white rounded-md"
+                    >
+                      Add Patient
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
