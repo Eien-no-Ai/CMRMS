@@ -1721,6 +1721,32 @@ app.post("/api/annual-check-up", async (req, res) => {
   }
 });
 
+// Fetch annual check-up data by package number and patient ID
+app.get("/api/annual-check-up/:packageNumber/:patientId", async (req, res) => {
+  try {
+    const { packageNumber, patientId } = req.params;
+
+    // Find the annual check-up data by package number and patient ID
+    const annualCheckUpData = await AnnualCheckUp.findOne({
+      packageNumber,
+      patient: patientId,  // Assuming 'patient' field stores the patient ID
+    });
+
+    if (!annualCheckUpData) {
+      return res.status(404).json({ message: "Annual Check-Up data not found" });
+    }
+
+    res.json(annualCheckUpData);
+  } catch (error) {
+    console.error("Error fetching annual check-up data:", error.message);
+    res.status(500).json({
+      message: "Error fetching annual check-up data",
+      error: error.message,
+    });
+  }
+});
+
+
 //console log
 app.listen(3001, () => {
   console.log("Server is running on port 3001");

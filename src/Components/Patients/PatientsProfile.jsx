@@ -480,14 +480,14 @@ function PatientsProfile() {
     selectedTab === "clinical"
       ? clinicalRecords
       : selectedTab === "laboratory"
-        ? laboratoryRecords
-        : selectedTab === "xray"
-          ? xrayRecords
-          : selectedTab === "physical therapy"
-            ? physicalTherapyRecords
-            : selectedTab === "vaccine"
-              ? vaccineRecords // <-- New condition for vaccines
-              : [];
+      ? laboratoryRecords
+      : selectedTab === "xray"
+      ? xrayRecords
+      : selectedTab === "physical therapy"
+      ? physicalTherapyRecords
+      : selectedTab === "vaccine"
+      ? vaccineRecords // <-- New condition for vaccines
+      : [];
 
   const initialFormData = {
     bloodChemistry: {
@@ -692,8 +692,7 @@ function PatientsProfile() {
     setisFamilyPersonalModalOpen(false);
   };
 
-  const [isAnnualModalOpen, setisAnnualModalOpen] =
-    useState(false);
+  const [isAnnualModalOpen, setisAnnualModalOpen] = useState(false);
 
   const handleAnnualOpen = () => {
     setisAnnualModalOpen(true);
@@ -1684,7 +1683,7 @@ function PatientsProfile() {
     setIsComplaintsModalOpen(false);
   };
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -1692,7 +1691,8 @@ function PatientsProfile() {
 
   const filteredPackages = packages.filter(
     (pkg) =>
-      !pkg.isArchived && pkg.name.toLowerCase().includes(searchQuery.toLowerCase())
+      !pkg.isArchived &&
+      pkg.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1707,7 +1707,7 @@ function PatientsProfile() {
       bmi: "",
       wasteLine: "",
       hipLine: "",
-      dateExamined: new Date().toISOString().split('T')[0],
+      dateExamined: new Date().toISOString().split("T")[0],
     },
     abnormalFindings: {
       skin: { skin: false, remarks: "" },
@@ -1734,16 +1734,20 @@ function PatientsProfile() {
     others: {
       medications: "",
       remarksRecommendations: "",
-    }
-
+    },
   });
 
   const handleAnnualInputChange = (field, value) => {
+    // Update annual state
     setAnnual((prev) => {
       const updatedChanges = { ...prev.changes, [field]: value };
 
       // Handle updates to the nested labExam fields
-      if (field === "chestXray" || field === "urinalysis" || field === "fecalysis" || field === "completeBloodCount") {
+      if (
+        ["chestXray", "urinalysis", "fecalysis", "completeBloodCount"].includes(
+          field
+        )
+      ) {
         const updatedLabExam = { ...prev.labExam, [field]: value };
         return {
           ...prev,
@@ -1753,11 +1757,45 @@ function PatientsProfile() {
       }
 
       // Handle updates to the nested others fields
-      if (field === "medications" || field === "remarksRecommendations") {
+      if (["medications", "remarksRecommendations"].includes(field)) {
         const updatedOthers = { ...prev.others, [field]: value };
         return {
           ...prev,
           others: updatedOthers,
+          changes: updatedChanges,
+        };
+      }
+
+      // Handle updates to the abnormal findings fields
+      if (
+        [
+          "skin",
+          "lungs",
+          "headNeckScalp",
+          "eyesExternal",
+          "ears",
+          "face",
+          "neckThyroid",
+          "chestBreastsAxilla",
+          "lungs",
+          "heart",
+          "abdomen",
+          "back",
+          "guSystem",
+          "inguinalGenitals",
+          "extremities",
+        ].includes(field)
+      ) {
+        const updatedAbnormalFindings = {
+          ...prev.abnormalFindings,
+          [field]: {
+            ...prev.abnormalFindings[field],
+            ...(typeof value === "object" ? value : { [field]: value }), // If value is an object (for remarks), merge it.
+          },
+        };
+        return {
+          ...prev,
+          abnormalFindings: updatedAbnormalFindings,
           changes: updatedChanges,
         };
       }
@@ -1771,42 +1809,22 @@ function PatientsProfile() {
           updatedChanges.bmi = bmi.toFixed(2); // Round BMI to 2 decimal places
         }
       }
-      else if (field in annual.abnormalFindings) {
-        if (typeof value === "object" && value.remarks !== undefined) {
-          setAnnual((prevState) => ({
-            ...prevState,
-            abnormalFindings: {
-              ...prevState.abnormalFindings,
-              [field]: {
-                ...prevState.abnormalFindings[field],
-                remarks: value.remarks,
-              },
-            },
-          }));
-        } else {
-          setAnnual((prevState) => ({
-            ...prevState,
-            abnormalFindings: {
-              ...prevState.abnormalFindings,
-              [field]: {
-                ...prevState.abnormalFindings[field],
-                [field]: value,
-              },
-            },
-          }));
-        }
-      } else {
-        setAnnual((prevState) => ({
-          ...prevState,
-          [field]: value,
-        }));
-      }
 
+      // Return the updated state with changes applied
       return {
         ...prev,
-        changes: updatedChanges
+        changes: updatedChanges,
       };
     });
+
+    // Update annualData as well
+    setAnnualData((prevData) => ({
+      ...prevData,
+      changes: {
+        ...prevData.changes,
+        [field]: value,
+      },
+    }));
   };
 
   const handleAnnualSubmit = async (packageNumber) => {
@@ -1881,58 +1899,48 @@ function PatientsProfile() {
     others: {
       medications: "",
       remarksRecommendations: "",
-    }
+    },
   };
 
-  // const fetchAnnualCheckup = useCallback(async (packageNumber, patientId) => {
-  //   try {
-  //     // Make a GET request to the API using fetch
-  //     const response = await fetch(
-  //       `http://localhost:3001/api/annual-check-up/${packageNumber}/${patientId}`
-  //     );
-
-  //     // Check if the response is ok (status 200-299)
-  //     if (!response.ok) {
-  //       throw new Error('Network response was not ok');
-  //     }
-
-  //     // Parse the response as JSON
-  //     const data = await response.json();
-
-  //     // Update the state with the fetched data
-  //     setAnnual({
-  //       ...defaultAnnual,  // Default structure
-  //       ...data,           // Data from the API
-  //       abnormalFindings: {
-  //         ...defaultAnnual.abnormalFindings,
-  //         ...data.abnormalFindings,
-  //         LMP: data.abnormalFindings?.LMP
-  //           ? new Date(data.abnormalFindings.LMP).toISOString().split("T")[0]  // Format LMP as yyyy-MM-dd
-  //           : null,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error("Error fetching annual check-up data:", error);
-  //   }
-  // }, []);
   const [annualData, setAnnualData] = useState(defaultAnnual);
   const fetchAnnualCheckup = useCallback(async (packageNumber, patientId) => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/annual-check-up/${packageNumber}/${patientId}`);
+      const response = await axios.get(
+        `http://localhost:3001/api/annual-check-up/${packageNumber}/${patientId}`
+      );
       const data = response.data || {};
 
       setAnnualData({
-        ...defaultAnnual,  // Default structure
-        ...data,           // Data from the API
+        ...defaultAnnual, // Default structure
+        ...data, // Data from the API
         abnormalFindings: {
           ...defaultAnnual.abnormalFindings,
           ...data.abnormalFindings,
         },
       });
+
+      // After fetching, synchronize `annual` state
+      setAnnual({
+        ...annual,
+        changes: data.changes || defaultAnnual.changes,
+        abnormalFindings:
+          data.abnormalFindings || defaultAnnual.abnormalFindings,
+        labExam: data.labExam || defaultAnnual.labExam,
+        others: data.others || defaultAnnual.others,
+      });
     } catch (error) {
       console.error("Error fetching annual check-up data:", error);
     }
   }, []);
+
+  // UseEffect to fetch data when the modal opens
+  useEffect(() => {
+    if (isAnnualModalOpen && selectedRecords) {
+      const packageNumber = selectedRecords.labRecords[0].packageNumber;
+      const patientId = id; // Assuming `id` is the patientId from useParams() or some global state
+      fetchAnnualCheckup(packageNumber, patientId);
+    }
+  }, [isAnnualModalOpen, selectedRecords, fetchAnnualCheckup, id]);
 
   return (
     <div>
@@ -1993,8 +2001,9 @@ function PatientsProfile() {
                           >
                             New Transaction
                             <MdKeyboardArrowDown
-                              className={`h-5 w-5 transition-transform duration-200 ${showRequestOptions ? "rotate-180" : ""
-                                }`}
+                              className={`h-5 w-5 transition-transform duration-200 ${
+                                showRequestOptions ? "rotate-180" : ""
+                              }`}
                             />
                           </button>
                           {/* Request options */}
@@ -2022,8 +2031,9 @@ function PatientsProfile() {
                           >
                             Packages
                             <MdKeyboardArrowDown
-                              className={`h-5 w-5 transition-transform duration-200 ${showPackageOptions ? 'rotate-180' : ''
-                                }`}
+                              className={`h-5 w-5 transition-transform duration-200 ${
+                                showPackageOptions ? "rotate-180" : ""
+                              }`}
                             />
                           </button>
                           {showPackageOptions && (
@@ -2051,7 +2061,9 @@ function PatientsProfile() {
                                   </button>
                                 ))
                               ) : (
-                                <div className="px-4 py-2 text-gray-500">No packages found</div>
+                                <div className="px-4 py-2 text-gray-500">
+                                  No packages found
+                                </div>
                               )}
                             </div>
                           )}
@@ -3229,19 +3241,20 @@ function PatientsProfile() {
                     </div>
                   </div>
                   <div className="mt-7 flex flex-col space-y-4">
-                    {patient.patientType === 'Student' ? (
+                    {patient.patientType === "Student" ? (
                       <label className="text-sm font-semibold text-gray-700">
-                        I hereby certify that all the information I have disclosed
-                        as reflected in this report is true to the best of my
-                        knowledge and belief, and that any misrepresentation or
-                        concealment on my part may lead to consequences, which may
-                        or may not include disqualification, etc.
+                        I hereby certify that all the information I have
+                        disclosed as reflected in this report is true to the
+                        best of my knowledge and belief, and that any
+                        misrepresentation or concealment on my part may lead to
+                        consequences, which may or may not include
+                        disqualification, etc.
                         <br />
                         <br />
                         I hereby authorize UB Medical-Dental Clinic and its
                         officially designated examining physicians and staff to
-                        conduct the examinations necessary to assess my fitness to
-                        undergo Internship/On-the-Job Training/Practicum.
+                        conduct the examinations necessary to assess my fitness
+                        to undergo Internship/On-the-Job Training/Practicum.
                         <br />
                         <br />
                         By signing this, I hold UB Medical-Dental Clinic and its
@@ -3251,11 +3264,17 @@ function PatientsProfile() {
                       </label>
                     ) : (
                       <label className="text-sm font-semibold text-gray-700">
-                        I hereby certify that the foregoing answers are true and complete to the best of my knowledge. My health status is accurately represented in the above statements. I understand the University of Baguio may require me to have physical examination and I authorize the release of any information from such examination to UB personnel for use in considering my employment.
+                        I hereby certify that the foregoing answers are true and
+                        complete to the best of my knowledge. My health status
+                        is accurately represented in the above statements. I
+                        understand the University of Baguio may require me to
+                        have physical examination and I authorize the release of
+                        any information from such examination to UB personnel
+                        for use in considering my employment.
                       </label>
                     )}
 
-                    {patient.patientType === 'Student' ? (
+                    {patient.patientType === "Student" ? (
                       <div className="flex justify-end mt-4">
                         <div className="w-1/2">
                           <label className="text-sm font-medium text-gray-700 block mb-2">
@@ -3320,10 +3339,11 @@ function PatientsProfile() {
             <div className="flex justify-between items-center">
               <div className="space-x-4">
                 <button
-                  className={`${selectedTab === "clinical"
-                    ? "text-custom-red font-semibold"
-                    : ""
-                    }`}
+                  className={`${
+                    selectedTab === "clinical"
+                      ? "text-custom-red font-semibold"
+                      : ""
+                  }`}
                   onClick={() => handleTabChange("clinical")}
                 >
                   Consultation Records
@@ -3350,30 +3370,33 @@ function PatientsProfile() {
                 </button> */}
                 {(role === "physical therapist" ||
                   role === "special trainee") && (
-                    <button
-                      className={`${selectedTab === "physical therapy"
+                  <button
+                    className={`${
+                      selectedTab === "physical therapy"
                         ? "text-custom-red font-semibold"
                         : ""
-                        }`}
-                      onClick={() => handleTabChange("physical therapy")}
-                    >
-                      Physical Therapy Records
-                    </button>
-                  )}
-                <button
-                  className={`${selectedTab === "package"
-                    ? "text-custom-red font-semibold"
-                    : ""
                     }`}
+                    onClick={() => handleTabChange("physical therapy")}
+                  >
+                    Physical Therapy Records
+                  </button>
+                )}
+                <button
+                  className={`${
+                    selectedTab === "package"
+                      ? "text-custom-red font-semibold"
+                      : ""
+                  }`}
                   onClick={() => handleTabChange("package")}
                 >
                   Physical Examination
                 </button>
                 <button
-                  className={`${selectedTab === "vaccine"
-                    ? "text-custom-red font-semibold"
-                    : ""
-                    }`}
+                  className={`${
+                    selectedTab === "vaccine"
+                      ? "text-custom-red font-semibold"
+                      : ""
+                  }`}
                   onClick={() => handleTabChange("vaccine")}
                 >
                   Vaccine Records
@@ -3537,7 +3560,8 @@ function PatientsProfile() {
                     </p>
                   ))}
 
-                {selectedTab === "package" && patient &&
+                {selectedTab === "package" &&
+                  patient &&
                   (Object.keys(combinedRecords).length > 0 ? (
                     Object.entries(combinedRecords).map(
                       ([packageNumber, records], index) => {
@@ -3565,7 +3589,7 @@ function PatientsProfile() {
                               <p className="text-gray-500 text-sm">
                                 {new Date(
                                   records.labRecords[0]?.isCreatedAt ||
-                                  records.xrayRecords[0]?.isCreatedAt
+                                    records.xrayRecords[0]?.isCreatedAt
                                 ).toLocaleString() || "Invalid Date"}
                               </p>
                               <p className="font-semibold">
@@ -3582,25 +3606,25 @@ function PatientsProfile() {
                               <p className="text-gray-500">
                                 {records.labRecords.length > 0
                                   ? records.labRecords
-                                    .flatMap((record) => [
-                                      ...Object.values(
-                                        record.bloodChemistry || {}
-                                      ).filter((value) => value),
-                                      ...Object.values(
-                                        record.hematology || {}
-                                      ).filter((value) => value),
-                                      ...Object.values(
-                                        record.clinicalMicroscopyParasitology ||
-                                        {}
-                                      ).filter((value) => value),
-                                      ...Object.values(
-                                        record.bloodBankingSerology || {}
-                                      ).filter((value) => value),
-                                      ...Object.values(
-                                        record.microbiology || {}
-                                      ).filter((value) => value),
-                                    ])
-                                    .join(", ") || "No test data available"
+                                      .flatMap((record) => [
+                                        ...Object.values(
+                                          record.bloodChemistry || {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.hematology || {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.clinicalMicroscopyParasitology ||
+                                            {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.bloodBankingSerology || {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.microbiology || {}
+                                        ).filter((value) => value),
+                                      ])
+                                      .join(", ") || "No test data available"
                                   : "No Lab Tests Available"}
                               </p>
                             </div>
@@ -3610,12 +3634,12 @@ function PatientsProfile() {
                               <p className="text-gray-500">
                                 {records.xrayRecords.length > 0
                                   ? records.xrayRecords.map((record, idx) => (
-                                    <span key={idx}>
-                                      {record.xrayType}
-                                      {idx < records.xrayRecords.length - 1 &&
-                                        ", "}
-                                    </span>
-                                  ))
+                                      <span key={idx}>
+                                        {record.xrayType}
+                                        {idx < records.xrayRecords.length - 1 &&
+                                          ", "}
+                                      </span>
+                                    ))
                                   : "No X-ray Data"}
                               </p>
                             </div>
@@ -3624,10 +3648,11 @@ function PatientsProfile() {
                             <div className="col-span-1 flex justify-between items-center">
                               {/* Status Display */}
                               <p
-                                className={`font-semibold ${isCompleted
-                                  ? "text-green-500"
-                                  : "text-red-500"
-                                  }`}
+                                className={`font-semibold ${
+                                  isCompleted
+                                    ? "text-green-500"
+                                    : "text-red-500"
+                                }`}
                               >
                                 {status}
                               </p>
@@ -4961,9 +4986,11 @@ function PatientsProfile() {
                                       labResult.patient
                                         ? labResult.patient.patientType ===
                                           "Student"
-                                          ? `${labResult.patient.course || "N/A"
-                                          } - ${labResult.patient.year || "N/A"
-                                          }` // Display course and year if patientType is student
+                                          ? `${
+                                              labResult.patient.course || "N/A"
+                                            } - ${
+                                              labResult.patient.year || "N/A"
+                                            }` // Display course and year if patientType is student
                                           : labResult.patient.position || "N/A" // Otherwise, display position
                                         : "N/A"
                                     }
@@ -4983,8 +5010,9 @@ function PatientsProfile() {
                                       I. Hematology
                                     </h3>
                                     <BiChevronDown
-                                      className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
-                                        }`}
+                                      className={`transform transition-transform duration-300 ${
+                                        isHematologyVisible ? "rotate-180" : ""
+                                      }`}
                                       size={24}
                                     />
                                   </div>
@@ -5249,10 +5277,11 @@ function PatientsProfile() {
                                     II. Clinical Microscopy and Parasitology
                                   </h3>
                                   <BiChevronDown
-                                    className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible
-                                      ? "rotate-180"
-                                      : ""
-                                      }`}
+                                    className={`transform transition-transform duration-300 ${
+                                      isClinicalMicroscopyVisible
+                                        ? "rotate-180"
+                                        : ""
+                                    }`}
                                     size={24}
                                   />
                                 </div>
@@ -5677,8 +5706,9 @@ function PatientsProfile() {
                                     III. Serology
                                   </h3>
                                   <BiChevronDown
-                                    className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
-                                      }`}
+                                    className={`transform transition-transform duration-300 ${
+                                      isSerologyVisible ? "rotate-180" : ""
+                                    }`}
                                     size={24}
                                   />
                                 </div>
@@ -5758,10 +5788,10 @@ function PatientsProfile() {
                                           ?.hepatitisBSurfaceAntigen
                                           ?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5776,10 +5806,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.antiHAVTest?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.antiHAVTest.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.antiHAVTest.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5877,10 +5907,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.serumPregnancy?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.serumPregnancy.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.serumPregnancy.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5896,10 +5926,10 @@ function PatientsProfile() {
                                           ?.treponemaPallidumTest
                                           ?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5995,10 +6025,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.salmonellaTyphi?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.salmonellaTyphi.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.salmonellaTyphi.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -6085,10 +6115,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.testDengue?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.testDengue.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.testDengue.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -6103,10 +6133,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology?.others
                                           ?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.others.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.others.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -6505,9 +6535,9 @@ function PatientsProfile() {
                             name="XrayNo"
                             value={
                               selectedXray !== null &&
-                                selectedXrayRecords[selectedXray]
+                              selectedXrayRecords[selectedXray]
                                 ? selectedXrayRecords[selectedXray].ORNumber ||
-                                "N/A"
+                                  "N/A"
                                 : "N/A"
                             }
                             className="w-full px-3 py-2 border rounded"
@@ -6523,9 +6553,9 @@ function PatientsProfile() {
                             name="XrayNo"
                             value={
                               selectedXray !== null &&
-                                selectedXrayRecords[selectedXray]
+                              selectedXrayRecords[selectedXray]
                                 ? selectedXrayRecords[selectedXray].XrayNo ||
-                                "N/A"
+                                  "N/A"
                                 : "N/A"
                             }
                             className="w-full px-3 py-2 border rounded"
@@ -6539,12 +6569,12 @@ function PatientsProfile() {
                             name="date"
                             value={
                               selectedXray !== null &&
-                                selectedXrayRecords[selectedXray]
+                              selectedXrayRecords[selectedXray]
                                 ? new Date(
-                                  selectedXrayRecords[
-                                    selectedXray
-                                  ].isCreatedAt
-                                ).toLocaleString()
+                                    selectedXrayRecords[
+                                      selectedXray
+                                    ].isCreatedAt
+                                  ).toLocaleString()
                                 : "N/A"
                             }
                             className="w-full px-3 py-2 border rounded"
@@ -6565,9 +6595,9 @@ function PatientsProfile() {
                           placeholder="No Interpretation available."
                           value={
                             selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
+                            selectedXrayRecords[selectedXray]
                               ? selectedXrayRecords[selectedXray].diagnosis ||
-                              ""
+                                ""
                               : ""
                           }
                           readOnly
@@ -6586,9 +6616,9 @@ function PatientsProfile() {
                           placeholder="No X-ray findings available."
                           value={
                             selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
+                            selectedXrayRecords[selectedXray]
                               ? selectedXrayRecords[selectedXray]
-                                .xrayFindings || ""
+                                  .xrayFindings || ""
                               : ""
                           }
                           required
@@ -6871,7 +6901,7 @@ function PatientsProfile() {
                 )}
 
                 {selectedRecord.treatments &&
-                  selectedRecord.treatments.length > 0 ? (
+                selectedRecord.treatments.length > 0 ? (
                   <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                     {selectedRecord.treatments
                       .split(", ")
@@ -6927,7 +6957,7 @@ function PatientsProfile() {
                 </div>
 
                 {selectedRecord.diagnosis &&
-                  selectedRecord.diagnosis.length > 0 ? (
+                selectedRecord.diagnosis.length > 0 ? (
                   <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                     {selectedRecord.diagnosis
                       .split(", ")
@@ -7184,8 +7214,9 @@ function PatientsProfile() {
                         value={
                           labDetails.patient
                             ? labDetails.patient.patientType === "Student"
-                              ? `${labDetails.patient.course || "N/A"} - ${labDetails.patient.year || "N/A"
-                              }` // Display course if patientType is student
+                              ? `${labDetails.patient.course || "N/A"} - ${
+                                  labDetails.patient.year || "N/A"
+                                }` // Display course if patientType is student
                               : labDetails.patient.position || "N/A" // Otherwise, display position
                             : "N/A"
                         }
@@ -7203,8 +7234,9 @@ function PatientsProfile() {
                           I. Hematology
                         </h3>
                         <BiChevronDown
-                          className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
-                            }`}
+                          className={`transform transition-transform duration-300 ${
+                            isHematologyVisible ? "rotate-180" : ""
+                          }`}
                           size={24}
                         />
                       </div>
@@ -7408,8 +7440,9 @@ function PatientsProfile() {
                         II. Clinical Microscopy and Parasitology
                       </h3>
                       <BiChevronDown
-                        className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible ? "rotate-180" : ""
-                          }`}
+                        className={`transform transition-transform duration-300 ${
+                          isClinicalMicroscopyVisible ? "rotate-180" : ""
+                        }`}
                         size={24}
                       />
                     </div>
@@ -7788,8 +7821,9 @@ function PatientsProfile() {
                         III. Serology
                       </h3>
                       <BiChevronDown
-                        className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
-                          }`}
+                        className={`transform transition-transform duration-300 ${
+                          isSerologyVisible ? "rotate-180" : ""
+                        }`}
                         size={24}
                       />
                     </div>
@@ -7856,10 +7890,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology
                               ?.hepatitisBSurfaceAntigen?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7872,10 +7906,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.antiHAVTest
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.antiHAVTest.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.antiHAVTest.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7960,10 +7994,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.serumPregnancy
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.serumPregnancy.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.serumPregnancy.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7976,10 +8010,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology
                               ?.treponemaPallidumTest?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -8064,10 +8098,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.salmonellaTyphi
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -8142,10 +8176,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.testDengue
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.testDengue.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.testDengue.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -8158,10 +8192,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.others
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.others.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.others.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -9091,7 +9125,6 @@ function PatientsProfile() {
                     To be completed by examining physician.
                   </label>
                 </div>
-
               </div>
               {annual && (
                 <div className="grid grid-cols-12 gap-4 p-4">
@@ -9109,7 +9142,7 @@ function PatientsProfile() {
                   <input
                     type="text"
                     className="col-span-4 border rounded px-3 py-1"
-                    // value={annual.changes.height}
+                    value={annual.changes.height}
                     onChange={(e) =>
                       handleAnnualInputChange("height", e.target.value)
                     }
@@ -9119,12 +9152,9 @@ function PatientsProfile() {
                   <input
                     type="text"
                     className="col-span-4 border rounded px-3 py-1"
-                    // value={annual.changes.bloodPressure}
+                    value={annual.changes.bloodPressure}
                     onChange={(e) =>
-                      handleAnnualInputChange(
-                        "bloodPressure",
-                        e.target.value
-                      )
+                      handleAnnualInputChange("bloodPressure", e.target.value)
                     }
                   />
 
@@ -9132,7 +9162,7 @@ function PatientsProfile() {
                   <input
                     type="text"
                     className="col-span-4 border rounded px-3 py-1"
-                    // value={annual.changes.weight}
+                    value={annual.changes.weight}
                     onChange={(e) =>
                       handleAnnualInputChange("weight", e.target.value)
                     }
@@ -9142,7 +9172,7 @@ function PatientsProfile() {
                   <input
                     type="text"
                     className="col-span-4 border rounded px-3 py-1"
-                    // value={annual.changes.pulseRate}
+                    value={annual.changes.pulseRate}
                     onChange={(e) =>
                       handleAnnualInputChange("pulseRate", e.target.value)
                     }
@@ -9150,19 +9180,17 @@ function PatientsProfile() {
 
                   <label className="col-span-2">BMI</label>
                   <div className="col-span-4 border rounded px-3 py-1">
-                    {annual.changes.bmi || "Not available"} {/* Display BMI or a placeholder if not calculated */}
+                    {annual.changes.bmi || "Not available"}{" "}
+                    {/* Display BMI or a placeholder if not calculated */}
                   </div>
 
                   <label className="col-span-2">Respiration Rate</label>
                   <input
                     type="text"
                     className="col-span-4 border rounded px-3 py-1"
-                    // value={annual.changes.respirationRate}
+                    value={annual.changes.respirationRate}
                     onChange={(e) =>
-                      handleAnnualInputChange(
-                        "respirationRate",
-                        e.target.value
-                      )
+                      handleAnnualInputChange("respirationRate", e.target.value)
                     }
                   />
 
@@ -9170,12 +9198,9 @@ function PatientsProfile() {
                   <input
                     type="text"
                     className="col-span-4 border rounded px-3 py-1"
-                    // value={annual.changes.wasteLine}
+                    value={annual.changes.wasteLine}
                     onChange={(e) =>
-                      handleAnnualInputChange(
-                        "wasteLine",
-                        e.target.value
-                      )
+                      handleAnnualInputChange("wasteLine", e.target.value)
                     }
                   />
 
@@ -9183,12 +9208,9 @@ function PatientsProfile() {
                   <input
                     type="text"
                     className="col-span-4 border rounded px-3 py-1"
-                    // value={annual.changes.hipLine}
+                    value={annual.changes.hipLine}
                     onChange={(e) =>
-                      handleAnnualInputChange(
-                        "hipLine",
-                        e.target.value
-                      )
+                      handleAnnualInputChange("hipLine", e.target.value)
                     }
                   />
                 </div>
@@ -9202,16 +9224,9 @@ function PatientsProfile() {
                   <label className="w-1/2">Skin</label>
                   <select
                     className="border rounded w-1/3 px-2 py-1"
-                    value={
-                      annual.abnormalFindings?.skin?.skin
-                        ? "Yes"
-                        : "No"
-                    }
+                    value={annual.abnormalFindings?.skin?.skin ? "Yes" : "No"}
                     onChange={(e) =>
-                      handleAnnualInputChange(
-                        "skin",
-                        e.target.value === "Yes"
-                      )
+                      handleAnnualInputChange("skin", e.target.value === "Yes")
                     }
                   >
                     <option value="Yes">Yes</option>
@@ -9221,7 +9236,7 @@ function PatientsProfile() {
                     type="text"
                     placeholder="Remarks"
                     className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                    value={annual.abnormalFindings?.skin?.remarks || ""} // Use an empty string as a fallback
+                    value={annual.abnormalFindings?.skin?.remarks || ""}
                     onChange={(e) =>
                       handleAnnualInputChange("skin", {
                         remarks: e.target.value,
@@ -9235,17 +9250,9 @@ function PatientsProfile() {
                   <label className="w-1/2">Lungs</label>
                   <select
                     className="border rounded w-1/3 px-2 py-1"
-                    value={
-                      annual.abnormalFindings
-                        ?.lungs
-                        ?.lungs
-                        ? "Yes"
-                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    value={annual.abnormalFindings?.lungs?.lungs ? "Yes" : "No"} // Convert boolean to 'Yes' or 'No'
                     onChange={(e) =>
-                      handleAnnualInputChange(
-                        "lungs",
-                        e.target.value === "Yes"
-                      )
+                      handleAnnualInputChange("lungs", e.target.value === "Yes")
                     }
                   >
                     <option value="Yes">Yes</option>
@@ -9270,11 +9277,10 @@ function PatientsProfile() {
                   <select
                     className="border rounded w-1/3 px-2 py-1"
                     value={
-                      annual.abnormalFindings
-                        ?.headNeckScalp
-                        ?.headNeckScalp
+                      annual.abnormalFindings?.headNeckScalp?.headNeckScalp
                         ? "Yes"
-                        : "No"} // Convert boolean to 'Yes' or 'No'
+                        : "No"
+                    } // Convert boolean to 'Yes' or 'No'
                     onChange={(e) =>
                       handleAnnualInputChange(
                         "headNeckScalp",
@@ -9289,7 +9295,9 @@ function PatientsProfile() {
                     type="text"
                     placeholder="Remarks"
                     className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                    value={annual.abnormalFindings?.headNeckScalp?.remarks || ""} // Use an empty string as a fallback
+                    value={
+                      annual.abnormalFindings?.headNeckScalp?.remarks || ""
+                    } // Use an empty string as a fallback
                     onChange={(e) =>
                       handleAnnualInputChange("headNeckScalp", {
                         remarks: e.target.value,
@@ -9303,18 +9311,9 @@ function PatientsProfile() {
                   <label className="w-1/2">Heart</label>
                   <select
                     className="border rounded w-1/3 px-2 py-1"
-                    value={
-                      annual.abnormalFindings
-                        ?.heart
-                        ?.heart
-                        ? "Yes"
-                        : "No"
-                    } // Convert boolean to 'Yes' or 'No'
+                    value={annual.abnormalFindings?.heart?.heart ? "Yes" : "No"} // Convert boolean to 'Yes' or 'No'
                     onChange={(e) =>
-                      handleAnnualInputChange(
-                        "heart",
-                        e.target.value === "Yes"
-                      )
+                      handleAnnualInputChange("heart", e.target.value === "Yes")
                     }
                   >
                     <option value="Yes">Yes</option>
@@ -9339,9 +9338,7 @@ function PatientsProfile() {
                   <select
                     className="border rounded w-1/3 px-2 py-1"
                     value={
-                      annual.abnormalFindings
-                        ?.eyesExternal
-                        ?.eyesExternal
+                      annual.abnormalFindings?.eyesExternal?.eyesExternal
                         ? "Yes"
                         : "No"
                     } // Convert boolean to 'Yes' or 'No'
@@ -9374,11 +9371,8 @@ function PatientsProfile() {
                   <select
                     className="border rounded w-1/3 px-2 py-1"
                     value={
-                      annual.abnormalFindings
-                        ?.abdomen
-                        ?.abdomen
-                        ? "Yes"
-                        : "No"} // Convert boolean to 'Yes' or 'No'
+                      annual.abnormalFindings?.abdomen?.abdomen ? "Yes" : "No"
+                    } // Convert boolean to 'Yes' or 'No'
                     onChange={(e) =>
                       handleAnnualInputChange(
                         "abdomen",
@@ -9407,17 +9401,9 @@ function PatientsProfile() {
                   <label className="w-1/2">Ears</label>
                   <select
                     className="border rounded w-1/3 px-2 py-1"
-                    value={
-                      annual.abnormalFindings
-                        ?.ears
-                        ?.ears
-                        ? "Yes"
-                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    value={annual.abnormalFindings?.ears?.ears ? "Yes" : "No"} // Convert boolean to 'Yes' or 'No'
                     onChange={(e) =>
-                      handleAnnualInputChange(
-                        "ears",
-                        e.target.value === "Yes"
-                      )
+                      handleAnnualInputChange("ears", e.target.value === "Yes")
                     }
                   >
                     <option value="Yes">Yes</option>
@@ -9441,17 +9427,9 @@ function PatientsProfile() {
                   <label className="w-1/2">Back</label>
                   <select
                     className="border rounded w-1/3 px-2 py-1"
-                    value={
-                      annual.abnormalFindings
-                        ?.back
-                        ?.back
-                        ? "Yes"
-                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    value={annual.abnormalFindings?.back?.back ? "Yes" : "No"} // Convert boolean to 'Yes' or 'No'
                     onChange={(e) =>
-                      handleAnnualInputChange(
-                        "back",
-                        e.target.value === "Yes"
-                      )
+                      handleAnnualInputChange("back", e.target.value === "Yes")
                     }
                   >
                     <option value="Yes">Yes</option>
@@ -9475,17 +9453,9 @@ function PatientsProfile() {
                   <label className="w-1/2">Face</label>
                   <select
                     className="border rounded w-1/3 px-2 py-1"
-                    value={
-                      annual.abnormalFindings
-                        ?.face
-                        ?.face
-                        ? "Yes"
-                        : "No"} // Convert boolean to 'Yes' or 'No'
+                    value={annual.abnormalFindings?.face?.face ? "Yes" : "No"} // Convert boolean to 'Yes' or 'No'
                     onChange={(e) =>
-                      handleAnnualInputChange(
-                        "face",
-                        e.target.value === "Yes"
-                      )
+                      handleAnnualInputChange("face", e.target.value === "Yes")
                     }
                   >
                     <option value="Yes">Yes</option>
@@ -9510,11 +9480,8 @@ function PatientsProfile() {
                   <select
                     className="border rounded w-1/3 px-2 py-1"
                     value={
-                      annual.abnormalFindings
-                        ?.guSystem
-                        ?.guSystem
-                        ? "Yes"
-                        : "No"} // Convert boolean to 'Yes' or 'No'
+                      annual.abnormalFindings?.guSystem?.guSystem ? "Yes" : "No"
+                    } // Convert boolean to 'Yes' or 'No'
                     onChange={(e) =>
                       handleAnnualInputChange(
                         "guSystem",
@@ -9544,11 +9511,11 @@ function PatientsProfile() {
                   <select
                     className="border rounded w-1/3 px-2 py-1"
                     value={
-                      annual.abnormalFindings
-                        ?.chestBreastsAxilla
+                      annual.abnormalFindings?.chestBreastsAxilla
                         ?.chestBreastsAxilla
                         ? "Yes"
-                        : "No"} // Convert boolean to 'Yes' or 'No'
+                        : "No"
+                    } // Convert boolean to 'Yes' or 'No'
                     onChange={(e) =>
                       handleAnnualInputChange(
                         "chestBreastsAxilla",
@@ -9563,7 +9530,9 @@ function PatientsProfile() {
                     type="text"
                     placeholder="Remarks"
                     className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                    value={annual.abnormalFindings?.chestBreastsAxilla?.remarks || ""} // Use an empty string as a fallback
+                    value={
+                      annual.abnormalFindings?.chestBreastsAxilla?.remarks || ""
+                    } // Use an empty string as a fallback
                     onChange={(e) =>
                       handleAnnualInputChange("chestBreastsAxilla", {
                         remarks: e.target.value,
@@ -9578,11 +9547,11 @@ function PatientsProfile() {
                   <select
                     className="border rounded w-1/3 px-2 py-1"
                     value={
-                      annual.abnormalFindings
-                        ?.inguinalGenitals
+                      annual.abnormalFindings?.inguinalGenitals
                         ?.inguinalGenitals
                         ? "Yes"
-                        : "No"} // Convert boolean to 'Yes' or 'No'
+                        : "No"
+                    } // Convert boolean to 'Yes' or 'No'
                     onChange={(e) =>
                       handleAnnualInputChange(
                         "inguinalGenitals",
@@ -9597,7 +9566,9 @@ function PatientsProfile() {
                     type="text"
                     placeholder="Remarks"
                     className="ml-2 border rounded w-2/3 px-2 py-1 flex-grow"
-                    value={annual.abnormalFindings?.inguinalGenitals?.remarks || ""} // Use an empty string as a fallback
+                    value={
+                      annual.abnormalFindings?.inguinalGenitals?.remarks || ""
+                    } // Use an empty string as a fallback
                     onChange={(e) =>
                       handleAnnualInputChange("inguinalGenitals", {
                         remarks: e.target.value,
@@ -9612,11 +9583,10 @@ function PatientsProfile() {
                   <select
                     className="border rounded w-1/3 px-2 py-1"
                     value={
-                      annual.abnormalFindings
-                        ?.neckThyroid
-                        ?.neckThyroid
+                      annual.abnormalFindings?.neckThyroid?.neckThyroid
                         ? "Yes"
-                        : "No"} // Convert boolean to 'Yes' or 'No'
+                        : "No"
+                    } // Convert boolean to 'Yes' or 'No'
                     onChange={(e) =>
                       handleAnnualInputChange(
                         "neckThyroid",
@@ -9646,11 +9616,10 @@ function PatientsProfile() {
                   <select
                     className="border rounded w-1/3 px-2 py-1"
                     value={
-                      annual.abnormalFindings
-                        ?.extremities
-                        ?.extremities
+                      annual.abnormalFindings?.extremities?.extremities
                         ? "Yes"
-                        : "No"} // Convert boolean to 'Yes' or 'No'
+                        : "No"
+                    } // Convert boolean to 'Yes' or 'No'
                     onChange={(e) =>
                       handleAnnualInputChange(
                         "extremities",
@@ -9673,7 +9642,6 @@ function PatientsProfile() {
                     }
                   />
                 </div>
-
               </div>
             </div>
 
@@ -9705,32 +9673,43 @@ function PatientsProfile() {
                   <input
                     type="text"
                     className="col-span-4 border rounded px-3 py-1"
-                    // value={annual.labExam.chestXray}
-                    onChange={(e) => handleAnnualInputChange("chestXray", e.target.value)}
+                    value={annual.labExam.chestXray}
+                    onChange={(e) =>
+                      handleAnnualInputChange("chestXray", e.target.value)
+                    }
                   />
 
                   <label className="col-span-2">Urinalysis</label>
                   <input
                     type="text"
                     className="col-span-4 border rounded px-3 py-1"
-                    // value={annual.labExam.urinalysis}
-                    onChange={(e) => handleAnnualInputChange("urinalysis", e.target.value)}
+                    value={annual.labExam.urinalysis}
+                    onChange={(e) =>
+                      handleAnnualInputChange("urinalysis", e.target.value)
+                    }
                   />
 
                   <label className="col-span-2">Fecalysis</label>
                   <input
                     type="text"
                     className="col-span-4 border rounded px-3 py-1"
-                    // value={annual.labExam.fecalysis}
-                    onChange={(e) => handleAnnualInputChange("fecalysis", e.target.value)}
+                    value={annual.labExam.fecalysis}
+                    onChange={(e) =>
+                      handleAnnualInputChange("fecalysis", e.target.value)
+                    }
                   />
 
                   <label className="col-span-2">Complete Blood Count</label>
                   <input
                     type="text"
                     className="col-span-4 border rounded px-3 py-1"
-                    // value={annual.labExam.completeBloodCount}
-                    onChange={(e) => handleAnnualInputChange("completeBloodCount", e.target.value)}
+                    value={annual.labExam.completeBloodCount}
+                    onChange={(e) =>
+                      handleAnnualInputChange(
+                        "completeBloodCount",
+                        e.target.value
+                      )
+                    }
                   />
                 </div>
 
@@ -9750,8 +9729,10 @@ function PatientsProfile() {
                     <input
                       type="text"
                       className="col-span-12 border rounded px-3 py-1 w-full h-auto resize-y"
-                      // value={annual.others.medications}
-                      onChange={(e) => handleAnnualInputChange("medications", e.target.value)}
+                      value={annual.others.medications}
+                      onChange={(e) =>
+                        handleAnnualInputChange("medications", e.target.value)
+                      }
                     />
                   </div>
                 </div>
@@ -9772,8 +9753,13 @@ function PatientsProfile() {
                     <input
                       type="text"
                       className="col-span-12 border rounded px-3 py-1 w-full h-auto resize-y"
-                      // value={annual.others.remarksRecommendations}
-                      onChange={(e) => handleAnnualInputChange("remarksRecommendations", e.target.value)}
+                      value={annual.others.remarksRecommendations}
+                      onChange={(e) =>
+                        handleAnnualInputChange(
+                          "remarksRecommendations",
+                          e.target.value
+                        )
+                      }
                     />
                   </div>
                 </div>
