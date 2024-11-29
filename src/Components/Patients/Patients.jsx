@@ -1798,43 +1798,7 @@ function Patients() {
                 ></textarea>
               </div>
 
-              <div className="mt-7 flex flex-col space-y-4">
-                <label className="text-sm font-semibold text-gray-700">
-                  I hereby certify that all the information I have disclosed as
-                  reflected in this report are true to the best of my knowledge
-                  and belief and that any misrepresentation or concealment on my
-                  part may lead to consequences, which may or may not include
-                  disqualification, etc.
-                  <br />
-                  <br />
-                  I hereby authorize UB Medical-Dental Clinic and its officially
-                  designated examining physicians and staff to conduct the
-                  examinations necessary to assess my fitness to undergo
-                  Internship/On-the-Job Training/Practicum.
-                  <br />
-                  <br />
-                  By signing this, I hold UB Medical-Dental Clinic and its
-                  authorized physicians and staff free from any criminal, civil,
-                  administrative, ethical, and moral liability, that may arise
-                  from the above.
-                </label>
-
-                <div className="flex justify-end mt-4">
-                  <div className="w-1/2">
-                    <label className="text-sm font-medium text-gray-700 block mb-2">
-                      Upload Signature
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Accepted file types: JPG, PNG. Max size: 5MB
-                    </p>
-                  </div>
-                </div>
-              </div>
+              
             </div>
             {/* Conditions Section */}
             <div className="mt-6">
@@ -2325,44 +2289,6 @@ function Patients() {
                       <option value="Yes">Yes</option>
                       <option value="No">No</option>
                     </select>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-7 flex flex-col space-y-4">
-                <label className="text-sm font-semibold text-gray-700">
-                  I hereby certify that all the information I have disclosed as
-                  reflected in this report is true to the best of my knowledge
-                  and belief, and that any misrepresentation or concealment on
-                  my part may lead to consequences, which may or may not include
-                  disqualification, etc.
-                  <br />
-                  <br />
-                  I hereby authorize UB Medical-Dental Clinic and its officially
-                  designated examining physicians and staff to conduct the
-                  examinations necessary to assess my fitness to undergo
-                  Internship/On-the-Job Training/Practicum.
-                  <br />
-                  <br />
-                  By signing this, I hold UB Medical-Dental Clinic and its
-                  authorized physicians and staff free from any criminal, civil,
-                  administrative, ethical, and moral liability that may arise
-                  from the above.
-                </label>
-
-                <div className="flex justify-end mt-4">
-                  <div className="w-1/2">
-                    <label className="text-sm font-medium text-gray-700 block mb-2">
-                      Upload Signature
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Accepted file types: JPG, PNG. Max size: 5MB
-                    </p>
                   </div>
                 </div>
               </div>

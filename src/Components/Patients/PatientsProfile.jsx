@@ -753,6 +753,7 @@ function PatientsProfile() {
         isCreatedAt,
         xrayType,
         packageNumber,
+        xrayDescription,
         ...pkgWithoutIdAndCreatedAt
       } = pkg;
 
@@ -786,7 +787,11 @@ function PatientsProfile() {
 
       // Check if package includes both Medical and Dental X-ray
       if (xrayType === "medical, dental") {
-        // Send request for Medical X-ray with xrayDescription
+        // Split the xrayDescription into medical and dental parts
+        const [medicalDescription, dentalDescription] =
+          xrayDescription.split(", ");
+
+        // Send request for Medical X-ray with the medical description
         const medicalXrayResponse = await axios.post(
           "http://localhost:3001/api/xrayResults",
           {
@@ -795,7 +800,7 @@ function PatientsProfile() {
             packageId: _id,
             packageNumber: updatedPackageNumber, // Use updated package number
             xrayType: "medical",
-            xrayDescription: pkgWithoutIdAndCreatedAt.xrayDescription,
+            xrayDescription: medicalDescription, // Send medical part
             xrayResult: "pending",
           }
         );
@@ -807,7 +812,7 @@ function PatientsProfile() {
           );
         }
 
-        // Send request for Dental X-ray with "Panoramic" description
+        // Send request for Dental X-ray with the dental description
         const dentalXrayResponse = await axios.post(
           "http://localhost:3001/api/xrayResults",
           {
@@ -816,7 +821,7 @@ function PatientsProfile() {
             packageId: _id,
             packageNumber: updatedPackageNumber, // Use updated package number
             xrayType: "dental",
-            xrayDescription: "Panoramic",
+            xrayDescription: dentalDescription, // Send dental part
             xrayResult: "pending",
           }
         );
@@ -8910,6 +8915,7 @@ function PatientsProfile() {
                   <option value="dental">Dental X-ray</option>
                 </select>
               </div>
+
               <div className="mb-4">
                 <label className="block text-sm font-medium">Description</label>
                 <select
@@ -8939,6 +8945,7 @@ function PatientsProfile() {
                     ))}
                 </select>
               </div>
+
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"

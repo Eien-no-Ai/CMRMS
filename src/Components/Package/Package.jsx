@@ -11,6 +11,32 @@ const Package = () => {
     xrayType: "",
     xrayDescription: "",
   });
+  // X-ray description options based on the selected type
+  const medicalDescriptions = [
+    "CHEST PA",
+    "SKULL",
+    "CERVICAL",
+    "PANORAMIC",
+    "TLV/LSV",
+    "PELVIS",
+    "UPPER EXTREMITIES",
+    "LOWER EXTREMITIES",
+  ];
+
+  const dentalDescriptions = [
+    "PANORAMIC",
+    "LATERAL CEPHALOMETRIC",
+    "PERIAPICAL",
+    "TMJ",
+  ];
+
+  const handleNewXrayChange = (e) => {
+    const { name, value } = e.target;
+    setNewXrayRecord((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const [addPackage, setAddPackage] = useState("");
   const [formData, setFormData] = useState({
@@ -135,7 +161,11 @@ const Package = () => {
         packageFor: packageFor, // Include the packageFor value here
         ...formData, // Spread the formData object directly
         xrayType: newXrayRecord.xrayType,
-        xrayDescription: newXrayRecord.xrayDescription, // Add xrayDescription here
+        // If xrayType is 'both', combine the descriptions with a comma and space
+        xrayDescription:
+          newXrayRecord.xrayType === "medical, dental"
+            ? `${newXrayRecord.medicalDescription}, ${newXrayRecord.dentalDescription}`
+            : newXrayRecord.xrayDescription, // Otherwise, just use the selected description
       };
 
       // Send POST request to the API
@@ -190,7 +220,12 @@ const Package = () => {
           KOH: "",
         },
       });
-      setNewXrayRecord({ xrayType: "", xrayDescription: "" });
+      setNewXrayRecord({
+        xrayType: "",
+        xrayDescription: "",
+        medicalDescription: "",
+        dentalDescription: "",
+      });
     } catch (error) {
       console.error("Error submitting package:", error);
       alert("Failed to create package. Please try again.");
@@ -579,32 +614,8 @@ const Package = () => {
                   </div>
                 </div>
 
-                {/* Microbiology */}
-                <div className="border rounded-lg p-6 shadow-md bg-gray-50">
-                  <h3 className="font-semibold text-base mb-3">
-                    V. Microbiology
-                  </h3>
-                  <div className="space-y-2">
-                    {Object.keys(formData.microbiology).map((key) => (
-                      <label
-                        key={key}
-                        className="flex items-center space-x-2 text-sm"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={formData.microbiology[key] !== ""}
-                          onChange={() =>
-                            handleInputChange("microbiology", key)
-                          }
-                        />
-                        <span>{key.replace(/_/g, " ")}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
                 {/* X-ray Section */}
-                <div className="md:col-span-2 border rounded-lg p-6 shadow-md bg-gray-50">
+                <div className="md:col-span-3 border rounded-lg p-6 shadow-md bg-gray-50">
                   <h3 className="font-semibold text-base mb-4">X-ray Type</h3>
                   <select
                     value={newXrayRecord.xrayType}
@@ -612,9 +623,11 @@ const Package = () => {
                       setNewXrayRecord((prev) => ({
                         ...prev,
                         xrayType:
-                          e.target.value === "both"
+                          e.target.value === "medical, dental"
                             ? "medical, dental"
                             : e.target.value,
+                        medicalDescription: "", // Reset descriptions when changing the type
+                        dentalDescription: "",
                       }))
                     }
                     className="border rounded-lg w-full p-2 mb-4"
@@ -624,23 +637,107 @@ const Package = () => {
                     </option>
                     <option value="medical">Medical X-Ray</option>
                     <option value="dental">Dental X-ray</option>
-                    <option value="both">Both</option>
+                    <option value="medical, dental">Both</option>
                   </select>
-                  <label className="block text-sm font-medium">
-                    Description
-                  </label>
-                  <textarea
-                    name="xrayDescription"
-                    value={newXrayRecord.xrayDescription || ""}
-                    onChange={(e) =>
-                      setNewXrayRecord((prev) => ({
-                        ...prev,
-                        xrayDescription: e.target.value,
-                      }))
-                    }
-                    className="border rounded-lg w-full p-2 mt-2"
-                    placeholder="Enter X-ray description or details"
-                  />
+
+                  {/* Show both dropdowns when "both" is selected */}
+                  {newXrayRecord.xrayType === "medical, dental" && (
+                    <>
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium">
+                          Medical Description
+                        </label>
+                        <select
+                          name="medicalDescription"
+                          value={newXrayRecord.medicalDescription}
+                          onChange={handleNewXrayChange}
+                          required
+                          className="border rounded-lg w-full p-2 mt-1"
+                        >
+                          <option value="" disabled>
+                            Select Medical Description
+                          </option>
+                          {medicalDescriptions.map((description, index) => (
+                            <option key={index} value={description}>
+                              {description}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium">
+                          Dental Description
+                        </label>
+                        <select
+                          name="dentalDescription"
+                          value={newXrayRecord.dentalDescription}
+                          onChange={handleNewXrayChange}
+                          required
+                          className="border rounded-lg w-full p-2 mt-1"
+                        >
+                          <option value="" disabled>
+                            Select Dental Description
+                          </option>
+                          {dentalDescriptions.map((description, index) => (
+                            <option key={index} value={description}>
+                              {description}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Show only medical dropdown when medical is selected */}
+                  {newXrayRecord.xrayType === "medical" && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium">
+                        Description
+                      </label>
+                      <select
+                        name="xrayDescription"
+                        value={newXrayRecord.xrayDescription}
+                        onChange={handleNewXrayChange}
+                        required
+                        className="border rounded-lg w-full p-2 mt-1"
+                      >
+                        <option value="" disabled>
+                          Select Medical Description
+                        </option>
+                        {medicalDescriptions.map((description, index) => (
+                          <option key={index} value={description}>
+                            {description}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Show only dental dropdown when dental is selected */}
+                  {newXrayRecord.xrayType === "dental" && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium">
+                        Description
+                      </label>
+                      <select
+                        name="xrayDescription"
+                        value={newXrayRecord.xrayDescription}
+                        onChange={handleNewXrayChange}
+                        required
+                        className="border rounded-lg w-full p-2 mt-1"
+                      >
+                        <option value="" disabled>
+                          Select Dental Description
+                        </option>
+                        {dentalDescriptions.map((description, index) => (
+                          <option key={index} value={description}>
+                            {description}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
               </div>
 
