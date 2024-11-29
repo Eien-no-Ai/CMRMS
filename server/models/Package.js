@@ -69,7 +69,7 @@ PackageSchema.pre("save", async function (next) {
         { $inc: { seq: 1 } },
         { new: true, upsert: true } // Create a new counter if it doesn't exist
       );
-      doc.packageNumber = counter.seq * 1000;
+      doc.packageNumber = counter.seq;
       next();
     } catch (error) {
       next(error);
