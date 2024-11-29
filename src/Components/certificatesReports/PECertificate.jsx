@@ -93,71 +93,65 @@ const PECertificate = ({ isOpen, onClose, patient, medicalHistory, physicalExamS
         
         <div style="display: flex; justify-content: space-between; margin-top: 20px;">
           <!-- First Table -->
-          <table border="1" style="width: 48%; border-collapse: collapse;">
+<table border="1" style="width: 48%; border-collapse: collapse; border: 0.5px solid black;">              
             <thead>
               <tr>
-                <th style="padding: 5px;">#</th>
-                <th style="padding: 5px;">Condition</th>
-                <th style="padding: 5px;">Yes</th>
-                <th style="padding: 5px;">No</th>
+                <th style="padding: 5px;border: 0.1px solid black;">#</th>
+                <th style="padding: 5px;border: 0.1px solid black;">Condition</th>
+                <th style="padding: 5px;border: 0.1px solid black;">Yes</th>
+                <th style="padding: 5px;border: 0.1px solid black;">No</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td style="padding: 5px;">1</td><td style="padding: 5px;">Nose or throat disorders</td><td style="padding: 5px;">${getCheckmark(conditions.noseThroatDisorders)}</td><td style="padding: 5px;">${getCheckmark(!conditions.noseThroatDisorders)}</td></tr>
-              <tr><td style="padding: 5px;">2</td><td style="padding: 5px;">Ear trouble / deafness</td><td style="padding: 5px;">${getCheckmark(conditions.earTrouble)}</td><td style="padding: 5px;">${getCheckmark(!conditions.earTrouble)}</td></tr>
-              <tr><td style="padding: 5px;">3</td><td style="padding: 5px;">Asthma</td><td style="padding: 5px;">${getCheckmark(conditions.asthma)}</td><td style="padding: 5px;">${getCheckmark(!conditions.asthma)}</td></tr>
-              <tr><td style="padding: 5px;">4</td><td style="padding: 5px;">Tuberculosis</td><td style="padding: 5px;">${getCheckmark(conditions.tuberculosis)}</td><td style="padding: 5px;">${getCheckmark(!conditions.tuberculosis)}</td></tr>
-              <tr><td style="padding: 5px;">5</td><td style="padding: 5px;">Other lung diseases</td><td style="padding: 5px;">${getCheckmark(conditions.lungDiseases)}</td><td style="padding: 5px;">${getCheckmark(!conditions.lungDiseases)}</td></tr>
-              <tr><td style="padding: 5px;">6</td><td style="padding: 5px;">High Blood Pressure</td><td style="padding: 5px;">${getCheckmark(conditions.highBloodPressure)}</td><td style="padding: 5px;">${getCheckmark(!conditions.highBloodPressure)}</td></tr>
-              <tr><td style="padding: 5px;">7</td><td style="padding: 5px;">Heart diseases</td><td style="padding: 5px;">${getCheckmark(conditions.heartDiseases)}</td><td style="padding: 5px;">${getCheckmark(!conditions.heartDiseases)}</td></tr>
-              <tr><td style="padding: 5px;">8</td><td style="padding: 5px;">Rheumatic Fever</td><td style="padding: 5px;">${getCheckmark(conditions.rheumaticFever)}</td><td style="padding: 5px;">${getCheckmark(!conditions.rheumaticFever)}</td></tr>
-              <tr><td style="padding: 5px;">9</td><td style="padding: 5px;">Diabetes Mellitus</td><td style="padding: 5px;">${getCheckmark(conditions.diabetesMellitus)}</td><td style="padding: 5px;">${getCheckmark(!conditions.diabetesMellitus)}</td></tr>
-              <tr><td style="padding: 5px;">10</td><td style="padding: 5px;">Endocrine Disorder</td><td style="padding: 5px;">${getCheckmark(conditions.endocrineDisorder)}</td><td style="padding: 5px;">${getCheckmark(!conditions.endocrineDisorder)}</td></tr>
-              <tr><td style="padding: 5px;">11</td><td style="padding: 5px;">Cancer/Tumor</td><td style="padding: 5px;">${getCheckmark(conditions.cancerTumor)}</td><td style="padding: 5px;">${getCheckmark(!conditions.cancerTumor)}</td></tr>
-              <tr><td style="padding: 5px;">12</td><td style="padding: 5px;">Mental Disorder/Depression</td><td style="padding: 5px;">${getCheckmark(conditions.mentalDisorder)}</td><td style="padding: 5px;">${getCheckmark(!conditions.mentalDisorder)}</td></tr>
-              <tr><td style="padding: 5px;">13</td><td style="padding: 5px;">Head or neck injury</td><td style="padding: 5px;">${getCheckmark(conditions.headNeckInjury)}</td><td style="padding: 5px;">${getCheckmark(!conditions.headNeckInjury)}</td></tr>
-              <tr><td style="padding: 5px;">14</td><td style="padding: 5px;">Hernia</td><td style="padding: 5px;">${getCheckmark(conditions.hernia)}</td><td style="padding: 5px;">${getCheckmark(!conditions.hernia)}</td></tr>
-              <tr><td style="padding: 5px;">15</td><td style="padding: 5px;">Rheumatism, joint or back pain</td><td style="padding: 5px;">${getCheckmark(conditions.rheumatismJointPain)}</td><td style="padding: 5px;">${getCheckmark(!conditions.rheumatismJointPain)}</td></tr>
-              <tr><td style="padding: 5px;">16</td><td style="padding: 5px;">Eye disorders</td><td style="padding: 5px;">${getCheckmark(conditions.eyeDisorders)}</td><td style="padding: 5px;">${getCheckmark(!conditions.eyeDisorders)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">1</td><td style="padding: 5px;border: 0.1px solid black;">Nose or throat disorders</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.noseThroatDisorders)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.noseThroatDisorders)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">2</td><td style="padding: 5px;border: 0.1px solid black;">Ear trouble / deafness</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.earTrouble)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.earTrouble)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">3</td><td style="padding: 5px;border: 0.1px solid black;">Asthma</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.asthma)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.asthma)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">4</td><td style="padding: 5px;border: 0.1px solid black;">Tuberculosis</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.tuberculosis)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.tuberculosis)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">5</td><td style="padding: 5px;border: 0.1px solid black;">Other lung diseases</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.lungDiseases)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.lungDiseases)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">6</td><td style="padding: 5px;border: 0.1px solid black;">High Blood Pressure</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.highBloodPressure)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.highBloodPressure)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">7</td><td style="padding: 5px;border: 0.1px solid black;">Heart diseases</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.heartDiseases)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.heartDiseases)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">8</td><td style="padding: 5px;border: 0.1px solid black;">Rheumatic Fever</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.rheumaticFever)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.rheumaticFever)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">9</td><td style="padding: 5px;border: 0.1px solid black;">Diabetes Mellitus</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.diabetesMellitus)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.diabetesMellitus)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">10</td><td style="padding: 5px;border: 0.1px solid black;">Endocrine Disorder</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.endocrineDisorder)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.endocrineDisorder)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">11</td><td style="padding: 5px;border: 0.1px solid black;">Cancer/Tumor</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.cancerTumor)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.cancerTumor)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">12</td><td style="padding: 5px;border: 0.1px solid black;">Mental Disorder/Depression</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.mentalDisorder)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.mentalDisorder)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">13</td><td style="padding: 5px;border: 0.1px solid black;">Head or neck injury</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.headNeckInjury)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.headNeckInjury)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">14</td><td style="padding: 5px;border: 0.1px solid black;">Hernia</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.hernia)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.hernia)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">15</td><td style="padding: 5px;border: 0.1px solid black;">Rheumatism, joint or back pain</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.rheumatismJointPain)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.rheumatismJointPain)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">16</td><td style="padding: 5px;border: 0.1px solid black;">Eye disorders</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.eyeDisorders)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.eyeDisorders)}</td></tr>
             </tbody>
           </table>
           
           <!-- Second Table -->
-          <table border="1" style="width: 48%; border-collapse: collapse;">
+<table border="1" style="width: 48%; border-collapse: collapse; border: 0.5px solid black;">              
             <thead>
               <tr>
-                <th style="padding: 5px;">#</th>
-                <th style="padding: 5px;">Condition</th>
-                <th style="padding: 5px;">Yes</th>
-                <th style="padding: 5px;">No</th>
+                <th style="padding: 5px;border: 0.1px solid black;">#</th>
+                <th style="padding: 5px;border: 0.1px solid black;">Condition</th>
+                <th style="padding: 5px;border: 0.1px solid black;">Yes</th>
+                <th style="padding: 5px;border: 0.1px solid black;">No</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td style="padding: 5px;">17</td><td style="padding: 5px;">Stomach pain / ulcer</td><td style="padding: 5px;">${getCheckmark(conditions.stomachPainUlcer)}</td><td style="padding: 5px;">${getCheckmark(!conditions.stomachPainUlcer)}</td></tr>
-              <tr><td style="padding: 5px;">18</td><td style="padding: 5px;">Other abdominal disorders</td><td style="padding: 5px;">${getCheckmark(conditions.abdominalDisorders)}</td><td style="padding: 5px;">${getCheckmark(!conditions.abdominalDisorders)}</td></tr>
-              <tr><td style="padding: 5px;">19</td><td style="padding: 5px;">Kidney or bladder diseases</td><td style="padding: 5px;">${getCheckmark(conditions.kidneyBladderDiseases)}</td><td style="padding: 5px;">${getCheckmark(!conditions.kidneyBladderDiseases)}</td></tr>
-              <tr><td style="padding: 5px;">20</td><td style="padding: 5px;">Sexually Transmitted Diseases (STDs)</td><td style="padding: 5px;">${getCheckmark(conditions.std)}</td><td style="padding: 5px;">${getCheckmark(!conditions.std)}</td></tr>
-              <tr><td style="padding: 5px;">21</td><td style="padding: 5px;">Genetic or Familial disorder</td><td style="padding: 5px;">${getCheckmark(conditions.familialDisorder)}</td><td style="padding: 5px;">${getCheckmark(!conditions.familialDisorder)}</td></tr>
-              <tr><td style="padding: 5px;">22</td><td style="padding: 5px;">Tropical Diseases</td><td style="padding: 5px;">${getCheckmark(conditions.tropicalDiseases)}</td><td style="padding: 5px;">${getCheckmark(!conditions.tropicalDiseases)}</td></tr>
-              <tr><td style="padding: 5px;">23</td><td style="padding: 5px;">Chronic cough</td><td style="padding: 5px;">${getCheckmark(conditions.chronicCough)}</td><td style="padding: 5px;">${getCheckmark(!conditions.chronicCough)}</td></tr>
-              <tr><td style="padding: 5px;">24</td><td style="padding: 5px;">Fainting or seizures</td><td style="padding: 5px;">${getCheckmark(conditions.faintingSeizures)}</td><td style="padding: 5px;">${getCheckmark(!conditions.faintingSeizures)}</td></tr>
-              <tr><td style="padding: 5px;">25</td><td style="padding: 5px;">Frequent headache</td><td style="padding: 5px;">${getCheckmark(conditions.frequentHeadache)}</td><td style="padding: 5px;">${getCheckmark(!conditions.frequentHeadache)}</td></tr>
-              <tr><td style="padding: 5px;">26</td><td style="padding: 5px;">Dizziness</td><td style="padding: 5px;">${getCheckmark(conditions.dizziness)}</td><td style="padding: 5px;">${getCheckmark(!conditions.dizziness)}</td></tr>
-              <tr><td style="padding: 5px;">27</td><td style="padding: 5px;">Malaria</td><td style="padding: 5px;">${getCheckmark(malaria.hasMalaria === "Yes")}</td><td style="padding: 5px;">${getCheckmark(malaria.hasMalaria !== "Yes")}</td></tr>
-              <tr><td style="padding: 5px;">28</td><td style="padding: 5px;">Operations</td><td style="padding: 5px;">${getCheckmark(operations.undergoneOperation === "Yes")}</td><td style="padding: 5px;">${getCheckmark(operations.undergoneOperation !== "Yes")}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">17</td><td style="padding: 5px;border: 0.1px solid black;">Stomach pain / ulcer</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.stomachPainUlcer)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.stomachPainUlcer)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">18</td><td style="padding: 5px;border: 0.1px solid black;">Other abdominal disorders</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.abdominalDisorders)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.abdominalDisorders)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">19</td><td style="padding: 5px;border: 0.1px solid black;">Kidney or bladder diseases</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.kidneyBladderDiseases)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.kidneyBladderDiseases)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">20</td><td style="padding: 5px;border: 0.1px solid black;">Sexually Transmitted Diseases (STDs)</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.std)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.std)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">21</td><td style="padding: 5px;border: 0.1px solid black;">Genetic or Familial disorder</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.familialDisorder)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.familialDisorder)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">22</td><td style="padding: 5px;border: 0.1px solid black;">Tropical Diseases</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.tropicalDiseases)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.tropicalDiseases)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">23</td><td style="padding: 5px;border: 0.1px solid black;">Chronic cough</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.chronicCough)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.chronicCough)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">24</td><td style="padding: 5px;border: 0.1px solid black;">Fainting or seizures</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.faintingSeizures)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.faintingSeizures)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">25</td><td style="padding: 5px;border: 0.1px solid black;">Frequent headache</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.frequentHeadache)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.frequentHeadache)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">26</td><td style="padding: 5px;border: 0.1px solid black;">Dizziness</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(conditions.dizziness)}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(!conditions.dizziness)}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">27</td><td style="padding: 5px;border: 0.1px solid black;">Malaria</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(malaria.hasMalaria === "Yes")}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(malaria.hasMalaria !== "Yes")}</td></tr>
+              <tr><td style="padding: 5px;border: 0.1px solid black;">28</td><td style="padding: 5px;border: 0.1px solid black;">Operations</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(operations.undergoneOperation === "Yes")}</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(operations.undergoneOperation !== "Yes")}</td></tr>
             </tbody>
           </table>
         </div>
 
-        <!-- Malaria section -->
-        ${malaria.hasMalaria === 'Yes' ? `
           <div><strong>Malaria:</strong> Yes (Last attack on: ${malaria.lastAttackDate})</div>
-        ` : ""}
   
-        <!-- Operations section -->
-        ${operations.undergoingOperation === 'Yes' ? `
           <div><strong>Operations:</strong> Yes, operations undergone: ${operations.listOperations}</div>
-        ` : ""}
 
                       <div className="text-sm font-semibold text-gray-700" style="margin-top: 20px;">                      
                       I hereby certify that all the information I have disclosed
@@ -166,12 +160,10 @@ const PECertificate = ({ isOpen, onClose, patient, medicalHistory, physicalExamS
                       concealment on my part may lead to consequences, which may
                       or may not include disqualification, etc.
                       <br />
-                      <br />
                       I hereby authorize UB Medical-Dental Clinic and its
                       officially designated examining physicians and staff to
                       conduct the examinations necessary to assess my fitness to
                       undergo Internship/On-the-Job Training/Practicum.
-                      <br />
                       <br />
                       By signing this, I hold UB Medical-Dental Clinic and its
                       authorized physicians and staff free from any criminal,
@@ -186,80 +178,69 @@ const PECertificate = ({ isOpen, onClose, patient, medicalHistory, physicalExamS
           </div>
           <div style="display: flex; justify-content: space-between; margin-top: 10px;">
             <!-- First Table: Basic Measurements -->
-            <table border="1" style="flex: 1; margin-right: 10px; border-collapse: collapse;">
-              <thead>
-                <tr>
-                  <th style="padding: 5px; text-align: left;"></th>
-                  <th style="padding: 5px; text-align: left;"></th>
-                </tr>
-              </thead>
+<table border="1" style="width: 48%; border-collapse: collapse; border: 0.5px solid black;">              
+
               <tbody>
-                <tr><td style="padding: 5px;">Temperature</td><td style="padding: 5px;">${physicalExamStudent.temperature}</td></tr>
-                <tr><td style="padding: 5px;">Blood Pressure</td><td style="padding: 5px;">${physicalExamStudent.bloodPressure}</td></tr>
-                <tr><td style="padding: 5px;">Pulse Rate</td><td style="padding: 5px;">${physicalExamStudent.pulseRate}</td></tr>
-                <tr><td style="padding: 5px;">Respiration Rate</td><td style="padding: 5px;">${physicalExamStudent.respirationRate}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Temperature</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.temperature}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Blood Pressure</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.bloodPressure}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Pulse Rate</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.pulseRate}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Respiration Rate</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.respirationRate}</td></tr>
               </tbody>
             </table>
             
             <!-- Second Table: Body Measurements -->
-            <table border="1" style="flex: 1; border-collapse: collapse;">
-              <thead>
-                <tr>
-                  <th style="padding: 5px; text-align: left;"></th>
-                  <th style="padding: 5px; text-align: left;"></th>
-                </tr>
-              </thead>
+<table border="1" style="width: 48%; border-collapse: collapse; border: 0.5px solid black;">              
               <tbody>
-                <tr><td style="padding: 5px;">Height</td><td style="padding: 5px;">${physicalExamStudent.height}</td></tr>
-                <tr><td style="padding: 5px;">Weight</td><td style="padding: 5px;">${physicalExamStudent.weight}</td></tr>
-                <tr><td style="padding: 5px;">Body Built</td><td style="padding: 5px;">${physicalExamStudent.bodyBuilt}</td></tr>
-                <tr><td style="padding: 5px;">Visual Acuity</td><td style="padding: 5px;">${physicalExamStudent.visualAcuity}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Height</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.height}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Weight</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.weight}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Body Built</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.bodyBuilt}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Visual Acuity</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.visualAcuity}</td></tr>
               </tbody>
             </table>
           </div>
                 
           <div style="display: flex; justify-content: space-between; margin-top: 20px;">
             <!-- First Table for Findings -->
-            <table border="1" style="width: 48%; border-collapse: collapse;">
-              <thead>
+<table border="1" style="width: 48%; border-collapse: collapse; border: 0.5px solid black;">              
+<thead>
                 <tr>
-                  <th style="padding: 5px;">Body</th>
-                  <th style="padding: 5px;">Yes</th>
-                  <th style="padding: 5px;">No</th>
-                  <th style="padding: 5px;">Remarks</th>
-                </tr>
+        <th style="padding: 10px; border: 0.5px solid black;">Body</th>
+        <th style="padding: 10px; border: 0.5px solid black;">Yes</th>
+        <th style="padding: 10px; border: 0.5px solid black;">No</th>
+        <th style="padding: 10px; border: 0.5px solid black;">Remarks</th>                
+        </tr>
               </thead>
               <tbody>
-                <tr><td style="padding: 5px;">Head/Neck/Scalp</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.headNeckScalp.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.headNeckScalp.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.headNeckScalp.remarks || ''}</td></tr>
-                <tr><td style="padding: 5px;">Eyes/External</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.eyesExternal.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.eyesExternal.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.eyesExternal.remarks || ''}</td></tr>
-                <tr><td style="padding: 5px;">Pupils</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.pupils.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.pupils.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.pupils.remarks || ''}</td></tr>
-                <tr><td style="padding: 5px;">Ears</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.ears.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.ears.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.ears.remarks || ''}</td></tr>
-                <tr><td style="padding: 5px;">Nose/Sinuses</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.noseSinuses.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.noseSinuses.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.noseSinuses.remarks || ''}</td></tr>
-                <tr><td style="padding: 5px;">Mouth/Throat</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.mouthThroat.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.mouthThroat.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.mouthThroat.remarks || ''}</td></tr>
-                <tr><td style="padding: 5px;">Neck/Thyroid</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.neckThyroid.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.neckThyroid.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.neckThyroid.remarks || ''}</td></tr>
-                <tr><td style="padding: 5px;">Last Menstrual Period</td><td style="padding: 5px;" colspan="3">${physicalExamStudent.LMP ? new Date(physicalExamStudent.LMP).toLocaleDateString() : ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Head/Neck/Scalp</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.headNeckScalp.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.headNeckScalp.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.headNeckScalp.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Eyes/External</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.eyesExternal.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.eyesExternal.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.eyesExternal.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Pupils</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.pupils.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.pupils.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.pupils.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Ears</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.ears.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.ears.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.ears.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Nose/Sinuses</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.noseSinuses.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.noseSinuses.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.noseSinuses.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Mouth/Throat</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.mouthThroat.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.mouthThroat.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.mouthThroat.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Neck/Thyroid</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.neckThyroid.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.neckThyroid.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.neckThyroid.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Last Menstrual Period</td><td style="padding: 5px;border: 0.1px solid black;" colspan="3">${physicalExamStudent.LMP ? new Date(physicalExamStudent.LMP).toLocaleDateString() : ''}</td></tr>
               </tbody>
             </table>
 
             <!-- Second Table for Findings -->
-            <table border="1" style="width: 48%; border-collapse: collapse;">
+<table border="1" style="width: 48%; border-collapse: collapse; border: 0.5px solid black;">              
               <thead>
                 <tr>
-                  <th style="padding: 5px;">Body</th>
-                  <th style="padding: 5px;">Yes</th>
-                  <th style="padding: 5px;">No</th>
-                  <th style="padding: 5px;">Remarks</th>
-                </tr>
+        <th style="padding: 10px; border: 0.5px solid black;">Body</th>
+        <th style="padding: 10px; border: 0.5px solid black;">Yes</th>
+        <th style="padding: 10px; border: 0.5px solid black;">No</th>
+        <th style="padding: 10px; border: 0.5px solid black;">Remarks</th>                
+        </tr>
               </thead>
               <tbody>
-                <tr><td style="padding: 5px;">Chest/Breasts/Axilla</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.chestBreastsAxilla.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.chestBreastsAxilla.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.chestBreastsAxilla.remarks || ''}</td></tr>
-                <tr><td style="padding: 5px;">Lungs</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.lungs.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.lungs.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.lungs.remarks || ''}</td></tr>
-                <tr><td style="padding: 5px;">Heart</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.heart.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.heart.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.heart.remarks || ''}</td></tr>
-                <tr><td style="padding: 5px;">Abdomen</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.abdomen.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.abdomen.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.abdomen.remarks || ''}</td></tr>
-                <tr><td style="padding: 5px;">Back</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.back.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.back.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.back.remarks || ''}</td></tr>
-                <tr><td style="padding: 5px;">Anus/Rectum</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.anusRectum.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.anusRectum.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.anusRectum.remarks || ''}</td></tr>
-                <tr><td style="padding: 5px;">Urinary</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.urinary.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.urinary.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.urinary.remarks || ''}</td></tr>
-                <tr><td style="padding: 5px;">Inguinal/Genitals</td><td style="padding: 5px;">${getCheckmark(physicalExamStudent.abnormalFindings.inguinalGenitals.type) ? '✔' : ''}</td><td style="padding: 5px;">${!getCheckmark(physicalExamStudent.abnormalFindings.inguinalGenitals.type) ? '✔' : ''}</td><td style="padding: 5px;">${physicalExamStudent.abnormalFindings.inguinalGenitals.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Chest/Breasts/Axilla</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.chestBreastsAxilla.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.chestBreastsAxilla.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.chestBreastsAxilla.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Lungs</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.lungs.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.lungs.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.lungs.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Heart</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.heart.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.heart.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.heart.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Abdomen</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.abdomen.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.abdomen.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.abdomen.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Back</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.back.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.back.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.back.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Anus/Rectum</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.anusRectum.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.anusRectum.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.anusRectum.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Urinary</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.urinary.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.urinary.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.urinary.remarks || ''}</td></tr>
+                <tr><td style="padding: 5px;border: 0.1px solid black;">Inguinal/Genitals</td><td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(physicalExamStudent.abnormalFindings.inguinalGenitals.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(physicalExamStudent.abnormalFindings.inguinalGenitals.type) ? '✔' : ''}</td><td style="padding: 5px;border: 0.1px solid black;">${physicalExamStudent.abnormalFindings.inguinalGenitals.remarks || ''}</td></tr>
               </tbody>
             </table>
           </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
-import axios from "axios";
+import axios from 'axios';
 
 const PTCertificate = ({ isOpen, onClose, selectedRecord, newTherapyRecord }) => {
   const [userData, setUserData] = useState({});
@@ -25,68 +25,65 @@ const PTCertificate = ({ isOpen, onClose, selectedRecord, newTherapyRecord }) =>
         });
     }
   }, [userId]);
-  
-  
-  const generatePDF = async () => {
 
-        // Compute age from birthdate
-        const calculateAge = (birthdate) => {
-            const birthDateObj = new Date(birthdate);
-            const today = new Date();
-            let age = today.getFullYear() - birthDateObj.getFullYear();
-            const month = today.getMonth();
-            if (month < birthDateObj.getMonth() || (month === birthDateObj.getMonth() && today.getDate() < birthDateObj.getDate())) {
-              age--;
-            }
-            return age;
-          };
-        
-          const age = calculateAge(selectedRecord.patient?.birthdate);
-  
-    // Create the PDF content
+  // Compute age from birthdate
+  const calculateAge = (birthdate) => {
+    const birthDateObj = new Date(birthdate);
+    const today = new Date();
+    let age = today.getFullYear() - birthDateObj.getFullYear();
+    const month = today.getMonth();
+    if (month < birthDateObj.getMonth() || (month === birthDateObj.getMonth() && today.getDate() < birthDateObj.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const age = selectedRecord.patient?.birthdate ? calculateAge(selectedRecord.patient?.birthdate) : '';
+
+  const generatePDF = async () => {
+    // Create the PDF content dynamically using JSX
     const content = document.createElement('div');
     content.innerHTML = `
       <img src="/ub.png" width="200" height="100" style="display: block; margin-top: 0.5in; margin-left: auto; margin-right: auto;" alt="logo" />
-        <p style="text-align: center; font-family: 'Times New Roman', Times, serif; font-size: 10pt;">
+      <p style="text-align: center; font-family: 'Times New Roman', Times, serif; font-size: 10pt;">
         SCHOOL OF NATURAL SCIENCES<br>
         General Luna Road., Baguio City, Philippines 2600
-        </p>
-        <hr style="border-top: 1px solid black; margin-top: 7px; margin-left: 0.5in; margin-right: 0.5in; margin-bottom: 2px;">
-        <hr style="border-top: 1px solid black; margin-top: 0; margin-left: 0.5in; margin-right: 0.5in; margin-bottom: 0;">
-        <div style="display: flex; justify-content: space-between; font-family: 'Times New Roman', Times, serif; font-size: 10pt; margin-top: 0; margin-left: 0.5in; margin-right: 0.5in;">
+      </p>
+      <hr style="border-top: 1px solid black; margin-top: 7px; margin-left: 0.5in; margin-right: 0.5in; margin-bottom: 2px;">
+      <hr style="border-top: 1px solid black; margin-top: 0; margin-left: 0.5in; margin-right: 0.5in; margin-bottom: 0;">
+      <div style="display: flex; justify-content: space-between; font-family: 'Times New Roman', Times, serif; font-size: 10pt; margin-top: 0; margin-left: 0.5in; margin-right: 0.5in;">
         <div style="text-align: left;">Telefax No.: (074) 442-3071</div>
         <div style="text-align: center;">Website: www.ubaguio.edu</div>
         <div style="text-align: right;">E-mail Address: sns@ubaguio.edu</div>
-        </div>
+      </div>
 
-<div style="margin: 0.5in; font-family: 'Times New Roman', Times, serif; font-size: 10pt;">
-    <p><strong>Name: </strong> ${selectedRecord.patient?.lastname} ${selectedRecord.patient?.firstname} ${selectedRecord.patient?.middlename || ""}</p>
-    <p><strong>Age: </strong> ${age || ""}</p>
-    <p><strong>Sex: </strong> ${selectedRecord.patient?.sex}</p>
-    <p><strong>Diagnosis: </strong> ${selectedRecord.Diagnosis}</p>
-    <p><strong>Precautions: </strong> ${selectedRecord.Precautions}</p>
+      <div style="margin: 0.5in; font-family: 'Times New Roman', Times, serif; font-size: 10pt;">
+        <p><strong>Name: </strong> ${selectedRecord.patient?.lastname} ${selectedRecord.patient?.firstname} ${selectedRecord.patient?.middlename || ""}</p>
+        <p><strong>Age: </strong> ${age || "N/A"}</p>
+        <p><strong>Sex: </strong> ${selectedRecord.patient?.sex}</p>
+        <p><strong>Diagnosis: </strong> ${selectedRecord.Diagnosis}</p>
+        <p><strong>Precautions: </strong> ${selectedRecord.Precautions}</p>
 
-<table border="1" cellpadding="5" cellspacing="0" style="margin-top: 20px; width: 80%; border-collapse: collapse; margin-left: auto; margin-right: auto; text-align: center;">
-    <thead>
-        <tr>
-            <th style="text-align: center; width: 20%;">Date</th>
-            <th style="text-align: center; width: 40%;">Summary</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Loop through SOAP summaries -->
-        ${selectedRecord.SOAPSummaries.map(summary => `
-            <tr>
-                <td>${new Date(summary.date).toLocaleDateString()}</td>
-                <td>${summary.summary}</td>
-            </tr>
-        `).join('')}
-    </tbody>
+<table border="1" cellpadding="5" cellspacing="0" style="width: 80%; border-collapse: collapse; margin-top: 20px; margin-left: auto; margin-right: auto; text-align: center;">
+  <thead>
+    <tr>
+      <th style="text-align: center; width: 20%; padding: 5px; border: 0.1px solid black;">Date</th>
+      <th style="text-align: center; width: 40%; padding: 5px; border: 0.1px solid black;">Summary</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${selectedRecord.SOAPSummaries.map(summary => `
+      <tr>
+        <td style="padding: 5px;border: 0.1px solid black;">${new Date(summary.date).toLocaleDateString()}</td>
+        <td style="padding: 5px;border: 0.1px solid black;">${summary.summary}</td>
+      </tr>
+    `).join('')}
+  </tbody>
 </table>
 
-</div>
+      </div>
     `;
-  
+
     // Use html2pdf to generate the PDF and return it as a data URL
     html2pdf()
       .from(content)
@@ -95,9 +92,7 @@ const PTCertificate = ({ isOpen, onClose, selectedRecord, newTherapyRecord }) =>
         setPdfDataUrl(pdfData); // Set the PDF data URL for preview
       });
   };
-  
-  
-  
+
   if (!isOpen) return null;
 
   return (

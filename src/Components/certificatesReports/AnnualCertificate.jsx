@@ -96,31 +96,31 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
             <table border="1" style="width: 48%; border-collapse: collapse;">
                 <thead>
                     <tr>
-                        <th style="padding: 5px;"></th>
-                        <th style="padding: 5px;">Condition</th>
-                        <th style="padding: 5px;">Yes/No</th>
+                        <th style="padding: 5px;border: 0.1px solid black;"></th>
+                        <th style="padding: 5px;border: 0.1px solid black;">Condition</th>
+                        <th style="padding: 5px;border: 0.1px solid black;">Yes/No</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="padding: 5px;">1</td>
-                        <td style="padding: 5px;">Heart Disease</td>
-                        <td style="padding: 5px;">${medicalHistory.familyHistory.diseases.heartDisease ? 'Yes' : 'No'}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">1</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">Heart Disease</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.familyHistory.diseases.heartDisease ? 'Yes' : 'No'}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">2</td>
-                        <td style="padding: 5px;">Hypertension</td>
-                        <td style="padding: 5px;">${medicalHistory.familyHistory.diseases.hypertension ? 'Yes' : 'No'}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">2</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">Hypertension</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.familyHistory.diseases.hypertension ? 'Yes' : 'No'}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">3</td>
-                        <td style="padding: 5px;">Tuberculosis</td>
-                        <td style="padding: 5px;">${medicalHistory.familyHistory.diseases.tuberculosis ? 'Yes' : 'No'}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">3</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">Tuberculosis</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.familyHistory.diseases.tuberculosis ? 'Yes' : 'No'}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">4</td>
-                        <td style="padding: 5px;">Diabetes</td>
-                        <td style="padding: 5px;">${medicalHistory.familyHistory.diseases.diabetes ? 'Yes' : 'No'}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">4</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">Diabetes</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.familyHistory.diseases.diabetes ? 'Yes' : 'No'}</td>
                     </tr>
                 </tbody>
             </table>
@@ -129,42 +129,39 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
             <table border="1" style="width: 48%; border-collapse: collapse;">
                 <thead>
                     <tr>
-                        <th style="padding: 5px;"></th>
-                        <th style="padding: 5px;">Condition</th>
-                        <th style="padding: 5px;">Yes/No</th>
+                        <th style="padding: 5px;border: 0.1px solid black;"></th>
+                        <th style="padding: 5px;border: 0.1px solid black;">Condition</th>
+                        <th style="padding: 5px;border: 0.1px solid black;">Yes/No</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="padding: 5px;">5</td>
-                        <td style="padding: 5px;">Kidney Disease (UTI, Etc)</td>
-                        <td style="padding: 5px;">${medicalHistory.familyHistory.diseases.kidneyDisease ? 'Yes' : 'No'}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">5</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">Kidney Disease (UTI, Etc)</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.familyHistory.diseases.kidneyDisease ? 'Yes' : 'No'}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">6</td>
-                        <td style="padding: 5px;">Cancer</td>
-                        <td style="padding: 5px;">${medicalHistory.familyHistory.diseases.cancer ? 'Yes' : 'No'}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">6</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">Cancer</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.familyHistory.diseases.cancer ? 'Yes' : 'No'}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">7</td>
-                        <td style="padding: 5px;">Asthma</td>
-                        <td style="padding: 5px;">${medicalHistory.familyHistory.diseases.asthma ? 'Yes' : 'No'}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">7</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">Asthma</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.familyHistory.diseases.asthma ? 'Yes' : 'No'}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">8</td>
-                        <td style="padding: 5px;">Allergy</td>
-                        <td style="padding: 5px;">${medicalHistory.familyHistory.allergies.hasAllergies ? 'Yes' : 'No'}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">8</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">Allergy</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.familyHistory.allergies.hasAllergies ? 'Yes' : 'No'}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- Allergies section -->
-        ${medicalHistory.familyHistory.allergies.hasAllergies === 'Yes' ? `
           <div><strong>Allergies:</strong> Yes, allergies: ${medicalHistory.familyHistory.allergies.allergyList}</div>
-        ` : ""}
 
-            <strong>II. PHYSICAL EXAMINATION:</strong>
+    <div style="margin-top: 10px;"><strong>II. PERSONAL EXAMINATION:</strong></div>
 
         <div style="display: flex; justify-content: space-between; margin-top: 10px;">
             <!-- First Table -->
@@ -177,36 +174,36 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="padding: 5px;">1. Do you smoke?</td>
-                        <td style="padding: 5px;">${medicalHistory.personalHistory.tobaccoUse.usesTobacco || 'No'}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">1. Do you smoke?</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.personalHistory.tobaccoUse.usesTobacco || 'No'}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">A. Sticks per day</td>
-                        <td style="padding: 5px;">${medicalHistory.personalHistory.tobaccoUse.sticksPerDay || ''}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">A. Sticks per day</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.personalHistory.tobaccoUse.sticksPerDay || ''}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">Quit Smoking</td>
-                        <td style="padding: 5px;">${medicalHistory.personalHistory.tobaccoUse.quitSmoking || ''}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">Quit Smoking</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.personalHistory.tobaccoUse.quitSmoking || ''}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">Quit When</td>
-                        <td style="padding: 5px;">${medicalHistory.personalHistory.tobaccoUse.quitWhen || ''}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">Quit When</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.personalHistory.tobaccoUse.quitWhen || ''}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">2. Do you drink alcoholic beverages?</td>
-                        <td style="padding: 5px;">${medicalHistory.personalHistory.alcoholUse.drinksAlcohol || 'No'}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">2. Do you drink alcoholic beverages?</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.personalHistory.alcoholUse.drinksAlcohol || 'No'}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">A. Drinks per day</td>
-                        <td style="padding: 5px;">${medicalHistory.personalHistory.alcoholUse.drinksPerDay || ''}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">A. Drinks per day</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.personalHistory.alcoholUse.drinksPerDay || ''}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">Quit Drinking</td>
-                        <td style="padding: 5px;">${medicalHistory.personalHistory.alcoholUse.quitDrinking || ''}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">Quit Drinking</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.personalHistory.alcoholUse.quitDrinking || ''}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">Quit When</td>
-                        <td style="padding: 5px;">${medicalHistory.personalHistory.alcoholUse.quitWhen || ''}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">Quit When</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.personalHistory.alcoholUse.quitWhen || ''}</td>
                     </tr>
                 </tbody>
             </table>
@@ -221,24 +218,24 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="padding: 5px;">3. Are you pregnant?</td>
-                        <td style="padding: 5px;">${medicalHistory.personalHistory.forWomen.pregnant || 'No'}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">3. Are you pregnant?</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.personalHistory.forWomen.pregnant || 'No'}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">A. Month</td>
-                        <td style="padding: 5px;">${medicalHistory.personalHistory.forWomen.months || ''}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">A. Month</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.personalHistory.forWomen.months || ''}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">B. Last Menstrual Period</td>
-                        <td style="padding: 5px;">${medicalHistory.personalHistory.forWomen.lastMenstrualPeriod || ''}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">B. Last Menstrual Period</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.personalHistory.forWomen.lastMenstrualPeriod || ''}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">C. Abortion/Miscarriage</td>
-                        <td style="padding: 5px;">${medicalHistory.personalHistory.forWomen.abortionOrMiscarriage || ''}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">C. Abortion/Miscarriage</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.personalHistory.forWomen.abortionOrMiscarriage || ''}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px;">D. Dysmenorrhea</td>
-                        <td style="padding: 5px;">${medicalHistory.personalHistory.forWomen.dysmenorrhea || ''}</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">D. Dysmenorrhea</td>
+                        <td style="padding: 5px;border: 0.1px solid black;">${medicalHistory.personalHistory.forWomen.dysmenorrhea || ''}</td>
                     </tr>
                 </tbody>
             </table>
@@ -262,17 +259,17 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
             </tr>
             </thead>
             <tbody>
-            <tr><td style="padding: 5px;">Year</td><td style="padding: 5px;">${annual.changes.year}</td></tr>
-            <tr><td style="padding: 5px;">Blood Pressure</td><td style="padding: 5px;">${annual.changes.bloodPressure}</td></tr>
-            <tr><td style="padding: 5px;">Pulse Rate</td><td style="padding: 5px;">${annual.changes.pulseRate}</td></tr>
-            <tr><td style="padding: 5px;">Respiration Rate</td><td style="padding: 5px;">${annual.changes.respirationRate}</td></tr>
-            <tr><td colspan="2" style="height: 1in;"></td></tr>
-            <tr><td style="padding: 5px;">Height</td><td style="padding: 5px;">${annual.changes.height}</td></tr>
-            <tr><td style="padding: 5px;">Weight</td><td style="padding: 5px;">${annual.changes.weight}</td></tr>
-            <tr><td style="padding: 5px;">BMI</td><td style="padding: 5px;">${annual.changes.bmi}</td></tr>
-            <tr><td style="padding: 5px;">Waist Line</td><td style="padding: 5px;">${annual.changes.wasteLine}</td></tr>
-            <tr><td style="padding: 5px;">Hip Line</td><td style="padding: 5px;">${annual.changes.hipLine}</td></tr>
-            <tr><td style="padding: 5px;">Date Examined</td><td style="padding: 5px;">${annual.changes.dateExamined}</td></tr>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Year</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.year}</td></tr>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Blood Pressure</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.bloodPressure}</td></tr>
+                        <tr><td colspan="2" style="height: 1in;"></td></tr>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Pulse Rate</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.pulseRate}</td></tr>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Respiration Rate</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.respirationRate}</td></tr>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Height</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.height}</td></tr>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Weight</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.weight}</td></tr>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">BMI</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.bmi}</td></tr>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Waist Line</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.wasteLine}</td></tr>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Hip Line</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.hipLine}</td></tr>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Date Examined</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.dateExamined}</td></tr>
             </tbody>
         </table>
         </div>
@@ -282,47 +279,47 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
         <table border="1" style="width: 48%; border-collapse: collapse;">
             <thead>
             <tr>
-                <th style="padding: 5px;">Body</th>
-                <th style="padding: 5px;">Normal</th>
-                <th style="padding: 5px;">Abnormal</th>
-                <th style="padding: 5px;">Remarks</th>
+                <th style="padding: 5px;border: 0.1px solid black;">Body</th>
+                <th style="padding: 5px;border: 0.1px solid black;">Normal</th>
+                <th style="padding: 5px;border: 0.1px solid black;">Abnormal</th>
+                <th style="padding: 5px;border: 0.1px solid black;">Remarks</th>
             </tr>
             </thead>
             <tbody>
-            <tr><td style="padding: 5px;">Skin</td>
-                <td style="padding: 5px;">${!getCheckmark(annual.abnormalFindings.skin.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.skin.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.skin.type) && annual.abnormalFindings.skin.remarks ? annual.abnormalFindings.skin.remarks : ''}</td>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Skin</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(annual.abnormalFindings.skin.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.skin.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.skin.type) && annual.abnormalFindings.skin.remarks ? annual.abnormalFindings.skin.remarks : ''}</td>
             </tr>
-            <tr><td style="padding: 5px;">Head/Neck/Scalp</td>
-                <td style="padding: 5px;">${!getCheckmark(annual.abnormalFindings.headNeckScalp.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.headNeckScalp.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.headNeckScalp.type) && annual.abnormalFindings.headNeckScalp.remarks ? annual.abnormalFindings.headNeckScalp.remarks : ''}</td>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Head/Neck/Scalp</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(annual.abnormalFindings.headNeckScalp.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.headNeckScalp.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.headNeckScalp.type) && annual.abnormalFindings.headNeckScalp.remarks ? annual.abnormalFindings.headNeckScalp.remarks : ''}</td>
             </tr>
-            <tr><td style="padding: 5px;">Eyes/External</td>
-                <td style="padding: 5px;">${!getCheckmark(annual.abnormalFindings.eyesExternal.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.eyesExternal.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.eyesExternal.type) && annual.abnormalFindings.eyesExternal.remarks ? annual.abnormalFindings.eyesExternal.remarks : ''}</td>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Eyes/External</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(annual.abnormalFindings.eyesExternal.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.eyesExternal.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.eyesExternal.type) && annual.abnormalFindings.eyesExternal.remarks ? annual.abnormalFindings.eyesExternal.remarks : ''}</td>
             </tr>
-            <tr><td style="padding: 5px;">Ears</td>
-                <td style="padding: 5px;">${!getCheckmark(annual.abnormalFindings.ears.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.ears.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.ears.type) && annual.abnormalFindings.ears.remarks ? annual.abnormalFindings.ears.remarks : ''}</td>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Ears</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(annual.abnormalFindings.ears.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.ears.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.ears.type) && annual.abnormalFindings.ears.remarks ? annual.abnormalFindings.ears.remarks : ''}</td>
             </tr>
-            <tr><td style="padding: 5px;">Face/Sinuses</td>
-                <td style="padding: 5px;">${!getCheckmark(annual.abnormalFindings.face.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.face.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.face.type) && annual.abnormalFindings.face.remarks ? annual.abnormalFindings.face.remarks : ''}</td>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Face/Sinuses</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(annual.abnormalFindings.face.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.face.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.face.type) && annual.abnormalFindings.face.remarks ? annual.abnormalFindings.face.remarks : ''}</td>
             </tr>
-            <tr><td style="padding: 5px;">Neck/Thyroid</td>
-                <td style="padding: 5px;">${!getCheckmark(annual.abnormalFindings.neckThyroid.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.neckThyroid.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.neckThyroid.type) && annual.abnormalFindings.neckThyroid.remarks ? annual.abnormalFindings.neckThyroid.remarks : ''}</td>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Neck/Thyroid</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(annual.abnormalFindings.neckThyroid.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.neckThyroid.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.neckThyroid.type) && annual.abnormalFindings.neckThyroid.remarks ? annual.abnormalFindings.neckThyroid.remarks : ''}</td>
             </tr>
-            <tr><td style="padding: 5px;">Chest/Breasts/Axilla</td>
-                <td style="padding: 5px;">${!getCheckmark(annual.abnormalFindings.chestBreastsAxilla.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.chestBreastsAxilla.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.chestBreastsAxilla.type) && annual.abnormalFindings.chestBreastsAxilla.remarks ? annual.abnormalFindings.chestBreastsAxilla.remarks : ''}</td>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Chest/Breasts/Axilla</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(annual.abnormalFindings.chestBreastsAxilla.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.chestBreastsAxilla.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.chestBreastsAxilla.type) && annual.abnormalFindings.chestBreastsAxilla.remarks ? annual.abnormalFindings.chestBreastsAxilla.remarks : ''}</td>
             </tr>
             </tbody>
         </table>
@@ -331,47 +328,47 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
         <table border="1" style="width: 48%; border-collapse: collapse;">
             <thead>
             <tr>
-                <th style="padding: 5px;">Body</th>
-                <th style="padding: 5px;">Normal</th>
-                <th style="padding: 5px;">Abnormal</th>
-                <th style="padding: 5px;">Remarks</th>
+                <th style="padding: 5px;border: 0.1px solid black;">Body</th>
+                <th style="padding: 5px;border: 0.1px solid black;">Normal</th>
+                <th style="padding: 5px;border: 0.1px solid black;">Abnormal</th>
+                <th style="padding: 5px;border: 0.1px solid black;">Remarks</th>
             </tr>
             </thead>
             <tbody>
-            <tr><td style="padding: 5px;">Lungs</td>
-                <td style="padding: 5px;">${!getCheckmark(annual.abnormalFindings.lungs.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.lungs.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.lungs.type) && annual.abnormalFindings.lungs.remarks ? annual.abnormalFindings.lungs.remarks : ''}</td>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Lungs</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(annual.abnormalFindings.lungs.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.lungs.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.lungs.type) && annual.abnormalFindings.lungs.remarks ? annual.abnormalFindings.lungs.remarks : ''}</td>
             </tr>
-            <tr><td style="padding: 5px;">Heart</td>
-                <td style="padding: 5px;">${!getCheckmark(annual.abnormalFindings.heart.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.heart.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.heart.type) && annual.abnormalFindings.heart.remarks ? annual.abnormalFindings.heart.remarks : ''}</td>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Heart</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(annual.abnormalFindings.heart.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.heart.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.heart.type) && annual.abnormalFindings.heart.remarks ? annual.abnormalFindings.heart.remarks : ''}</td>
             </tr>
-            <tr><td style="padding: 5px;">Abdomen</td>
-                <td style="padding: 5px;">${!getCheckmark(annual.abnormalFindings.abdomen.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.abdomen.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.abdomen.type) && annual.abnormalFindings.abdomen.remarks ? annual.abnormalFindings.abdomen.remarks : ''}</td>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Abdomen</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(annual.abnormalFindings.abdomen.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.abdomen.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.abdomen.type) && annual.abnormalFindings.abdomen.remarks ? annual.abnormalFindings.abdomen.remarks : ''}</td>
             </tr>
-            <tr><td style="padding: 5px;">Back</td>
-                <td style="padding: 5px;">${!getCheckmark(annual.abnormalFindings.back.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.back.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.back.type) && annual.abnormalFindings.back.remarks ? annual.abnormalFindings.back.remarks : ''}</td>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Back</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(annual.abnormalFindings.back.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.back.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.back.type) && annual.abnormalFindings.back.remarks ? annual.abnormalFindings.back.remarks : ''}</td>
             </tr>
-            <tr><td style="padding: 5px;">G-U System</td>
-                <td style="padding: 5px;">${!getCheckmark(annual.abnormalFindings.guSystem.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.guSystem.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.guSystem.type) && annual.abnormalFindings.guSystem.remarks ? annual.abnormalFindings.guSystem.remarks : ''}</td>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">G-U System</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(annual.abnormalFindings.guSystem.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.guSystem.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.guSystem.type) && annual.abnormalFindings.guSystem.remarks ? annual.abnormalFindings.guSystem.remarks : ''}</td>
             </tr>
-            <tr><td style="padding: 5px;">Inguinal/Genitals</td>
-                <td style="padding: 5px;">${!getCheckmark(annual.abnormalFindings.inguinalGenitals.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.inguinalGenitals.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.inguinalGenitals.type) && annual.abnormalFindings.inguinalGenitals.remarks ? annual.abnormalFindings.inguinalGenitals.remarks : ''}</td>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Inguinal/Genitals</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(annual.abnormalFindings.inguinalGenitals.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.inguinalGenitals.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.inguinalGenitals.type) && annual.abnormalFindings.inguinalGenitals.remarks ? annual.abnormalFindings.inguinalGenitals.remarks : ''}</td>
             </tr>
-            <tr><td style="padding: 5px;">Extremeties</td>
-                <td style="padding: 5px;">${!getCheckmark(annual.abnormalFindings.extremities.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.extremities.type) ? '✔' : ''}</td>
-                <td style="padding: 5px;">${getCheckmark(annual.abnormalFindings.extremities.type) && annual.abnormalFindings.extremities.remarks ? annual.abnormalFindings.extremities.remarks : ''}</td>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Extremeties</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${!getCheckmark(annual.abnormalFindings.extremities.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.extremities.type) ? '✔' : ''}</td>
+                <td style="padding: 5px;border: 0.1px solid black;">${getCheckmark(annual.abnormalFindings.extremities.type) && annual.abnormalFindings.extremities.remarks ? annual.abnormalFindings.extremities.remarks : ''}</td>
             </tr>
             </tbody>
         </table>
