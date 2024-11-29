@@ -72,7 +72,7 @@ function PatientsProfile() {
   ];
 
   const [role, setRole] = useState(null); // Store the user role
-  
+
   // Inside your component definition
   const [isTreatmentModalOpen, setIsTreatmentModalOpen] = useState(false);
   const [isDiagnosisModalOpen, setIsDiagnosisModalOpen] = useState(false);
@@ -2678,44 +2678,6 @@ function PatientsProfile() {
                       }
                     ></textarea>
                   </div>
-
-                  <div className="mt-7 flex flex-col space-y-4">
-                    <label className="text-sm font-semibold text-gray-700">
-                      I hereby certify that all the information I have disclosed
-                      as reflected in this report are true to the best of my
-                      knowledge and belief and that any misrepresentation or
-                      concealment on my part may lead to consequences, which may
-                      or may not include disqualification, etc.
-                      <br />
-                      <br />
-                      I hereby authorize UB Medical-Dental Clinic and its
-                      officially designated examining physicians and staff to
-                      conduct the examinations necessary to assess my fitness to
-                      undergo Internship/On-the-Job Training/Practicum.
-                      <br />
-                      <br />
-                      By signing this, I hold UB Medical-Dental Clinic and its
-                      authorized physicians and staff free from any criminal,
-                      civil, administrative, ethical, and moral liability, that
-                      may arise from the above.
-                    </label>
-
-                    <div className="flex justify-end mt-4">
-                      <div className="w-1/2">
-                        <label className="text-sm font-medium text-gray-700 block mb-2">
-                          Upload Signature
-                        </label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Accepted file types: JPG, PNG. Max size: 5MB
-                        </p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 <div className="flex justify-end mt-4 space-x-3">
@@ -3251,74 +3213,6 @@ function PatientsProfile() {
                         </select>
                       </div>
                     </div>
-                  </div>
-                  <div className="mt-7 flex flex-col space-y-4">
-                    {patient.patientType === "Student" ? (
-                      <label className="text-sm font-semibold text-gray-700">
-                        I hereby certify that all the information I have
-                        disclosed as reflected in this report is true to the
-                        best of my knowledge and belief, and that any
-                        misrepresentation or concealment on my part may lead to
-                        consequences, which may or may not include
-                        disqualification, etc.
-                        <br />
-                        <br />
-                        I hereby authorize UB Medical-Dental Clinic and its
-                        officially designated examining physicians and staff to
-                        conduct the examinations necessary to assess my fitness
-                        to undergo Internship/On-the-Job Training/Practicum.
-                        <br />
-                        <br />
-                        By signing this, I hold UB Medical-Dental Clinic and its
-                        authorized physicians and staff free from any criminal,
-                        civil, administrative, ethical, and moral liability that
-                        may arise from the above.
-                      </label>
-                    ) : (
-                      <label className="text-sm font-semibold text-gray-700">
-                        I hereby certify that the foregoing answers are true and
-                        complete to the best of my knowledge. My health status
-                        is accurately represented in the above statements. I
-                        understand the University of Baguio may require me to
-                        have physical examination and I authorize the release of
-                        any information from such examination to UB personnel
-                        for use in considering my employment.
-                      </label>
-                    )}
-
-                    {patient.patientType === "Student" ? (
-                      <div className="flex justify-end mt-4">
-                        <div className="w-1/2">
-                          <label className="text-sm font-medium text-gray-700 block mb-2">
-                            Upload Signature
-                          </label>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                          />
-                          <p className="text-xs text-gray-500 mt-1">
-                            Accepted file types: JPG, PNG. Max size: 5MB
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex justify-end mt-4">
-                        <div className="w-1/2">
-                          <label className="text-sm font-medium text-gray-700 block mb-2">
-                            Upload Signature
-                          </label>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                          />
-                          <p className="text-xs text-gray-500 mt-1">
-                            Accepted file types: JPG, PNG. Max size: 5MB
-                          </p>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
 
@@ -4083,49 +3977,6 @@ function PatientsProfile() {
                                   value={record.operations.listOperations}
                                   readOnly
                                 ></textarea>
-                              </div>
-
-                              <div className="mt-7 flex flex-col space-y-4">
-                                <label className="text-sm font-semibold text-gray-700">
-                                  I hereby certify that all the information I
-                                  have disclosed as reflected in this report are
-                                  true to the best of my knowledge and belief
-                                  and that any misrepresentation or concealment
-                                  on my part may lead to consequences, which may
-                                  or may not include disqualification, etc.
-                                  <br />
-                                  <br />
-                                  I hereby authorize UB Medical-Dental Clinic
-                                  and its officially designated examining
-                                  physicians and staff to conduct the
-                                  examinations necessary to assess my fitness to
-                                  undergo Internship/On-the-Job
-                                  Training/Practicum.
-                                  <br />
-                                  <br />
-                                  By signing this, I hold UB Medical-Dental
-                                  Clinic and its authorized physicians and staff
-                                  free from any criminal, civil, administrative,
-                                  ethical, and moral liability, that may arise
-                                  from the above.
-                                </label>
-
-                                <div className="flex justify-end mt-4">
-                                  <div className="w-1/2">
-                                    <label className="text-sm font-medium text-gray-700 block mb-2">
-                                      Upload Signature
-                                    </label>
-                                    <input
-                                      type="file"
-                                      accept="image/*"
-                                      className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500"
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                      Accepted file types: JPG, PNG. Max size:
-                                      5MB
-                                    </p>
-                                  </div>
-                                </div>
                               </div>
                             </div>
                           </li>
@@ -10090,7 +9941,7 @@ function PatientsProfile() {
                 <div className="flex items-center justify-between mt-4">
                   <div>
                     <h3 className="text-lg font-semibold mr-4">
-                      III. LABORATORY EXAMINATION:
+                      IV. LABORATORY EXAMINATION:
                     </h3>
                     <label className="text-sm font-semibold">
                       To be completed by examining physician.
@@ -10166,9 +10017,8 @@ function PatientsProfile() {
                   </div>
 
                   <div className="grid grid-cols-12 gap-4 p-4">
-                    <input
-                      type="text"
-                      className="col-span-12 border rounded px-3 py-1 w-full h-auto resize-y"
+                    <textarea
+                      className="col-span-12 border rounded px-3 py-1 w-full h-32 resize-y"
                       value={annual.others.medications}
                       onChange={(e) =>
                         handleAnnualInputChange("medications", e.target.value)
@@ -10190,9 +10040,8 @@ function PatientsProfile() {
                   </div>
 
                   <div className="grid grid-cols-12 gap-4 p-4">
-                    <input
-                      type="text"
-                      className="col-span-12 border rounded px-3 py-1 w-full h-auto resize-y"
+                    <textarea
+                      className="col-span-12 border rounded px-3 py-1 w-full h-32 resize-y"
                       value={annual.others.remarksRecommendations}
                       onChange={(e) =>
                         handleAnnualInputChange(

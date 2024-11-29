@@ -136,6 +136,7 @@ function Clinic() {
 
   const handleViewRecord = async (record) => {
     setSelectedRecord(record);
+    fetchClinicRecords();
 
     try {
       const labResponse = await axios.get(
@@ -181,10 +182,12 @@ function Clinic() {
         setIsViewModalOpen(false);
         fetchClinicalRecords();
       }
+      fetchClinicRecords();
     } catch (error) {
       console.error("Error updating record:", error);
     }
   };
+
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
   const [laboratoryRecords, setLaboratoryRecords] = useState([]);
   const [xrayRecords, setXrayRecords] = useState([]);
