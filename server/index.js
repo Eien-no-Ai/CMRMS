@@ -260,6 +260,7 @@ app.put("/api/medical-history/:id", async (req, res) => {
 app.post("/api/packages", async (req, res) => {
   const {
     name,
+    packageFor,
     bloodChemistry,
     hematology,
     clinicalMicroscopyParasitology,
@@ -267,10 +268,12 @@ app.post("/api/packages", async (req, res) => {
     microbiology,
     xrayType,
     xrayDescription,
+    
   } = req.body;
 
   const newPackage = new PackageModel({
     name,
+    packageFor,
     bloodChemistry,
     hematology,
     clinicalMicroscopyParasitology,

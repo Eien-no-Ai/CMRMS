@@ -6,6 +6,7 @@ import { IoArchiveOutline } from "react-icons/io5";
 
 const Package = () => {
   const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
+  const [packageFor, setPackageFor] = useState('');
   const [newXrayRecord, setNewXrayRecord] = useState({
     xrayType: "",
     xrayDescription: "",
@@ -131,6 +132,7 @@ const Package = () => {
       // Prepare the data to send to the backend
       const packageData = {
         name: addPackage,
+        packageFor: packageFor,  // Include the packageFor value here
         ...formData, // Spread the formData object directly
         xrayType: newXrayRecord.xrayType,
         xrayDescription: newXrayRecord.xrayDescription, // Add xrayDescription here
@@ -456,7 +458,22 @@ const Package = () => {
                   placeholder="Enter the package name"
                 />
               </div>
-
+              {/* Package For Dropdown */}
+<div className="mb-6">
+  <label className="block text-sm font-semibold mb-2">
+    Package For
+  </label>
+  <select
+    value={packageFor}
+    onChange={(e) => setPackageFor(e.target.value)}
+    className="px-4 py-2 border rounded-md w-full"
+  >
+    <option value="" disabled>Select package category</option>
+    <option value="Student">Student</option>
+    <option value="Employee">Employee</option>
+    <option value="OPD">OPD</option>
+  </select>
+</div>
               {/* Blood Chemistry Section */}
               <div className="mb-6 border rounded-lg p-6 shadow-md bg-gray-50">
                 <h3 className="font-semibold text-base mb-3">

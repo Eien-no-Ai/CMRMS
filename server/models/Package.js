@@ -11,6 +11,7 @@ const Counter = mongoose.model("Counter", CounterSchema);
 const PackageSchema = new mongoose.Schema({
   packageNumber: { type: Number, unique: true },
   name: { type: String },
+  packageFor: { type: String },
   patient: { type: mongoose.Schema.Types.ObjectId, ref: "patients" },
   clinicId: { type: mongoose.Schema.Types.ObjectId, ref: "clinics" },
   laboratoryId: { type: mongoose.Schema.Types.ObjectId, ref: "laboratory" },

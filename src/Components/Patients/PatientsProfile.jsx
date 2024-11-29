@@ -1692,8 +1692,9 @@ function PatientsProfile() {
 
   const filteredPackages = packages.filter(
     (pkg) =>
-      !pkg.isArchived &&
-      pkg.name.toLowerCase().includes(searchQuery.toLowerCase())
+      !pkg.isArchived && // Only show packages that are not archived
+      pkg.packageFor === patient?.patientType && // Filter by the `packageFor` field
+      pkg.name.toLowerCase().includes(searchQuery.toLowerCase()) // Search functionality
   );
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2039,17 +2040,6 @@ function PatientsProfile() {
                           </button>
                           {showPackageOptions && (
                             <div className="absolute mt-2 w-full bg-white border rounded-lg shadow-lg">
-                              {/* Search Input */}
-                              <div className="px-4 py-2">
-                                <input
-                                  type="text"
-                                  className="w-full px-3 py-2 border rounded-md"
-                                  placeholder="Search packages..."
-                                  value={searchQuery}
-                                  onChange={handleSearchChange}
-                                />
-                              </div>
-
                               {/* Package List */}
                               {filteredPackages.length > 0 ? (
                                 filteredPackages.map((pkg) => (
@@ -2062,7 +2052,7 @@ function PatientsProfile() {
                                   </button>
                                 ))
                               ) : (
-                                <div className="px-4 py-2 text-gray-500">
+                                <div className="py-2 text-gray-500">
                                   No packages found
                                 </div>
                               )}
@@ -3640,44 +3630,61 @@ function PatientsProfile() {
 
                               {/* View Button Logic */}
                               <div className="flex items-center space-x-3">
-                                <button
-                                  className="text-custom-red"
-                                  onClick={() => {
-                                    if (role === "nurse") {
-                                      alert(
-                                        "You do not have permission to view this record."
-                                      );
-                                    } else if (
-                                      role === "doctor" &&
-                                      !isCompleted
-                                    ) {
-                                      alert(
-                                        "The results are still pending. Please wait until the results are available."
-                                      );
-                                    } else if (
-                                      role === "doctor" &&
-                                      isCompleted
-                                    ) {
-                                      setSelectedRecords(records); // Store the selected records
-                                      setisPackageInfoModalOpen(true); // Open the modal for doctors
-                                    }
-                                  }}
-                                >
-                                  View
-                                </button>
-
-                                {/* Conditionally render the "Annual" button if selectedRecords.patient is available */}
+                                {patient.patientType === "Student" && (
+                                  <button
+                                    className="text-custom-gray"
+                                    onClick={() => {
+                                      if (role === "nurse") {
+                                        alert(
+                                          "You do not have permission to view this record."
+                                        );
+                                      } else if (
+                                        role === "doctor" &&
+                                        !isCompleted
+                                      ) {
+                                        alert(
+                                          "The results are still pending. Please wait until the results are available."
+                                        );
+                                      } else if (
+                                        role === "doctor" &&
+                                        isCompleted
+                                      ) {
+                                        setSelectedRecords(records); // Store the selected records
+                                        setisPackageInfoModalOpen(true); // Open the modal for doctors
+                                      }
+                                    }}
+                                  >
+                                    View
+                                  </button>
+                                )}
+                                {/* Conditionally render the "Annual" button */}
                                 {patient.patientType === "Employee" && (
                                   <button
                                     className="text-custom-gray"
                                     onClick={() => {
-                                      handleAnnualOpen(); // Open the annual form
-                                      setSelectedRecords(records); // Store the selected records
-                                      // setAnnual(defaultAnnual);
-                                      // fetchAnnualCheckup(records.packageNumber, records.patientId);
+                                      if (role === "nurse") {
+                                        alert(
+                                          "You do not have permission to access the annual form."
+                                        );
+                                      } else if (
+                                        role === "doctor" &&
+                                        !isCompleted
+                                      ) {
+                                        alert(
+                                          "The results are still pending. Please wait until the results are available."
+                                        );
+                                      } else if (
+                                        role === "doctor" &&
+                                        isCompleted
+                                      ) {
+                                        setSelectedRecords(records); // Store the selected records
+                                        handleAnnualOpen(); // Open the annual form for doctors
+                                      } else if (role === "employee") {
+                                        handleAnnualOpen(); // Open the annual form for employees
+                                      }
                                     }}
                                   >
-                                    Annual Form
+                                    View
                                   </button>
                                 )}
 
@@ -10181,7 +10188,7 @@ function PatientsProfile() {
               </button>
             </div>
           </div>
-        </div>
+        </div> 
       )}
     </div>
   );
