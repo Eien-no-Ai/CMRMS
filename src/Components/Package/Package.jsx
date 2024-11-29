@@ -154,6 +154,7 @@ const Package = () => {
   };
 
   const handleSubmit = async () => {
+    fetchPackages();
     try {
       // Prepare the data to send to the backend
       const packageData = {
@@ -226,6 +227,7 @@ const Package = () => {
         medicalDescription: "",
         dentalDescription: "",
       });
+      fetchPackages();
     } catch (error) {
       console.error("Error submitting package:", error);
       alert("Failed to create package. Please try again.");
@@ -368,7 +370,8 @@ const Package = () => {
                 <thead>
                   <tr className="text-left text-gray-600">
                     <th className="py-3 w-1/4">Package Info</th>
-                    <th className="py-3 w-1/4">Description</th>
+                    <th className="py-3 w-1/4">Lab Tests</th>
+                    <th className="py-3 w-1/4">X-Ray</th>{" "}
                     <th className="py-3 w-1/12"></th>
                   </tr>
                 </thead>
@@ -396,14 +399,67 @@ const Package = () => {
                             {new Date(pkg.isCreatedAt).toLocaleString()}
                           </p>
                         </td>
+
+                        {/* New column for displaying all tests with truncation */}
                         <td
                           className={`py-4 ${
                             pkg.isArchived ? "text-gray-400 line-through" : ""
                           }`}
                         >
-                          <p className="font-semibold">
-                            {pkg.xrayDescription || "No description available"}
-                          </p>
+                          {
+                            // Concatenate all tests that have values and truncate if longer than 25 characters
+                            [
+                              ...Object.entries(pkg.bloodChemistry || {})
+                                .filter(([key, value]) => value)
+                                .map(([key]) => key),
+                              ...Object.entries(pkg.hematology || {})
+                                .filter(([key, value]) => value)
+                                .map(([key]) => key),
+                              ...Object.entries(
+                                pkg.clinicalMicroscopyParasitology || {}
+                              )
+                                .filter(([key, value]) => value)
+                                .map(([key]) => key),
+                              ...Object.entries(pkg.bloodBankingSerology || {})
+                                .filter(([key, value]) => value)
+                                .map(([key]) => key),
+                              ...Object.entries(pkg.microbiology || {})
+                                .filter(([key, value]) => value)
+                                .map(([key]) => key),
+                            ]
+                              .join(", ")
+                              .slice(0, 30) + // Truncate to 25 characters and add '...' if longer
+                              ([
+                                ...Object.entries(pkg.bloodChemistry || {})
+                                  .filter(([key, value]) => value)
+                                  .map(([key]) => key),
+                                ...Object.entries(pkg.hematology || {})
+                                  .filter(([key, value]) => value)
+                                  .map(([key]) => key),
+                                ...Object.entries(
+                                  pkg.clinicalMicroscopyParasitology || {}
+                                )
+                                  .filter(([key, value]) => value)
+                                  .map(([key]) => key),
+                                ...Object.entries(
+                                  pkg.bloodBankingSerology || {}
+                                )
+                                  .filter(([key, value]) => value)
+                                  .map(([key]) => key),
+                                ...Object.entries(pkg.microbiology || {})
+                                  .filter(([key, value]) => value)
+                                  .map(([key]) => key),
+                              ].join(", ").length > 30
+                                ? "..."
+                                : "")
+                          }
+                        </td>
+                        <td
+                          className={`py-4 ${
+                            pkg.isArchived ? "text-gray-400 line-through" : ""
+                          }`}
+                        >
+                          {pkg.xrayDescription || "No description available"}
                         </td>
                         <td className="py-4">
                           <button

@@ -155,7 +155,7 @@ function Patients() {
     setEmergencyContact("");
     setPosition("");
     setPatientType("");
-    setBloodType(""); // Reset bloodType
+    setBloodType("");
   };
 
   const indexOfLastPatient = currentPage * patientsPerPage;
@@ -181,7 +181,8 @@ function Patients() {
   const filteredPatients = patients.filter((patient) => {
     const matchesSearch =
       patient.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.lastname.toLowerCase().includes(searchQuery.toLowerCase());
+      patient.lastname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.idnumber.toLowerCase().includes(searchQuery.toLowerCase());
 
     // Conditional filtering based on the role type
     if (selectedPosition) {
@@ -647,7 +648,7 @@ function Patients() {
             <select
               value={selectedCourse}
               onChange={(e) => setSelectedCourse(e.target.value)}
-              className="px-4 py-2 rounded border border-gray-300 ml-4"
+              className="px-2 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none"
             >
               <option value="">All Department</option>
               <option value="UB-ELEM">UB-ELEM</option>
@@ -668,7 +669,7 @@ function Patients() {
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
-              className="px-4 py-2 rounded border border-gray-300 ml-4"
+              className="px-2 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none"
             >
               <option value="">All Years</option>
               <option value="1">First Year</option>
@@ -681,8 +682,8 @@ function Patients() {
             <select
               value={selectedPosition}
               onChange={(e) => setSelectedPosition(e.target.value)}
-              className="px-4 py-2 rounded border border-gray-300 ml-4"
-            >
+              className="px-2 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none"
+              >
               <option value="">All Positions</option>
               {positions.map((position, index) => (
                 <option key={index} value={position}>
@@ -1200,15 +1201,41 @@ function Patients() {
                   </div>
 
                   {/* Address */}
-                  <div className="col-span-3">
-                    <label className="block mb-2">Address</label>
-                    <input
-                      type="text"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      placeholder="Address"
-                      className="px-4 py-2 border rounded w-full"
-                    />
+                  <div className="col-span-3 grid grid-cols-2 gap-4">
+                    {/* Address */}
+                    <div>
+                      <label className="block mb-2">Address</label>
+                      <input
+                        type="text"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Address"
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                    </div>
+
+                    {/* Blood Type */}
+                    <div>
+                      <label className="block mb-2">Blood Type</label>
+                      <select
+                        value={bloodType}
+                        onChange={(e) => setBloodType(e.target.value)}
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      >
+                        <option value="" disabled>
+                          Select Blood Type
+                        </option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                      </select>
+                    </div>
                   </div>
 
                   {/* Phone Number, Email, and Emergency Contact */}
@@ -1308,16 +1335,41 @@ function Patients() {
                     </select>
                   </div>
 
-                  {/* Address */}
-                  <div className="col-span-3">
-                    <label className="block mb-2">Address</label>
-                    <input
-                      type="text"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      placeholder="Address"
-                      className="px-4 py-2 border rounded w-full"
-                    />
+                  <div className="col-span-3 grid grid-cols-2 gap-4">
+                    {/* Address */}
+                    <div>
+                      <label className="block mb-2">Address</label>
+                      <input
+                        type="text"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Address"
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                    </div>
+
+                    {/* Blood Type */}
+                    <div>
+                      <label className="block mb-2">Blood Type</label>
+                      <select
+                        value={bloodType}
+                        onChange={(e) => setBloodType(e.target.value)}
+                        className="px-4 py-2 border rounded w-full"
+                        required
+                      >
+                        <option value="" disabled>
+                          Select Blood Type
+                        </option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                      </select>
+                    </div>
                   </div>
 
                   {/* Phone Number and Email */}

@@ -211,7 +211,6 @@ app.get("/api/medical-history/id/:id", async (req, res) => {
 // });
 
 // GET endpoint to fetch medical history records by patient ID
-// GET endpoint to fetch medical history records by patient ID
 app.get("/api/medical-history/:patientId", async (req, res) => {
   const { patientId } = req.params;
 

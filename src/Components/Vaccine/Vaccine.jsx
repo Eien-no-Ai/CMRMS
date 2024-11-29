@@ -177,12 +177,14 @@ const VaccineList = () => {
 
         {searchQuery || showFullList ? (
           <div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white p-6 py-1 rounded-lg shadow-md">
               <table className="min-w-full">
                 <thead>
                   <tr className="text-left text-gray-600">
-                    <th className="py-3">Vaccine Name</th>
-                    <th className="py-3">Actions</th>
+                    <th className="py-3 w-1/4">Package Info</th>
+                    <th className="py-3 w-1/4"></th>
+                    <th className="py-3 w-1/4"></th>
+                    <th className="py-3 w-1/12"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -198,7 +200,15 @@ const VaccineList = () => {
                   ) : (
                     currentVaccines.map((vaccine) => (
                       <tr key={vaccine._id} className="border-b">
-                        <td className="py-3">{vaccine.name}</td>
+                        <td className="py-3">
+                          <p className="font-semibold">{vaccine.name}</p>
+                          <p className="text-sm text-gray-500">
+                            Created:{" "}
+                            {new Date(vaccine.createdAt).toLocaleString()}
+                          </p>
+                        </td>
+                        <td className="py-3"></td>
+                        <td className="py-3"></td>
                         <td className="py-3">
                           <button
                             className="text-blue-500 hover:text-blue-700 mr-2"

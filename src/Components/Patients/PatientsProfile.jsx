@@ -737,6 +737,27 @@ function PatientsProfile() {
   const [packages, setPackages] = useState([]);
   const [packageClickCount, setPackageClickCount] = useState(0);
 
+  // Load packageClickCount from localStorage when the component mounts
+  useEffect(() => {
+    const storedClickCount = localStorage.getItem("packageClickCount");
+    if (storedClickCount) {
+      setPackageClickCount(parseInt(storedClickCount, 10));
+    }
+
+    // Fetch packages when component mounts
+    const fetchPackages = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/api/packages");
+        setPackages(response.data); // Set the fetched packages to state
+      } catch (error) {
+        console.error("Error fetching packages:", error);
+        alert("Failed to fetch packages. Please try again.");
+      }
+    };
+
+    fetchPackages();
+  }, []);
+
   const handlePackageClick = async (packageId) => {
     try {
       const response = await axios.get(
@@ -787,60 +808,56 @@ function PatientsProfile() {
 
       // Check if package includes both Medical and Dental X-ray
       if (xrayType === "medical, dental") {
-        // Split the xrayDescription into medical and dental parts
         const [medicalDescription, dentalDescription] =
           xrayDescription.split(", ");
 
-        // Send request for Medical X-ray with the medical description
         const medicalXrayResponse = await axios.post(
           "http://localhost:3001/api/xrayResults",
           {
             ...pkgWithoutIdAndCreatedAt,
             patient: id,
             packageId: _id,
-            packageNumber: updatedPackageNumber, // Use updated package number
+            packageNumber: updatedPackageNumber,
             xrayType: "medical",
-            xrayDescription: medicalDescription, // Send medical part
+            xrayDescription: medicalDescription,
             xrayResult: "pending",
           }
         );
 
         if (medicalXrayResponse.data && medicalXrayResponse.data.success) {
           console.log(
-            "Medical X-ray request created successfully:",
+            "Medical X-ray request created successfully: ",
             medicalXrayResponse.data
           );
         }
 
-        // Send request for Dental X-ray with the dental description
         const dentalXrayResponse = await axios.post(
           "http://localhost:3001/api/xrayResults",
           {
             ...pkgWithoutIdAndCreatedAt,
             patient: id,
             packageId: _id,
-            packageNumber: updatedPackageNumber, // Use updated package number
+            packageNumber: updatedPackageNumber,
             xrayType: "dental",
-            xrayDescription: dentalDescription, // Send dental part
+            xrayDescription: dentalDescription,
             xrayResult: "pending",
           }
         );
 
         if (dentalXrayResponse.data && dentalXrayResponse.data.success) {
           console.log(
-            "Dental X-ray request created successfully:",
+            "Dental X-ray request created successfully: ",
             dentalXrayResponse.data
           );
         }
       } else {
-        // Create a single X-ray request if only one type is present
         const xrayResponse = await axios.post(
           "http://localhost:3001/api/xrayResults",
           {
             ...pkgWithoutIdAndCreatedAt,
             patient: id,
             packageId: _id,
-            packageNumber: updatedPackageNumber, // Use updated package number
+            packageNumber: updatedPackageNumber,
             xrayType: xrayType,
             xrayDescription: pkgWithoutIdAndCreatedAt.xrayDescription || "",
             xrayResult: "pending",
@@ -852,10 +869,12 @@ function PatientsProfile() {
         }
       }
 
-      // Increment the counter after the requests are processed
-      setPackageClickCount((prevCount) => prevCount + 1);
+      // Increment the counter and save it to localStorage
+      const newClickCount = packageClickCount + 1;
+      setPackageClickCount(newClickCount);
+      localStorage.setItem("packageClickCount", newClickCount);
 
-      // Fetch the latest X-ray records after request(s) completion
+      // Fetch the latest X-ray records
       fetchXrayRecords();
       setShowPackageOptions(false);
     } catch (error) {
@@ -863,21 +882,6 @@ function PatientsProfile() {
       alert("Failed to fetch package or create requests. Please try again.");
     }
   };
-
-  // Fetching packages when component mounts
-  useEffect(() => {
-    const fetchPackages = async () => {
-      try {
-        const response = await axios.get("http://localhost:3001/api/packages");
-        setPackages(response.data); // Set the fetched packages to state
-      } catch (error) {
-        console.error("Error fetching packages:", error);
-        alert("Failed to fetch packages. Please try again.");
-      }
-    };
-
-    fetchPackages(); // Fetch packages when the component mounts
-  }, []);
 
   // const renderLabTests = (testName, tests) => {
   //   // Check if tests is undefined, null, or not an array
