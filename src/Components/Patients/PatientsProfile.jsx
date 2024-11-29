@@ -811,6 +811,7 @@ function PatientsProfile() {
         const [medicalDescription, dentalDescription] =
           xrayDescription.split(", ");
 
+        // Medical X-ray
         const medicalXrayResponse = await axios.post(
           "http://localhost:3001/api/xrayResults",
           {
@@ -831,6 +832,7 @@ function PatientsProfile() {
           );
         }
 
+        // Dental X-ray
         const dentalXrayResponse = await axios.post(
           "http://localhost:3001/api/xrayResults",
           {
@@ -850,22 +852,47 @@ function PatientsProfile() {
             dentalXrayResponse.data
           );
         }
-      } else {
-        const xrayResponse = await axios.post(
+      } else if (xrayType === "medical") {
+        // Handle only Medical X-ray
+        const medicalXrayResponse = await axios.post(
           "http://localhost:3001/api/xrayResults",
           {
             ...pkgWithoutIdAndCreatedAt,
             patient: id,
             packageId: _id,
             packageNumber: updatedPackageNumber,
-            xrayType: xrayType,
-            xrayDescription: pkgWithoutIdAndCreatedAt.xrayDescription || "",
+            xrayType: "medical",
+            xrayDescription: xrayDescription, // Use xrayDescription if it's just medical
             xrayResult: "pending",
           }
         );
 
-        if (xrayResponse.data && xrayResponse.data.success) {
-          console.log("X-ray request created successfully:", xrayResponse.data);
+        if (medicalXrayResponse.data && medicalXrayResponse.data.success) {
+          console.log(
+            "Medical X-ray request created successfully: ",
+            medicalXrayResponse.data
+          );
+        }
+      } else if (xrayType === "dental") {
+        // Handle only Dental X-ray
+        const dentalXrayResponse = await axios.post(
+          "http://localhost:3001/api/xrayResults",
+          {
+            ...pkgWithoutIdAndCreatedAt,
+            patient: id,
+            packageId: _id,
+            packageNumber: updatedPackageNumber,
+            xrayType: "dental",
+            xrayDescription: xrayDescription, // Use xrayDescription if it's just dental
+            xrayResult: "pending",
+          }
+        );
+
+        if (dentalXrayResponse.data && dentalXrayResponse.data.success) {
+          console.log(
+            "Dental X-ray request created successfully: ",
+            dentalXrayResponse.data
+          );
         }
       }
 
@@ -3458,8 +3485,27 @@ function PatientsProfile() {
                 {selectedTab === "package" &&
                   patient &&
                   (Object.keys(combinedRecords).length > 0 ? (
-                    Object.entries(combinedRecords).map(
-                      ([packageNumber, records], index) => {
+                    Object.entries(combinedRecords)
+                      .sort(
+                        (
+                          [packageNumberA, recordsA],
+                          [packageNumberB, recordsB]
+                        ) => {
+                          // Get the latest date from labRecords or xrayRecords (whichever is present)
+                          const dateA =
+                            new Date(
+                              recordsA.labRecords[0]?.isCreatedAt ||
+                                recordsA.xrayRecords[0]?.isCreatedAt
+                            ).getTime() || 0;
+                          const dateB =
+                            new Date(
+                              recordsB.labRecords[0]?.isCreatedAt ||
+                                recordsB.xrayRecords[0]?.isCreatedAt
+                            ).getTime() || 0;
+                          return dateB - dateA; // Sort by latest date (descending order)
+                        }
+                      )
+                      .map(([packageNumber, records], index) => {
                         if (!records.labRecords[0]?.packageId) {
                           return null; // Skip rendering this item if packageId is missing
                         }
@@ -3472,6 +3518,7 @@ function PatientsProfile() {
                           records.xrayRecords.every(
                             (record) => record.xrayResult === "done"
                           );
+
                         const status = isCompleted ? "With Result" : "Pending";
 
                         return (
@@ -3490,9 +3537,6 @@ function PatientsProfile() {
                               <p className="font-semibold">
                                 {records.labRecords[0]?.packageId?.name ||
                                   "N/A"}
-                              </p>
-                              <p className="text-gray-600 text-xs">
-                                Package No: {packageNumber}
                               </p>
                             </div>
 
@@ -3627,8 +3671,7 @@ function PatientsProfile() {
                             </div>
                           </li>
                         );
-                      }
-                    )
+                      })
                   ) : (
                     <p className="text-center text-gray-500 py-4">
                       No Package records available.
