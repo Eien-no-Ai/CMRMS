@@ -590,13 +590,13 @@ function Xray() {
                     {userRole === "radiologic technologist" && (
                       <div className="mb-4">
                         <label className="block text-gray-700">
-                          X-ray Description
+                          X-ray Findings
                         </label>
                         <textarea
                           name="xrayFindings"
                           className="w-full px-3 py-2 border rounded"
                           rows="4"
-                          placeholder="Enter a diagnosis..."
+                          placeholder="Enter Findings..."
                           value={formData.xrayFindings}
                           onChange={handleInputChange}
                         />

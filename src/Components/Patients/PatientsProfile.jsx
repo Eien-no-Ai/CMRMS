@@ -51,7 +51,28 @@ function PatientsProfile() {
     xrayDescription: "",
     xrayFindings: "",
   });
+
+  // X-ray description options based on the selected type
+  const medicalDescriptions = [
+    "CHEST PA",
+    "SKULL",
+    "CERVICAL",
+    "PANORAMIC",
+    "TLV/LSV",
+    "PELVIS",
+    "UPPER EXTREMITIES",
+    "LOWER EXTREMITIES",
+  ];
+
+  const dentalDescriptions = [
+    "PANORAMIC",
+    "LATERAL CEPHALOMETRIC",
+    "PERIAPICAL",
+    "TMJ",
+  ];
+
   const [role, setRole] = useState(null); // Store the user role
+  
   // Inside your component definition
   const [isTreatmentModalOpen, setIsTreatmentModalOpen] = useState(false);
   const [isDiagnosisModalOpen, setIsDiagnosisModalOpen] = useState(false);
@@ -9040,13 +9061,32 @@ function PatientsProfile() {
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium">Description</label>
-                <textarea
+                <select
                   name="xrayDescription"
-                  value={newXrayRecord.xrayDescription || ""}
+                  value={newXrayRecord.xrayDescription}
                   onChange={handleNewXrayChange}
+                  required
                   className="border rounded-lg w-full p-2 mt-1"
-                  placeholder="Enter X-ray description or details"
-                />
+                  disabled={!newXrayRecord.xrayType} // Disable if no xrayType is selected
+                >
+                  <option value="" disabled>
+                    Select Description
+                  </option>
+
+                  {newXrayRecord.xrayType === "medical" &&
+                    medicalDescriptions.map((description, index) => (
+                      <option key={index} value={description}>
+                        {description}
+                      </option>
+                    ))}
+
+                  {newXrayRecord.xrayType === "dental" &&
+                    dentalDescriptions.map((description, index) => (
+                      <option key={index} value={description}>
+                        {description}
+                      </option>
+                    ))}
+                </select>
               </div>
               <div className="flex justify-end space-x-3">
                 <button
@@ -10188,7 +10228,7 @@ function PatientsProfile() {
               </button>
             </div>
           </div>
-        </div> 
+        </div>
       )}
     </div>
   );

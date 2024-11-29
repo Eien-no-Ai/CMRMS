@@ -487,6 +487,21 @@ function XrayResult() {
                       />
                     </div>
 
+                    {/* X-ray Findings */}
+                    <div className="w-full mt-4">
+                      <label className="block text-gray-700">
+                        X-ray Findings
+                      </label>
+                      <textarea
+                        name="xrayFindings"
+                        className="w-full px-3 py-2 border rounded"
+                        rows="4"
+                        // placeholder="Enter findings..."
+                        value={formData.xrayFindings}
+                        onChange={handleInputChange}
+                        readOnly={userRole === "radiologist"}
+                      />
+                    </div>
                     {/* Diagnosis (Interpretation) */}
                     <div className="w-full">
                       <label className="block text-gray-700">
@@ -502,20 +517,6 @@ function XrayResult() {
                         readOnly={userRole === "radiologic technologist"}
                       />
                     </div>
-
-                    {/* X-ray Findings */}
-                    <div className="w-full mt-4">
-                      <label className="block text-gray-700">X-ray Description</label>
-                      <textarea
-                        name="xrayFindings"
-                        className="w-full px-3 py-2 border rounded"
-                        rows="4"
-                        // placeholder="Enter findings..."
-                        value={formData.xrayFindings}
-                        onChange={handleInputChange}
-                        readOnly={userRole === "radiologist"}
-                      />
-                      </div>
                   </div>
                 </form>
               </div>

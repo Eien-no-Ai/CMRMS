@@ -190,7 +190,6 @@ function Clinic() {
   const [xrayRecords, setXrayRecords] = useState([]);
   const [physicalTherapyRecords, setPhysicalTherapyRecords] = useState([]);
 
-
   const fetchLabRecords = useCallback(async (patientId) => {
     try {
       const response = await axios.get(
@@ -201,7 +200,10 @@ function Clinic() {
       );
       setLaboratoryRecords(sortedLabRecords);
     } catch (error) {
-      console.error("There was an error fetching the laboratory records!", error);
+      console.error(
+        "There was an error fetching the laboratory records!",
+        error
+      );
     }
   }, []);
 
@@ -230,7 +232,10 @@ function Clinic() {
       );
       setPhysicalTherapyRecords(sortedPhysicalTherapyRecords);
     } catch (error) {
-      console.error("There was an error fetching the Physical Therapy records!", error);
+      console.error(
+        "There was an error fetching the Physical Therapy records!",
+        error
+      );
     }
   }, []);
 
@@ -364,6 +369,24 @@ function Clinic() {
     xrayFindings: "",
   });
 
+  // X-ray description options based on the selected type
+  const medicalDescriptions = [
+    "CHEST PA",
+    "SKULL",
+    "CERVICAL",
+    "PANORAMIC",
+    "TLV/LSV",
+    "PELVIS",
+    "UPPER EXTREMITIES",
+    "LOWER EXTREMITIES",
+  ];
+
+  const dentalDescriptions = [
+    "PANORAMIC",
+    "LATERAL CEPHALOMETRIC",
+    "PERIAPICAL",
+    "TMJ",
+  ];
 
   const handleNewXraySubmit = async (e) => {
     e.preventDefault();
@@ -478,8 +501,6 @@ function Clinic() {
     useState(false);
   const [selectedXrayRecord, setSelectedXrayRecord] = useState(null);
 
-
-
   const handleLabModalOpen = (record) => {
     setIsLabModalOpen(true);
     setClinicId(record._id);
@@ -490,7 +511,6 @@ function Clinic() {
     setIsLabModalOpen(false);
   };
 
-
   const handleNewXrayModalOpen = (record) => {
     setClinicId(record._id);
     setIsNewXrayModalOpen(true);
@@ -499,7 +519,6 @@ function Clinic() {
   const handleNewXrayModalClose = () => {
     setIsNewXrayModalOpen(false);
   };
-
 
   const handleNewTherapyRecordOpen = (xray) => {
     setSelectedXrayRecord(xray);
@@ -552,7 +571,6 @@ function Clinic() {
   const toggleClinicalMicroscopyVisibility = () =>
     setClinicalMicroscopyVisible(!isClinicalMicroscopyVisible);
   const toggleSerologyVisibility = () => setSerologyVisible(!isSerologyVisible);
-
 
   const getAge = (birthdate) => {
     const today = new Date();
@@ -726,20 +744,22 @@ function Clinic() {
                 <button
                   onClick={paginatePrev}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 mr-2 rounded-lg border ${currentPage === 1
+                  className={`px-4 py-2 mr-2 rounded-lg border ${
+                    currentPage === 1
                       ? "bg-gray-300"
                       : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                    }`}
+                  }`}
                 >
                   Previous
                 </button>
                 <button
                   onClick={paginateNext}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg border ${currentPage === totalPages
+                  className={`px-4 py-2 rounded-lg border ${
+                    currentPage === totalPages
                       ? "bg-gray-300"
                       : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                    }`}
+                  }`}
                 >
                   Next
                 </button>
@@ -810,7 +830,7 @@ function Clinic() {
                   )}
 
                   {selectedRecord.treatments &&
-                    selectedRecord.treatments.length > 0 ? (
+                  selectedRecord.treatments.length > 0 ? (
                     <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                       {selectedRecord.treatments
                         .split(", ")
@@ -853,7 +873,7 @@ function Clinic() {
                   </div>
 
                   {selectedRecord.diagnosis &&
-                    selectedRecord.diagnosis.length > 0 ? (
+                  selectedRecord.diagnosis.length > 0 ? (
                     <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                       {selectedRecord.diagnosis
                         .split(", ")
@@ -935,10 +955,12 @@ function Clinic() {
 
                                   <div className="col-span-1 flex justify-end items-center">
                                     {/* Only show the button if labResult is 'verified' */}
-                                    {labTest.labResult === 'verified' && (
+                                    {labTest.labResult === "verified" && (
                                       <button
                                         className="text-custom-red"
-                                        onClick={() => openLabResultModal(labTest._id)}
+                                        onClick={() =>
+                                          openLabResultModal(labTest._id)
+                                        }
                                       >
                                         View
                                       </button>
@@ -991,7 +1013,7 @@ function Clinic() {
                                 </div>
                                 <div className="col-span-1 flex justify-end items-center">
                                   {/* Only show the button if xrayResult is not 'pending' */}
-                                  {xray.xrayResult !== 'pending' && (
+                                  {xray.xrayResult !== "pending" && (
                                     <button
                                       className="text-custom-red"
                                       onClick={() => handleXrayView(xray)}
@@ -1032,7 +1054,9 @@ function Clinic() {
                     {/* Always Render the Refer to PT Button */}
                     <button
                       className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                      onClick={() => handleNewTherapyRecordOpen(selectedXrayRecords || [])} // Pass empty array if no records
+                      onClick={() =>
+                        handleNewTherapyRecordOpen(selectedXrayRecords || [])
+                      } // Pass empty array if no records
                     >
                       <GiBiceps className="mr-2" /> Refer to PT
                     </button>
@@ -1567,16 +1591,37 @@ function Clinic() {
                   <option value="dental">Dental X-ray</option>
                 </select>
               </div>
+
               <div className="mb-4">
                 <label className="block text-sm font-medium">Description</label>
-                <textarea
+                <select
                   name="xrayDescription"
-                  value={newXrayRecord.xrayDescription || ""}
+                  value={newXrayRecord.xrayDescription}
                   onChange={handleNewXrayChange}
+                  required
                   className="border rounded-lg w-full p-2 mt-1"
-                  placeholder="Enter X-ray description or details"
-                />
+                  disabled={!newXrayRecord.xrayType} // Disable if no xrayType is selected
+                >
+                  <option value="" disabled>
+                    Select Description
+                  </option>
+
+                  {newXrayRecord.xrayType === "medical" &&
+                    medicalDescriptions.map((description, index) => (
+                      <option key={index} value={description}>
+                        {description}
+                      </option>
+                    ))}
+
+                  {newXrayRecord.xrayType === "dental" &&
+                    dentalDescriptions.map((description, index) => (
+                      <option key={index} value={description}>
+                        {description}
+                      </option>
+                    ))}
+                </select>
               </div>
+
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
@@ -1596,217 +1641,280 @@ function Clinic() {
           </div>
         </div>
       )}
-      {isNewTherapyRecordModalOpen && selectedXrayRecords && selectedXrayRecords.length > 0 && selectedRecord && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-lg shadow-lg z-50 max-w-3xl w-full overflow-auto h-auto max-h-[90vh]">
-            {/* Form Title */}
-            <h2 className="text-xl font-semibold mb-4 text-center">Result Form</h2>
+      {isNewTherapyRecordModalOpen &&
+        selectedXrayRecords &&
+        selectedXrayRecords.length > 0 &&
+        selectedRecord && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
+            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-lg shadow-lg z-50 max-w-3xl w-full overflow-auto h-auto max-h-[90vh]">
+              {/* Form Title */}
+              <h2 className="text-xl font-semibold mb-4 text-center">
+                Result Form
+              </h2>
 
-            {/* Main Form Content */}
-            <div className="flex flex-wrap mb-4 gap-4">
-              <form className="flex flex-row items-start gap-4 w-full">
-                {/* X-ray Result Image - Left Side */}
-                <div className="w-full md:w-1/2">
-                  <label className="block text-gray-700">X-ray Results</label>
+              {/* Main Form Content */}
+              <div className="flex flex-wrap mb-4 gap-4">
+                <form className="flex flex-row items-start gap-4 w-full">
+                  {/* X-ray Result Image - Left Side */}
+                  <div className="w-full md:w-1/2">
+                    <label className="block text-gray-700">X-ray Results</label>
 
-                  {/* Dropdown to select X-ray record */}
-                  {/* Only Show Xray Result that is DONE */}
-                  <select
-                    className="w-full px-3 py-2 border rounded mb-4"
-                    onChange={(e) => setSelectedXray(e.target.value)}
-                  >
-                    <option value="">Select X-ray</option>
-                    {selectedXrayRecords
-                      .filter((xray) => xray.xrayResult === "done") // Filter for xrayResult === "done"
-                      .map((xray, index) => (
-                        <option key={index} value={index}>
-                          X-ray {index + 1} - {new Date(xray.isCreatedAt).toLocaleDateString()}
-                        </option>
-                      ))}
-                  </select>
+                    {/* Dropdown to select X-ray record */}
+                    {/* Only Show Xray Result that is DONE */}
+                    <select
+                      className="w-full px-3 py-2 border rounded mb-4"
+                      onChange={(e) => setSelectedXray(e.target.value)}
+                    >
+                      <option value="">Select X-ray</option>
+                      {selectedXrayRecords
+                        .filter((xray) => xray.xrayResult === "done") // Filter for xrayResult === "done"
+                        .map((xray, index) => (
+                          <option key={index} value={index}>
+                            X-ray {index + 1} -{" "}
+                            {new Date(xray.isCreatedAt).toLocaleDateString()}
+                          </option>
+                        ))}
+                    </select>
 
-                  {/* Display selected X-ray record */}
-                  {selectedXray !== null && selectedXrayRecords[selectedXray] && (
-                    <div>
-                      <img
-                        src={selectedXrayRecords[selectedXray].imageFile}
-                        alt="X-ray"
-                        className="w-full h-auto object-contain cursor-pointer mb-4 max-h-[60vh] overflow-hidden mx-auto" // Modified styles
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Patient Details Section - Right Side */}
-                <div className="w-full md:w-1/2">
-                  {/* Patient Information */}
-                  <div className="flex mb-4 gap-2">
-                    <div className="w-1/2">
-                      <label className="block text-gray-700">Name</label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={`${selectedRecord.patient?.firstname} ${selectedRecord.patient?.lastname}` || "N/A"}
-                        readOnly
-                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                      />
-                    </div>
-                    <div className="w-1/4">
-                      <label className="block text-gray-700">Age</label>
-                      <input
-                        type="text"
-                        name="age"
-                        value={calculateAge(selectedRecord.patient?.birthdate)}
-                        readOnly
-                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                      />
-                    </div>
-                    <div className="w-1/4">
-                      <label className="block text-gray-700">Sex</label>
-                      <input
-                        type="text"
-                        name="sex"
-                        value={selectedRecord.patient?.sex || "N/A"}
-                        readOnly
-                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                      />
-                    </div>
+                    {/* Display selected X-ray record */}
+                    {selectedXray !== null &&
+                      selectedXrayRecords[selectedXray] && (
+                        <div>
+                          <img
+                            src={selectedXrayRecords[selectedXray].imageFile}
+                            alt="X-ray"
+                            className="w-full h-auto object-contain cursor-pointer mb-4 max-h-[60vh] overflow-hidden mx-auto" // Modified styles
+                          />
+                        </div>
+                      )}
                   </div>
 
-                  {/* Course/Dept. or Position */}
-                  <div className="mb-4">
-                    <label className="block text-gray-700">
-                      {selectedRecord.patient?.patientType === "Student" ? "Course/Dept." : "Position"}
-                    </label>
-                    <input
-                      type="text"
-                      name="courseDept"
-                      value={selectedRecord.patient?.patientType === "Student" ? selectedRecord.patient?.course || "N/A" : selectedRecord.patient?.position || "N/A"}
-                      readOnly
-                      className="w-full px-3 py-2 border rounded bg-gray-100"
-                    />
-                  </div>
-
-                  {/* X-ray Information (OR No., Case No., Date, Interpretation) */}
-                  <div className="mb-4">
+                  {/* Patient Details Section - Right Side */}
+                  <div className="w-full md:w-1/2">
+                    {/* Patient Information */}
                     <div className="flex mb-4 gap-2">
-                      <div className="w-1/3">
-                        <label className="block text-gray-700">OR No.</label>
+                      <div className="w-1/2">
+                        <label className="block text-gray-700">Name</label>
                         <input
                           type="text"
-                          name="XrayNo"
-                          value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].ORNumber || "N/A" : "N/A"}
-                          className="w-full px-3 py-2 border rounded"
+                          name="name"
+                          value={
+                            `${selectedRecord.patient?.firstname} ${selectedRecord.patient?.lastname}` ||
+                            "N/A"
+                          }
                           readOnly
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
                         />
                       </div>
-                      <div className="w-1/3">
-                        <label className="block text-gray-700">Case No.</label>
+                      <div className="w-1/4">
+                        <label className="block text-gray-700">Age</label>
                         <input
                           type="text"
-                          name="XrayNo"
-                          value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].XrayNo || "N/A" : "N/A"}
-                          className="w-full px-3 py-2 border rounded"
+                          name="age"
+                          value={calculateAge(
+                            selectedRecord.patient?.birthdate
+                          )}
                           readOnly
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
                         />
                       </div>
-                      <div className="w-1/3">
-                        <label className="block text-gray-700">Date</label>
+                      <div className="w-1/4">
+                        <label className="block text-gray-700">Sex</label>
                         <input
                           type="text"
-                          name="date"
-                          value={selectedXray !== null && selectedXrayRecords[selectedXray] ? new Date(selectedXrayRecords[selectedXray].isCreatedAt).toLocaleString() : "N/A"}
-                          className="w-full px-3 py-2 border rounded"
+                          name="sex"
+                          value={selectedRecord.patient?.sex || "N/A"}
                           readOnly
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
                         />
                       </div>
                     </div>
 
-                    {/* Diagnosis */}
-                    <div className="w-full">
-                      <label className="block text-gray-700">Interpretation</label>
-                      <textarea
-                        name="diagnosis"
-                        className="w-full px-3 py-2 border rounded"
-                        rows="4"
-                        placeholder="No Interpretation available."
-                        value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].diagnosis || "" : ""}
+                    {/* Course/Dept. or Position */}
+                    <div className="mb-4">
+                      <label className="block text-gray-700">
+                        {selectedRecord.patient?.patientType === "Student"
+                          ? "Course/Dept."
+                          : "Position"}
+                      </label>
+                      <input
+                        type="text"
+                        name="courseDept"
+                        value={
+                          selectedRecord.patient?.patientType === "Student"
+                            ? selectedRecord.patient?.course || "N/A"
+                            : selectedRecord.patient?.position || "N/A"
+                        }
                         readOnly
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
                       />
                     </div>
 
-                    {/*X-ray Findings*/}
-                    <div className="w-full">
-                      <label className="block text-gray-700">X-ray Findings</label>
-                      <textarea
-                        name="xrayFindings"
-                        className="w-full px-3 py-2 border rounded"
-                        rows="4"
-                        placeholder="No X-ray findings available."
-                        value={selectedXray !== null && selectedXrayRecords[selectedXray] ? selectedXrayRecords[selectedXray].xrayFindings || "" : ""}
-                        required
-                      />
-                    </div>
+                    {/* X-ray Information (OR No., Case No., Date, Interpretation) */}
+                    <div className="mb-4">
+                      <div className="flex mb-4 gap-2">
+                        <div className="w-1/3">
+                          <label className="block text-gray-700">OR No.</label>
+                          <input
+                            type="text"
+                            name="XrayNo"
+                            value={
+                              selectedXray !== null &&
+                              selectedXrayRecords[selectedXray]
+                                ? selectedXrayRecords[selectedXray].ORNumber ||
+                                  "N/A"
+                                : "N/A"
+                            }
+                            className="w-full px-3 py-2 border rounded"
+                            readOnly
+                          />
+                        </div>
+                        <div className="w-1/3">
+                          <label className="block text-gray-700">
+                            Case No.
+                          </label>
+                          <input
+                            type="text"
+                            name="XrayNo"
+                            value={
+                              selectedXray !== null &&
+                              selectedXrayRecords[selectedXray]
+                                ? selectedXrayRecords[selectedXray].XrayNo ||
+                                  "N/A"
+                                : "N/A"
+                            }
+                            className="w-full px-3 py-2 border rounded"
+                            readOnly
+                          />
+                        </div>
+                        <div className="w-1/3">
+                          <label className="block text-gray-700">Date</label>
+                          <input
+                            type="text"
+                            name="date"
+                            value={
+                              selectedXray !== null &&
+                              selectedXrayRecords[selectedXray]
+                                ? new Date(
+                                    selectedXrayRecords[
+                                      selectedXray
+                                    ].isCreatedAt
+                                  ).toLocaleString()
+                                : "N/A"
+                            }
+                            className="w-full px-3 py-2 border rounded"
+                            readOnly
+                          />
+                        </div>
+                      </div>
 
+                      {/* Diagnosis */}
+                      <div className="w-full">
+                        <label className="block text-gray-700">
+                          Interpretation
+                        </label>
+                        <textarea
+                          name="diagnosis"
+                          className="w-full px-3 py-2 border rounded"
+                          rows="4"
+                          placeholder="No Interpretation available."
+                          value={
+                            selectedXray !== null &&
+                            selectedXrayRecords[selectedXray]
+                              ? selectedXrayRecords[selectedXray].diagnosis ||
+                                ""
+                              : ""
+                          }
+                          readOnly
+                        />
+                      </div>
+
+                      {/*X-ray Findings*/}
+                      <div className="w-full">
+                        <label className="block text-gray-700">
+                          X-ray Findings
+                        </label>
+                        <textarea
+                          name="xrayFindings"
+                          className="w-full px-3 py-2 border rounded"
+                          rows="4"
+                          placeholder="No X-ray findings available."
+                          value={
+                            selectedXray !== null &&
+                            selectedXrayRecords[selectedXray]
+                              ? selectedXrayRecords[selectedXray]
+                                  .xrayFindings || ""
+                              : ""
+                          }
+                          required
+                        />
+                      </div>
+                    </div>
                   </div>
+                </form>
+              </div>
+
+              {/* New Physical Therapy Record Section */}
+              <h2 className="text-lg font-bold mb-4 text-center">
+                New Physical Therapy Record
+              </h2>
+              <form onSubmit={handleNewTherapySubmit}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium">
+                    Tentative Diagnosis
+                  </label>
+                  <textarea
+                    type="text"
+                    name="Diagnosis"
+                    value={newTherapyRecord.Diagnosis}
+                    onChange={handleNewTherapyRecordChange}
+                    required
+                    className="border rounded-lg w-full p-2 mt-1"
+                  />
+
+                  <label className="block text-sm font-medium">
+                    Chief Complaints
+                  </label>
+                  <textarea
+                    type="text"
+                    name="ChiefComplaints"
+                    value={newTherapyRecord.ChiefComplaints}
+                    onChange={handleNewTherapyRecordChange}
+                    required
+                    className="border rounded-lg w-full p-2 mt-1"
+                  />
+
+                  <label className="block text-sm font-medium">
+                    History Of Present Illness
+                  </label>
+                  <textarea
+                    type="text"
+                    name="HistoryOfPresentIllness"
+                    value={newTherapyRecord.HistoryOfPresentIllness}
+                    onChange={handleNewTherapyRecordChange}
+                    required
+                    className="border rounded-lg w-full p-2 mt-1"
+                  />
+                </div>
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                    onClick={handleNewTherapyRecordClose}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                  >
+                    Submit
+                  </button>
                 </div>
               </form>
             </div>
-
-            {/* New Physical Therapy Record Section */}
-            <h2 className="text-lg font-bold mb-4 text-center">New Physical Therapy Record</h2>
-            <form onSubmit={handleNewTherapySubmit}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium">Tentative Diagnosis</label>
-                <textarea
-                  type="text"
-                  name="Diagnosis"
-                  value={newTherapyRecord.Diagnosis}
-                  onChange={handleNewTherapyRecordChange}
-                  required
-                  className="border rounded-lg w-full p-2 mt-1"
-                />
-
-                <label className="block text-sm font-medium">Chief Complaints</label>
-                <textarea
-                  type="text"
-                  name="ChiefComplaints"
-                  value={newTherapyRecord.ChiefComplaints}
-                  onChange={handleNewTherapyRecordChange}
-                  required
-                  className="border rounded-lg w-full p-2 mt-1"
-                />
-
-                <label className="block text-sm font-medium">History Of Present Illness</label>
-                <textarea
-                  type="text"
-                  name="HistoryOfPresentIllness"
-                  value={newTherapyRecord.HistoryOfPresentIllness}
-                  onChange={handleNewTherapyRecordChange}
-                  required
-                  className="border rounded-lg w-full p-2 mt-1"
-                />
-
-              </div>
-              <div className="flex justify-end space-x-3">
-                <button
-                  type="button"
-                  className="bg-gray-500 text-white py-2 px-4 rounded-lg"
-                  onClick={handleNewTherapyRecordClose}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-custom-red text-white py-2 px-4 rounded-lg"
-                >
-                  Submit
-                </button>
-              </div>
-            </form>
           </div>
-        </div>
-      )}
+        )}
       {/* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
       {isLabResultModalOpen && labDetails && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -1842,9 +1950,8 @@ function Clinic() {
                     name="date"
                     className="w-full px-3 py-2 border rounded"
                     value={
-                      new Date(
-                        labDetails.isCreatedAt
-                      ).toLocaleDateString() || "N/A"
+                      new Date(labDetails.isCreatedAt).toLocaleDateString() ||
+                      "N/A"
                     }
                     readOnly
                   />
@@ -1902,7 +2009,9 @@ function Clinic() {
                   value={
                     labDetails.patient
                       ? labDetails.patient.patientType === "Student"
-                        ? `${labDetails.patient.course || "N/A"} - ${labDetails.patient.year || "N/A"}` // Display course if patientType is student
+                        ? `${labDetails.patient.course || "N/A"} - ${
+                            labDetails.patient.year || "N/A"
+                          }` // Display course if patientType is student
                         : labDetails.patient.position || "N/A" // Otherwise, display position
                       : "N/A"
                   }
@@ -1920,8 +2029,9 @@ function Clinic() {
                     I. Hematology
                   </h3>
                   <BiChevronDown
-                    className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
-                      }`}
+                    className={`transform transition-transform duration-300 ${
+                      isHematologyVisible ? "rotate-180" : ""
+                    }`}
                     size={24}
                   />
                 </div>
@@ -1942,8 +2052,7 @@ function Clinic() {
                         name="redBloodCellCount"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
                         value={
-                          labDetails.Hematology?.redBloodCellCount ||
-                          "N/A"
+                          labDetails.Hematology?.redBloodCellCount || "N/A"
                         }
                         readOnly
                       />
@@ -1986,9 +2095,7 @@ function Clinic() {
                         type="text"
                         name="leukocyteCount"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
-                        value={
-                          labDetails.Hematology?.LeukocyteCount || "N/A"
-                        }
+                        value={labDetails.Hematology?.LeukocyteCount || "N/A"}
                         readOnly
                       />
                     </div>
@@ -2035,8 +2142,8 @@ function Clinic() {
                         name="monocytes"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
                         value={
-                          labDetails.Hematology?.DifferentialCount
-                            ?.monocytes || "N/A"
+                          labDetails.Hematology?.DifferentialCount?.monocytes ||
+                          "N/A"
                         }
                         readOnly
                       />
@@ -2065,8 +2172,8 @@ function Clinic() {
                         name="basophils"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
                         value={
-                          labDetails.Hematology?.DifferentialCount
-                            ?.basophils || "N/A"
+                          labDetails.Hematology?.DifferentialCount?.basophils ||
+                          "N/A"
                         }
                         readOnly
                       />
@@ -2080,8 +2187,8 @@ function Clinic() {
                         name="total"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
                         value={
-                          labDetails.Hematology?.DifferentialCount
-                            ?.total || "N/A"
+                          labDetails.Hematology?.DifferentialCount?.total ||
+                          "N/A"
                         }
                         readOnly
                       />
@@ -2094,9 +2201,7 @@ function Clinic() {
                         type="text"
                         name="plateletCount"
                         className="w-full px-3 py-1 border rounded bg-gray-100"
-                        value={
-                          labDetails.Hematology?.PlateletCount || "N/A"
-                        }
+                        value={labDetails.Hematology?.PlateletCount || "N/A"}
                         readOnly
                       />
                     </div>
@@ -2125,8 +2230,9 @@ function Clinic() {
                   II. Clinical Microscopy and Parasitology
                 </h3>
                 <BiChevronDown
-                  className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible ? "rotate-180" : ""
-                    }`}
+                  className={`transform transition-transform duration-300 ${
+                    isClinicalMicroscopyVisible ? "rotate-180" : ""
+                  }`}
                   size={24}
                 />
               </div>
@@ -2158,8 +2264,7 @@ function Clinic() {
                     className="col-span-2 border rounded px-3 py-1"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.macroscopicExam?.color ||
-                      "N/A"
+                        ?.routineUrinalysis?.macroscopicExam?.color || "N/A"
                     }
                     readOnly
                   />
@@ -2169,8 +2274,8 @@ function Clinic() {
                     className="col-span-2 border rounded px-3 py-1"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.macroscopicExam
-                        ?.appearance || "N/A"
+                        ?.routineUrinalysis?.macroscopicExam?.appearance ||
+                      "N/A"
                     }
                     readOnly
                   />
@@ -2195,8 +2300,7 @@ function Clinic() {
                     className="col-span-1 border rounded px-3 py-1"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.urobilinogen ||
-                      "N/A"
+                        ?.routineUrinalysis?.chemicalExam?.urobilinogen || "N/A"
                     }
                     readOnly
                   />
@@ -2206,8 +2310,7 @@ function Clinic() {
                     className="col-span-1 border rounded px-3 py-1"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.albumin ||
-                      "N/A"
+                        ?.routineUrinalysis?.chemicalExam?.albumin || "N/A"
                     }
                     readOnly
                   />
@@ -2217,8 +2320,7 @@ function Clinic() {
                     className="col-span-1 border rounded px-3 py-1"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.ketones ||
-                      "N/A"
+                        ?.routineUrinalysis?.chemicalExam?.ketones || "N/A"
                     }
                     readOnly
                   />
@@ -2238,8 +2340,7 @@ function Clinic() {
                     className="col-span-1 border rounded px-3 py-1"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.nitrites ||
-                      "N/A"
+                        ?.routineUrinalysis?.chemicalExam?.nitrites || "N/A"
                     }
                     readOnly
                   />
@@ -2249,8 +2350,7 @@ function Clinic() {
                     className="col-span-1 border rounded px-3 py-1"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.bilirubin ||
-                      "N/A"
+                        ?.routineUrinalysis?.chemicalExam?.bilirubin || "N/A"
                     }
                     readOnly
                   />
@@ -2260,8 +2360,7 @@ function Clinic() {
                     className="col-span-1 border rounded px-3 py-1"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.leukocytes ||
-                      "N/A"
+                        ?.routineUrinalysis?.chemicalExam?.leukocytes || "N/A"
                     }
                     readOnly
                   />
@@ -2271,8 +2370,7 @@ function Clinic() {
                     className="col-span-1 border rounded px-3 py-1"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.reaction ||
-                      "N/A"
+                        ?.routineUrinalysis?.chemicalExam?.reaction || "N/A"
                     }
                     readOnly
                   />
@@ -2282,8 +2380,8 @@ function Clinic() {
                     className="col-span-1 border rounded px-3 py-1"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam
-                        ?.specificGravity || "N/A"
+                        ?.routineUrinalysis?.chemicalExam?.specificGravity ||
+                      "N/A"
                     }
                     readOnly
                   />
@@ -2299,8 +2397,7 @@ function Clinic() {
                     placeholder="/hpf"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.pusCells ||
-                      "N/A"
+                        ?.routineUrinalysis?.microscopicExam?.pusCells || "N/A"
                     }
                     readOnly
                   />
@@ -2311,8 +2408,8 @@ function Clinic() {
                     placeholder="/lpf"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam
-                        ?.epithelialCells || "N/A"
+                        ?.routineUrinalysis?.microscopicExam?.epithelialCells ||
+                      "N/A"
                     }
                     readOnly
                   />
@@ -2334,8 +2431,8 @@ function Clinic() {
                     placeholder="/lpf"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam
-                        ?.mucusThreads || "N/A"
+                        ?.routineUrinalysis?.microscopicExam?.mucusThreads ||
+                      "N/A"
                     }
                     readOnly
                   />
@@ -2346,8 +2443,7 @@ function Clinic() {
                     placeholder="/hpf"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.bacteria ||
-                      "N/A"
+                        ?.routineUrinalysis?.microscopicExam?.bacteria || "N/A"
                     }
                     readOnly
                   />
@@ -2358,8 +2454,7 @@ function Clinic() {
                     placeholder="/lpf"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.crystals ||
-                      "N/A"
+                        ?.routineUrinalysis?.microscopicExam?.crystals || "N/A"
                     }
                     readOnly
                   />
@@ -2370,8 +2465,8 @@ function Clinic() {
                     placeholder="/hpf"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam
-                        ?.yeastCells || "N/A"
+                        ?.routineUrinalysis?.microscopicExam?.yeastCells ||
+                      "N/A"
                     }
                     readOnly
                   />
@@ -2382,8 +2477,7 @@ function Clinic() {
                     placeholder="/lpf"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.amorphous ||
-                      "N/A"
+                        ?.routineUrinalysis?.microscopicExam?.amorphous || "N/A"
                     }
                     readOnly
                   />
@@ -2394,8 +2488,7 @@ function Clinic() {
                     placeholder="/lpf"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.casts ||
-                      "N/A"
+                        ?.routineUrinalysis?.microscopicExam?.casts || "N/A"
                     }
                     readOnly
                   />
@@ -2405,8 +2498,7 @@ function Clinic() {
                     className="col-span-5 border rounded px-3 py-1"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.others ||
-                      "N/A"
+                        ?.routineUrinalysis?.microscopicExam?.others || "N/A"
                     }
                   />
 
@@ -2466,8 +2558,8 @@ function Clinic() {
                     className="col-span-2 border rounded px-3 py-1"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineFecalysis?.microscopicExam
-                        ?.directFecalSmear || "N/A"
+                        ?.routineFecalysis?.microscopicExam?.directFecalSmear ||
+                      "N/A"
                     }
                     readOnly
                   />
@@ -2477,8 +2569,8 @@ function Clinic() {
                     className="col-span-2 border rounded px-3 py-1"
                     value={
                       labDetails.clinicalMicroscopyParasitology
-                        ?.routineFecalysis?.microscopicExam
-                        ?.katoThickSmear || "N/A"
+                        ?.routineFecalysis?.microscopicExam?.katoThickSmear ||
+                      "N/A"
                     }
                     readOnly
                   />
@@ -2505,8 +2597,9 @@ function Clinic() {
                   III. Serology
                 </h3>
                 <BiChevronDown
-                  className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
-                    }`}
+                  className={`transform transition-transform duration-300 ${
+                    isSerologyVisible ? "rotate-180" : ""
+                  }`}
                   size={24}
                 />
               </div>
@@ -2516,8 +2609,8 @@ function Clinic() {
                 <div className="grid grid-cols-12 gap-4 p-4">
                   {/* Hepatitis B Surface Antigen Determination and Anti-HAV Test */}
                   <h4 className="col-span-6 font-semibold">
-                    Hepatitis B Surface Antigen Determination (Screening
-                    Test Only)
+                    Hepatitis B Surface Antigen Determination (Screening Test
+                    Only)
                   </h4>
                   <h4 className="col-span-6 font-semibold">
                     Anti-HAV Test (Screening Test Only)
@@ -2528,8 +2621,8 @@ function Clinic() {
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology
-                        ?.hepatitisBSurfaceAntigen?.methodUsed || "N/A"
+                      labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
+                        ?.methodUsed || "N/A"
                     }
                     readOnly
                   />
@@ -2549,8 +2642,8 @@ function Clinic() {
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology
-                        ?.hepatitisBSurfaceAntigen?.lotNumber || "N/A"
+                      labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
+                        ?.lotNumber || "N/A"
                     }
                     readOnly
                   />
@@ -2559,8 +2652,8 @@ function Clinic() {
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology?.antiHAVTest
-                        ?.lotNumber || "N/A"
+                      labDetails.bloodBankingSerology?.antiHAVTest?.lotNumber ||
+                      "N/A"
                     }
                     readOnly
                   />
@@ -2570,13 +2663,13 @@ function Clinic() {
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology
-                        ?.hepatitisBSurfaceAntigen?.expirationDate
+                      labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
+                        ?.expirationDate
                         ? new Date(
-                          labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                        )
-                          .toISOString()
-                          .split("T")[0]
+                            labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                          )
+                            .toISOString()
+                            .split("T")[0]
                         : "N/A"
                     }
                     readOnly
@@ -2589,10 +2682,10 @@ function Clinic() {
                       labDetails.bloodBankingSerology?.antiHAVTest
                         ?.expirationDate
                         ? new Date(
-                          labDetails.bloodBankingSerology.antiHAVTest.expirationDate
-                        )
-                          .toISOString()
-                          .split("T")[0]
+                            labDetails.bloodBankingSerology.antiHAVTest.expirationDate
+                          )
+                            .toISOString()
+                            .split("T")[0]
                         : "N/A"
                     }
                     readOnly
@@ -2603,8 +2696,8 @@ function Clinic() {
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology
-                        ?.hepatitisBSurfaceAntigen?.result || "N/A"
+                      labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
+                        ?.result || "N/A"
                     }
                     readOnly
                   />
@@ -2613,16 +2706,14 @@ function Clinic() {
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology?.antiHAVTest
-                        ?.result || "N/A"
+                      labDetails.bloodBankingSerology?.antiHAVTest?.result ||
+                      "N/A"
                     }
                     readOnly
                   />
 
                   {/* Serum Pregnancy and Test for Treponema pallidum / Syphilis */}
-                  <h4 className="col-span-6 font-semibold">
-                    Serum Pregnancy
-                  </h4>
+                  <h4 className="col-span-6 font-semibold">Serum Pregnancy</h4>
                   <h4 className="col-span-6 font-semibold">
                     Test for Treponema pallidum / Syphilis
                   </h4>
@@ -2642,8 +2733,8 @@ function Clinic() {
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology
-                        ?.treponemaPallidumTest?.methodUsed || "N/A"
+                      labDetails.bloodBankingSerology?.treponemaPallidumTest
+                        ?.methodUsed || "N/A"
                     }
                     readOnly
                   />
@@ -2663,8 +2754,8 @@ function Clinic() {
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology
-                        ?.treponemaPallidumTest?.lotNumber || "N/A"
+                      labDetails.bloodBankingSerology?.treponemaPallidumTest
+                        ?.lotNumber || "N/A"
                     }
                     readOnly
                   />
@@ -2677,10 +2768,10 @@ function Clinic() {
                       labDetails.bloodBankingSerology?.serumPregnancy
                         ?.expirationDate
                         ? new Date(
-                          labDetails.bloodBankingSerology.serumPregnancy.expirationDate
-                        )
-                          .toISOString()
-                          .split("T")[0]
+                            labDetails.bloodBankingSerology.serumPregnancy.expirationDate
+                          )
+                            .toISOString()
+                            .split("T")[0]
                         : "N/A"
                     }
                     readOnly
@@ -2690,13 +2781,13 @@ function Clinic() {
                     type="date"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology
-                        ?.treponemaPallidumTest?.expirationDate
+                      labDetails.bloodBankingSerology?.treponemaPallidumTest
+                        ?.expirationDate
                         ? new Date(
-                          labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                        )
-                          .toISOString()
-                          .split("T")[0]
+                            labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                          )
+                            .toISOString()
+                            .split("T")[0]
                         : "N/A"
                     }
                     readOnly
@@ -2707,8 +2798,8 @@ function Clinic() {
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology?.serumPregnancy
-                        ?.result || "N/A"
+                      labDetails.bloodBankingSerology?.serumPregnancy?.result ||
+                      "N/A"
                     }
                     readOnly
                   />
@@ -2717,19 +2808,15 @@ function Clinic() {
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology
-                        ?.treponemaPallidumTest?.result || "N/A"
+                      labDetails.bloodBankingSerology?.treponemaPallidumTest
+                        ?.result || "N/A"
                     }
                     readOnly
                   />
 
                   {/* Salmonella typhi and Blood Typing */}
-                  <h4 className="col-span-6 font-semibold">
-                    Salmonella typhi
-                  </h4>
-                  <h4 className="col-span-6 font-semibold">
-                    Blood Typing
-                  </h4>
+                  <h4 className="col-span-6 font-semibold">Salmonella typhi</h4>
+                  <h4 className="col-span-6 font-semibold">Blood Typing</h4>
 
                   <label className="col-span-1">Method Used</label>
                   <input
@@ -2746,8 +2833,8 @@ function Clinic() {
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology?.bloodTyping
-                        ?.ABOType || "N/A"
+                      labDetails.bloodBankingSerology?.bloodTyping?.ABOType ||
+                      "N/A"
                     }
                     readOnly
                   />
@@ -2767,8 +2854,8 @@ function Clinic() {
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology?.bloodTyping
-                        ?.RhType || "N/A"
+                      labDetails.bloodBankingSerology?.bloodTyping?.RhType ||
+                      "N/A"
                     }
                     readOnly
                   />
@@ -2781,10 +2868,10 @@ function Clinic() {
                       labDetails.bloodBankingSerology?.salmonellaTyphi
                         ?.expirationDate
                         ? new Date(
-                          labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
-                        )
-                          .toISOString()
-                          .split("T")[0]
+                            labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
+                          )
+                            .toISOString()
+                            .split("T")[0]
                         : "N/A"
                     }
                     readOnly
@@ -2804,9 +2891,7 @@ function Clinic() {
                   <label className="col-span-6"></label>
 
                   {/* Test for Dengue and Others */}
-                  <h4 className="col-span-6 font-semibold">
-                    Test for Dengue
-                  </h4>
+                  <h4 className="col-span-6 font-semibold">Test for Dengue</h4>
                   <h4 className="col-span-6 font-semibold">Others</h4>
 
                   <label className="col-span-1">Method Used</label>
@@ -2814,8 +2899,8 @@ function Clinic() {
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology?.testDengue
-                        ?.methodUsed || "N/A"
+                      labDetails.bloodBankingSerology?.testDengue?.methodUsed ||
+                      "N/A"
                     }
                     readOnly
                   />
@@ -2824,83 +2909,81 @@ function Clinic() {
                     type="text"
                     className="col-span-5 border rounded px-3 py-1"
                     value={
-                      labDetails.bloodBankingSerology?.others
-                        ?.methodUsed || "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Lot No.</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.testDengue
-                        ?.lotNumber || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Lot No.</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.others
-                        ?.lotNumber || "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Expiration Date</label>
-                  <input
-                    type="date"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.testDengue
-                        ?.expirationDate
-                        ? new Date(
-                          labDetails.bloodBankingSerology.testDengue.expirationDate
-                        )
-                          .toISOString()
-                          .split("T")[0]
-                        : "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Expiration Date</label>
-                  <input
-                    type="date"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.others
-                        ?.expirationDate
-                        ? new Date(
-                          labDetails.bloodBankingSerology.others.expirationDate
-                        )
-                          .toISOString()
-                          .split("T")[0]
-                        : "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Result</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.testDengue
-                        ?.result || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Result</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.others?.result ||
+                      labDetails.bloodBankingSerology?.others?.methodUsed ||
                       "N/A"
+                    }
+                    readOnly
+                  />
+
+                  <label className="col-span-1">Lot No.</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                    value={
+                      labDetails.bloodBankingSerology?.testDengue?.lotNumber ||
+                      "N/A"
+                    }
+                    readOnly
+                  />
+                  <label className="col-span-1">Lot No.</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                    value={
+                      labDetails.bloodBankingSerology?.others?.lotNumber ||
+                      "N/A"
+                    }
+                    readOnly
+                  />
+
+                  <label className="col-span-1">Expiration Date</label>
+                  <input
+                    type="date"
+                    className="col-span-5 border rounded px-3 py-1"
+                    value={
+                      labDetails.bloodBankingSerology?.testDengue
+                        ?.expirationDate
+                        ? new Date(
+                            labDetails.bloodBankingSerology.testDengue.expirationDate
+                          )
+                            .toISOString()
+                            .split("T")[0]
+                        : "N/A"
+                    }
+                    readOnly
+                  />
+                  <label className="col-span-1">Expiration Date</label>
+                  <input
+                    type="date"
+                    className="col-span-5 border rounded px-3 py-1"
+                    value={
+                      labDetails.bloodBankingSerology?.others?.expirationDate
+                        ? new Date(
+                            labDetails.bloodBankingSerology.others.expirationDate
+                          )
+                            .toISOString()
+                            .split("T")[0]
+                        : "N/A"
+                    }
+                    readOnly
+                  />
+
+                  <label className="col-span-1">Result</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                    value={
+                      labDetails.bloodBankingSerology?.testDengue?.result ||
+                      "N/A"
+                    }
+                    readOnly
+                  />
+                  <label className="col-span-1">Result</label>
+                  <input
+                    type="text"
+                    className="col-span-5 border rounded px-3 py-1"
+                    value={
+                      labDetails.bloodBankingSerology?.others?.result || "N/A"
                     }
                     readOnly
                   />
@@ -2933,9 +3016,7 @@ function Clinic() {
               <form className="flex flex-row items-start gap-4">
                 {/* X-ray Result Image - Left Side */}
                 <div className="w-1/2">
-                  <label className="block text-gray-700">
-                    X-ray Result
-                  </label>
+                  <label className="block text-gray-700">X-ray Result</label>
                   <img
                     src={selectedXrayRecord.imageFile}
                     alt="X-ray"
@@ -2948,9 +3029,7 @@ function Clinic() {
                   {/* Xray No. and Date */}
                   <div className="flex mb-4">
                     <div className="w-1/3 mr-2">
-                      <label className="block text-gray-700">
-                        OR No.
-                      </label>
+                      <label className="block text-gray-700">OR No.</label>
                       <input
                         type="text"
                         name="XrayNo"
@@ -2960,9 +3039,7 @@ function Clinic() {
                       />
                     </div>
                     <div className="w-1/3 mr-2">
-                      <label className="block text-gray-700">
-                        Case No.
-                      </label>
+                      <label className="block text-gray-700">Case No.</label>
                       <input
                         type="text"
                         name="XrayNo"
@@ -3006,7 +3083,9 @@ function Clinic() {
                       <input
                         type="text"
                         name="age"
-                        value={calculateAge(selectedXrayRecord.patient?.birthdate)}
+                        value={calculateAge(
+                          selectedXrayRecord.patient?.birthdate
+                        )}
                         readOnly
                         className="w-full px-3 py-2 border rounded bg-gray-100"
                       />
@@ -3058,9 +3137,7 @@ function Clinic() {
                     />
                   </div>
                   <div className="w-full">
-                    <label className="block text-gray-700">
-                      Findings
-                    </label>
+                    <label className="block text-gray-700">Findings</label>
                     <textarea
                       name="xrayFindings"
                       className="w-full px-3 py-2 border rounded"
@@ -3086,8 +3163,6 @@ function Clinic() {
           </div>
         </div>
       )}
-
-
     </div>
   );
 }
