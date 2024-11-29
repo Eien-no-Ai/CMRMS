@@ -13,7 +13,8 @@ function Xray() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [result, setResult] = useState("");
   const [imageFile, setImageFile] = useState(null);
-
+  const [isPatientAdded, setIsPatientAdded] = useState(false); // State for confirmation modal
+  const [isResultAdded, setIsResultAdded] = useState(false); // Track result submission success
   const [formData, setFormData] = useState({
     ORNumber: "",
     XrayNo: "",
@@ -97,64 +98,67 @@ function Xray() {
     setIsModalOpen(true); // Open the modal
   };
 
-  const handleSubmitResult = async () => {
-    // Ensure selectedRecord exists and has an _id
-    if (!selectedRecord || !selectedRecord._id) {
-      console.error(
-        "No record selected or selected record doesn't have an _id."
-      );
-      return;
-    }
+ 
+const handleSubmitResult = async () => {
+  // Ensure selectedRecord exists and has an _id
+  if (!selectedRecord || !selectedRecord._id) {
+    console.error(
+      "No record selected or selected record doesn't have an _id."
+    );
+    return;
+  }
 
-    // Prepare the form data to send via axios
-    const formDataToSubmit = new FormData();
-    formDataToSubmit.append("ORNumber", formData.ORNumber);
-    formDataToSubmit.append("XrayNo", formData.XrayNo);
-    formDataToSubmit.append("diagnosis", formData.diagnosis);
-    formDataToSubmit.append("xrayFindings", formData.xrayFindings);
-    formDataToSubmit.append("patientId", selectedRecord.patient._id);
-    formDataToSubmit.append("clinicId", selectedRecord.clinicId);
+  // Prepare the form data to send via axios
+  const formDataToSubmit = new FormData();
+  formDataToSubmit.append("ORNumber", formData.ORNumber);
+  formDataToSubmit.append("XrayNo", formData.XrayNo);
+  formDataToSubmit.append("diagnosis", formData.diagnosis);
+  formDataToSubmit.append("xrayFindings", formData.xrayFindings);
+  formDataToSubmit.append("patientId", selectedRecord.patient._id);
+  formDataToSubmit.append("clinicId", selectedRecord.clinicId);
 
-    if (imageFile) {
-      formDataToSubmit.append("imageFile", imageFile); // Append image file if exists
-    }
+  if (imageFile) {
+    formDataToSubmit.append("imageFile", imageFile); // Append image file if exists
+  }
 
-    try {
-      // Step 1: Update the existing X-ray record by ID
-      const updateResponse = await axios.put(
-        `http://localhost:3001/api/xrayResults/${selectedRecord._id}`,
-        formDataToSubmit,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data", // Set the proper content type for file uploads
-          },
-        }
-      );
-
-      console.log("Response from backend:", updateResponse.data);
-
-      if (updateResponse.data.success) {
-        console.log(
-          "X-ray result submitted successfully:",
-          updateResponse.data.updatedRecord
-        );
-        setIsModalOpen(false);
-        setResult("");
-        setImageFile(null);
-        fetchXrayRecords();
-      } else {
-        console.error(
-          "Failed to update X-ray record:",
-          updateResponse.data.message
-        );
+  try {
+    // Step 1: Update the existing X-ray record by ID
+    const updateResponse = await axios.put(
+      `http://localhost:3001/api/xrayResults/${selectedRecord._id}`,
+      formDataToSubmit,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data", // Set the proper content type for file uploads
+        },
       }
-    } catch (error) {
+    );
+
+    console.log("Response from backend:", updateResponse.data);
+
+    if (updateResponse.data.success) {
+      console.log(
+        "X-ray result submitted successfully:",
+        updateResponse.data.updatedRecord
+      );
+      // Set the confirmation modal state to true
+      setIsResultAdded(true);
+      setIsModalOpen(false);
+      setResult("");
+      setImageFile(null);
+      fetchXrayRecords();
+    } else {
       console.error(
-        "Error in submission process:",
-        error.response ? error.response.data : error.message
+        "Failed to update X-ray record:",
+        updateResponse.data.message
       );
     }
-  };
+  } catch (error) {
+    console.error(
+      "Error in submission process:",
+      error.response ? error.response.data : error.message
+    );
+  }
+};
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -269,6 +273,7 @@ function Xray() {
       );
 
       // Close modal and reset form
+      setIsPatientAdded(true);
       setIsAddOPDModalOpen(false);
       resetForm();
     } catch (error) {
@@ -629,6 +634,26 @@ function Xray() {
             </div>
           </div>
         )}
+        {/* Confirmation Modal for Result Submission */}
+        {isResultAdded && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
+              <h2 className="text-xl font-semibold mb-4 text-center">Result Submitted</h2>
+              <p className="text-center text-gray-600 mb-4">The X-ray result has been successfully submitted.</p>
+              <div className="flex justify-center">
+                <button
+                  onClick={() => {
+                    setIsResultAdded(false); // Close the confirmation modal
+                    setIsModalOpen(false); // Optionally close the add result modal
+                  }}
+                  className="px-4 py-2 bg-custom-red text-white rounded-md"
+                >
+                  Okay
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Add OPD Patient Modal */}
         {isAddOPDModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -790,6 +815,25 @@ function Xray() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+        {/* Confirmation Modal */}
+        {isPatientAdded && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
+              <h2 className="text-xl font-semibold mb-4 text-center">Patient Added</h2>
+              <p className="text-center text-gray-600 mb-4">The patient has been successfully added.</p>
+              <div className="flex justify-center">
+                <button
+                  onClick={() => {
+                    setIsPatientAdded(false); // Close the confirmation modal
+                  }}
+                  className="px-4 py-2 bg-custom-red text-white rounded-md"
+                >
+                  Okay
+                </button>
+              </div>
             </div>
           </div>
         )}

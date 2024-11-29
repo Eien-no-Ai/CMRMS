@@ -9,7 +9,10 @@ import { useParams } from "react-router-dom";
 
 function PhysicalTherapy() {
   const { id } = useParams();
-
+  const [isOPDPatientAdded, setIsOPDPatientAdded] = useState(false); // Tracks OPD patient submission success
+  const [isSOAPSummaryAdded, setIsSOAPSummaryAdded] = useState(false);
+  const [isVerificationSuccess, setIsVerificationSuccess] = useState(false);
+  const [isEditSuccess, setIsEditSuccess] = useState(false);
   const [physicalTherapyRecords, setPhysicalTherapyRecords] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const physicalTherapyRecordsPerPage = 4;
@@ -68,7 +71,7 @@ function PhysicalTherapy() {
     setNewTherapyRecord({ ...newTherapyRecord, [e.target.name]: e.target.value });
   };
 
-  
+
   const handleNewTherapySubmit = async (e) => {
     e.preventDefault();
 
@@ -89,6 +92,7 @@ function PhysicalTherapy() {
       );
 
       if (response.status === 200) {
+        setIsSOAPSummaryAdded(true);
         handleNewTherapyRecordClose();
         fetchPhysicalTherapyRecords();
         setNewTherapyRecord({ SOAPSummary: "" });
@@ -209,20 +213,32 @@ function PhysicalTherapy() {
     setEditSummary(summaryText);
   };
 
-  // Function to save the edited SOAP summary
   const handleSaveEdit = async (recordId, summaryId) => {
     try {
-      const response = await axios.put(`http://localhost:3001/api/physicalTherapy/${recordId}/soapSummary/${summaryId}`, {
-        updatedSOAPSummary: editSummary,
-      });
+      const response = await axios.put(
+        `http://localhost:3001/api/physicalTherapy/${recordId}/soapSummary/${summaryId}`,
+        {
+          updatedSOAPSummary: editSummary,
+        }
+      );
 
       if (response.data.success) {
-        // Update local state after successful save
+        // Optimistically update the local state immediately to reflect the edit
         const updatedSOAPSummaries = selectedRecord.SOAPSummaries.map((entry) =>
           entry._id === summaryId ? { ...entry, summary: editSummary } : entry
         );
-        setSelectedRecord({ ...selectedRecord, SOAPSummaries: updatedSOAPSummaries });
-        setEditingEntryId(null); // Exit editing mode
+
+        // Update the selectedRecord state with the new SOAP summary
+        setSelectedRecord(prevRecord => ({
+          ...prevRecord,
+          SOAPSummaries: updatedSOAPSummaries,
+        }));
+
+        // Exit editing mode
+        setEditingEntryId(null);
+
+        // Optionally show success notification or modal
+        setIsEditSuccess(true);
       }
     } catch (error) {
       console.error("Error updating SOAP summary:", error);
@@ -288,7 +304,8 @@ function PhysicalTherapy() {
           ...selectedRecord,
           SOAPSummaries: updatedSOAPSummaries,
         });
-
+        // Set verification success state to true
+        setIsVerificationSuccess(true);
         console.log("SOAP summary verified successfully.");
       }
     } catch (error) {
@@ -352,7 +369,8 @@ function PhysicalTherapy() {
         "http://localhost:3001/api/physicalTherapy",
         ptOPD
       );
-
+      // Set the confirmation modal state to true
+      setIsOPDPatientAdded(true);
       // Close modal and reset form
       setIsAddOPDModalOpen(!isAddOPDModalOpen);
       resetForm();
@@ -637,6 +655,26 @@ function PhysicalTherapy() {
             </div>
           </div>
         )}
+        {/* Confirmation Modal for SOAP Summary */}
+        {isSOAPSummaryAdded && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
+              <h2 className="text-xl font-semibold mb-4 text-center">SOAP Summary Added</h2>
+              <p className="text-center text-gray-600 mb-4">The SOAP summary has been successfully added.</p>
+              <div className="flex justify-center">
+                <button
+                  onClick={() => {
+                    setIsSOAPSummaryAdded(false); // Close the confirmation modal
+                    setIsNewTherapyRecordModalOpen(false); // Optionally close the add SOAP modal
+                  }}
+                  className="px-4 py-2 bg-custom-red text-white rounded-md"
+                >
+                  Okay
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* View Record Modal */}
         {isViewRecordModalOpen && selectedRecord && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -691,7 +729,7 @@ function PhysicalTherapy() {
                     </tr>
                   </thead>
                   <tbody>
-                    {selectedRecord.SOAPSummaries?.map((entry) => (
+                    {selectedRecord?.SOAPSummaries?.map((entry) => (
                       <tr key={entry._id}>
                         <td className="border border-gray-300 px-4 py-2 text-left">
                           {new Date(entry.date).toLocaleDateString()}
@@ -708,38 +746,35 @@ function PhysicalTherapy() {
                             entry.summary
                           )}
                         </td>
-                        {userRole !== "special trainee" && (
-                          <td className="border border-gray-300 px-4 py-2 flex space-x-2">
-                            {entry.verifiedBy ? (
-                              <span className="text-gray-500 text-sm">Already Verified</span>
-                            ) : (
-                              editingEntryId === entry._id ? (
-                                <>
-                                  <button
-                                    className="bg-green-500 text-white px-2 py-1 rounded-lg"
-                                    onClick={() => handleSaveEdit(selectedRecord._id, entry._id)}
-                                  >
-                                    Save
-                                  </button>
-                                  <button
-                                    className="bg-gray-500 text-white px-2 py-1 rounded-lg"
-                                    onClick={() => setEditingEntryId(null)}
-                                  >
-                                    Cancel
-                                  </button>
-                                </>
-                              ) : (
+                        <td className="border border-gray-300 px-4 py-2 flex space-x-2">
+                          {entry.verifiedBy ? (
+                            <span className="text-gray-500 text-sm">Already Verified</span>
+                          ) : (
+                            editingEntryId === entry._id ? (
+                              <>
                                 <button
-                                  className="bg-custom-red text-white px-2 py-1 rounded-lg"
-                                  onClick={() => handleEdit(entry._id, entry.summary)}
+                                  className="bg-green-500 text-white px-2 py-1 rounded-lg"
+                                  onClick={() => handleSaveEdit(selectedRecord._id, entry._id)}
                                 >
-                                  Edit
+                                  Save
                                 </button>
-                              )
-                            )}
-                          </td>
-                        )}
-
+                                <button
+                                  className="bg-gray-500 text-white px-2 py-1 rounded-lg"
+                                  onClick={() => setEditingEntryId(null)}
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                className="bg-custom-red text-white px-2 py-1 rounded-lg"
+                                onClick={() => handleEdit(entry._id, entry.summary)}
+                              >
+                                Edit
+                              </button>
+                            )
+                          )}
+                        </td>
                         <td className="border border-gray-300 px-4 py-2">
                           {entry.verifiedBy ? (
                             <span className="text-green-500 text-sm">
@@ -759,7 +794,6 @@ function PhysicalTherapy() {
                       </tr>
                     ))}
                   </tbody>
-
                 </table>
               </div>
 
@@ -774,6 +808,41 @@ function PhysicalTherapy() {
             </div>
           </div>
         )}
+        {/* Verification Success Modal */}
+        {isVerificationSuccess && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
+              <h2 className="text-xl font-semibold mb-4 text-center">SOAP Summary Verified</h2>
+              <p className="text-center text-gray-600 mb-4">The SOAP summary has been successfully verified.</p>
+              <div className="flex justify-center">
+                <button
+                  onClick={() => setIsVerificationSuccess(false)} // Close the modal
+                  className="px-4 py-2 bg-custom-red text-white rounded-md"
+                >
+                  Okay
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Edit Success Modal */}
+        {isEditSuccess && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
+              <h2 className="text-xl font-semibold mb-4 text-center">SOAP Summary Edited</h2>
+              <p className="text-center text-gray-600 mb-4">The SOAP summary has been successfully edited.</p>
+              <div className="flex justify-center">
+                <button
+                  onClick={() => setIsEditSuccess(false)} // Close the modal
+                  className="px-4 py-2 bg-custom-red text-white rounded-md"
+                >
+                  Okay
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Add OPD Patient Modal */}
         {isAddOPDModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -948,7 +1017,26 @@ function PhysicalTherapy() {
             </div>
           </div>
         )}
-
+        {/* Confirmation Modal for Adding OPD Patient */}
+        {isOPDPatientAdded && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
+              <h2 className="text-xl font-semibold mb-4 text-center">Patient Added</h2>
+              <p className="text-center text-gray-600 mb-4">The OPD patient has been successfully added.</p>
+              <div className="flex justify-center">
+                <button
+                  onClick={() => {
+                    setIsOPDPatientAdded(false); // Close the confirmation modal
+                    setIsAddOPDModalOpen(false); // Optionally close the add OPD patient modal
+                  }}
+                  className="px-4 py-2 bg-custom-red text-white rounded-md"
+                >
+                  Okay
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
