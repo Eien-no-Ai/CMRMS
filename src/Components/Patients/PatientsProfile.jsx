@@ -8,6 +8,9 @@ import { GiBiceps } from "react-icons/gi";
 import { BiChevronDown } from "react-icons/bi";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import maleImage from "../assets/male.png";
+import PECertificate from '../certificatesReports/PECertificate.jsx'
+import AnnualCertificate from '../certificatesReports/AnnualCertificate.jsx'
+import HealthCertificate from '../certificatesReports/HealthCertificate.jsx'
 
 function PatientsProfile() {
   const [selectedXray, setSelectedXray] = useState(null);
@@ -2001,6 +2004,37 @@ function PatientsProfile() {
     }
   }, [isAnnualModalOpen, selectedRecords, fetchAnnualCheckup, id]);
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+const [isPECertificateOpen, setIsPECertificate] = useState(false);
+
+const handleOpenPECertificate = (records, physicalExamStudent, patient, medicalHistory) => {
+  setIsPECertificate(true);
+};
+
+const handleClosePECertificate = () => {
+  setIsPECertificate(false); // Close the modal
+};
+
+const [isAnnualCertificateOpen, setIsAnnualCertificate] = useState(false);
+
+const handleOpenAnnualCertificate = (records, AnnualCheckUp, patient, medicalHistory) => {
+  setIsAnnualCertificate(true);
+};
+
+const handleCloseAnnualCertificate = () => {
+  setIsAnnualCertificate(false); // Close the modal
+};
+
+const [isHealthCertificateOpen, setIsHealthCertificate] = useState(false);
+
+const handleOpenHealthCertificate = (patient) => {
+  setIsHealthCertificate(true);
+};
+
+const handleCloseHealthCertificate = () => {
+  setIsHealthCertificate(false); // Close the modal
+};
   return (
     <div>
       <Navbar />
@@ -3359,11 +3393,11 @@ function PatientsProfile() {
                             : records.diagnosis}
                         </div>
                         <button
-                          className="text-custom-red"
-                          onClick={() => handleViewRecord(records)}
-                        >
-                          View
-                        </button>
+                            className="text-custom-red button-spacing"
+                            onClick={() => handleViewRecord(records)}
+                          >
+                            View
+                          </button>
                       </li>
                     ))
                   ) : (
@@ -4764,27 +4798,65 @@ function PatientsProfile() {
                         </div>
                       </div>
 
-                      {/* Bottom section - Close button */}
-                      <div className="flex justify-end mt-4">
-                        <button
-                          className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200 mr-4"
-                          onClick={() => {
-                            setisPackageInfoModalOpen(false); // Close the modal
-                          }}
-                        >
-                          Close
-                        </button>
-                        <button
-                          className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                          onClick={() =>
-                            handlePESubmit(
-                              selectedRecords.labRecords[0].packageNumber
-                            )
-                          }
-                        >
-                          Submit
-                        </button>
-                      </div>
+                {/* Bottom section - Close button */}
+                      <div className="flex justify-between mt-4">
+                      {patient.patientType === 'Student' ? (
+                        <div className="flex justify-start">
+                          <button
+                            className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                            onClick={() => {
+                              handleOpenPECertificate(selectedRecords, physicalExamStudent, patient, medicalHistory);
+                            }}
+                          >
+                            Physical Exam Certificate
+                          </button>
+
+                          <button
+                            className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                            onClick={() => {
+                              handleOpenHealthCertificate(patient);
+                            }}                          
+                          >
+                            Health Certificate
+                          </button>
+                        </div>
+                          ) : (
+                            <div className="flex justify-start">
+                            <button
+                              className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                              onClick={() => {
+                                handleOpenAnnualCertificate(selectedRecords, annual, patient, medicalHistory);
+                              }}
+                            >
+                              Annual Employee Certificate 
+                            </button>
+                          </div>
+                          )
+                        }
+                        <div className="flex justify-end">
+                          <button
+                            className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200 mr-4"
+                            onClick={() => {
+                              setisPackageInfoModalOpen(false); // Close the modal
+                            }}
+                          >
+                            Close
+                          </button>
+                          <button
+                            className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200 mr-4"
+                            onClick={() =>
+                              handlePESubmit(
+                                selectedRecords.labRecords[0].packageNumber
+                              )
+                            }
+                          >
+                            Submit
+                          </button>
+                        </div>
+                        </div>
+                        <PECertificate isOpen={isPECertificateOpen} onClose={handleClosePECertificate} patient={patient} medicalHistory={medicalHistory} physicalExamStudent={physicalExamStudent} />
+                        <AnnualCertificate isOpen={isAnnualCertificateOpen} onClose={handleCloseAnnualCertificate} patient={patient} medicalHistory={medicalHistory} annual={annual} />
+                        <HealthCertificate isOpen={isHealthCertificateOpen} onClose={handleCloseHealthCertificate} patient={patient}/>
                     </div>
                   </div>
                 )}

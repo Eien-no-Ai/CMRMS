@@ -6,8 +6,9 @@ import { BsThreeDots } from "react-icons/bs";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { useParams } from "react-router-dom";
-
+import PTCertificate from '../certificatesReports/PTCertificate.jsx'
 function PhysicalTherapy() {
+  const [isPTCertificateOpen, setIsPTCertificate] = useState(false);
   const { id } = useParams();
   const [isOPDPatientAdded, setIsOPDPatientAdded] = useState(false); // Tracks OPD patient submission success
   const [isSOAPSummaryAdded, setIsSOAPSummaryAdded] = useState(false);
@@ -71,6 +72,13 @@ function PhysicalTherapy() {
     setNewTherapyRecord({ ...newTherapyRecord, [e.target.name]: e.target.value });
   };
 
+  const handleOpenPTCertificate = (selectedRecord, ) => {
+    setIsPTCertificate(true);
+  };
+
+  const handleClosePTCertificate = () => {
+    setIsPTCertificate(false); // Close the modal
+  };
 
   const handleNewTherapySubmit = async (e) => {
     e.preventDefault();
@@ -797,14 +805,35 @@ function PhysicalTherapy() {
                 </table>
               </div>
 
-              <div className="flex justify-end mt-4">
-                <button
-                  className="bg-custom-red text-white px-4 py-2 rounded-lg"
-                  onClick={closeViewRecordModal}
-                >
-                  Close
-                </button>
+              <div className="flex justify-between mt-4">
+                {/* Left-aligned "Print SOAP Summary" button - only shown if all summaries are verified */}
+                <div className="flex-1 text-left">
+                  {selectedRecord.SOAPSummaries?.length > 0 && selectedRecord.SOAPSummaries.every(entry => entry.verifiedBy) && (
+                    <button
+                      className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                      onClick={() => {
+                        handleOpenPTCertificate(selectedRecord, newTherapyRecord);
+                      }} 
+                    >
+                      Print SOAP Summary
+                    </button>
+                  )}
+                </div>
+                <PTCertificate isOpen={isPTCertificateOpen} onClose={handleClosePTCertificate} selectedRecord={selectedRecord} newTherapyRecord={newTherapyRecord}/>
+
+
+                {/* Right-aligned "Close" button */}
+                <div className="flex-1 text-right">
+                  <button
+                    className="bg-custom-red text-white px-4 py-2 rounded-lg"
+                    onClick={closeViewRecordModal}
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
+
+
             </div>
           </div>
         )}
