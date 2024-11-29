@@ -88,16 +88,16 @@ const Dashboard = () => {
         const { department, role } = employeeResponse.data;
         console.log("Employee Role:", role);
         console.log("Employee Department:", department);
-  
+
         // Fetch all updates (labs, xrays, clinics)
         const [labs, xrays, clinics] = await Promise.all([
           axios.get("http://localhost:3001/api/laboratory"),
           axios.get("http://localhost:3001/api/xrayResults"),
           axios.get("http://localhost:3001/api/clinicalRecords"),
         ]);
-  
+
         let filteredUpdates = [];
-  
+
         if (role === "nurse") {
           // Only display clinics
           filteredUpdates = [
@@ -182,7 +182,7 @@ const Dashboard = () => {
                 ),
               };
             });
-  
+
           const xrayUpdates = xrays.data
             .filter((xray) => xray.xrayResult === "pending")
             .map((xray) => ({
@@ -198,7 +198,7 @@ const Dashboard = () => {
                 xray.isCreatedAt || xray.createdAt || Date.now()
               ),
             }));
-  
+
           const clinicUpdates = clinics.data
             .filter((clinic) => !clinic.treatments && !clinic.diagnosis)
             .map((clinic) => ({
@@ -216,21 +216,21 @@ const Dashboard = () => {
                 clinic.isCreatedAt || clinic.createdAt || Date.now()
               ),
             }));
-  
+
           filteredUpdates = [...labUpdates, ...xrayUpdates, ...clinicUpdates];
         }
-  
+
         console.log("Filtered Updates:", filteredUpdates);
-  
+
         // Sort updates by timestamp (most recent first)
         filteredUpdates.sort((a, b) => b.timestamp - a.timestamp);
-  
+
         setUpdates(filteredUpdates);
       } catch (error) {
         console.error("Error fetching updates:", error);
       }
     };
-  
+
     fetchUpdates();
   }, []);
 
@@ -295,6 +295,18 @@ const Dashboard = () => {
     setRecords(userRecords);
   }, [userRole]);
 
+  const [searchQuery, setSearchQuery] = useState(""); // New state for search query
+ // Handle search input change
+ const handleSearchChange = (e) => {
+  setSearchQuery(e.target.value);
+};
+
+const filteredPatients = patients.filter(
+  (patient) =>
+    patient.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    patient.lastname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    patient.idnumber.toLowerCase().includes(searchQuery.toLowerCase())
+);
   // Check if the user role is 'user' and display the message
   if (userRole === "user") {
     return (
@@ -496,8 +508,10 @@ const Dashboard = () => {
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-xl font-semibold mb-4">Recent Patients</h2>
                 <div className="relative w-72">
-                  <input
+                  <input 
                     type="text"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
                     placeholder="Full Name"
                     className="w-full px-4 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none"
                   />
@@ -518,10 +532,13 @@ const Dashboard = () => {
                     <span className="w-1/5">Address</span>
                     <span className="w-1/5">ID Number</span>
                   </div>
-                  {patients.map((patient, index) => (
+                  {filteredPatients.map((patient, index) => (
                     <div
-                      key={index}
-                      className="flex justify-between items-center py-4 border-b"
+                      key={patient._id}
+                      className="flex justify-between items-center py-4 border-b cursor-pointer"
+                      onClick={() =>
+                        (window.location.href = `/patients/${patient._id}`)
+                      }
                     >
                       <div className="w-1/5 flex items-center space-x-4">
                         <span className="font-medium">
