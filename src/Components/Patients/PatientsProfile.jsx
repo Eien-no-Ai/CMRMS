@@ -1891,24 +1891,25 @@ function PatientsProfile() {
 
   const handleAnnualSubmit = async (packageNumber) => {
     try {
-      // Check if selectedRecords has labRecords with a valid packageId
+      // Ensure you're passing only the correct packageNumber value
       const packageId = selectedRecords?.labRecords[0]?.packageId;
-
-      if (!packageId) {
-        alert("Package ID not found. Please select a valid package.");
+      const packageNumberValue = selectedRecords?.labRecords[0]?.packageNumber; // Use the specific value here
+  
+      if (!packageId || !packageNumberValue) {
+        alert("Package ID or Package Number not found. Please select a valid package.");
         return;
       }
-
+  
       const response = await axios.post(
-        `http://localhost:3001/api/annual-check-up`,
+        "http://localhost:3001/api/annual-check-up",
         {
           patient: id,
-          packageId, // Add packageId to the request body
-          packageNumber, // Pass the packageNumber in the request
+          packageId,
+          packageNumber: packageNumberValue, // Make sure you're passing the actual value here
           ...annual,
         }
       );
-
+  
       console.log("Annual Exam saved successfully:", response.data);
       if (response.status === 200) {
         setisPackageInfoModalOpen(false);
