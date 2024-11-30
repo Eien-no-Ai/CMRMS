@@ -18,11 +18,11 @@ const AnnualCheckUp = require("./models/AnnualCheckUp");
 const app = express();
 app.use(cors());
 app.use(express.json());
+require("dotenv").config();
 const nodemailer = require("nodemailer");
+const port = process.env.PORT || 3001;
 
-mongoose.connect(
-  "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee"
-);
+mongoose.connect(process.env.MONGODB_URI);
 `1`;
 
 // V A C C I N E   L I S T
@@ -1750,6 +1750,6 @@ app.get("/api/annual-check-up/:packageNumber/:patientId", async (req, res) => {
 
 
 //console log
-app.listen(3001, () => {
+app.listen(port, () => {
   console.log("Server is running on port 3001");
 });
