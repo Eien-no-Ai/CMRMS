@@ -591,7 +591,7 @@ app.get("/api/signature/user/:id", async (req, res) => {
     }
 
     // Create the URL for the signature file
-    const signatureUrl = `https://cmrms-backend.onrender.com/${employee.signature}`;
+    const signatureUrl = `http://localhost:3001/${employee.signature}`;
 
     return res.json({ signature: signatureUrl }); // Return the full URL
   } catch (error) {
@@ -925,7 +925,7 @@ app.get("/api/pathologist-signature", async (req, res) => {
     }
 
     // Construct the URL for the signature file
-    const signatureUrl = `https://cmrms-backend.onrender.com/uploads/${pathologist.signature}`;
+    const signatureUrl = `http://localhost:3001/uploads/${pathologist.signature}`;
     return res.json({ signature: signatureUrl });
   } catch (error) {
     console.error("Error fetching pathologist signature:", error);
@@ -950,7 +950,7 @@ app.get("/api/pathologist-signature/:userId", async (req, res) => {
         .json({ message: "Pathologist or signature not found" });
     }
 
-    const signatureUrl = `https://cmrms-backend.onrender.com/uploads/${pathologist.signature}`;
+    const signatureUrl = `http://localhost:3001/uploads/${pathologist.signature}`;
     return res.json({ signature: signatureUrl });
   } catch (error) {
     console.error("Error fetching pathologist signature:", error);
@@ -1512,7 +1512,7 @@ app.put(
       existingRecord.xrayFindings = xrayFindings || "";
       // Only update imageFile if a new image is uploaded
       if (imageFile) {
-        const imageUrl = `https://cmrms-backend.onrender.com/xrayResultUpload/${imageFile}`;
+        const imageUrl = `http://localhost:3001/xrayResultUpload/${imageFile}`;
         existingRecord.imageFile = imageUrl;
       }
 

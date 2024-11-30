@@ -85,7 +85,7 @@ const Package = () => {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const response = await axios.get("https://cmrms-backend.onrender.com/api/packages");
+        const response = await axios.get("http://localhost:3001/api/packages");
         setPackages(response.data); // Set the fetched packages to state
       } catch (error) {
         console.error("Error fetching packages:", error);
@@ -171,7 +171,7 @@ const Package = () => {
 
       // Send POST request to the API
       const response = await axios.post(
-        "https://cmrms-backend.onrender.com/api/packages",
+        "http://localhost:3001/api/packages",
         packageData
       );
 
@@ -245,7 +245,7 @@ const Package = () => {
 
   const fetchPackages = async () => {
     try {
-      const response = await axios.get("https://cmrms-backend.onrender.com/api/packages");
+      const response = await axios.get("http://localhost:3001/api/packages");
       const sortedPackages = response.data.sort(
         (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
       );
@@ -301,7 +301,7 @@ const Package = () => {
 
     try {
       await axios.put(
-        `https://cmrms-backend.onrender.com/api/packages/${packageToArchive}`,
+        `http://localhost:3001/api/packages/${packageToArchive}`,
         {
           isArchived: true,
         }

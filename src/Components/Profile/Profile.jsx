@@ -17,7 +17,7 @@ function Profile() {
   useEffect(() => {
     if (userId) {
       axios
-        .get(`https://cmrms-backend.onrender.com/user/${userId}`)
+        .get(`http://localhost:3001/user/${userId}`)
         .then((response) => {
           setUserData(response.data);
         })
@@ -41,7 +41,7 @@ function Profile() {
     }
 
     axios
-      .put(`https://cmrms-backend.onrender.com/user/${userId}/update-password`, { password })
+      .put(`http://localhost:3001/user/${userId}/update-password`, { password })
       .then((response) => {
         setSuccessMessage("Password updated successfully");
         setErrorMessage("");
@@ -59,7 +59,7 @@ function Profile() {
   useEffect(() => {
     if (userId) {
       axios
-        .get(`https://cmrms-backend.onrender.com/user/${userId}`)
+        .get(`http://localhost:3001/user/${userId}`)
         .then((response) => {
           setUserData(response.data);
         })
@@ -80,7 +80,7 @@ function Profile() {
 
     try {
       const response = await axios.post(
-        `https://cmrms-backend.onrender.com/api/upload-signature/user/${userId}`, // Ensure correct ID is passed
+        `http://localhost:3001/api/upload-signature/user/${userId}`, // Ensure correct ID is passed
         formData,
         {
           headers: {
@@ -126,7 +126,7 @@ function Profile() {
   const fetchSignature = async (userId) => {
     try {
       const response = await axios.get(
-        `https://cmrms-backend.onrender.com/api/signature/user/${userId}`
+        `http://localhost:3001/api/signature/user/${userId}`
       );
 
       if (response.data && response.data.signature) {

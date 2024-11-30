@@ -71,7 +71,7 @@ function Patients() {
 
   const fetchPatients = () => {
     axios
-      .get("https://cmrms-backend.onrender.com/patients")
+      .get("http://localhost:3001/patients")
       .then((response) => {
         const sortedPatients = response.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -107,7 +107,7 @@ function Patients() {
     if (patientToEdit) {
       // Update existing patient (Edit)
       axios
-        .put(`https://cmrms-backend.onrender.com/patients/${patientToEdit._id}`, patientData)
+        .put(`http://localhost:3001/patients/${patientToEdit._id}`, patientData)
         .then((result) => {
           console.log("Patient updated:", result);
           fetchPatients(); // Refresh the patient list after update
@@ -123,7 +123,7 @@ function Patients() {
     } else {
       // Add new patient
       axios
-        .post("https://cmrms-backend.onrender.com/add-patient", patientData)
+        .post("http://localhost:3001/add-patient", patientData)
         .then((result) => {
           console.log("Patient added:", result);
           fetchPatients(); // Refresh the patient list after adding a new patient
@@ -265,7 +265,7 @@ function Patients() {
       const patientId = accountToDelete; // Use the stored patient ID
       console.log("Deleting patient with ID:", patientId);
       const result = await axios.delete(
-        `https://cmrms-backend.onrender.com/patients/${patientId}`
+        `http://localhost:3001/patients/${patientId}`
       );
       console.log(result);
       fetchPatients();
@@ -574,7 +574,7 @@ function Patients() {
   useEffect(() => {
     if (medicalHistoryId) {
       axios
-        .get(`https://cmrms-backend.onrender.com/api/medical-history/id/${medicalHistoryId}`)
+        .get(`http://localhost:3001/api/medical-history/id/${medicalHistoryId}`)
         .then((response) => {
           setMedicalHistory(response.data);
         })
@@ -589,7 +589,7 @@ function Patients() {
     try {
       // Step 1: Add the patient
       const patientResponse = await axios.post(
-        "https://cmrms-backend.onrender.com/add-patient",
+        "http://localhost:3001/add-patient",
         patientInfo
       );
       const patientId = patientResponse.data.patient._id;
@@ -601,7 +601,7 @@ function Patients() {
       };
 
       await axios.post(
-        "https://cmrms-backend.onrender.com/api/medical-history",
+        "http://localhost:3001/api/medical-history",
         historyData
       );
 
