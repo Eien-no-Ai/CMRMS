@@ -417,7 +417,7 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-2xl max-w-5xl overflow-y-auto flex flex-col justify-between relative">
-        <h2 className="text-2xl font-semibold">Physical Examination Form Preview</h2>
+        <h2 className="text-2xl font-semibold">Annual Employee Examination Form Preview</h2>
 
         {/* PDF Preview */}
         {pdfDataUrl && (
