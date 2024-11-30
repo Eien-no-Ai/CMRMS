@@ -19,11 +19,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 const nodemailer = require("nodemailer");
+require('dotenv').config();
 
-mongoose.connect(
-  "mongodb+srv://cmrms:cmrmspass@cmrms.p4nkyua.mongodb.net/employee"
-);
-`1`;
+const port = process.env.PORT || 3001;
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
 // V A C C I N E   L I S T
 app.post("/api/vaccine-list", async (req, res) => {
@@ -1750,6 +1751,6 @@ app.get("/api/annual-check-up/:packageNumber/:patientId", async (req, res) => {
 
 
 //console log
-app.listen(3001, () => {
+app.listen(port, () => {
   console.log("Server is running on port 3001");
 });
