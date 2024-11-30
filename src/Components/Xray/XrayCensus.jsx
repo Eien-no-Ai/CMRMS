@@ -3,6 +3,8 @@ import axios from "axios";
 import Navbar from "../Navbar/Navbar"; // Adjust the import path as needed
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import LabXrayCensus from '../certificatesReports/LabXrayCensus.jsx'
+
 
 function XrayCensus() {
   const [xrayRecords, setXrayRecords] = useState([]);
@@ -109,6 +111,40 @@ function XrayCensus() {
       });
   };
 
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isMonthDateModalOpen, setIsMonthDateModalOpen] = useState(false);
+
+  const handleOpenReportModal = () => {
+    setIsMonthDateModalOpen(true);
+    handleCloseReportModal();  
+  };
+
+  const handleCloseReportModal = () => {
+    setIsReportModalOpen(false);
+  };
+
+  const [fromMonthYear, setFromMonthYear] = useState("");
+  const [toMonthYear, setToMonthYear] = useState("");
+  const [availableMonths, setAvailableMonths] = useState([]);
+
+  const handleCloseDateSelectionModal = () => {
+    setFromMonthYear("");
+    setToMonthYear("");
+    setIsReportModalOpen(false); 
+    setIsMonthDateModalOpen(false);
+  };
+
+  const [isLabXrayCensusOpen, setIsLabXrayCensus] = useState(false);
+
+  const handleOpenLabXrayCensus = (patient) => {
+    setIsLabXrayCensus(true);
+  };
+
+  const handleCloseLabXrayCensus = () => {
+    setIsLabXrayCensus(false); // Close the modal
+  };
+
+
   return (
     <div>
       <Navbar />
@@ -165,8 +201,68 @@ function XrayCensus() {
           </div>
         )}
       </div>
+
+      {isMonthDateModalOpen && xrayRecords && (
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+              <h2 className="text-xl font-semibold mb-4">Select Date Range</h2>
+              
+              <div className="mb-4">
+                <label htmlFor="fromMonthYear" className="block text-sm font-medium text-gray-700">From:</label>
+                <select
+                  id="fromMonthYear"
+                  value={fromMonthYear}
+                  onChange={(e) => setFromMonthYear(e.target.value)}
+                  className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Select Month</option>
+                  {availableMonths.map((monthYear) => (
+                    <option key={monthYear} value={monthYear}>
+                      {monthYear}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="toMonthYear" className="block text-sm font-medium text-gray-700">To:</label>
+                <select
+                  id="toMonthYear"
+                  value={toMonthYear}
+                  onChange={(e) => setToMonthYear(e.target.value)}
+                  className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Select Month</option>
+                  {availableMonths.map((monthYear) => (
+                    <option key={monthYear} value={monthYear}>
+                      {monthYear}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mt-4 flex justify-between">
+                <button
+                  onClick={handleCloseDateSelectionModal}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleOpenLabXrayCensus(fromMonthYear, toMonthYear, xrayRecords)}                  
+                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"                
+                >
+                  Generate Report
+                </button>
+              </div>
+              <LabXrayCensus isOpen={isLabXrayCensusOpen} onClose={handleCloseLabXrayCensus} fromMonthYear={fromMonthYear} toMonthYear={toMonthYear} xrayRecords={xrayRecords} />
+            </div>
+          </div>
+        )}
+
     </div>
   );
 }
 
 export default XrayCensus;
+
