@@ -504,14 +504,14 @@ function PatientsProfile() {
     selectedTab === "clinical"
       ? clinicalRecords
       : selectedTab === "laboratory"
-      ? laboratoryRecords
-      : selectedTab === "xray"
-      ? xrayRecords
-      : selectedTab === "physical therapy"
-      ? physicalTherapyRecords
-      : selectedTab === "vaccine"
-      ? vaccineRecords // <-- New condition for vaccines
-      : [];
+        ? laboratoryRecords
+        : selectedTab === "xray"
+          ? xrayRecords
+          : selectedTab === "physical therapy"
+            ? physicalTherapyRecords
+            : selectedTab === "vaccine"
+              ? vaccineRecords // <-- New condition for vaccines
+              : [];
 
   const initialFormData = {
     bloodChemistry: {
@@ -2006,35 +2006,35 @@ function PatientsProfile() {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-const [isPECertificateOpen, setIsPECertificate] = useState(false);
+  const [isPECertificateOpen, setIsPECertificate] = useState(false);
 
-const handleOpenPECertificate = (records, physicalExamStudent, patient, medicalHistory) => {
-  setIsPECertificate(true);
-};
+  const handleOpenPECertificate = (records, physicalExamStudent, patient, medicalHistory) => {
+    setIsPECertificate(true);
+  };
 
-const handleClosePECertificate = () => {
-  setIsPECertificate(false); // Close the modal
-};
+  const handleClosePECertificate = () => {
+    setIsPECertificate(false); // Close the modal
+  };
 
-const [isAnnualCertificateOpen, setIsAnnualCertificate] = useState(false);
+  const [isAnnualCertificateOpen, setIsAnnualCertificate] = useState(false);
 
-const handleOpenAnnualCertificate = (records, AnnualCheckUp, patient, medicalHistory) => {
-  setIsAnnualCertificate(true);
-};
+  const handleOpenAnnualCertificate = (records, AnnualCheckUp, patient, medicalHistory) => {
+    setIsAnnualCertificate(true);
+  };
 
-const handleCloseAnnualCertificate = () => {
-  setIsAnnualCertificate(false); // Close the modal
-};
+  const handleCloseAnnualCertificate = () => {
+    setIsAnnualCertificate(false); // Close the modal
+  };
 
-const [isHealthCertificateOpen, setIsHealthCertificate] = useState(false);
+  const [isHealthCertificateOpen, setIsHealthCertificate] = useState(false);
 
-const handleOpenHealthCertificate = (patient) => {
-  setIsHealthCertificate(true);
-};
+  const handleOpenHealthCertificate = (patient) => {
+    setIsHealthCertificate(true);
+  };
 
-const handleCloseHealthCertificate = () => {
-  setIsHealthCertificate(false); // Close the modal
-};
+  const handleCloseHealthCertificate = () => {
+    setIsHealthCertificate(false); // Close the modal
+  };
   return (
     <div>
       <Navbar />
@@ -2094,9 +2094,8 @@ const handleCloseHealthCertificate = () => {
                           >
                             New Transaction
                             <MdKeyboardArrowDown
-                              className={`h-5 w-5 transition-transform duration-200 ${
-                                showRequestOptions ? "rotate-180" : ""
-                              }`}
+                              className={`h-5 w-5 transition-transform duration-200 ${showRequestOptions ? "rotate-180" : ""
+                                }`}
                             />
                           </button>
                           {/* Request options */}
@@ -2124,9 +2123,8 @@ const handleCloseHealthCertificate = () => {
                           >
                             Packages
                             <MdKeyboardArrowDown
-                              className={`h-5 w-5 transition-transform duration-200 ${
-                                showPackageOptions ? "rotate-180" : ""
-                              }`}
+                              className={`h-5 w-5 transition-transform duration-200 ${showPackageOptions ? "rotate-180" : ""
+                                }`}
                             />
                           </button>
                           {showPackageOptions && (
@@ -3315,44 +3313,40 @@ const handleCloseHealthCertificate = () => {
             <div className="flex justify-between items-center">
               <div className="space-x-4">
                 <button
-                  className={`${
-                    selectedTab === "clinical"
+                  className={`${selectedTab === "clinical"
                       ? "text-custom-red font-semibold"
                       : ""
-                  }`}
+                    }`}
                   onClick={() => handleTabChange("clinical")}
                 >
                   Consultation Records
                 </button>
                 {(role === "physical therapist" ||
                   role === "special trainee") && (
-                  <button
-                    className={`${
-                      selectedTab === "physical therapy"
-                        ? "text-custom-red font-semibold"
-                        : ""
-                    }`}
-                    onClick={() => handleTabChange("physical therapy")}
-                  >
-                    Physical Therapy Records
-                  </button>
-                )}
+                    <button
+                      className={`${selectedTab === "physical therapy"
+                          ? "text-custom-red font-semibold"
+                          : ""
+                        }`}
+                      onClick={() => handleTabChange("physical therapy")}
+                    >
+                      Physical Therapy Records
+                    </button>
+                  )}
                 <button
-                  className={`${
-                    selectedTab === "package"
+                  className={`${selectedTab === "package"
                       ? "text-custom-red font-semibold"
                       : ""
-                  }`}
+                    }`}
                   onClick={() => handleTabChange("package")}
                 >
                   Physical Examination
                 </button>
                 <button
-                  className={`${
-                    selectedTab === "vaccine"
+                  className={`${selectedTab === "vaccine"
                       ? "text-custom-red font-semibold"
                       : ""
-                  }`}
+                    }`}
                   onClick={() => handleTabChange("vaccine")}
                 >
                   Vaccine Records
@@ -3393,11 +3387,11 @@ const handleCloseHealthCertificate = () => {
                             : records.diagnosis}
                         </div>
                         <button
-                            className="text-custom-red button-spacing"
-                            onClick={() => handleViewRecord(records)}
-                          >
-                            View
-                          </button>
+                          className="text-custom-red button-spacing"
+                          onClick={() => handleViewRecord(records)}
+                        >
+                          View
+                        </button>
                       </li>
                     ))
                   ) : (
@@ -3529,12 +3523,12 @@ const handleCloseHealthCertificate = () => {
                           const dateA =
                             new Date(
                               recordsA.labRecords[0]?.isCreatedAt ||
-                                recordsA.xrayRecords[0]?.isCreatedAt
+                              recordsA.xrayRecords[0]?.isCreatedAt
                             ).getTime() || 0;
                           const dateB =
                             new Date(
                               recordsB.labRecords[0]?.isCreatedAt ||
-                                recordsB.xrayRecords[0]?.isCreatedAt
+                              recordsB.xrayRecords[0]?.isCreatedAt
                             ).getTime() || 0;
                           return dateB - dateA; // Sort by latest date (descending order)
                         }
@@ -3565,7 +3559,7 @@ const handleCloseHealthCertificate = () => {
                               <p className="text-gray-500 text-sm">
                                 {new Date(
                                   records.labRecords[0]?.isCreatedAt ||
-                                    records.xrayRecords[0]?.isCreatedAt
+                                  records.xrayRecords[0]?.isCreatedAt
                                 ).toLocaleString() || "Invalid Date"}
                               </p>
                               <p className="font-semibold">
@@ -3579,25 +3573,25 @@ const handleCloseHealthCertificate = () => {
                               <p className="text-gray-500">
                                 {records.labRecords.length > 0
                                   ? records.labRecords
-                                      .flatMap((record) => [
-                                        ...Object.values(
-                                          record.bloodChemistry || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.hematology || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.clinicalMicroscopyParasitology ||
-                                            {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.bloodBankingSerology || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.microbiology || {}
-                                        ).filter((value) => value),
-                                      ])
-                                      .join(", ") || "No test data available"
+                                    .flatMap((record) => [
+                                      ...Object.values(
+                                        record.bloodChemistry || {}
+                                      ).filter((value) => value),
+                                      ...Object.values(
+                                        record.hematology || {}
+                                      ).filter((value) => value),
+                                      ...Object.values(
+                                        record.clinicalMicroscopyParasitology ||
+                                        {}
+                                      ).filter((value) => value),
+                                      ...Object.values(
+                                        record.bloodBankingSerology || {}
+                                      ).filter((value) => value),
+                                      ...Object.values(
+                                        record.microbiology || {}
+                                      ).filter((value) => value),
+                                    ])
+                                    .join(", ") || "No test data available"
                                   : "No Lab Tests Available"}
                               </p>
                             </div>
@@ -3607,12 +3601,12 @@ const handleCloseHealthCertificate = () => {
                               <p className="text-gray-500">
                                 {records.xrayRecords.length > 0
                                   ? records.xrayRecords.map((record, idx) => (
-                                      <span key={idx}>
-                                        {record.xrayType}
-                                        {idx < records.xrayRecords.length - 1 &&
-                                          ", "}
-                                      </span>
-                                    ))
+                                    <span key={idx}>
+                                      {record.xrayType}
+                                      {idx < records.xrayRecords.length - 1 &&
+                                        ", "}
+                                    </span>
+                                  ))
                                   : "No X-ray Data"}
                               </p>
                             </div>
@@ -3621,11 +3615,10 @@ const handleCloseHealthCertificate = () => {
                             <div className="col-span-1 flex justify-between items-center">
                               {/* Status Display */}
                               <p
-                                className={`font-semibold ${
-                                  isCompleted
+                                className={`font-semibold ${isCompleted
                                     ? "text-green-500"
                                     : "text-red-500"
-                                }`}
+                                  }`}
                               >
                                 {status}
                               </p>
@@ -4798,40 +4791,40 @@ const handleCloseHealthCertificate = () => {
                         </div>
                       </div>
 
-                {/* Bottom section - Close button */}
+                      {/* Bottom section - Close button */}
                       <div className="flex justify-between mt-4">
-                      {patient.patientType === 'Student' ? (
-                        <div className="flex justify-start">
-                          <button
-                            className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                            onClick={() => {
-                              handleOpenPECertificate(selectedRecords, physicalExamStudent, patient, medicalHistory);
-                            }}
-                          >
-                            Physical Exam Certificate
-                          </button>
+                        {patient.patientType === 'Student' ? (
+                          <div className="flex justify-start">
+                            <button
+                              className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                              onClick={() => {
+                                handleOpenPECertificate(selectedRecords, physicalExamStudent, patient, medicalHistory);
+                              }}
+                            >
+                              Physical Exam Certificate
+                            </button>
 
-                          <button
-                            className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                            onClick={() => {
-                              handleOpenHealthCertificate(patient);
-                            }}                          
-                          >
-                            Health Certificate
-                          </button>
-                        </div>
-                          ) : (
-                            <div className="flex justify-start">
+                            <button
+                              className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                              onClick={() => {
+                                handleOpenHealthCertificate(patient);
+                              }}
+                            >
+                              Health Certificate
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex justify-start">
                             <button
                               className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
                               onClick={() => {
                                 handleOpenAnnualCertificate(selectedRecords, annual, patient, medicalHistory);
                               }}
                             >
-                              Annual Employee Certificate 
+                              Annual Employee Certificate
                             </button>
                           </div>
-                          )
+                        )
                         }
                         <div className="flex justify-end">
                           <button
@@ -4853,10 +4846,10 @@ const handleCloseHealthCertificate = () => {
                             Submit
                           </button>
                         </div>
-                        </div>
-                        <PECertificate isOpen={isPECertificateOpen} onClose={handleClosePECertificate} patient={patient} medicalHistory={medicalHistory} physicalExamStudent={physicalExamStudent} />
-                        <AnnualCertificate isOpen={isAnnualCertificateOpen} onClose={handleCloseAnnualCertificate} patient={patient} medicalHistory={medicalHistory} annual={annual} />
-                        <HealthCertificate isOpen={isHealthCertificateOpen} onClose={handleCloseHealthCertificate} patient={patient}/>
+                      </div>
+                      <PECertificate isOpen={isPECertificateOpen} onClose={handleClosePECertificate} patient={patient} medicalHistory={medicalHistory} physicalExamStudent={physicalExamStudent} />
+                      <AnnualCertificate isOpen={isAnnualCertificateOpen} onClose={handleCloseAnnualCertificate} patient={patient} medicalHistory={medicalHistory} annual={annual} />
+                      <HealthCertificate isOpen={isHealthCertificateOpen} onClose={handleCloseHealthCertificate} patient={patient} />
                     </div>
                   </div>
                 )}
@@ -4972,11 +4965,9 @@ const handleCloseHealthCertificate = () => {
                                       labResult.patient
                                         ? labResult.patient.patientType ===
                                           "Student"
-                                          ? `${
-                                              labResult.patient.course || "N/A"
-                                            } - ${
-                                              labResult.patient.year || "N/A"
-                                            }` // Display course and year if patientType is student
+                                          ? `${labResult.patient.course || "N/A"
+                                          } - ${labResult.patient.year || "N/A"
+                                          }` // Display course and year if patientType is student
                                           : labResult.patient.position || "N/A" // Otherwise, display position
                                         : "N/A"
                                     }
@@ -4996,9 +4987,8 @@ const handleCloseHealthCertificate = () => {
                                       I. Hematology
                                     </h3>
                                     <BiChevronDown
-                                      className={`transform transition-transform duration-300 ${
-                                        isHematologyVisible ? "rotate-180" : ""
-                                      }`}
+                                      className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
+                                        }`}
                                       size={24}
                                     />
                                   </div>
@@ -5263,11 +5253,10 @@ const handleCloseHealthCertificate = () => {
                                     II. Clinical Microscopy and Parasitology
                                   </h3>
                                   <BiChevronDown
-                                    className={`transform transition-transform duration-300 ${
-                                      isClinicalMicroscopyVisible
+                                    className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible
                                         ? "rotate-180"
                                         : ""
-                                    }`}
+                                      }`}
                                     size={24}
                                   />
                                 </div>
@@ -5692,9 +5681,8 @@ const handleCloseHealthCertificate = () => {
                                     III. Serology
                                   </h3>
                                   <BiChevronDown
-                                    className={`transform transition-transform duration-300 ${
-                                      isSerologyVisible ? "rotate-180" : ""
-                                    }`}
+                                    className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
+                                      }`}
                                     size={24}
                                   />
                                 </div>
@@ -5774,10 +5762,10 @@ const handleCloseHealthCertificate = () => {
                                           ?.hepatitisBSurfaceAntigen
                                           ?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5792,10 +5780,10 @@ const handleCloseHealthCertificate = () => {
                                         labResult.bloodBankingSerology
                                           ?.antiHAVTest?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.antiHAVTest.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.antiHAVTest.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5893,10 +5881,10 @@ const handleCloseHealthCertificate = () => {
                                         labResult.bloodBankingSerology
                                           ?.serumPregnancy?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.serumPregnancy.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.serumPregnancy.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5912,10 +5900,10 @@ const handleCloseHealthCertificate = () => {
                                           ?.treponemaPallidumTest
                                           ?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -6011,10 +5999,10 @@ const handleCloseHealthCertificate = () => {
                                         labResult.bloodBankingSerology
                                           ?.salmonellaTyphi?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.salmonellaTyphi.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.salmonellaTyphi.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -6101,10 +6089,10 @@ const handleCloseHealthCertificate = () => {
                                         labResult.bloodBankingSerology
                                           ?.testDengue?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.testDengue.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.testDengue.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -6119,10 +6107,10 @@ const handleCloseHealthCertificate = () => {
                                         labResult.bloodBankingSerology?.others
                                           ?.expirationDate
                                           ? new Date(
-                                              labResult.bloodBankingSerology.others.expirationDate
-                                            )
-                                              .toISOString()
-                                              .split("T")[0]
+                                            labResult.bloodBankingSerology.others.expirationDate
+                                          )
+                                            .toISOString()
+                                            .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -6521,9 +6509,9 @@ const handleCloseHealthCertificate = () => {
                             name="XrayNo"
                             value={
                               selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
+                                selectedXrayRecords[selectedXray]
                                 ? selectedXrayRecords[selectedXray].ORNumber ||
-                                  "N/A"
+                                "N/A"
                                 : "N/A"
                             }
                             className="w-full px-3 py-2 border rounded"
@@ -6539,9 +6527,9 @@ const handleCloseHealthCertificate = () => {
                             name="XrayNo"
                             value={
                               selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
+                                selectedXrayRecords[selectedXray]
                                 ? selectedXrayRecords[selectedXray].XrayNo ||
-                                  "N/A"
+                                "N/A"
                                 : "N/A"
                             }
                             className="w-full px-3 py-2 border rounded"
@@ -6555,12 +6543,12 @@ const handleCloseHealthCertificate = () => {
                             name="date"
                             value={
                               selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
+                                selectedXrayRecords[selectedXray]
                                 ? new Date(
-                                    selectedXrayRecords[
-                                      selectedXray
-                                    ].isCreatedAt
-                                  ).toLocaleString()
+                                  selectedXrayRecords[
+                                    selectedXray
+                                  ].isCreatedAt
+                                ).toLocaleString()
                                 : "N/A"
                             }
                             className="w-full px-3 py-2 border rounded"
@@ -6581,9 +6569,9 @@ const handleCloseHealthCertificate = () => {
                           placeholder="No Interpretation available."
                           value={
                             selectedXray !== null &&
-                            selectedXrayRecords[selectedXray]
+                              selectedXrayRecords[selectedXray]
                               ? selectedXrayRecords[selectedXray].diagnosis ||
-                                ""
+                              ""
                               : ""
                           }
                           readOnly
@@ -6602,9 +6590,9 @@ const handleCloseHealthCertificate = () => {
                           placeholder="No X-ray findings available."
                           value={
                             selectedXray !== null &&
-                            selectedXrayRecords[selectedXray]
+                              selectedXrayRecords[selectedXray]
                               ? selectedXrayRecords[selectedXray]
-                                  .xrayFindings || ""
+                                .xrayFindings || ""
                               : ""
                           }
                           required
@@ -6887,7 +6875,7 @@ const handleCloseHealthCertificate = () => {
                 )}
 
                 {selectedRecord.treatments &&
-                selectedRecord.treatments.length > 0 ? (
+                  selectedRecord.treatments.length > 0 ? (
                   <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                     {selectedRecord.treatments
                       .split(", ")
@@ -6943,7 +6931,7 @@ const handleCloseHealthCertificate = () => {
                 </div>
 
                 {selectedRecord.diagnosis &&
-                selectedRecord.diagnosis.length > 0 ? (
+                  selectedRecord.diagnosis.length > 0 ? (
                   <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                     {selectedRecord.diagnosis
                       .split(", ")
@@ -7200,9 +7188,8 @@ const handleCloseHealthCertificate = () => {
                         value={
                           labDetails.patient
                             ? labDetails.patient.patientType === "Student"
-                              ? `${labDetails.patient.course || "N/A"} - ${
-                                  labDetails.patient.year || "N/A"
-                                }` // Display course if patientType is student
+                              ? `${labDetails.patient.course || "N/A"} - ${labDetails.patient.year || "N/A"
+                              }` // Display course if patientType is student
                               : labDetails.patient.position || "N/A" // Otherwise, display position
                             : "N/A"
                         }
@@ -7220,9 +7207,8 @@ const handleCloseHealthCertificate = () => {
                           I. Hematology
                         </h3>
                         <BiChevronDown
-                          className={`transform transition-transform duration-300 ${
-                            isHematologyVisible ? "rotate-180" : ""
-                          }`}
+                          className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
+                            }`}
                           size={24}
                         />
                       </div>
@@ -7426,9 +7412,8 @@ const handleCloseHealthCertificate = () => {
                         II. Clinical Microscopy and Parasitology
                       </h3>
                       <BiChevronDown
-                        className={`transform transition-transform duration-300 ${
-                          isClinicalMicroscopyVisible ? "rotate-180" : ""
-                        }`}
+                        className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible ? "rotate-180" : ""
+                          }`}
                         size={24}
                       />
                     </div>
@@ -7807,9 +7792,8 @@ const handleCloseHealthCertificate = () => {
                         III. Serology
                       </h3>
                       <BiChevronDown
-                        className={`transform transition-transform duration-300 ${
-                          isSerologyVisible ? "rotate-180" : ""
-                        }`}
+                        className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
+                          }`}
                         size={24}
                       />
                     </div>
@@ -7876,10 +7860,10 @@ const handleCloseHealthCertificate = () => {
                             labDetails.bloodBankingSerology
                               ?.hepatitisBSurfaceAntigen?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7892,10 +7876,10 @@ const handleCloseHealthCertificate = () => {
                             labDetails.bloodBankingSerology?.antiHAVTest
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.antiHAVTest.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.antiHAVTest.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7980,10 +7964,10 @@ const handleCloseHealthCertificate = () => {
                             labDetails.bloodBankingSerology?.serumPregnancy
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.serumPregnancy.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.serumPregnancy.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7996,10 +7980,10 @@ const handleCloseHealthCertificate = () => {
                             labDetails.bloodBankingSerology
                               ?.treponemaPallidumTest?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -8084,10 +8068,10 @@ const handleCloseHealthCertificate = () => {
                             labDetails.bloodBankingSerology?.salmonellaTyphi
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -8162,10 +8146,10 @@ const handleCloseHealthCertificate = () => {
                             labDetails.bloodBankingSerology?.testDengue
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.testDengue.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.testDengue.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -8178,10 +8162,10 @@ const handleCloseHealthCertificate = () => {
                             labDetails.bloodBankingSerology?.others
                               ?.expirationDate
                               ? new Date(
-                                  labDetails.bloodBankingSerology.others.expirationDate
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
+                                labDetails.bloodBankingSerology.others.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -10182,26 +10166,64 @@ const handleCloseHealthCertificate = () => {
             )}
 
             {/* Bottom section - Close button */}
-            <div className="flex justify-end mt-4">
-              <button
-                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200 mr-4"
-                onClick={() => {
-                  handleAnnualClose(); // Close the modal
-                }}
-              >
-                Close
-              </button>
-              <button
-                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                onClick={() =>
-                  handleAnnualSubmit(
-                    selectedRecords.labRecords[0].packageNumber
-                  )
-                }
-              >
-                Submit
-              </button>
+            <div className="flex justify-between mt-4">
+              {patient.patientType === 'Student' ? (
+                <div className="flex justify-start">
+                  <button
+                    className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                    onClick={() => {
+                      handleOpenPECertificate(selectedRecords, physicalExamStudent, patient, medicalHistory);
+                    }}
+                  >
+                    Physical Exam Certificate
+                  </button>
+
+                  <button
+                    className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                    onClick={() => {
+                      handleOpenHealthCertificate(patient);
+                    }}
+                  >
+                    Health Certificate
+                  </button>
+                </div>
+              ) : (
+                <div className="flex justify-start">
+                  <button
+                    className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                    onClick={() => {
+                      handleOpenAnnualCertificate(selectedRecords, annual, patient, medicalHistory);
+                    }}
+                  >
+                    Annual Employee Certificate
+                  </button>
+                </div>
+              )
+              }
+              <div className="flex justify-end">
+                <button
+                  className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200 mr-4"
+                  onClick={() => {
+                    setisAnnualModalOpen(false); // Close the modal
+                  }}
+                >
+                  Close
+                </button>
+                <button
+                  className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200 mr-4"
+                  onClick={() =>
+                    handleAnnualSubmit(
+                      selectedRecords,
+                    )
+                  }
+                >
+                  Submit
+                </button>
+              </div>
             </div>
+            <PECertificate isOpen={isPECertificateOpen} onClose={handleClosePECertificate} patient={patient} medicalHistory={medicalHistory} physicalExamStudent={physicalExamStudent} />
+            <AnnualCertificate isOpen={isAnnualCertificateOpen} onClose={handleCloseAnnualCertificate} patient={patient} medicalHistory={medicalHistory} annual={annual} />
+            <HealthCertificate isOpen={isHealthCertificateOpen} onClose={handleCloseHealthCertificate} patient={patient} />
           </div>
         </div>
       )}
