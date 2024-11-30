@@ -27,7 +27,7 @@ function AdminHomePage() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3001/accounts")
+      .get("https://cmrms-backend.onrender.com/accounts")
       .then((response) => {
         setAccounts(response.data);
       })
@@ -122,7 +122,7 @@ function AdminHomePage() {
     event.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:3001/add-account",
+        "https://cmrms-backend.onrender.com/add-account",
         newAccount
       );
       if (response.data.message === "Account Created Successfully") {
@@ -155,7 +155,7 @@ function AdminHomePage() {
       const email = accountToUpdate.email; // Use the email of the correct account
   
       try {
-        const response = await axios.post("http://localhost:3001/role", {
+        const response = await axios.post("https://cmrms-backend.onrender.com/role", {
           email: email,
           role: newRole,
         });
@@ -189,7 +189,7 @@ function AdminHomePage() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/reset-password",
+        "https://cmrms-backend.onrender.com/reset-password",
         {
           email: email,
           lastname: lastname,
@@ -219,7 +219,7 @@ function AdminHomePage() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/delete-account",
+        "https://cmrms-backend.onrender.com/delete-account",
         {
           email: email,
         }

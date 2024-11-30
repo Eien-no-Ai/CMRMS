@@ -18,7 +18,7 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
   useEffect(() => {
     if (userId) {
       axios
-        .get(`http://localhost:3001/user/${userId}`)
+        .get(`https://cmrms-backend.onrender.com/user/${userId}`)
         .then((response) => {
           setUserData(response.data);
         })
