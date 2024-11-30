@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
 import axios from "axios";
 
-const ClinicalHematologyReport = ({ isOpen, onClose, selectedReport, labRecords, fromMonthYear = "2024-11-01", toMonthYear = "2024-11-30" }) => {
+const ClinicalHematologyReport = ({ isOpen, onClose, selectedReport, labRecords, fromMonthYear, toMonthYear}) => {
   const [userData, setUserData] = useState({});
   const userId = localStorage.getItem("userId"); // Get the user ID from localStorage
   const [pdfDataUrl, setPdfDataUrl] = useState(null);

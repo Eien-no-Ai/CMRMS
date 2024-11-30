@@ -87,10 +87,11 @@ const PhysicalExamStudentSchema = new mongoose.Schema({
             remarks: { type: String, default: '' },
         },
         LMP:{type:Date},
-    }
-
-
-});
+    },
+    isCreatedAt: { type: Date, default: Date.now },
+},
+{ timestamps: true }
+);
 
 const PhysicalExamModelStudent = mongoose.model('PhysicalExamStudent', PhysicalExamStudentSchema);
 
