@@ -201,30 +201,96 @@ function Laboratory() {
           );
         };
 
-        // Check Blood Chemistry
+        // Check Blood Chemistry and its subcategories
         if (record.bloodChemistry && hasNonEmptyFields(record.bloodChemistry)) {
           categories.push("Blood Chemistry");
+
+          // Check for individual blood chemistry tests like bloodSugar, creatinine, etc.
+          const bloodChemistryKeys = [
+            "bloodSugar",
+            "bloodUreaNitrogen",
+            "bloodUricAcid",
+            "creatinine",
+            "SGOT_AST",
+            "SGPT_ALT",
+            "totalCholesterol",
+            "triglyceride",
+            "HDL_cholesterol",
+            "LDL_cholesterol",
+          ];
+
+          bloodChemistryKeys.forEach((key) => {
+            if (record.bloodChemistry[key]) {
+              categories.push(key); // Add each specific test under Blood Chemistry
+            }
+          });
         }
 
-        // Check Hematology
+        // Check Hematology and its subcategories
         if (record.hematology && hasNonEmptyFields(record.hematology)) {
           categories.push("Hematology");
+
+          // Check for individual hematology tests like bleedingTimeClottingTime, etc.
+          const hematologyKeys = [
+            "bleedingTimeClottingTime",
+            "completeBloodCount",
+            "hematocritAndHemoglobin",
+          ];
+
+          hematologyKeys.forEach((key) => {
+            if (record.hematology[key]) {
+              categories.push(key); // Add each specific test under Hematology
+            }
+          });
         }
 
-        // Check Clinical Microscopy and Parasitology
+        // Check Clinical Microscopy and Parasitology and its subcategories
         if (
           record.clinicalMicroscopyParasitology &&
           hasNonEmptyFields(record.clinicalMicroscopyParasitology)
         ) {
           categories.push("Clinical Microscopy and Parasitology");
+
+          // Check for individual clinical microscopy tests like routineUrinalysis, etc.
+          const clinicalMicroscopyKeys = [
+            "routineUrinalysis",
+            "routineStoolExamination",
+            "katoThickSmear",
+            "fecalOccultBloodTest",
+          ];
+
+          clinicalMicroscopyKeys.forEach((key) => {
+            if (record.clinicalMicroscopyParasitology[key]) {
+              categories.push(key); // Add each specific test under Clinical Microscopy and Parasitology
+            }
+          });
         }
 
-        // Check Serology
+        // Check Serology and its subcategories
         if (
           record.bloodBankingSerology &&
           hasNonEmptyFields(record.bloodBankingSerology)
         ) {
           categories.push("Serology");
+
+          // Check for individual serology tests like antiTreponemaPallidum, etc.
+          const serologyKeys = [
+            "antiTreponemaPallidum",
+            "antiHCV",
+            "bloodTyping",
+            "hepatitisBSurfaceAntigen",
+            "pregnancyTest",
+            "dengueTest",
+            "HIVRapidTest",
+            "HIVElsa",
+            "testForSalmonellaTyphi",
+          ];
+
+          serologyKeys.forEach((key) => {
+            if (record.bloodBankingSerology[key]) {
+              categories.push(key); // Add each specific test under Serology
+            }
+          });
         }
 
         setRequestedCategories(categories);
@@ -896,7 +962,11 @@ function Laboratory() {
                             <input
                               type="text"
                               name="bloodSugar"
-                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
+                                requestedCategories.includes("bloodSugar")
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
                               value={formData.bloodChemistry?.bloodSugar || ""}
                               onChange={(e) =>
                                 handleInputChange(
@@ -904,6 +974,9 @@ function Laboratory() {
                                   "bloodChemistry",
                                   "bloodSugar"
                                 )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("bloodSugar")
                               }
                             />
                           </div>
@@ -915,7 +988,11 @@ function Laboratory() {
                             <input
                               type="text"
                               name="totalCholesterol"
-                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
+                                requestedCategories.includes("totalCholesterol")
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
                               value={
                                 formData.bloodChemistry?.totalCholesterol || ""
                               }
@@ -923,6 +1000,11 @@ function Laboratory() {
                                 handleInputChange(
                                   e,
                                   "bloodChemistry",
+                                  "totalCholesterol"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes(
                                   "totalCholesterol"
                                 )
                               }
@@ -936,8 +1018,11 @@ function Laboratory() {
                             <input
                               type="text"
                               name="triglyceride"
-                              className="w-full px-3 py-1 border rounded bg-gray-100"
-                              value={
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
+                                requestedCategories.includes("triglyceride")
+                                  ? "border-red-500"
+                                  : ""
+                              }`}                              value={
                                 formData.bloodChemistry?.triglyceride || ""
                               }
                               onChange={(e) =>
@@ -946,6 +1031,9 @@ function Laboratory() {
                                   "bloodChemistry",
                                   "triglyceride"
                                 )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("triglyceride")
                               }
                             />
                           </div>
@@ -957,7 +1045,11 @@ function Laboratory() {
                             <input
                               type="text"
                               name="bloodUricAcid"
-                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
+                                requestedCategories.includes("bloodUricAcid")
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
                               value={
                                 formData.bloodChemistry?.bloodUricAcid || ""
                               }
@@ -967,6 +1059,9 @@ function Laboratory() {
                                   "bloodChemistry",
                                   "bloodUricAcid"
                                 )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("bloodUricAcid")
                               }
                             />
                           </div>
@@ -981,7 +1076,11 @@ function Laboratory() {
                             <input
                               type="text"
                               name="bloodUreaNitrogen"
-                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
+                                requestedCategories.includes("bloodUreaNitrogen")
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
                               value={
                                 formData.bloodChemistry?.bloodUreaNitrogen || ""
                               }
@@ -989,6 +1088,11 @@ function Laboratory() {
                                 handleInputChange(
                                   e,
                                   "bloodChemistry",
+                                  "bloodUreaNitrogen"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes(
                                   "bloodUreaNitrogen"
                                 )
                               }
@@ -1002,7 +1106,11 @@ function Laboratory() {
                             <input
                               type="text"
                               name="creatinine"
-                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
+                                requestedCategories.includes("creatinine")
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
                               value={formData.bloodChemistry?.creatinine || ""}
                               onChange={(e) =>
                                 handleInputChange(
@@ -1010,6 +1118,9 @@ function Laboratory() {
                                   "bloodChemistry",
                                   "creatinine"
                                 )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("creatinine")
                               }
                             />
                           </div>
@@ -1024,7 +1135,11 @@ function Laboratory() {
                             <input
                               type="text"
                               name="SGOT_AST"
-                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
+                                requestedCategories.includes("SGOT_AST")
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
                               value={formData.bloodChemistry?.SGOT_AST || ""}
                               onChange={(e) =>
                                 handleInputChange(
@@ -1032,6 +1147,9 @@ function Laboratory() {
                                   "bloodChemistry",
                                   "SGOT_AST"
                                 )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("SGOT_AST")
                               }
                             />
                           </div>
@@ -1046,7 +1164,11 @@ function Laboratory() {
                             <input
                               type="text"
                               name="SGPT_ALT"
-                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
+                                requestedCategories.includes("SGPT_ALT")
+                                  ? "border-red-500"
+                                  : ""
+                              }`}                              
                               value={formData.bloodChemistry?.SGPT_ALT || ""}
                               onChange={(e) =>
                                 handleInputChange(
@@ -1054,6 +1176,9 @@ function Laboratory() {
                                   "bloodChemistry",
                                   "SGPT_ALT"
                                 )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("SGPT_ALT")
                               }
                             />
                           </div>
@@ -1068,16 +1193,21 @@ function Laboratory() {
                             <input
                               type="text"
                               name="HDL_cholesterol"
-                              className="w-full px-3 py-1 border rounded bg-gray-100"
-                              value={
-                                formData.bloodChemistry?.HDL_cholesterol || ""
-                              }
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
+                                requestedCategories.includes("HDL_cholesterol")
+                                  ? "border-red-500"
+                                  : ""
+                              }`}  
+                              value={formData.bloodChemistry?.HDL_cholesterol || ""}
                               onChange={(e) =>
                                 handleInputChange(
                                   e,
                                   "bloodChemistry",
                                   "HDL_cholesterol"
                                 )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("HDL_cholesterol")
                               }
                             />
                           </div>
@@ -1092,7 +1222,11 @@ function Laboratory() {
                             <input
                               type="text"
                               name="LDL_cholesterol"
-                              className="w-full px-3 py-1 border rounded bg-gray-100"
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
+                                requestedCategories.includes("LDL_cholesterol")
+                                  ? "border-red-500"
+                                  : ""
+                              }`}  
                               value={
                                 formData.bloodChemistry?.LDL_cholesterol || ""
                               }
@@ -1102,6 +1236,9 @@ function Laboratory() {
                                   "bloodChemistry",
                                   "LDL_cholesterol"
                                 )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("LDL_cholesterol")
                               }
                             />
                           </div>
