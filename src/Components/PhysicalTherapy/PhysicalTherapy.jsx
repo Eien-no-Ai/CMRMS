@@ -92,7 +92,7 @@ function PhysicalTherapy() {
 
     try {
       const response = await axios.put(
-        `http://localhost:3001/api/physicalTherapy/${therapyRecordId}`,
+        `https://cmrms-backend.onrender.com/api/physicalTherapy/${therapyRecordId}`,
         {
           SOAPSummary: newTherapyRecord.SOAPSummary,
           verifiedBy: ""
@@ -154,7 +154,7 @@ function PhysicalTherapy() {
 
   const fetchPhysicalTherapyRecords = () => {
     axios
-      .get("http://localhost:3001/api/physicalTherapy")
+      .get("https://cmrms-backend.onrender.com/api/physicalTherapy")
       .then((response) => {
         console.log(response.data && response.data.records); // Add this line to inspect the response
         const sortedRecords = response.data.sort(
@@ -224,7 +224,7 @@ function PhysicalTherapy() {
   const handleSaveEdit = async (recordId, summaryId) => {
     try {
       const response = await axios.put(
-        `http://localhost:3001/api/physicalTherapy/${recordId}/soapSummary/${summaryId}`,
+        `https://cmrms-backend.onrender.com/api/physicalTherapy/${recordId}/soapSummary/${summaryId}`,
         {
           updatedSOAPSummary: editSummary,
         }
@@ -261,7 +261,7 @@ function PhysicalTherapy() {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (userId) {
-      fetch(`http://localhost:3001/user/${userId}`)
+      fetch(`https://cmrms-backend.onrender.com/user/${userId}`)
         .then((response) => response.json())
         .then((data) => {
           setUserRole(data.role);
@@ -290,7 +290,7 @@ function PhysicalTherapy() {
 
     try {
       const response = await axios.put(
-        `http://localhost:3001/api/physicalTherapyVerification/${therapyRecordId}/soapSummary/${summaryId}`,
+        `https://cmrms-backend.onrender.com/api/physicalTherapyVerification/${therapyRecordId}/soapSummary/${summaryId}`,
         {
           updatedSOAPSummary: {
             firstname: userData.firstname, // Send the user's first name
@@ -359,7 +359,7 @@ function PhysicalTherapy() {
     try {
       // Step 1: Add the patient
       const patientResponse = await axios.post(
-        "http://localhost:3001/add-patient",
+        "https://cmrms-backend.onrender.com/add-patient",
         patientData
       );
       const patientId = patientResponse.data.patient._id; // Extract the patient ID
@@ -374,7 +374,7 @@ function PhysicalTherapy() {
       };
 
       await axios.post(
-        "http://localhost:3001/api/physicalTherapy",
+        "https://cmrms-backend.onrender.com/api/physicalTherapy",
         ptOPD
       );
       // Set the confirmation modal state to true
