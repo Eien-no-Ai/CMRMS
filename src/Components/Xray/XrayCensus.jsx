@@ -3,6 +3,9 @@ import axios from "axios";
 import Navbar from "../Navbar/Navbar"; // Adjust the import path as needed
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { IoCalendarNumberOutline } from "react-icons/io5";
+import LabXrayCensus from '../certificatesReports/LabXrayCensus.jsx'
+
 
 function XrayCensus() {
   const [xrayRecords, setXrayRecords] = useState([]);
@@ -109,32 +112,87 @@ function XrayCensus() {
       });
   };
 
+  const allMonths = Object.keys(reports).sort((a, b) => {
+    const [monthA, yearA] = a.split(" ");
+    const [monthB, yearB] = b.split(" ");
+    const monthOrder = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    if (yearA === yearB) {
+      return monthOrder.indexOf(monthA) - monthOrder.indexOf(monthB);
+    }
+    return yearA - yearB;
+  });
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isMonthDateModalOpen, setIsMonthDateModalOpen] = useState(false);
+
+  const handleOpenReportModal = () => {
+    setIsMonthDateModalOpen(true);
+    handleCloseReportModal();  
+  };
+
+  const handleCloseReportModal = () => {
+    setIsReportModalOpen(false);
+  };
+
+  const [fromMonthYear, setFromMonthYear] = useState("");
+  const [toMonthYear, setToMonthYear] = useState("");
+
+  const handleCloseDateSelectionModal = () => {
+    setFromMonthYear("");
+    setToMonthYear("");
+    setIsReportModalOpen(false); 
+    setIsMonthDateModalOpen(false);
+  };
+
+  const [isLabXrayCensusOpen, setIsLabXrayCensus] = useState(false);
+
+  const handleOpenLabXrayCensus = (xrayRecords) => {
+    setIsLabXrayCensus(true);
+  };
+
+  const handleCloseLabXrayCensus = () => {
+    setIsMonthDateModalOpen(false);
+    setIsLabXrayCensus(false); // Close the modal
+  };
+
   return (
     <div>
       <Navbar />
       <div className="p-6 pt-20 bg-gray-100 min-h-screen">
-        <h1 className="text-3xl font-semibold mb-6">X-ray Census</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-semibold">X-ray Census</h1>
 
-        {/* Month Selector */}
-        <div className="mb-4 flex items-center">
-          <label className="mr-2">Select Month:</label>
-          <select value={selectedMonthYear} onChange={handleMonthChange}>
-            <option value="">--Select Month--</option>
-            {Object.keys(reports).map((monthYear) => (
-              <option key={monthYear} value={monthYear}>
-                {monthYear}
-              </option>
-            ))}
-          </select>
-          {/* {selectedMonthYear && (
-            <button
-              onClick={handleDownloadPDF}
-              className="ml-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-full bg-gray-100 hover:bg-gray-100 transition">
+            <IoCalendarNumberOutline className="text-gray-600 text-xl" />
+            <select
+              value={selectedMonthYear}
+              onChange={handleMonthChange}
+              className="bg-gray-100 text-gray-600 focus:outline-none flex items-center px-2"
             >
-              Download PDF
-            </button>
-          )} */}
+              <option value="" className="font-medium">
+                Select Month
+              </option>
+              {allMonths.map((monthYear) => (
+                <option key={monthYear} value={monthYear}>
+                  {monthYear}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-full bg-gray-100 hover:bg-gray-200 transition">
+                  <button
+                    onClick={handleOpenReportModal}
+                    className="text-gray-600 font-medium flex items-center space-x-2 focus:outline-none"
+                  >
+                    <span>Generate Report</span>
+                  </button>
+                </div>
         </div>
+      </div>
 
         {selectedMonthYear && reports[selectedMonthYear] && (
           <div id="censusReport" className="bg-white p-6 rounded-lg shadow-md">
@@ -165,6 +223,65 @@ function XrayCensus() {
           </div>
         )}
       </div>
+      {isMonthDateModalOpen && xrayRecords && (
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+              <h2 className="text-xl font-semibold mb-4">Select Date Range</h2>
+              
+              <div className="mb-4">
+                <label htmlFor="fromMonthYear" className="block text-sm font-medium text-gray-700">From:</label>
+                <select
+                  id="fromMonthYear"
+                  value={fromMonthYear}
+                  onChange={(e) => setFromMonthYear(e.target.value)}
+                  className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Select Month</option>
+                  {allMonths.map((monthYear) => (
+                    <option key={monthYear} value={monthYear}>
+                      {monthYear}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="toMonthYear" className="block text-sm font-medium text-gray-700">To:</label>
+                <select
+                  id="toMonthYear"
+                  value={toMonthYear}
+                  onChange={(e) => setToMonthYear(e.target.value)}
+                  className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Select Month</option>
+                  {allMonths.map((monthYear) => (
+                    <option key={monthYear} value={monthYear}>
+                      {monthYear}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mt-4 flex justify-between">
+                <button
+                  onClick={handleCloseDateSelectionModal}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleOpenLabXrayCensus(fromMonthYear, toMonthYear, xrayRecords)}                  
+                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"                
+                >
+                  Generate Report
+                </button>
+              </div>
+              <LabXrayCensus isOpen={isLabXrayCensusOpen} onClose={handleCloseLabXrayCensus} fromMonthYear={fromMonthYear} toMonthYear={toMonthYear} xrayRecords={xrayRecords} />
+            </div>
+          </div>
+        )}
+
+
     </div>
   );
 }
