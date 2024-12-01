@@ -5,11 +5,17 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { IoMdAddCircleOutline } from "react-icons/io";
+import ClinicalChemistryReport from '../certificatesReports/ClinicalChemistryReport.jsx'
+import ClinicalHematologyReport from '../certificatesReports/ClinicalHematologyReport.jsx'
+
 
 function LaboratoryCensus() {
   const [labRecords, setLabRecords] = useState([]);
   const [reports, setReports] = useState({});
   const [selectedMonthYear, setSelectedMonthYear] = useState("");
+  const [fromMonthYear, setFromMonthYear] = useState("");
+  const [toMonthYear, setToMonthYear] = useState("");
+  const [availableMonths, setAvailableMonths] = useState([]);
 
   useEffect(() => {
     fetchLabRecords();
@@ -28,6 +34,17 @@ function LaboratoryCensus() {
         console.error("There was an error fetching the lab records!", error);
       });
   };
+
+  useEffect(() => {
+    if (labRecords.length > 0) {
+      // Extract unique months and years from lab records
+      const months = [...new Set(labRecords.map(record => {
+        const date = new Date(record.isCreatedAt);
+        return date.toLocaleString("default", { month: "long", year: "numeric" });
+      }))];
+      setAvailableMonths(months);
+    }
+  }, [labRecords]);
 
   useEffect(() => {
     if (labRecords.length > 0) {
@@ -226,6 +243,66 @@ function LaboratoryCensus() {
       });
   };
 
+  const [selectedReport, setSelectedReport] = useState('');  
+
+  const handleGenerate = (selectedReport) => {
+
+    if (selectedReport === 'Clinical Chemistry Report') {
+      setIsClinicalChemistryReport(true);
+    } else if (selectedReport === 'Clinical Hematology Report') {
+      setIsClinicalHematologyReport(true);
+    }
+    setIsMonthDateModalOpen(false);
+  };
+
+  const [isClinicalChemistryReportOpen, setIsClinicalChemistryReport] = useState(false);
+
+  const handleOpenClinicalChemistryReport = (selectedReport, labRecords) => {
+    setIsClinicalChemistryReport(true);
+    console.log("open");
+  };
+  
+  const handleCloseClinicalChemistryReport = () => {
+    setIsClinicalChemistryReport(false); // Close the modal
+  };
+  
+  const [isClinicalHematologyReportOpen, setIsClinicalHematologyReport] = useState(false);
+  
+  const handleOpenClinicalHematologyReport = (selectedReport, labRecords) => {
+    setIsClinicalHematologyReport(true);
+    console.log("sesame");
+  };
+  
+  const handleCloseClinicalHematologyReport = () => {
+    setIsClinicalHematologyReport(false); // Close the modal
+  };
+
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isMonthDateModalOpen, setIsMonthDateModalOpen] = useState(false);
+
+
+  const handleOpenReportModal = () => {
+    setIsReportModalOpen(true);
+  };
+
+  const handleCloseReportModal = () => {
+    setIsReportModalOpen(false);
+  };
+
+  const handleSelectReport = (reportType) => {
+    setSelectedReport(reportType);
+    setIsMonthDateModalOpen(true);
+    handleCloseReportModal();
+    console.log(`Selected Report: ${reportType}`);
+  };
+
+  const handleCloseDateSelectionModal = () => {
+    setFromMonthYear("");
+    setToMonthYear("");
+    setIsReportModalOpen(false); 
+    setIsMonthDateModalOpen(false);
+  };
+
   return (
     <div>
       <Navbar />
@@ -250,6 +327,14 @@ function LaboratoryCensus() {
                   </option>
                 ))}
               </select>
+            </div>
+            <div className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-full bg-gray-100 hover:bg-gray-200 transition">
+              <button
+                onClick={handleOpenReportModal}
+                className="text-gray-600 font-medium flex items-center space-x-2 focus:outline-none"
+              >
+                <span>Generate Report</span>
+              </button>
             </div>
           </div>
         </div>
@@ -328,17 +413,6 @@ function LaboratoryCensus() {
                   )}
                 </div>
               )}
-              <div className="mt-4 flex justify-between items-center text-gray-600">
-                {selectedMonthYear && (
-                  <button
-                    onClick={handleDownloadPDF}
-                    className="bg-gray-100 px-4 py-2 rounded-lg shadow hover:bg-gray-200 transition flex items-center space-x-2"
-                  >
-                    Download PDF
-                  </button>
-                )}
-               
-              </div>
             </div>
           </div>
 
@@ -372,6 +446,105 @@ function LaboratoryCensus() {
           </div>
         </div>
       </div>
+
+             {/* The Report Modal for selecting the report type */}
+             {isReportModalOpen && (
+          <div
+            className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50"
+          >
+            <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+              <ul className="space-y-4">
+                <div className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-full bg-gray-100 hover:bg-gray-200 transition">
+                  <button
+                    onClick={() => handleSelectReport('Clinical Hematology Report')}
+                    className="text-gray-600 font-medium flex items-center space-x-2 focus:outline-none"
+                  >
+                    Clinical Hematology Report
+                  </button>
+                </div>
+
+                <div className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-full bg-gray-100 hover:bg-gray-200 transition">
+                  <button
+                    onClick={() => handleSelectReport('Clinical Chemistry Report')}
+                    className="text-gray-600 font-medium flex items-center space-x-2 focus:outline-none"
+                  >
+                    Clinical Chemistry Report
+                  </button>
+                </div>
+              </ul>
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={handleCloseReportModal} // Close the modal when clicking cancel
+                  className="bg-gray-200 text-gray-600 px-4 py-2 rounded-md hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Modal for Selecting "From" and "To" Date Range */}
+        {isMonthDateModalOpen && selectedReport && (
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+              <h2 className="text-xl font-semibold mb-4">Select Date Range for {selectedReport}</h2>
+              
+              <div className="mb-4">
+                <label htmlFor="fromMonthYear" className="block text-sm font-medium text-gray-700">From:</label>
+                <select
+                  id="fromMonthYear"
+                  value={fromMonthYear}
+                  onChange={(e) => setFromMonthYear(e.target.value)}
+                  className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Select Month</option>
+                  {availableMonths.map((monthYear) => (
+                    <option key={monthYear} value={monthYear}>
+                      {monthYear}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="toMonthYear" className="block text-sm font-medium text-gray-700">To:</label>
+                <select
+                  id="toMonthYear"
+                  value={toMonthYear}
+                  onChange={(e) => setToMonthYear(e.target.value)}
+                  className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Select Month</option>
+                  {availableMonths.map((monthYear) => (
+                    <option key={monthYear} value={monthYear}>
+                      {monthYear}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mt-4 flex justify-between">
+                <button
+                  onClick={handleCloseDateSelectionModal}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleGenerate(selectedReport)}                  
+                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"                
+                >
+                  Generate Report
+                </button>
+              </div>
+              
+            </div>
+          </div>
+        )}
+            <ClinicalChemistryReport isOpen={isClinicalChemistryReportOpen} onClose={handleCloseClinicalChemistryReport} selectedReport={selectedReport} labRecords={labRecords} fromMonthYear={fromMonthYear} toMonthYear={toMonthYear}/>
+            <ClinicalHematologyReport isOpen={isClinicalHematologyReportOpen} onClose={handleCloseClinicalHematologyReport} selectedReport={selectedReport} labRecords={labRecords} fromMonthYear={fromMonthYear} toMonthYear={toMonthYear}/>
+
+
     </div>
   );
 }

@@ -4,6 +4,8 @@ import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { BsThreeDots } from "react-icons/bs";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
+import MedicalClinicCensus from '../certificatesReports/MedicalClinicCensus.jsx'
+
 
 function Patients() {
   const [patients, setPatients] = useState([]);
@@ -621,6 +623,186 @@ function Patients() {
     }
   };
 
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isMonthDateModalOpen, setIsMonthDateModalOpen] = useState(false);
+
+  const handleOpenReportModal = () => {
+    setIsMonthDateModalOpen(true);
+    handleCloseReportModal();  
+  };
+
+  const handleCloseReportModal = () => {
+    setIsReportModalOpen(false);
+  };
+
+  const [clinicalRecords, setClinicalRecords] = useState([]);
+  const [peStudent, setPEStudent] = useState([]);
+  const [vaccine, setVaccine] = useState([]);
+  const [labRecords, setLabRecords] = useState([]);
+  const [fromMonthYear, setFromMonthYear] = useState("");
+  const [toMonthYear, setToMonthYear] = useState("");
+  const [availableMonths, setAvailableMonths] = useState([]);
+
+  useEffect(() => {
+    fetchLabRecords();
+    fetchClinicalRecords();
+    fetchPhysicalExamStudent();
+    fetchVaccine();
+  }, []);
+
+  const fetchClinicalRecords = () => {
+    axios
+      .get("http://localhost:3001/api/clinicalRecords")
+      .then((response) => {
+        const completeRecords = response.data
+          .filter((record) => {
+            // Ensure required fields are not empty
+            const isCompleted = record.complaints && record.treatments && record.diagnosis &&
+              record.patient && record.createdBy;
+            
+            return isCompleted;
+          })
+          .sort((a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)); // Sort by most recent creation
+  
+        setClinicalRecords(completeRecords);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the clinical records!", error);
+      });
+  };
+  
+
+  const fetchLabRecords = () => {
+    axios
+      .get("http://localhost:3001/api/laboratory")
+      .then((response) => {
+        const completeRecords = response.data
+          .filter((record) => record.labResult === "verified")
+          .sort((a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt));
+        setLabRecords(completeRecords);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the lab records!", error);
+      });
+  };
+
+  const fetchPhysicalExamStudent = () => {
+    axios
+      .get("http://localhost:3001/api/physical-exam-student")
+      .then((response) => {
+        const completeRecords = response.data
+          // .filter((record) => {
+          //   // Check if required fields are not empty
+          //   const isCompleted = record.temperature || record.bloodPressure || record.pulseRate ||
+          //     record.respirationRate || record.height || record.weight || record.bodyBuilt ||
+          //     record.visualAcuity || record.abnormalFindings || Object.values(record.abnormalFindings).every(
+          //       finding => finding.hasOwnProperty('remarks') || finding.hasOwnProperty('skin')
+          //     );
+  
+          //   // You could also check that `LMP` is not null
+          //   return isCompleted || record.LMP;
+          // })
+          .sort((a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt));
+  
+        setPEStudent(completeRecords);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the physical exam student records!", error);
+      });
+  };
+  
+
+  const fetchVaccine = () => {
+    const date = new Date();
+    axios
+      .get("http://localhost:3001/api/vaccines")
+      .then((response) => {
+        const completeRecords = response.data
+          // .filter((record) => {
+          //   // Ensure dateAdministered exists and is a valid date, and match by date (ignoring time)
+          //   const recordDate = new Date(record.dateAdministered);
+          //   const filterDate = new Date(date);
+  
+          //   // Normalize both dates to midnight (ignoring time)
+          //   recordDate.setHours(0, 0, 0, 0);
+          //   filterDate.setHours(0, 0, 0, 0);
+  
+          //   return recordDate.getTime() === filterDate.getTime();
+          // })
+          .sort((a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt));
+  
+          setVaccine(completeRecords);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the vaccine records!", error);
+      });
+  };
+  
+
+  useEffect(() => {
+    const getUniqueMonths = (records, dateField) => {
+      return [...new Set(records.map(record => {
+        const date = new Date(record[dateField]);
+        return date.toLocaleString("default", { month: "long", year: "numeric" });
+      }))];
+    };
+  
+    let allMonths = [];
+  
+    // Extract unique months from labRecords if available
+    if (labRecords.length > 0) {
+      const labMonths = getUniqueMonths(labRecords, 'isCreatedAt');
+      allMonths = [...allMonths, ...labMonths];
+    }
+  
+    // Extract unique months from clinicalRecords if available
+    if (clinicalRecords.length > 0) {
+      const clinicalMonths = getUniqueMonths(clinicalRecords, 'isCreatedAt');
+      allMonths = [...allMonths, ...clinicalMonths];
+    }
+  
+    // Extract unique months from peStudent if available
+    if (peStudent.length > 0) {
+      const peMonths = getUniqueMonths(peStudent, 'isCreatedAt');
+      allMonths = [...allMonths, ...peMonths];
+    }
+  
+    // Extract unique months from vaccine if available
+    if (vaccine.length > 0) {
+      const vaccineMonths = getUniqueMonths(vaccine, 'dateAdministered');
+      allMonths = [...allMonths, ...vaccineMonths];
+    }
+  
+    // Remove duplicate months
+    const uniqueMonths = [...new Set(allMonths)];
+  
+    // Set the available months state
+    setAvailableMonths(uniqueMonths);
+  }, [labRecords, clinicalRecords, peStudent, vaccine]); // Add all dependencies
+  
+
+  const handleCloseDateSelectionModal = () => {
+    setFromMonthYear("");
+    setToMonthYear("");
+    setIsReportModalOpen(false); 
+    setIsMonthDateModalOpen(false);
+  };
+
+  const handleGenerate = () => {
+    setIsMonthDateModalOpen(false);
+  };
+
+  const [isMedicalClinicCensusOpen, setIsMedicalClinicCensus] = useState(false);
+
+  const handleOpenMedicalClinicCensus = (patient) => {
+    setIsMedicalClinicCensus(true);
+  };
+
+  const handleCloseMedicalClinicCensus = () => {
+    setIsMedicalClinicCensus(false); // Close the modal
+  };
+
+
   return (
     <div>
       <Navbar />
@@ -707,14 +889,25 @@ function Patients() {
                 size={24}
               />
             </div>
-            {role === "nurse" && (
-              <button
-                onClick={handleModalOpen}
-                className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
-              >
-                Add Patient
-              </button>
-            )}
+            {role === "nurse" ? (
+                <button
+                  onClick={handleModalOpen}
+                  className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
+                >
+                  Add Patient
+                </button>
+              ) : (
+                <div className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-full bg-gray-100 hover:bg-gray-200 transition">
+                  <button
+                    onClick={handleOpenReportModal}
+                    className="text-gray-600 font-medium flex items-center space-x-2 focus:outline-none"
+                  >
+                    <span>Generate Report</span>
+                  </button>
+                </div>
+              )
+            }
+
           </div>
         </div>
 
@@ -2367,6 +2560,67 @@ function Patients() {
           </div>
         </div>
       )}
+
+{isMonthDateModalOpen && clinicalRecords && peStudent && vaccine && labRecords && (
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+              <h2 className="text-xl font-semibold mb-4">Select Date Range</h2>
+              
+              <div className="mb-4">
+                <label htmlFor="fromMonthYear" className="block text-sm font-medium text-gray-700">From:</label>
+                <select
+                  id="fromMonthYear"
+                  value={fromMonthYear}
+                  onChange={(e) => setFromMonthYear(e.target.value)}
+                  className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Select Month</option>
+                  {availableMonths.map((monthYear) => (
+                    <option key={monthYear} value={monthYear}>
+                      {monthYear}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="toMonthYear" className="block text-sm font-medium text-gray-700">To:</label>
+                <select
+                  id="toMonthYear"
+                  value={toMonthYear}
+                  onChange={(e) => setToMonthYear(e.target.value)}
+                  className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Select Month</option>
+                  {availableMonths.map((monthYear) => (
+                    <option key={monthYear} value={monthYear}>
+                      {monthYear}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mt-4 flex justify-between">
+                <button
+                  onClick={handleCloseDateSelectionModal}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleOpenMedicalClinicCensus(fromMonthYear, toMonthYear, clinicalRecords, peStudent, vaccine, labRecords)}                  
+                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"                
+                >
+                  Generate Report
+                </button>
+              </div>
+              <MedicalClinicCensus isOpen={isMedicalClinicCensusOpen} onClose={handleCloseMedicalClinicCensus} fromMonthYear={fromMonthYear} toMonthYear={toMonthYear} clinicalRecords={clinicalRecords} peStudent={peStudent} vaccine={vaccine} labRecords={labRecords} />
+            </div>
+          </div>
+        )}
+
+
+
     </div>
   );
 }
