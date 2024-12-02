@@ -6,7 +6,7 @@ import axios from "axios";
 const PECertificate = ({ isOpen, onClose, patient, medicalHistory, physicalExamStudent }) => {
   const [userData, setUserData] = useState({});
   const userId = localStorage.getItem("userId"); // Get the user ID from localStorage
-
+  const imageUrl = `http://localhost:3001/uploads/${userData?.signature}`;
   const [pdfDataUrl, setPdfDataUrl] = useState(null);
 
   useEffect(() => {
@@ -28,10 +28,48 @@ const PECertificate = ({ isOpen, onClose, patient, medicalHistory, physicalExamS
     }
   }, [userId]);
 
-  const generatePDF = () => {
+  const fetchImageAsBase64 = async (imageUrl) => {
+    try {
+      const response = await axios.get(imageUrl, { responseType: 'blob' });
+      const blob = response.data;
+  
+      // Create a FileReader to convert the image to Base64
+      const reader = new FileReader();
+  
+      // Promise to return the Base64 image data once the FileReader is done
+      const base64ImagePromise = new Promise((resolve, reject) => {
+        reader.onloadend = () => {
+          resolve(reader.result); // This will return the Base64 string
+        };
+        reader.onerror = reject; // Handle error if it occurs
+      });
+  
+      // Read the blob as a Data URL (Base64 string)
+      reader.readAsDataURL(blob);
+  
+      // Wait for the Base64 result and return it
+      return await base64ImagePromise;
+    } catch (error) {
+      console.error("Error fetching image as base64:", error);
+      return null;
+    }
+  };
+
+
+  const generatePDF = async () => {
     if (!patient || !medicalHistory) {
       console.error("Patient or medical history data is missing");
       return;
+    }
+
+    const signatureUrl = `http://localhost:3001/uploads/${userData?.signature}`;
+  
+    // Fetch the image as Base64
+    const base64Image = await fetchImageAsBase64(signatureUrl);
+  
+    // Check if base64Image is not null and has content
+    if (!base64Image) {
+      console.warn("Signature image not found or is empty.");
     }
   
     // Compute age from birthdate
@@ -71,9 +109,9 @@ const PECertificate = ({ isOpen, onClose, patient, medicalHistory, physicalExamS
       <img src="/ub.png" width="200" height="100" style="display: block; margin-top: 0.5in; margin-left: auto; margin-right: auto;" alt="logo" />
       <p style="text-align: center; font-family: 'Times New Roman', Times, serif; font-size: 10pt;">
         MEDICAL CLINIC<br>
-        Upper General Luna RD., Baguio City, PHILIPPINES 2600
+        Upper General Luna RD., Baguio City, PHILIPPINES 2600<br>
+        PHYSICAL EXAMINATION FORM
       </p>
-
 
 
       <div style="margin: 0.5in; font-family: 'Times New Roman', Times, serif; font-size: 10pt;">
@@ -83,11 +121,12 @@ const PECertificate = ({ isOpen, onClose, patient, medicalHistory, physicalExamS
           <div><strong>Sex:</strong> ${patient?.sex}</div>
         </div>
         
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
           ${address ? `<div><strong>Address:</strong> ${address}</div>` : ""}
           <div><strong>Contact No.:</strong> ${patient?.phonenumber || "N/A"}</div>
           <div><strong>Course:</strong> ${patient?.course || "N/A"}</div>
         </div>
+
   
         <div><strong>I. MEDICAL HISTORY:</strong> Has the applicant suffered from, or been told he has any of the following conditions:</div>
         
@@ -171,7 +210,10 @@ const PECertificate = ({ isOpen, onClose, patient, medicalHistory, physicalExamS
                       may arise from the above.
                     </div>
 
-        <hr style="border-top: 1px solid black; width: 300px; margin-top: 0.5in; margin-left: auto; margin-right: 0;">
+<div style="text-align: right; margin-top: 20px;">
+  <strong>${patient?.lastname} ${patient?.firstname} ${patient?.middlename || ""}</strong>
+</div>
+
 
           <div style="margin-top: 1in;">
             <strong>II. PHYSICAL EXAMINATION:</strong> To be completed by examining physician:
@@ -248,15 +290,16 @@ const PECertificate = ({ isOpen, onClose, patient, medicalHistory, physicalExamS
           <div style="border: 1px solid #000; padding: 10px; margin-top: 50px; border-radius: 5px;">
           <img src="/ub.png" width="200" height="100" style="display: block; margin-left: auto; margin-right: auto;" alt="logo" />
 
-            <div style="text-align: center; margin-bottom: 20px;">              
+            <div style="text-align: center; margin-bottom: 20px; margin-top: 30px;">              
               <strong>Remarks:</strong>_______________________________________________________
             </div>
             <div>
               This is to certify that <strong> ${patient?.lastname} ${patient?.firstname} ${patient?.middlename || ""}</strong> has been examined and found to be physically fit at the time of examination
             </div>
 
-            <div style="display: flex; margin-top: 20px;">
-              <strong>Examining Physician: </strong> ${userData?.lastname} ${userData?.firstname} ${userData?.middlename || ""} ____________________
+            <div style="display: flex; align-items: center; font-size: 9pt; margin-bottom: 10px;">
+                    <strong>Examining Physician: </strong> ${userData?.lastname} ${userData?.firstname} ${userData?.middlename || ""} 
+              ${base64Image ? `<img src="${base64Image}" alt="Signature" style="max-width: 200px; max-height: 50px; margin-right: 10px;" />` : ''}
             </div>
             <div style="display: flex; margin-top: 10px;">
               <strong>License No.: </strong> ____________________

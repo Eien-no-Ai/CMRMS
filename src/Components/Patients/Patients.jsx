@@ -633,6 +633,8 @@ function Patients() {
 
   const handleCloseReportModal = () => {
     setIsReportModalOpen(false);
+    setIsMonthDateModalOpen(true);
+
   };
 
   const [clinicalRecords, setClinicalRecords] = useState([]);
@@ -800,6 +802,10 @@ function Patients() {
 
   const handleCloseMedicalClinicCensus = () => {
     setIsMedicalClinicCensus(false); // Close the modal
+    setFromMonthYear("");
+    setToMonthYear("");
+    handleCloseDateSelectionModal();
+
   };
 
 

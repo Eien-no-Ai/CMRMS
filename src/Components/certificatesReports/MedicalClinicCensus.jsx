@@ -82,12 +82,26 @@ const MedicalClinicCensus = ({ isOpen, onClose, clinicalRecords, peStudent, vacc
       return date.toLocaleDateString('en-US', options);
     };
   
+    // Initialize an object to store aggregated counts for all months
+    let aggregatedCounts = {
+      clinicalRecordsCount: 0,
+      peStudentCount: 0,
+      hepatitisACount: 0,
+      hepatitisBCount: 0,
+      influenzaCount: 0,
+      pneumoniaCount: 0
+    };
+  
+    const months = []; // This will store month names for table headers
+    const monthTotals = []; // This will store the totals for each month
+  
     // Loop through each month in the range from fromDate to toDate
     let currentMonth = new Date(fromDate);
     while (currentMonth <= toDate) {
       const currentMonthName = formatMonth(currentMonth);
+      months.push(currentMonthName); // Add month name to header
   
-      // Initialize counts for each category in the current month
+      // Initialize counts for the current month
       const monthCounts = {
         clinicalRecordsCount: 0,
         peStudentCount: 0,
@@ -115,7 +129,7 @@ const MedicalClinicCensus = ({ isOpen, onClose, clinicalRecords, peStudent, vacc
   
       // Count vaccines for this month
       vaccine.forEach(record => {
-        const recordDate = new Date(record.dateAdministered); // Assuming vaccine has a createdAt field
+        const recordDate = new Date(record.dateAdministered);
         if (recordDate.getMonth() === currentMonth.getMonth() && recordDate.getFullYear() === currentMonth.getFullYear()) {
           if (record.name === "Hepatitis A Vaccine") monthCounts.hepatitisACount++;
           if (record.name === "Hepatitis B Vaccine") monthCounts.hepatitisBCount++;
@@ -123,10 +137,27 @@ const MedicalClinicCensus = ({ isOpen, onClose, clinicalRecords, peStudent, vacc
           if (record.name === "Pneumonia Vaccine") monthCounts.pneumoniaCount++;
         }
       });
-      const currentDate = new Date().toLocaleDateString()
   
-      // Append month header and table to the content
-      content.innerHTML += `
+      // Aggregate counts across months
+      aggregatedCounts.clinicalRecordsCount += monthCounts.clinicalRecordsCount;
+      aggregatedCounts.peStudentCount += monthCounts.peStudentCount;
+      aggregatedCounts.hepatitisACount += monthCounts.hepatitisACount;
+      aggregatedCounts.hepatitisBCount += monthCounts.hepatitisBCount;
+      aggregatedCounts.influenzaCount += monthCounts.influenzaCount;
+      aggregatedCounts.pneumoniaCount += monthCounts.pneumoniaCount;
+  
+      // Calculate total count for the current month and push it to monthTotals
+      const monthTotal = Object.values(monthCounts).reduce((acc, count) => acc + count, 0);
+      monthTotals.push(monthTotal);
+  
+      // Move to the next month
+      currentMonth.setMonth(currentMonth.getMonth() + 1);
+    }
+  
+    const currentDate = new Date().toLocaleDateString();
+  
+    // Append header and aggregated table to the content
+    content.innerHTML += `
       <img src="/ub.png" width="200" height="100" style="display: block; margin-top: 0.5in; margin-left: auto; margin-right: auto;" alt="logo" />
       <p style="text-align: center; font-family: 'Times New Roman', Times, serif; font-size: 10pt;">
         UNIVERSITY OF BAGUIO CLINICAL LABORATORY<br>
@@ -143,54 +174,61 @@ const MedicalClinicCensus = ({ isOpen, onClose, clinicalRecords, peStudent, vacc
         <div style="text-align: center;">STATISTICAL REPORT AS OF ${fromMonthYear} - ${toMonthYear}</div>
         <div style="text-align: center;">MEDICAL CLINIC CENSUS</div>
   
-        <h3 style="text-align: center; font-size: 10pt; font-weight: bold;">${currentMonthName}</h3>        
         <table style="border-collapse: collapse; width: 100%; margin-top: 20px;">
           <thead>
             <tr>
-              <th style="padding: 8px; text-align: left; border: 1px solid #000;">Category</th>
-              <th style="padding: 8px; text-align: left; border: 1px solid #000;">${currentMonthName}</th>
+              <th style="padding: 8px; text-align: left; border: 1px solid #000;">Types of Services Rendered</th>
+              ${months.map(month => `<th style="padding: 8px; text-align: left; border: 1px solid #000;">${month}</th>`).join('')}
+              <th style="padding: 8px; text-align: left; border: 1px solid #000;">Total</th> <!-- Total Column -->
             </tr>
           </thead>
           <tbody>
             <tr>
               <td style="padding: 8px; border: 1px solid #000;">Clinical Records</td>
-              <td style="padding: 8px; border: 1px solid #000;">${monthCounts.clinicalRecordsCount}</td>
+              ${months.map(() => `<td style="padding: 8px; border: 1px solid #000;">${clinicalRecords.filter(record => new Date(record.isCreatedAt).getMonth() === new Date(fromDate).getMonth()).length}</td>`).join('')}
+              <td style="padding: 8px; border: 1px solid #000;">${aggregatedCounts.clinicalRecordsCount}</td>
             </tr>
             <tr>
               <td style="padding: 8px; border: 1px solid #000;">PE Students Completed</td>
-              <td style="padding: 8px; border: 1px solid #000;">${monthCounts.peStudentCount}</td>
+              ${months.map(() => `<td style="padding: 8px; border: 1px solid #000;">${peStudent.filter(record => new Date(record.isCreatedAt).getMonth() === new Date(fromDate).getMonth()).length}</td>`).join('')}
+              <td style="padding: 8px; border: 1px solid #000;">${aggregatedCounts.peStudentCount}</td>
             </tr>
             <tr>
               <td style="padding: 8px; border: 1px solid #000;">Hepatitis A Vaccine</td>
-              <td style="padding: 8px; border: 1px solid #000;">${monthCounts.hepatitisACount}</td>
+              ${months.map(() => `<td style="padding: 8px; border: 1px solid #000;">${vaccine.filter(record => record.name === "Hepatitis A Vaccine" && new Date(record.dateAdministered).getMonth() === new Date(fromDate).getMonth()).length}</td>`).join('')}
+              <td style="padding: 8px; border: 1px solid #000;">${aggregatedCounts.hepatitisACount}</td>
             </tr>
             <tr>
               <td style="padding: 8px; border: 1px solid #000;">Hepatitis B Vaccine</td>
-              <td style="padding: 8px; border: 1px solid #000;">${monthCounts.hepatitisBCount}</td>
+              ${months.map(() => `<td style="padding: 8px; border: 1px solid #000;">${vaccine.filter(record => record.name === "Hepatitis B Vaccine" && new Date(record.dateAdministered).getMonth() === new Date(fromDate).getMonth()).length}</td>`).join('')}
+              <td style="padding: 8px; border: 1px solid #000;">${aggregatedCounts.hepatitisBCount}</td>
             </tr>
             <tr>
               <td style="padding: 8px; border: 1px solid #000;">Influenza Vaccine</td>
-              <td style="padding: 8px; border: 1px solid #000;">${monthCounts.influenzaCount}</td>
+              ${months.map(() => `<td style="padding: 8px; border: 1px solid #000;">${vaccine.filter(record => record.name === "Influenza Vaccine" && new Date(record.dateAdministered).getMonth() === new Date(fromDate).getMonth()).length}</td>`).join('')}
+              <td style="padding: 8px; border: 1px solid #000;">${aggregatedCounts.influenzaCount}</td>
             </tr>
             <tr>
               <td style="padding: 8px; border: 1px solid #000;">Pneumonia Vaccine</td>
-              <td style="padding: 8px; border: 1px solid #000;">${monthCounts.pneumoniaCount}</td>
+              ${months.map(() => `<td style="padding: 8px; border: 1px solid #000;">${vaccine.filter(record => record.name === "Pneumonia Vaccine" && new Date(record.dateAdministered).getMonth() === new Date(fromDate).getMonth()).length}</td>`).join('')}
+              <td style="padding: 8px; border: 1px solid #000;">${aggregatedCounts.pneumoniaCount}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #000;">Total</td>
+              ${monthTotals.map(total => `<td style="padding: 8px; border: 1px solid #000;">${total}</td>`).join('')}
+              <td style="padding: 8px; border: 1px solid #000;"></td>
             </tr>
           </tbody>
         </table>
       </div>
-        <div style="display: flex; align-items: center; font-size: 10pt; margin-bottom: 10px;">
-          <strong>Prepared By:</strong> ${userData.lastname} ${userData.firstname}
-          ${base64Image ? `<img src="${base64Image}" alt="Signature" style="max-width: 200px; max-height: 50px; margin-right: 10px;" />` : ''}
-        </div>
-        <div style="text-align: left; font-size: 10pt; margin-bottom: 10px;">
-          <strong>Date:</strong> ${currentDate}
-        </div>
+      <div style="display: flex; align-items: center; font-size: 10pt; margin-bottom: 10px;">
+        <strong>Prepared By:</strong> ${userData.lastname} ${userData.firstname}
+        ${base64Image ? `<img src="${base64Image}" alt="Signature" style="max-width: 200px; max-height: 50px; margin-right: 10px;" />` : ''}
+      </div>
+      <div style="text-align: left; font-size: 10pt; margin-bottom: 10px;">
+        <strong>Date:</strong> ${currentDate}
+      </div>
     `;
-  
-      // Move to next month
-      currentMonth.setMonth(currentMonth.getMonth() + 1);
-    }
   
     // Use html2pdf to generate the PDF and return it as a data URL
     html2pdf()
@@ -208,6 +246,7 @@ const MedicalClinicCensus = ({ isOpen, onClose, clinicalRecords, peStudent, vacc
         setPdfDataUrl(pdfData);
       });
   };
+  
   
 
   if (!isOpen) return null;

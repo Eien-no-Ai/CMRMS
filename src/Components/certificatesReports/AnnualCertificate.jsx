@@ -6,7 +6,7 @@ import axios from "axios";
 const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual }) => {
   const [userData, setUserData] = useState({});
   const userId = localStorage.getItem("userId"); // Get the user ID from localStorage
-
+  const imageUrl = `http://localhost:3001/uploads/${userData?.signature}`;
   const [pdfDataUrl, setPdfDataUrl] = useState(null);
 
   useEffect(() => {
@@ -28,11 +28,49 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
     }
   }, [userId]);
 
-  const generatePDF = () => {
+  const fetchImageAsBase64 = async (imageUrl) => {
+    try {
+      const response = await axios.get(imageUrl, { responseType: 'blob' });
+      const blob = response.data;
+  
+      // Create a FileReader to convert the image to Base64
+      const reader = new FileReader();
+  
+      // Promise to return the Base64 image data once the FileReader is done
+      const base64ImagePromise = new Promise((resolve, reject) => {
+        reader.onloadend = () => {
+          resolve(reader.result); // This will return the Base64 string
+        };
+        reader.onerror = reject; // Handle error if it occurs
+      });
+  
+      // Read the blob as a Data URL (Base64 string)
+      reader.readAsDataURL(blob);
+  
+      // Wait for the Base64 result and return it
+      return await base64ImagePromise;
+    } catch (error) {
+      console.error("Error fetching image as base64:", error);
+      return null;
+    }
+  };
+
+  const generatePDF = async () => {
     if (!patient || !medicalHistory) {
       console.error("Patient or medical history data is missing");
       return;
     }
+
+    const signatureUrl = `http://localhost:3001/uploads/${userData?.signature}`;
+  
+    // Fetch the image as Base64
+    const base64Image = await fetchImageAsBase64(signatureUrl);
+  
+    // Check if base64Image is not null and has content
+    if (!base64Image) {
+      console.warn("Signature image not found or is empty.");
+    }
+
   
     // Compute age from birthdate
     const calculateAge = (birthdate) => {
@@ -71,7 +109,8 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
         <img src="/ub.png" width="200" height="100" style="display: block; margin-top: 0.5in; margin-left: auto; margin-right: auto;" alt="logo" />
         <p style="text-align: center; font-family: 'Times New Roman', Times, serif; font-size: 10pt;">
             MEDICAL CLINIC<br>
-            Upper General Luna RD., Baguio City, PHILIPPINES 2600
+            Upper General Luna RD., Baguio City, PHILIPPINES 2600<br>
+            ANNUAL EMPLOYEE EXAMINATION FORM
         </p>
 
 
@@ -245,8 +284,9 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
                         I hereby certify that the foregoing answers are true and complete to the best of my knowledge. My health status is accurately represented in the above statements. I understand the University of Baguio may require me to have physical examination and I authorize the release of any information from such examination to UB personnel for use in considering my employment.
                     </div>
 
-        <hr style="border-top: 1px solid black; width: 300px; margin-top: 0.5in; margin-left: auto; margin-right: 0;">
-
+<div style="text-align: right; margin-top: 20px;">
+  <strong>${patient?.lastname} ${patient?.firstname} ${patient?.middlename || ""}</strong>
+</div>
         <strong>III. PHYSICAL EXAMINATION:</strong> 
 
         <div style="display: flex; justify-content: space-between; margin-top: 10px;">
@@ -396,7 +436,11 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
                   <div style="display: flex; justify-content: space-between;" ><strong>VI. REMARKS/RECOMMENDATIONS:</strong></div>
           <div> ${annual.others.remarksRecommendations}</div>
 
-          <hr style="border-top: 1px solid black; width: 300px; margin-top: 0.5in; margin-left: auto; margin-right: 0;">
+<div style="display: flex; justify-content: flex-end; align-items: center; font-size: 9pt; margin-top: 1in;">
+  <strong>Medical Examiner: </strong> ${userData?.lastname} ${userData?.firstname} ${userData?.middlename || ""} 
+  ${base64Image ? `<img src="${base64Image}" alt="Signature" style="max-width: 200px; max-height: 50px; margin-left: 10px;" />` : ''}
+</div>
+
 
       </div>
 `;

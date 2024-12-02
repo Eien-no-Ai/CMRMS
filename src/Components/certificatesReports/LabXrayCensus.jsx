@@ -115,6 +115,20 @@ const LabXrayCensus = ({ isOpen, onClose, xrayRecords, fromMonthYear, toMonthYea
   
     const currentDate = new Date().toLocaleDateString();
   
+    // Initialize a grand total for all X-ray types
+    const grandTotal = {
+      "CHEST PA": 0, "SKULL": 0, "CERVICAL": 0, "PANORAMIC": 0, 
+      "TLV/LSV": 0, "PELVIS": 0, "UPPER EXTREMITIES": 0, "LOWER EXTREMITIES": 0, 
+      "LATERAL CEPHALOMETRIC": 0, "PERIAPICAL": 0, "TMJ": 0
+    };
+  
+    // Calculate grand totals for each X-ray type
+    Object.keys(monthCounts).forEach(month => {
+      xrayTypes.forEach(xray => {
+        grandTotal[xray] += monthCounts[month][xray];
+      });
+    });
+  
     // Append month header and table to the content
     content.innerHTML += `
       <img src="/ub.png" width="200" height="100" style="display: block; margin-top: 0.5in; margin-left: auto; margin-right: auto;" alt="logo" />
@@ -132,11 +146,12 @@ const LabXrayCensus = ({ isOpen, onClose, xrayRecords, fromMonthYear, toMonthYea
       <div style="margin: 0.5in; font-family: 'Times New Roman', Times, serif; font-size: 9pt;">
         <div style="text-align: center;">STATISTICAL REPORT AS OF ${fromMonthYear} - ${toMonthYear}</div>
         <div style="text-align: center;">LABORATORY X-RAY CENSUS</div>
-          <table style="width: 100%; border-collapse: collapse; border: 1px solid #000; margin-top: 10px;">
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid #000; margin-top: 10px;">
           <thead>
             <tr>
               <th style="padding: 5px; text-align: left; border: 1px solid #000; font-size: 8pt;">X-ray Type</th>
               ${Object.keys(monthCounts).map(month => `<th style="padding: 5px; text-align: left; border: 1px solid #000; font-size: 8pt;">${month}</th>`).join('')}
+              <th style="padding: 5px; text-align: left; border: 1px solid #000; font-size: 8pt;">Total</th>
             </tr>
           </thead>
           <tbody>
@@ -147,9 +162,19 @@ const LabXrayCensus = ({ isOpen, onClose, xrayRecords, fromMonthYear, toMonthYea
                   ${Object.keys(monthCounts).map(month => {
                     return `<td style="padding: 5px; border: 1px solid #000; font-size: 8pt;">${monthCounts[month][xray]}</td>`;
                   }).join('')}
+                  <td style="padding: 5px; border: 1px solid #000; font-size: 8pt;">${grandTotal[xray]}</td>
                 </tr>
               `;
             }).join('')}
+            <tr>
+              <td style="padding: 5px; border: 1px solid #000; font-size: 8pt; font-weight: bold;">Grand Total</td>
+              ${Object.keys(monthCounts).map(month => {
+                // Sum all X-ray types for each month
+                const monthTotal = xrayTypes.reduce((sum, xray) => sum + monthCounts[month][xray], 0);
+                return `<td style="padding: 5px; border: 1px solid #000; font-size: 8pt; font-weight: bold;">${monthTotal}</td>`;
+              }).join('')}
+              <td style="padding: 5px; border: 1px solid #000; font-size: 8pt; font-weight: bold;"></td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -178,7 +203,6 @@ const LabXrayCensus = ({ isOpen, onClose, xrayRecords, fromMonthYear, toMonthYea
         setPdfDataUrl(pdfData);
       });
   };
-  
   
   
   if (!isOpen) return null;
