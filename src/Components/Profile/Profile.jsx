@@ -12,14 +12,16 @@ function Profile() {
   const [isSignatureModalOpen, setSignatureModalOpen] = useState(false);
   const [signatureFile, setSignatureFile] = useState(null); // Signature file state
   const [signatureUrl, setSignatureUrl] = useState(null); // Store the fetched signature URL
-  const [selectedRecord, setSelectedRecord] = useState(null);
-  // Fetch the user data when the component is mounted
+  const [editableLastName, setEditableLastName] = useState(""); // Editable last name state
+  const [editableLicenseNo, setEditableLicenseNo] = useState("");  // Fetch the user data when the component is mounted
   useEffect(() => {
     if (userId) {
       axios
         .get(`http://localhost:3001/user/${userId}`)
         .then((response) => {
           setUserData(response.data);
+          setEditableLastName(response.data.lastname || "");  // Set initial editable last name
+          setEditableLicenseNo(response.data.licenseNo || "");
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
@@ -28,33 +30,41 @@ function Profile() {
   }, [userId]);
 
   const handlePasswordUpdate = () => {
-    if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match");
-      setSuccessMessage("");
-      return;
+    if (password || confirmPassword) { // Only validate password if entered
+      if (password !== confirmPassword) {
+        setErrorMessage("Passwords do not match");
+        setSuccessMessage("");
+        return;
+      }
+  
+      if (password.length < 6) {
+        setErrorMessage("Password should be at least 6 characters long");
+        setSuccessMessage("");
+        return;
+      }
     }
-
-    if (password.length < 6) {
-      setErrorMessage("Password should be at least 6 characters long");
-      setSuccessMessage("");
-      return;
-    }
-
+  
+    const updatedProfile = {
+      ...(editableLastName && { lastname: editableLastName }), // Only include if not empty
+      ...(editableLicenseNo && { licenseNo: editableLicenseNo }), // Only include if not empty
+      ...(password && { password }) // Only include password if it's not empty
+    };
+  
     axios
-      .put(`http://localhost:3001/user/${userId}/update-password`, { password })
+      .put(`http://localhost:3001/user/${userId}/update-profile`, updatedProfile)
       .then((response) => {
-        setSuccessMessage("Password updated successfully");
+        setSuccessMessage("Profile updated successfully");
         setErrorMessage("");
         setPassword("");
         setConfirmPassword("");
       })
       .catch((error) => {
-        setErrorMessage("Error updating password");
+        setErrorMessage("Error updating profile");
         setSuccessMessage("");
-        console.error("Error updating password:", error);
+        console.error("Error updating profile:", error);
       });
   };
-
+  
   // Fetch the user data when the component is mounted
   useEffect(() => {
     if (userId) {
@@ -206,26 +216,42 @@ function Profile() {
                 </label>
                 <input
                   type="text"
-                  value={userData.lastname || ""}
+                  value={editableLastName || ""}
+                  onChange={(e) => setEditableLastName(e.target.value)}
                   placeholder="Last Name"
                   className="w-full p-2 border border-gray-300 rounded-lg"
-                  readOnly
                 />
               </div>
             </div>
 
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                value={userData.email || ""}
-                placeholder="Email"
-                className="w-full p-2 border border-gray-300 rounded-lg"
-                readOnly
-              />
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={userData.email || ""}
+                  placeholder="Email"
+                  className="w-full p-2 border border-gray-300 rounded-lg"
+                  readOnly
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  License No.
+                </label>
+                <input
+                  type="text"
+                  value={editableLicenseNo || ""}
+                  onChange={(e) => setEditableLicenseNo(e.target.value)}
+                  placeholder="License No."
+                  className="w-full p-2 border border-gray-300 rounded-lg"
+                />
+              </div>
             </div>
+
 
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -276,7 +302,7 @@ function Profile() {
                 onClick={handlePasswordUpdate}
                 className="bg-custom-red text-white px-4 py-2 rounded-lg"
               >
-                Update Password
+                Update Profile
               </button>
             </div>
           </div>

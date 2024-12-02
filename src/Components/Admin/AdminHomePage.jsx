@@ -21,6 +21,7 @@ function AdminHomePage() {
     email: "",
     role: "user",
     department: "",
+    licenseNo: "",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRefs = useRef([]);
@@ -111,6 +112,7 @@ function AdminHomePage() {
       email: "",
       role: "user",
       department: "",
+      licenseNo: "",
     });
   };
 
@@ -531,21 +533,35 @@ function AdminHomePage() {
                   </div>
 
                   {/* Department Selection */}
-                  <div className="col-span-3">
-                    <label className="block mb-2">Department</label>
-                    <select
-                      name="department"
-                      value={newAccount.department}
-                      onChange={handleInputChange}
-                      className="px-4 py-2 border rounded w-full"
-                    >
-                      <option value="">Select Department</option>
-                      <option value="clinic">Clinic</option>
-                      <option value="laboratory">Laboratory</option>
-                      <option value="xray">X-Ray</option>
-                      <option value="pt">Physical Therapy</option>
-                    </select>
+                  <div className="col-span-3 grid grid-cols-2 gap-4">
+                    <div className="col-span-1">
+                      <label className="block mb-2">Department</label>
+                      <select
+                        name="department"
+                        value={newAccount.department}
+                        onChange={handleInputChange}
+                        className="px-4 py-2 border rounded w-full"
+                      >
+                        <option value="">Select Department</option>
+                        <option value="clinic">Clinic</option>
+                        <option value="laboratory">Laboratory</option>
+                        <option value="xray">X-Ray</option>
+                        <option value="pt">Physical Therapy</option>
+                      </select>
+                    </div>
+
+                    <div className="col-span-1">
+                      <label className="block mb-2">License No.</label>
+                      <input
+                        type="text"
+                        name="licenseNo"
+                        value={newAccount.licenseNo}
+                        onChange={handleInputChange}
+                        className="px-4 py-2 border rounded w-full"
+                      />
+                    </div>
                   </div>
+
 
                   <div className="col-span-3 grid grid-cols-2 gap-4">
                     <div className="col-span-1">

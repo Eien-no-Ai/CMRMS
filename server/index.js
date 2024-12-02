@@ -891,23 +891,42 @@ app.get("/user/:id", (req, res) => {
     );
 });
 
-app.put("/user/:id/update-password", (req, res) => {
-  const { id } = req.params;
-  const { password } = req.body;
+// app.put("/user/:id/update-password", (req, res) => {
+//   const { id } = req.params;
+//   const { password } = req.body;
 
-  // Update the user's password
-  EmployeeModel.findByIdAndUpdate(id, { password }, { new: true })
+//   // Update the user's password
+//   EmployeeModel.findByIdAndUpdate(id, { password }, { new: true })
+//     .then((user) => {
+//       if (user) {
+//         res.json({ message: "Password updated successfully" });
+//       } else {
+//         res.status(404).json({ message: "User not found" });
+//       }
+//     })
+//     .catch((err) =>
+//       res.status(500).json({ message: "Error updating password", error: err })
+//     );
+// });
+
+app.put("/user/:id/update-profile", (req, res) => {
+  const { id } = req.params;
+  const updatedProfile = req.body; // This will contain the entire profile data
+
+  // Update the user's profile with the data from the request body
+  EmployeeModel.findByIdAndUpdate(id, updatedProfile, { new: true })
     .then((user) => {
       if (user) {
-        res.json({ message: "Password updated successfully" });
+        res.json({ message: "Profile updated successfully", user });
       } else {
         res.status(404).json({ message: "User not found" });
       }
     })
     .catch((err) =>
-      res.status(500).json({ message: "Error updating password", error: err })
+      res.status(500).json({ message: "Error updating profile", error: err })
     );
 });
+
 
 // Endpoint to get pathologist's signature
 app.get("/api/pathologist-signature", async (req, res) => {

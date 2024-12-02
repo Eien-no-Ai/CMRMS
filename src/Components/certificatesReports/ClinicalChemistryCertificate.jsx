@@ -216,7 +216,7 @@ const ClinicalChemistryCertificate = ({ isOpen, onClose, labDetails, verifiedByP
   <div style="text-align: left; width: 48%;">
     ${base64Image ? `<img src="${base64Image}" alt="Signature" style="max-width: 200px; max-height: 50px; margin-right: 10px;" />` : ''}
     <strong>Name:</strong> ${userData?.lastname} ${userData?.firstname} ${userData?.middlename || ''} <br>
-    <strong>License Number:</strong> ___________________ <br>
+  <strong>License Number:</strong> ${userData?.licenseNo ? userData?.licenseNo : "___________________"}<br />
     <div>Medical Pathologist</div>
   </div>
   
@@ -224,7 +224,7 @@ const ClinicalChemistryCertificate = ({ isOpen, onClose, labDetails, verifiedByP
   <div style="text-align: left; width: 48%; text-align: right;">
       ${base64PathologistImage ? `<img src="${base64PathologistImage}" alt="Signature" style="max-width: 200px; max-height: 50px; margin-right: 10px;" />` : ''}
     <strong>Name:</strong> ${verifiedByPathologist?.lastname} ${verifiedByPathologist?.firstname} ${verifiedByPathologist?.middlename || ''} <br>
-    <strong>License Number:</strong> ____________________ <br>
+  <strong>License Number:</strong> ${verifiedByPathologist?.licenseNo ? verifiedByPathologist?.licenseNo : "___________________"}<br />
     <div>Clinical Technologist</div>
   </div>
 </div>

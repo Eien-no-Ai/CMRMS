@@ -9,6 +9,7 @@ const EmployeeSchema = new mongoose.Schema({
     signature: String,
     confirmPassword: String,
     department: String,
+    licenseNo: String,
   });
   
 const EmployeeModel = mongoose.model('employees', EmployeeSchema);

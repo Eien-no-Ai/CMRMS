@@ -303,7 +303,7 @@ const PECertificate = ({ isOpen, onClose, patient, medicalHistory, physicalExamS
               ${base64Image ? `<img src="${base64Image}" alt="Signature" style="max-width: 200px; max-height: 50px; margin-right: 10px;" />` : ''}
             </div>
             <div style="display: flex; margin-top: 10px;">
-              <strong>License No.: </strong> ____________________
+  <strong>License Number:</strong> ${userData?.licenseNo ? userData?.licenseNo : "___________________"}<br />
             </div>
             <div style="display: flex; margin-top: 10px;">
               <strong>Date: </strong> ${new Date().toLocaleDateString()}
