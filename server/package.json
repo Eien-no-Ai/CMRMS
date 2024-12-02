@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js",
-    "server": "nodemon index.js",
-    "build": "npm install && npm install --prefix src && npm run build --prefix src"
+    "start": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
