@@ -97,7 +97,7 @@ function PatientsProfile() {
   const fetchLabRecords = useCallback(async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/laboratory/${id}`
+        `https://cmrms-backend.onrender.com/api/laboratory/${id}`
       );
       const sortedLabRecords = response.data.sort(
         (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
@@ -114,7 +114,7 @@ function PatientsProfile() {
   const fetchXrayRecords = useCallback(async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/xrayResults/${id}`
+        `https://cmrms-backend.onrender.com/api/xrayResults/${id}`
       );
       const sortedXrayRecords = response.data.sort(
         (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
@@ -128,7 +128,7 @@ function PatientsProfile() {
   const fetchClinicalRecords = useCallback(async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/clinicalRecords/${id}`
+        `https://cmrms-backend.onrender.com/api/clinicalRecords/${id}`
       );
       const sortedClinicalRecords = response.data.sort(
         (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
@@ -143,7 +143,7 @@ function PatientsProfile() {
   const fetchPhysicalTherapyRecords = useCallback(async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/physicalTherapy/${id}`
+        `https://cmrms-backend.onrender.com/api/physicalTherapy/${id}`
       );
       const sortedPhysicalTherapyRecords = response.data.sort(
         (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
@@ -160,7 +160,7 @@ function PatientsProfile() {
   const fetchMedicalRecords = useCallback(async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/medical-history/${id}` // 'id' is patientId
+        `https://cmrms-backend.onrender.com/api/medical-history/${id}` // 'id' is patientId
       );
       const sortedMedicalRecords = response.data.sort(
         (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
@@ -181,7 +181,7 @@ function PatientsProfile() {
     const fetchPatient = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/patients/${id}`
+          `https://cmrms-backend.onrender.com/patients/${id}`
         );
         setPatient(response.data);
       } catch (error) {
@@ -232,7 +232,7 @@ function PatientsProfile() {
     
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/physicalTherapy", // Fix the spelling here
+        "https://cmrms-backend.onrender.com/api/physicalTherapy", // Fix the spelling here
         {
           ...newTherapyRecord,
           patient: id,
@@ -295,7 +295,7 @@ function PatientsProfile() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/clinicalRecords",
+        "https://cmrms-backend.onrender.com/api/clinicalRecords",
         updatedRecord
       );
 
@@ -323,7 +323,7 @@ function PatientsProfile() {
       }
 
       const response = await axios.post(
-        "http://localhost:3001/api/xrayResults",
+        "https://cmrms-backend.onrender.com/api/xrayResults",
         dataToSend
       );
 
@@ -335,7 +335,7 @@ function PatientsProfile() {
 
         // Refresh X-ray records in the view modal for the specific record
         const updatedXrayRecords = await axios.get(
-          `http://localhost:3001/api/xrayResults?clinicId=${clinicId}`
+          `https://cmrms-backend.onrender.com/api/xrayResults?clinicId=${clinicId}`
         );
         setSelectedXrayRecords(updatedXrayRecords.data);
       } else {
@@ -455,7 +455,7 @@ function PatientsProfile() {
         return;
       }
 
-      const response = await axios.post("http://localhost:3001/api/vaccines", {
+      const response = await axios.post("https://cmrms-backend.onrender.com/api/vaccines", {
         patient: id, // Use id from useParams (patient ID from URL)
         name: selectedVaccine, // Vaccine name
         dateAdministered: new Date(),
@@ -476,7 +476,7 @@ function PatientsProfile() {
   const fetchVaccineRecords = useCallback(async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/vaccines/patient/${id}`
+        `https://cmrms-backend.onrender.com/api/vaccines/patient/${id}`
       );
 
       // Assuming that each record has a `createdAt` or `dateAdministered` field
@@ -591,7 +591,7 @@ function PatientsProfile() {
       }
 
       const result = await axios.post(
-        "http://localhost:3001/api/laboratory",
+        "https://cmrms-backend.onrender.com/api/laboratory",
         dataToSend
       );
 
@@ -603,7 +603,7 @@ function PatientsProfile() {
 
         // Refresh lab tests in the view modal for the specific record
         const updatedLabTests = await axios.get(
-          `http://localhost:3001/api/laboratory?clinicId=${clinicId}`
+          `https://cmrms-backend.onrender.com/api/laboratory?clinicId=${clinicId}`
         );
         setSelectedLabTests(updatedLabTests.data);
       } else {
@@ -644,14 +644,14 @@ function PatientsProfile() {
 
     try {
       const labResponse = await axios.get(
-        `http://localhost:3001/api/laboratory?clinicId=${record._id}`
+        `https://cmrms-backend.onrender.com/api/laboratory?clinicId=${record._id}`
       );
       const labTests = labResponse.data;
       setSelectedLabTests(labTests);
 
       // Fetch X-ray records for the specific clinic
       const xrayResponse = await axios.get(
-        `http://localhost:3001/api/xrayResults?clinicId=${record._id}`
+        `https://cmrms-backend.onrender.com/api/xrayResults?clinicId=${record._id}`
       );
       const xrayRecords = xrayResponse.data;
       setSelectedXrayRecords(xrayRecords);
@@ -668,7 +668,7 @@ function PatientsProfile() {
   const updateClinicalRecord = async (selectedRecord) => {
     try {
       const response = await axios.put(
-        `http://localhost:3001/api/clinicalRecords/${selectedRecord._id}`,
+        `https://cmrms-backend.onrender.com/api/clinicalRecords/${selectedRecord._id}`,
         selectedRecord
       );
       if (response.status === 200) {
@@ -761,7 +761,7 @@ function PatientsProfile() {
     // Fetch packages when component mounts
     const fetchPackages = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/api/packages");
+        const response = await axios.get("https://cmrms-backend.onrender.com/api/packages");
         setPackages(response.data); // Set the fetched packages to state
       } catch (error) {
         console.error("Error fetching packages:", error);
@@ -775,7 +775,7 @@ function PatientsProfile() {
   const handlePackageClick = async (packageId) => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/packages/${packageId}`
+        `https://cmrms-backend.onrender.com/api/packages/${packageId}`
       );
       const pkg = response.data;
       console.log("Selected package:", pkg);
@@ -797,7 +797,7 @@ function PatientsProfile() {
 
       // Create lab request with the updated package number
       const labResponse = await axios.post(
-        "http://localhost:3001/api/laboratory",
+        "https://cmrms-backend.onrender.com/api/laboratory",
         {
           ...pkgWithoutIdAndCreatedAt,
           patient: id,
@@ -827,7 +827,7 @@ function PatientsProfile() {
 
         // Medical X-ray
         const medicalXrayResponse = await axios.post(
-          "http://localhost:3001/api/xrayResults",
+          "https://cmrms-backend.onrender.com/api/xrayResults",
           {
             ...pkgWithoutIdAndCreatedAt,
             patient: id,
@@ -848,7 +848,7 @@ function PatientsProfile() {
 
         // Dental X-ray
         const dentalXrayResponse = await axios.post(
-          "http://localhost:3001/api/xrayResults",
+          "https://cmrms-backend.onrender.com/api/xrayResults",
           {
             ...pkgWithoutIdAndCreatedAt,
             patient: id,
@@ -869,7 +869,7 @@ function PatientsProfile() {
       } else if (xrayType === "medical") {
         // Handle only Medical X-ray
         const medicalXrayResponse = await axios.post(
-          "http://localhost:3001/api/xrayResults",
+          "https://cmrms-backend.onrender.com/api/xrayResults",
           {
             ...pkgWithoutIdAndCreatedAt,
             patient: id,
@@ -890,7 +890,7 @@ function PatientsProfile() {
       } else if (xrayType === "dental") {
         // Handle only Dental X-ray
         const dentalXrayResponse = await axios.post(
-          "http://localhost:3001/api/xrayResults",
+          "https://cmrms-backend.onrender.com/api/xrayResults",
           {
             ...pkgWithoutIdAndCreatedAt,
             patient: id,
@@ -1250,7 +1250,7 @@ function PatientsProfile() {
       if (medicalHistoryId) {
         // Update existing medical history
         response = await axios.put(
-          `http://localhost:3001/api/medical-history/${medicalHistoryId}`,
+          `https://cmrms-backend.onrender.com/api/medical-history/${medicalHistoryId}`,
           {
             patient: id,
             ...medicalHistory,
@@ -1260,7 +1260,7 @@ function PatientsProfile() {
       } else {
         // Create new medical history
         response = await axios.post(
-          `http://localhost:3001/api/medical-history`,
+          `https://cmrms-backend.onrender.com/api/medical-history`,
           {
             patient: id,
             ...medicalHistory,
@@ -1289,7 +1289,7 @@ function PatientsProfile() {
   useEffect(() => {
     if (medicalHistoryId) {
       axios
-        .get(`http://localhost:3001/api/medical-history/id/${medicalHistoryId}`)
+        .get(`https://cmrms-backend.onrender.com/api/medical-history/id/${medicalHistoryId}`)
         .then((response) => {
           setMedicalHistory(response.data);
         })
@@ -1350,7 +1350,7 @@ function PatientsProfile() {
 
       // Make the PUT request to the server
       const response = await axios.put(
-        `http://localhost:3001/api/medical-history/${medicalHistoryId}`, // API endpoint with ID from medicalHistory
+        `https://cmrms-backend.onrender.com/api/medical-history/${medicalHistoryId}`, // API endpoint with ID from medicalHistory
         updatedData // Send the updated data in the request body
       );
 
@@ -1385,7 +1385,7 @@ function PatientsProfile() {
   const fetchLabResultByRequestId = async (laboratoryId) => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/laboratory-results/by-request/${laboratoryId}`
+        `https://cmrms-backend.onrender.com/api/laboratory-results/by-request/${laboratoryId}`
       );
       if (response.status === 200 && response.data) {
         setLabDetails(response.data); // Set lab details
@@ -1451,7 +1451,7 @@ function PatientsProfile() {
       const labResultsPromises = laboratoryIds.map((laboratoryId) =>
         axios
           .get(
-            `http://localhost:3001/api/laboratory-results/by-request/${laboratoryId}`
+            `https://cmrms-backend.onrender.com/api/laboratory-results/by-request/${laboratoryId}`
           )
           .then((response) => response.data)
       );
@@ -1462,7 +1462,7 @@ function PatientsProfile() {
       // Fetch X-ray results for each xrayId
       const xrayResultsPromises = xrayIds.map((xrayId) =>
         axios
-          .get(`http://localhost:3001/api/xrayResults/id/${xrayId}`)
+          .get(`https://cmrms-backend.onrender.com/api/xrayResults/id/${xrayId}`)
           .then((response) => response.data)
       );
 
@@ -1566,7 +1566,7 @@ function PatientsProfile() {
       }
 
       const response = await axios.post(
-        `http://localhost:3001/api/physical-exam-student`,
+        `https://cmrms-backend.onrender.com/api/physical-exam-student`,
         {
           patient: id,
           packageId, // Add packageId to the request body
@@ -1623,7 +1623,7 @@ function PatientsProfile() {
   const fetchPhysicalExam = useCallback(async (packageNumber, patientId) => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/physical-exam-student/${packageNumber}/${patientId}`
+        `https://cmrms-backend.onrender.com/api/physical-exam-student/${packageNumber}/${patientId}`
       );
 
       const data = response.data || {};
@@ -1661,7 +1661,7 @@ function PatientsProfile() {
     const fetchVaccines = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3001/api/vaccine-list"
+          "https://cmrms-backend.onrender.com/api/vaccine-list"
         );
         setVaccines(response.data);
       } catch (error) {
@@ -1688,7 +1688,7 @@ function PatientsProfile() {
         async (record) => {
           try {
             await axios.delete(
-              `http://localhost:3001/api/laboratory/${record._id}`
+              `https://cmrms-backend.onrender.com/api/laboratory/${record._id}`
             );
           } catch (error) {
             if (error.response && error.response.status === 404) {
@@ -1705,7 +1705,7 @@ function PatientsProfile() {
       ].xrayRecords.map(async (record) => {
         try {
           await axios.delete(
-            `http://localhost:3001/api/xrayResults/${record._id}`
+            `https://cmrms-backend.onrender.com/api/xrayResults/${record._id}`
           );
         } catch (error) {
           if (error.response && error.response.status === 404) {
@@ -1912,7 +1912,7 @@ function PatientsProfile() {
       }
 
       const response = await axios.post(
-        `http://localhost:3001/api/annual-check-up`,
+        `https://cmrms-backend.onrender.com/api/annual-check-up`,
         {
           patient: id,
           packageId, // Add packageId to the request body
@@ -1980,7 +1980,7 @@ function PatientsProfile() {
   const fetchAnnualCheckup = useCallback(async (packageNumber, patientId) => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/annual-check-up/${packageNumber}/${patientId}`
+        `https://cmrms-backend.onrender.com/api/annual-check-up/${packageNumber}/${patientId}`
       );
       const data = response.data || {};
 
@@ -2069,7 +2069,7 @@ function PatientsProfile() {
 
       // Map over the labIds to update results
       const labUpdatePromises = laboratoryIds.map((id) =>
-        axios.put(`http://localhost:3001/api/laboratory/${id}`, {
+        axios.put(`https://cmrms-backend.onrender.com/api/laboratory/${id}`, {
           labResult: "verified", // Assuming `updatedLabResults` holds your new data
         })
       );
@@ -2079,7 +2079,7 @@ function PatientsProfile() {
 
       // Map over the xrayIds to update results
       const xrayUpdatePromises = xrayIds.map((id) =>
-        axios.put(`http://localhost:3001/api/xrayResults/${id}`, {
+        axios.put(`https://cmrms-backend.onrender.com/api/xrayResults/${id}`, {
           xrayResult: "done", // Assuming `updatedXrayResults` holds your new data
         })
       );

@@ -31,7 +31,7 @@ function Xray() {
   });
   const fetchXrayRecords = useCallback(() => {
     axios
-      .get("http://localhost:3001/api/xrayResults")
+      .get("https://cmrms-backend.onrender.com/api/xrayResults")
       .then((response) => {
         // Filter only pending records without any role-based or type-based restrictions
         const filteredRecords = response.data.filter(
@@ -129,7 +129,7 @@ const handleSubmitResult = async () => {
   try {
     // Step 1: Update the existing X-ray record by ID
     const updateResponse = await axios.put(
-      `http://localhost:3001/api/xrayResults/${selectedRecord._id}`,
+      `https://cmrms-backend.onrender.com/api/xrayResults/${selectedRecord._id}`,
       formDataToSubmit,
       {
         headers: {
@@ -266,7 +266,7 @@ const closeErrorImageModal = () => {
     try {
       // Step 1: Add the patient
       const patientResponse = await axios.post(
-        "http://localhost:3001/add-patient",
+        "https://cmrms-backend.onrender.com/add-patient",
         patientData
       );
       const patientId = patientResponse.data.patient._id; // Extract the patient ID
@@ -281,7 +281,7 @@ const closeErrorImageModal = () => {
       };
 
       await axios.post(
-        "http://localhost:3001/api/xrayResults",
+        "https://cmrms-backend.onrender.com/api/xrayResults",
         xrayRequestData
       );
 

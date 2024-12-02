@@ -34,7 +34,7 @@ function LaboratoryVerification() {
 
   const fetchLabRecords = () => {
     axios
-      .get("http://localhost:3001/api/laboratory")
+      .get("https://cmrms-backend.onrender.com/api/laboratory")
       .then((response) => {
         const completeRecords = response.data
           .filter((record) => record.labResult === "for verification")
@@ -50,7 +50,7 @@ function LaboratoryVerification() {
   const fetchLabResultByRequestId = async (laboratoryId) => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/laboratory-results/by-request/${laboratoryId}`
+        `https://cmrms-backend.onrender.com/api/laboratory-results/by-request/${laboratoryId}`
       );
       if (response.status === 200 && response.data) {
         setLabDetails(response.data); // Set lab details
@@ -183,7 +183,7 @@ function LaboratoryVerification() {
   const fetchSignature = async (section) => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/signature/user/${userId}`
+        `https://cmrms-backend.onrender.com/api/signature/user/${userId}`
       );
       if (response.data && response.data.signature) {
         switch (section) {
@@ -249,7 +249,7 @@ function LaboratoryVerification() {
     try {
       // First, update the laboratory results (in LaboratoryResultsModel)
       const response = await axios.put(
-        `http://localhost:3001/api/laboratory-results/update/${labDetails._id}`,
+        `https://cmrms-backend.onrender.com/api/laboratory-results/update/${labDetails._id}`,
         updatedLabResultData
       );
 
@@ -258,7 +258,7 @@ function LaboratoryVerification() {
       if (response.status === 200) {
         // Second, update the labResult field in LaboratoryModel
         const labUpdateResponse = await axios.put(
-          `http://localhost:3001/api/laboratory/${labDetails.laboratoryId}`, // Make sure labDetails has `laboratoryId`
+          `https://cmrms-backend.onrender.com/api/laboratory/${labDetails.laboratoryId}`, // Make sure labDetails has `laboratoryId`
           { labResult: "for pathologist verification" }
         );
 
@@ -286,7 +286,7 @@ function LaboratoryVerification() {
   const fetchVerifiedByEmployee = async (employeeId) => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/employees/${employeeId}`
+        `https://cmrms-backend.onrender.com/api/employees/${employeeId}`
       );
       if (response.status === 200 && response.data) {
         setVerifiedByEmployee(response.data); // Save the employee details who verified the record
@@ -300,7 +300,7 @@ function LaboratoryVerification() {
   const fetchPathologistSignature = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3001/api/pathologist-signature"
+        "https://cmrms-backend.onrender.com/api/pathologist-signature"
       );
       if (response.data && response.data.signature) {
         setPathologistSignatureUrl(response.data.signature);

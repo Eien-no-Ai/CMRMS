@@ -19,7 +19,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await axios.post("http://localhost:3001/login", {
+      const result = await axios.post("https://cmrms-backend.onrender.com/login", {
         email,
         password,
       });
@@ -48,7 +48,7 @@ function Login() {
 
   const handleSendOTP = async () => {
     try {
-      const result = await axios.post("http://localhost:3001/forgot-password", { email });
+      const result = await axios.post("https://cmrms-backend.onrender.com/forgot-password", { email });
       if (result.data.message === "OTP sent successfully") {
         setOtpSent(true); // Show OTP input after sending OTP
       } else {
@@ -63,7 +63,7 @@ function Login() {
   // Handle password reset with OTP
   const handleResetPassword = async () => {
     try {
-      const result = await axios.post("http://localhost:3001/verify-otp", {
+      const result = await axios.post("https://cmrms-backend.onrender.com/verify-otp", {
         email,
         otp,
         newPassword,
