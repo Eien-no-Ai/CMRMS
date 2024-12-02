@@ -8,9 +8,9 @@ import { GiBiceps } from "react-icons/gi";
 import { BiChevronDown } from "react-icons/bi";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import maleImage from "../assets/male.png";
-import PECertificate from '../certificatesReports/PECertificate.jsx'
-import AnnualCertificate from '../certificatesReports/AnnualCertificate.jsx'
-import HealthCertificate from '../certificatesReports/HealthCertificate.jsx'
+import PECertificate from "../certificatesReports/PECertificate.jsx";
+import AnnualCertificate from "../certificatesReports/AnnualCertificate.jsx";
+import HealthCertificate from "../certificatesReports/HealthCertificate.jsx";
 
 function PatientsProfile() {
   const [selectedXray, setSelectedXray] = useState(null);
@@ -504,14 +504,14 @@ function PatientsProfile() {
     selectedTab === "clinical"
       ? clinicalRecords
       : selectedTab === "laboratory"
-        ? laboratoryRecords
-        : selectedTab === "xray"
-          ? xrayRecords
-          : selectedTab === "physical therapy"
-            ? physicalTherapyRecords
-            : selectedTab === "vaccine"
-              ? vaccineRecords // <-- New condition for vaccines
-              : [];
+      ? laboratoryRecords
+      : selectedTab === "xray"
+      ? xrayRecords
+      : selectedTab === "physical therapy"
+      ? physicalTherapyRecords
+      : selectedTab === "vaccine"
+      ? vaccineRecords // <-- New condition for vaccines
+      : [];
 
   const initialFormData = {
     bloodChemistry: {
@@ -720,6 +720,7 @@ function PatientsProfile() {
 
   const handleAnnualOpen = () => {
     setisAnnualModalOpen(true);
+    setAnnual(defaultAnnual); // Reset the state
     setShowHistoryOptions(false);
   };
 
@@ -1889,12 +1890,13 @@ function PatientsProfile() {
     }));
   };
 
+  // When submitting the form, ensure the packageNumber is correctly extracted
   const handleAnnualSubmit = async (packageNumber) => {
     try {
-      // Check if selectedRecords has labRecords with a valid packageId
       const packageId = selectedRecords?.labRecords[0]?.packageId;
+      const validPackageNumber = selectedRecords?.labRecords[0]?.packageNumber; // Correctly access packageNumber
 
-      if (!packageId) {
+      if (!validPackageNumber) {
         alert("Package ID not found. Please select a valid package.");
         return;
       }
@@ -1904,7 +1906,7 @@ function PatientsProfile() {
         {
           patient: id,
           packageId, // Add packageId to the request body
-          packageNumber, // Pass the packageNumber in the request
+          packageNumber: validPackageNumber, // Pass valid packageNumber
           ...annual,
         }
       );
@@ -2000,7 +2002,11 @@ function PatientsProfile() {
     if (isAnnualModalOpen && selectedRecords) {
       const packageNumber = selectedRecords.labRecords[0].packageNumber;
       const patientId = id;
-      fetchAnnualCheckup(packageNumber, patientId);
+
+      // Reset annual state before fetching new data
+      setAnnual(defaultAnnual); // Reset to the initial state
+
+      fetchAnnualCheckup(packageNumber, patientId); // Then fetch new data
     }
   }, [isAnnualModalOpen, selectedRecords, fetchAnnualCheckup, id]);
 
@@ -2008,7 +2014,12 @@ function PatientsProfile() {
 
   const [isPECertificateOpen, setIsPECertificate] = useState(false);
 
-  const handleOpenPECertificate = (records, physicalExamStudent, patient, medicalHistory) => {
+  const handleOpenPECertificate = (
+    records,
+    physicalExamStudent,
+    patient,
+    medicalHistory
+  ) => {
     setIsPECertificate(true);
   };
 
@@ -2018,7 +2029,12 @@ function PatientsProfile() {
 
   const [isAnnualCertificateOpen, setIsAnnualCertificate] = useState(false);
 
-  const handleOpenAnnualCertificate = (records, AnnualCheckUp, patient, medicalHistory) => {
+  const handleOpenAnnualCertificate = (
+    records,
+    AnnualCheckUp,
+    patient,
+    medicalHistory
+  ) => {
     setIsAnnualCertificate(true);
   };
 
@@ -2094,8 +2110,9 @@ function PatientsProfile() {
                           >
                             New Transaction
                             <MdKeyboardArrowDown
-                              className={`h-5 w-5 transition-transform duration-200 ${showRequestOptions ? "rotate-180" : ""
-                                }`}
+                              className={`h-5 w-5 transition-transform duration-200 ${
+                                showRequestOptions ? "rotate-180" : ""
+                              }`}
                             />
                           </button>
                           {/* Request options */}
@@ -2123,8 +2140,9 @@ function PatientsProfile() {
                           >
                             Packages
                             <MdKeyboardArrowDown
-                              className={`h-5 w-5 transition-transform duration-200 ${showPackageOptions ? "rotate-180" : ""
-                                }`}
+                              className={`h-5 w-5 transition-transform duration-200 ${
+                                showPackageOptions ? "rotate-180" : ""
+                              }`}
                             />
                           </button>
                           {showPackageOptions && (
@@ -3313,40 +3331,44 @@ function PatientsProfile() {
             <div className="flex justify-between items-center">
               <div className="space-x-4">
                 <button
-                  className={`${selectedTab === "clinical"
+                  className={`${
+                    selectedTab === "clinical"
                       ? "text-custom-red font-semibold"
                       : ""
-                    }`}
+                  }`}
                   onClick={() => handleTabChange("clinical")}
                 >
                   Consultation Records
                 </button>
                 {(role === "physical therapist" ||
                   role === "special trainee") && (
-                    <button
-                      className={`${selectedTab === "physical therapy"
-                          ? "text-custom-red font-semibold"
-                          : ""
-                        }`}
-                      onClick={() => handleTabChange("physical therapy")}
-                    >
-                      Physical Therapy Records
-                    </button>
-                  )}
+                  <button
+                    className={`${
+                      selectedTab === "physical therapy"
+                        ? "text-custom-red font-semibold"
+                        : ""
+                    }`}
+                    onClick={() => handleTabChange("physical therapy")}
+                  >
+                    Physical Therapy Records
+                  </button>
+                )}
                 <button
-                  className={`${selectedTab === "package"
+                  className={`${
+                    selectedTab === "package"
                       ? "text-custom-red font-semibold"
                       : ""
-                    }`}
+                  }`}
                   onClick={() => handleTabChange("package")}
                 >
                   Physical Examination
                 </button>
                 <button
-                  className={`${selectedTab === "vaccine"
+                  className={`${
+                    selectedTab === "vaccine"
                       ? "text-custom-red font-semibold"
                       : ""
-                    }`}
+                  }`}
                   onClick={() => handleTabChange("vaccine")}
                 >
                   Vaccine Records
@@ -3523,12 +3545,12 @@ function PatientsProfile() {
                           const dateA =
                             new Date(
                               recordsA.labRecords[0]?.isCreatedAt ||
-                              recordsA.xrayRecords[0]?.isCreatedAt
+                                recordsA.xrayRecords[0]?.isCreatedAt
                             ).getTime() || 0;
                           const dateB =
                             new Date(
                               recordsB.labRecords[0]?.isCreatedAt ||
-                              recordsB.xrayRecords[0]?.isCreatedAt
+                                recordsB.xrayRecords[0]?.isCreatedAt
                             ).getTime() || 0;
                           return dateB - dateA; // Sort by latest date (descending order)
                         }
@@ -3559,7 +3581,7 @@ function PatientsProfile() {
                               <p className="text-gray-500 text-sm">
                                 {new Date(
                                   records.labRecords[0]?.isCreatedAt ||
-                                  records.xrayRecords[0]?.isCreatedAt
+                                    records.xrayRecords[0]?.isCreatedAt
                                 ).toLocaleString() || "Invalid Date"}
                               </p>
                               <p className="font-semibold">
@@ -3573,25 +3595,25 @@ function PatientsProfile() {
                               <p className="text-gray-500">
                                 {records.labRecords.length > 0
                                   ? records.labRecords
-                                    .flatMap((record) => [
-                                      ...Object.values(
-                                        record.bloodChemistry || {}
-                                      ).filter((value) => value),
-                                      ...Object.values(
-                                        record.hematology || {}
-                                      ).filter((value) => value),
-                                      ...Object.values(
-                                        record.clinicalMicroscopyParasitology ||
-                                        {}
-                                      ).filter((value) => value),
-                                      ...Object.values(
-                                        record.bloodBankingSerology || {}
-                                      ).filter((value) => value),
-                                      ...Object.values(
-                                        record.microbiology || {}
-                                      ).filter((value) => value),
-                                    ])
-                                    .join(", ") || "No test data available"
+                                      .flatMap((record) => [
+                                        ...Object.values(
+                                          record.bloodChemistry || {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.hematology || {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.clinicalMicroscopyParasitology ||
+                                            {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.bloodBankingSerology || {}
+                                        ).filter((value) => value),
+                                        ...Object.values(
+                                          record.microbiology || {}
+                                        ).filter((value) => value),
+                                      ])
+                                      .join(", ") || "No test data available"
                                   : "No Lab Tests Available"}
                               </p>
                             </div>
@@ -3601,12 +3623,12 @@ function PatientsProfile() {
                               <p className="text-gray-500">
                                 {records.xrayRecords.length > 0
                                   ? records.xrayRecords.map((record, idx) => (
-                                    <span key={idx}>
-                                      {record.xrayType}
-                                      {idx < records.xrayRecords.length - 1 &&
-                                        ", "}
-                                    </span>
-                                  ))
+                                      <span key={idx}>
+                                        {record.xrayType}
+                                        {idx < records.xrayRecords.length - 1 &&
+                                          ", "}
+                                      </span>
+                                    ))
                                   : "No X-ray Data"}
                               </p>
                             </div>
@@ -3615,10 +3637,11 @@ function PatientsProfile() {
                             <div className="col-span-1 flex justify-between items-center">
                               {/* Status Display */}
                               <p
-                                className={`font-semibold ${isCompleted
+                                className={`font-semibold ${
+                                  isCompleted
                                     ? "text-green-500"
                                     : "text-red-500"
-                                  }`}
+                                }`}
                               >
                                 {status}
                               </p>
@@ -4793,12 +4816,17 @@ function PatientsProfile() {
 
                       {/* Bottom section - Close button */}
                       <div className="flex justify-between mt-4">
-                        {patient.patientType === 'Student' ? (
+                        {patient.patientType === "Student" ? (
                           <div className="flex justify-start">
                             <button
                               className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
                               onClick={() => {
-                                handleOpenPECertificate(selectedRecords, physicalExamStudent, patient, medicalHistory);
+                                handleOpenPECertificate(
+                                  selectedRecords,
+                                  physicalExamStudent,
+                                  patient,
+                                  medicalHistory
+                                );
                               }}
                             >
                               Physical Exam Certificate
@@ -4818,14 +4846,18 @@ function PatientsProfile() {
                             <button
                               className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
                               onClick={() => {
-                                handleOpenAnnualCertificate(selectedRecords, annual, patient, medicalHistory);
+                                handleOpenAnnualCertificate(
+                                  selectedRecords,
+                                  annual,
+                                  patient,
+                                  medicalHistory
+                                );
                               }}
                             >
                               Annual Employee Certificate
                             </button>
                           </div>
-                        )
-                        }
+                        )}
                         <div className="flex justify-end">
                           <button
                             className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200 mr-4"
@@ -4847,9 +4879,25 @@ function PatientsProfile() {
                           </button>
                         </div>
                       </div>
-                      <PECertificate isOpen={isPECertificateOpen} onClose={handleClosePECertificate} patient={patient} medicalHistory={medicalHistory} physicalExamStudent={physicalExamStudent} />
-                      <AnnualCertificate isOpen={isAnnualCertificateOpen} onClose={handleCloseAnnualCertificate} patient={patient} medicalHistory={medicalHistory} annual={annual} />
-                      <HealthCertificate isOpen={isHealthCertificateOpen} onClose={handleCloseHealthCertificate} patient={patient} />
+                      <PECertificate
+                        isOpen={isPECertificateOpen}
+                        onClose={handleClosePECertificate}
+                        patient={patient}
+                        medicalHistory={medicalHistory}
+                        physicalExamStudent={physicalExamStudent}
+                      />
+                      <AnnualCertificate
+                        isOpen={isAnnualCertificateOpen}
+                        onClose={handleCloseAnnualCertificate}
+                        patient={patient}
+                        medicalHistory={medicalHistory}
+                        annual={annual}
+                      />
+                      <HealthCertificate
+                        isOpen={isHealthCertificateOpen}
+                        onClose={handleCloseHealthCertificate}
+                        patient={patient}
+                      />
                     </div>
                   </div>
                 )}
@@ -4965,9 +5013,11 @@ function PatientsProfile() {
                                       labResult.patient
                                         ? labResult.patient.patientType ===
                                           "Student"
-                                          ? `${labResult.patient.course || "N/A"
-                                          } - ${labResult.patient.year || "N/A"
-                                          }` // Display course and year if patientType is student
+                                          ? `${
+                                              labResult.patient.course || "N/A"
+                                            } - ${
+                                              labResult.patient.year || "N/A"
+                                            }` // Display course and year if patientType is student
                                           : labResult.patient.position || "N/A" // Otherwise, display position
                                         : "N/A"
                                     }
@@ -4987,8 +5037,9 @@ function PatientsProfile() {
                                       I. Hematology
                                     </h3>
                                     <BiChevronDown
-                                      className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
-                                        }`}
+                                      className={`transform transition-transform duration-300 ${
+                                        isHematologyVisible ? "rotate-180" : ""
+                                      }`}
                                       size={24}
                                     />
                                   </div>
@@ -5253,10 +5304,11 @@ function PatientsProfile() {
                                     II. Clinical Microscopy and Parasitology
                                   </h3>
                                   <BiChevronDown
-                                    className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible
+                                    className={`transform transition-transform duration-300 ${
+                                      isClinicalMicroscopyVisible
                                         ? "rotate-180"
                                         : ""
-                                      }`}
+                                    }`}
                                     size={24}
                                   />
                                 </div>
@@ -5681,8 +5733,9 @@ function PatientsProfile() {
                                     III. Serology
                                   </h3>
                                   <BiChevronDown
-                                    className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
-                                      }`}
+                                    className={`transform transition-transform duration-300 ${
+                                      isSerologyVisible ? "rotate-180" : ""
+                                    }`}
                                     size={24}
                                   />
                                 </div>
@@ -5762,10 +5815,10 @@ function PatientsProfile() {
                                           ?.hepatitisBSurfaceAntigen
                                           ?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5780,10 +5833,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.antiHAVTest?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.antiHAVTest.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.antiHAVTest.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5881,10 +5934,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.serumPregnancy?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.serumPregnancy.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.serumPregnancy.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5900,10 +5953,10 @@ function PatientsProfile() {
                                           ?.treponemaPallidumTest
                                           ?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -5999,10 +6052,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.salmonellaTyphi?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.salmonellaTyphi.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.salmonellaTyphi.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -6089,10 +6142,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology
                                           ?.testDengue?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.testDengue.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.testDengue.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -6107,10 +6160,10 @@ function PatientsProfile() {
                                         labResult.bloodBankingSerology?.others
                                           ?.expirationDate
                                           ? new Date(
-                                            labResult.bloodBankingSerology.others.expirationDate
-                                          )
-                                            .toISOString()
-                                            .split("T")[0]
+                                              labResult.bloodBankingSerology.others.expirationDate
+                                            )
+                                              .toISOString()
+                                              .split("T")[0]
                                           : "N/A"
                                       }
                                       readOnly
@@ -6509,9 +6562,9 @@ function PatientsProfile() {
                             name="XrayNo"
                             value={
                               selectedXray !== null &&
-                                selectedXrayRecords[selectedXray]
+                              selectedXrayRecords[selectedXray]
                                 ? selectedXrayRecords[selectedXray].ORNumber ||
-                                "N/A"
+                                  "N/A"
                                 : "N/A"
                             }
                             className="w-full px-3 py-2 border rounded"
@@ -6527,9 +6580,9 @@ function PatientsProfile() {
                             name="XrayNo"
                             value={
                               selectedXray !== null &&
-                                selectedXrayRecords[selectedXray]
+                              selectedXrayRecords[selectedXray]
                                 ? selectedXrayRecords[selectedXray].XrayNo ||
-                                "N/A"
+                                  "N/A"
                                 : "N/A"
                             }
                             className="w-full px-3 py-2 border rounded"
@@ -6543,12 +6596,12 @@ function PatientsProfile() {
                             name="date"
                             value={
                               selectedXray !== null &&
-                                selectedXrayRecords[selectedXray]
+                              selectedXrayRecords[selectedXray]
                                 ? new Date(
-                                  selectedXrayRecords[
-                                    selectedXray
-                                  ].isCreatedAt
-                                ).toLocaleString()
+                                    selectedXrayRecords[
+                                      selectedXray
+                                    ].isCreatedAt
+                                  ).toLocaleString()
                                 : "N/A"
                             }
                             className="w-full px-3 py-2 border rounded"
@@ -6569,9 +6622,9 @@ function PatientsProfile() {
                           placeholder="No Interpretation available."
                           value={
                             selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
+                            selectedXrayRecords[selectedXray]
                               ? selectedXrayRecords[selectedXray].diagnosis ||
-                              ""
+                                ""
                               : ""
                           }
                           readOnly
@@ -6590,9 +6643,9 @@ function PatientsProfile() {
                           placeholder="No X-ray findings available."
                           value={
                             selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
+                            selectedXrayRecords[selectedXray]
                               ? selectedXrayRecords[selectedXray]
-                                .xrayFindings || ""
+                                  .xrayFindings || ""
                               : ""
                           }
                           required
@@ -6875,7 +6928,7 @@ function PatientsProfile() {
                 )}
 
                 {selectedRecord.treatments &&
-                  selectedRecord.treatments.length > 0 ? (
+                selectedRecord.treatments.length > 0 ? (
                   <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                     {selectedRecord.treatments
                       .split(", ")
@@ -6931,7 +6984,7 @@ function PatientsProfile() {
                 </div>
 
                 {selectedRecord.diagnosis &&
-                  selectedRecord.diagnosis.length > 0 ? (
+                selectedRecord.diagnosis.length > 0 ? (
                   <div className="space-y-4 mt-4 max-h-48 overflow-y-auto">
                     {selectedRecord.diagnosis
                       .split(", ")
@@ -7188,8 +7241,9 @@ function PatientsProfile() {
                         value={
                           labDetails.patient
                             ? labDetails.patient.patientType === "Student"
-                              ? `${labDetails.patient.course || "N/A"} - ${labDetails.patient.year || "N/A"
-                              }` // Display course if patientType is student
+                              ? `${labDetails.patient.course || "N/A"} - ${
+                                  labDetails.patient.year || "N/A"
+                                }` // Display course if patientType is student
                               : labDetails.patient.position || "N/A" // Otherwise, display position
                             : "N/A"
                         }
@@ -7207,8 +7261,9 @@ function PatientsProfile() {
                           I. Hematology
                         </h3>
                         <BiChevronDown
-                          className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
-                            }`}
+                          className={`transform transition-transform duration-300 ${
+                            isHematologyVisible ? "rotate-180" : ""
+                          }`}
                           size={24}
                         />
                       </div>
@@ -7412,8 +7467,9 @@ function PatientsProfile() {
                         II. Clinical Microscopy and Parasitology
                       </h3>
                       <BiChevronDown
-                        className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible ? "rotate-180" : ""
-                          }`}
+                        className={`transform transition-transform duration-300 ${
+                          isClinicalMicroscopyVisible ? "rotate-180" : ""
+                        }`}
                         size={24}
                       />
                     </div>
@@ -7792,8 +7848,9 @@ function PatientsProfile() {
                         III. Serology
                       </h3>
                       <BiChevronDown
-                        className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
-                          }`}
+                        className={`transform transition-transform duration-300 ${
+                          isSerologyVisible ? "rotate-180" : ""
+                        }`}
                         size={24}
                       />
                     </div>
@@ -7860,10 +7917,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology
                               ?.hepatitisBSurfaceAntigen?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7876,10 +7933,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.antiHAVTest
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.antiHAVTest.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.antiHAVTest.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7964,10 +8021,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.serumPregnancy
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.serumPregnancy.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.serumPregnancy.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -7980,10 +8037,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology
                               ?.treponemaPallidumTest?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -8068,10 +8125,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.salmonellaTyphi
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -8146,10 +8203,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.testDengue
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.testDengue.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.testDengue.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -8162,10 +8219,10 @@ function PatientsProfile() {
                             labDetails.bloodBankingSerology?.others
                               ?.expirationDate
                               ? new Date(
-                                labDetails.bloodBankingSerology.others.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
+                                  labDetails.bloodBankingSerology.others.expirationDate
+                                )
+                                  .toISOString()
+                                  .split("T")[0]
                               : "N/A"
                           }
                           readOnly
@@ -10167,12 +10224,17 @@ function PatientsProfile() {
 
             {/* Bottom section - Close button */}
             <div className="flex justify-between mt-4">
-              {patient.patientType === 'Student' ? (
+              {patient.patientType === "Student" ? (
                 <div className="flex justify-start">
                   <button
                     className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
                     onClick={() => {
-                      handleOpenPECertificate(selectedRecords, physicalExamStudent, patient, medicalHistory);
+                      handleOpenPECertificate(
+                        selectedRecords,
+                        physicalExamStudent,
+                        patient,
+                        medicalHistory
+                      );
                     }}
                   >
                     Physical Exam Certificate
@@ -10192,38 +10254,54 @@ function PatientsProfile() {
                   <button
                     className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
                     onClick={() => {
-                      handleOpenAnnualCertificate(selectedRecords, annual, patient, medicalHistory);
+                      handleOpenAnnualCertificate(
+                        selectedRecords,
+                        annual,
+                        patient,
+                        medicalHistory
+                      );
                     }}
                   >
                     Annual Employee Certificate
                   </button>
                 </div>
-              )
-              }
+              )}
               <div className="flex justify-end">
                 <button
                   className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200 mr-4"
                   onClick={() => {
-                    setisAnnualModalOpen(false); // Close the modal
+                    handleAnnualClose(false); // Close the modal
                   }}
                 >
                   Close
                 </button>
                 <button
                   className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200 mr-4"
-                  onClick={() =>
-                    handleAnnualSubmit(
-                      selectedRecords,
-                    )
-                  }
+                  onClick={() => handleAnnualSubmit(selectedRecords)}
                 >
                   Submit
                 </button>
               </div>
             </div>
-            <PECertificate isOpen={isPECertificateOpen} onClose={handleClosePECertificate} patient={patient} medicalHistory={medicalHistory} physicalExamStudent={physicalExamStudent} />
-            <AnnualCertificate isOpen={isAnnualCertificateOpen} onClose={handleCloseAnnualCertificate} patient={patient} medicalHistory={medicalHistory} annual={annual} />
-            <HealthCertificate isOpen={isHealthCertificateOpen} onClose={handleCloseHealthCertificate} patient={patient} />
+            <PECertificate
+              isOpen={isPECertificateOpen}
+              onClose={handleClosePECertificate}
+              patient={patient}
+              medicalHistory={medicalHistory}
+              physicalExamStudent={physicalExamStudent}
+            />
+            <AnnualCertificate
+              isOpen={isAnnualCertificateOpen}
+              onClose={handleCloseAnnualCertificate}
+              patient={patient}
+              medicalHistory={medicalHistory}
+              annual={annual}
+            />
+            <HealthCertificate
+              isOpen={isHealthCertificateOpen}
+              onClose={handleCloseHealthCertificate}
+              patient={patient}
+            />
           </div>
         </div>
       )}
