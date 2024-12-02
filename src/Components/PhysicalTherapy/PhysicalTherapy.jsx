@@ -235,8 +235,8 @@ function PhysicalTherapy() {
         const updatedSOAPSummaries = selectedRecord.SOAPSummaries.map((entry) =>
           entry._id === summaryId ? { ...entry, summary: editSummary } : entry
         );
-        
-        fetchPhysicalTherapyRecords();
+
+
         // Update the selectedRecord state with the new SOAP summary
         setSelectedRecord(prevRecord => ({
           ...prevRecord,
@@ -283,65 +283,78 @@ function PhysicalTherapy() {
     }
   }, []);
   const [selectedSummaries, setSelectedSummaries] = useState([]);
+
+  // Handle checkbox change for individual summary selection
   const handleCheckboxChange = (summaryId) => {
-    // Toggle the selection of a summary based on its ID
     setSelectedSummaries((prevSelected) =>
       prevSelected.includes(summaryId)
-        ? prevSelected.filter((id) => id !== summaryId)
-        : [...prevSelected, summaryId]
+        ? prevSelected.filter((id) => id !== summaryId)  // Unselect if already selected
+        : [...prevSelected, summaryId]  // Select if not selected
     );
   };
 
+  // Handle "Select All" functionality
+  const handleSelectAll = () => {
+    if (selectedSummaries.length === selectedRecord?.SOAPSummaries?.length) {
+      // If all are already selected, unselect all
+      setSelectedSummaries([]);
+    } else {
+      // Select all summaries
+      const allSummaryIds = selectedRecord?.SOAPSummaries?.map((entry) => entry._id);
+      setSelectedSummaries(allSummaryIds);
+    }
+  };
 
-const handleBatchVerify = async () => {
-  if (selectedSummaries.length === 0) {
-    console.error("Please select at least one SOAP summary to verify.");
-    return;
-  }
 
-  try {
-    // Create a copy of the current SOAP summaries to update
-    const updatedSOAPSummaries = [...selectedRecord.SOAPSummaries];
+  const handleBatchVerify = async () => {
+    if (selectedSummaries.length === 0) {
+      console.error("Please select at least one SOAP summary to verify.");
+      return;
+    }
 
-    // Loop through each selected summary and verify it
-    for (const summaryId of selectedSummaries) {
-      const entry = selectedRecord.SOAPSummaries.find((entry) => entry._id === summaryId);
-      if (entry) {
-        const response = await axios.put(
-          `http://localhost:3001/api/physicalTherapyVerification/${selectedRecord._id}/soapSummary/${summaryId}`,
-          {
-            updatedSOAPSummary: {
-              firstname: userData.firstname,
-              lastname: userData.lastname,
-            },
-          }
-        );
+    try {
+      // Create a copy of the current SOAP summaries to update
+      const updatedSOAPSummaries = [...selectedRecord.SOAPSummaries];
 
-        if (response.status === 200) {
-          // Update the verifiedBy field for the selected entry
-          const index = updatedSOAPSummaries.findIndex((item) => item._id === entry._id);
-          if (index !== -1) {
-            updatedSOAPSummaries[index] = {
-              ...updatedSOAPSummaries[index],
-              verifiedBy: `${userData.firstname} ${userData.lastname}`,
-            };
+      // Loop through each selected summary and verify it
+      for (const summaryId of selectedSummaries) {
+        const entry = selectedRecord.SOAPSummaries.find((entry) => entry._id === summaryId);
+        if (entry) {
+          const response = await axios.put(
+            `http://localhost:3001/api/physicalTherapyVerification/${selectedRecord._id}/soapSummary/${summaryId}`,
+            {
+              updatedSOAPSummary: {
+                firstname: userData.firstname,
+                lastname: userData.lastname,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            // Update the verifiedBy field for the selected entry
+            const index = updatedSOAPSummaries.findIndex((item) => item._id === entry._id);
+            if (index !== -1) {
+              updatedSOAPSummaries[index] = {
+                ...updatedSOAPSummaries[index],
+                verifiedBy: `${userData.firstname} ${userData.lastname}`,
+              };
+            }
           }
         }
       }
+
+      // After all summaries have been processed, update the selectedRecord state
+      fetchPhysicalTherapyRecords();
+      setSelectedRecord({
+        ...selectedRecord,
+        SOAPSummaries: updatedSOAPSummaries,
+      });
+
+      console.log("All selected SOAP summaries verified successfully.");
+    } catch (error) {
+      console.error("Error verifying SOAP summaries:", error.response || error);
     }
-
-    // After all summaries have been processed, update the selectedRecord state
-    fetchPhysicalTherapyRecords();
-    setSelectedRecord({
-      ...selectedRecord,
-      SOAPSummaries: updatedSOAPSummaries,
-    });
-
-    console.log("All selected SOAP summaries verified successfully.");
-  } catch (error) {
-    console.error("Error verifying SOAP summaries:", error.response || error);
-  }
-};
+  };
 
   // Patient details state
   const [patientType, setPatientType] = useState("");
@@ -755,7 +768,15 @@ const handleBatchVerify = async () => {
                       {userRole !== "special trainee" && (
                         <th className="border border-gray-300 px-4 py-2"></th>
                       )}
-                      <th className="border border-gray-300 px-4 py-2">Verification Checklist</th>
+                      <th
+                        className="border border-gray-300 px-4 py-2">Verification Checklist
+                        <button
+                          onClick={handleSelectAll}
+                          className="bg-custom-red text-white px-2 py-1 rounded-lg"
+                        >
+                          Select All
+                        </button>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
