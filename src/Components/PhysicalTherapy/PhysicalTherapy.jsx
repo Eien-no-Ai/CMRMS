@@ -72,7 +72,7 @@ function PhysicalTherapy() {
     setNewTherapyRecord({ ...newTherapyRecord, [e.target.name]: e.target.value });
   };
 
-  const handleOpenPTCertificate = (selectedRecord, ) => {
+  const handleOpenPTCertificate = (selectedRecord,) => {
     setIsPTCertificate(true);
   };
 
@@ -235,7 +235,8 @@ function PhysicalTherapy() {
         const updatedSOAPSummaries = selectedRecord.SOAPSummaries.map((entry) =>
           entry._id === summaryId ? { ...entry, summary: editSummary } : entry
         );
-
+        
+        fetchPhysicalTherapyRecords();
         // Update the selectedRecord state with the new SOAP summary
         setSelectedRecord(prevRecord => ({
           ...prevRecord,
@@ -281,45 +282,66 @@ function PhysicalTherapy() {
       setUserRole(storedRole);
     }
   }, []);
+  const [selectedSummaries, setSelectedSummaries] = useState([]);
+  const handleCheckboxChange = (summaryId) => {
+    // Toggle the selection of a summary based on its ID
+    setSelectedSummaries((prevSelected) =>
+      prevSelected.includes(summaryId)
+        ? prevSelected.filter((id) => id !== summaryId)
+        : [...prevSelected, summaryId]
+    );
+  };
 
-  const handleVerify = async (therapyRecordId, summaryId, entry) => {
-    if (!therapyRecordId || !summaryId) {
-      console.error("Error: Invalid therapy record or summary ID.");
-      return;
-    }
 
-    try {
-      const response = await axios.put(
-        `http://localhost:3001/api/physicalTherapyVerification/${therapyRecordId}/soapSummary/${summaryId}`,
-        {
-          updatedSOAPSummary: {
-            firstname: userData.firstname, // Send the user's first name
-            lastname: userData.lastname,  // Send the user's last name
-          },
-        }
-      );
+const handleBatchVerify = async () => {
+  if (selectedSummaries.length === 0) {
+    console.error("Please select at least one SOAP summary to verify.");
+    return;
+  }
 
-      if (response.status === 200) {
-        // Update the local state immediately to reflect the verified summary
-        const updatedSOAPSummaries = selectedRecord.SOAPSummaries.map((item) =>
-          item._id === entry._id
-            ? { ...item, verifiedBy: `${userData.firstname} ${userData.lastname}` }
-            : item
+  try {
+    // Create a copy of the current SOAP summaries to update
+    const updatedSOAPSummaries = [...selectedRecord.SOAPSummaries];
+
+    // Loop through each selected summary and verify it
+    for (const summaryId of selectedSummaries) {
+      const entry = selectedRecord.SOAPSummaries.find((entry) => entry._id === summaryId);
+      if (entry) {
+        const response = await axios.put(
+          `http://localhost:3001/api/physicalTherapyVerification/${selectedRecord._id}/soapSummary/${summaryId}`,
+          {
+            updatedSOAPSummary: {
+              firstname: userData.firstname,
+              lastname: userData.lastname,
+            },
+          }
         );
 
-        // Update the selectedRecord state (assuming you have this state in your component)
-        setSelectedRecord({
-          ...selectedRecord,
-          SOAPSummaries: updatedSOAPSummaries,
-        });
-        // Set verification success state to true
-        setIsVerificationSuccess(true);
-        console.log("SOAP summary verified successfully.");
+        if (response.status === 200) {
+          // Update the verifiedBy field for the selected entry
+          const index = updatedSOAPSummaries.findIndex((item) => item._id === entry._id);
+          if (index !== -1) {
+            updatedSOAPSummaries[index] = {
+              ...updatedSOAPSummaries[index],
+              verifiedBy: `${userData.firstname} ${userData.lastname}`,
+            };
+          }
+        }
       }
-    } catch (error) {
-      console.error("Error verifying SOAP summary:", error.response || error);
     }
-  };
+
+    // After all summaries have been processed, update the selectedRecord state
+    fetchPhysicalTherapyRecords();
+    setSelectedRecord({
+      ...selectedRecord,
+      SOAPSummaries: updatedSOAPSummaries,
+    });
+
+    console.log("All selected SOAP summaries verified successfully.");
+  } catch (error) {
+    console.error("Error verifying SOAP summaries:", error.response || error);
+  }
+};
 
   // Patient details state
   const [patientType, setPatientType] = useState("");
@@ -733,7 +755,7 @@ function PhysicalTherapy() {
                       {userRole !== "special trainee" && (
                         <th className="border border-gray-300 px-4 py-2"></th>
                       )}
-                      <th className="border border-gray-300 px-4 py-2">Verification</th>
+                      <th className="border border-gray-300 px-4 py-2">Verification Checklist</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -756,7 +778,7 @@ function PhysicalTherapy() {
                         </td>
                         <td className="border border-gray-300 px-4 py-2 flex space-x-2">
                           {entry.verifiedBy ? (
-                            <span className="text-gray-500 text-sm">Already Verified</span>
+                            <span className="text-gray-500 text-sm"></span>
                           ) : (
                             editingEntryId === entry._id ? (
                               <>
@@ -791,12 +813,12 @@ function PhysicalTherapy() {
                           ) : userRole === "special trainee" ? (
                             <span className="text-red-500 text-sm">Not yet verified</span>
                           ) : (
-                            <button
-                              className="bg-custom-red text-white px-2 py-1 rounded-lg"
-                              onClick={() => handleVerify(selectedRecord._id, entry._id, entry)}  // Pass entry to the handler
-                            >
-                              Verify
-                            </button>
+                            <input
+                              type="checkbox"
+                              checked={selectedSummaries.includes(entry._id)}
+                              onChange={() => handleCheckboxChange(entry._id)}
+                              className="mr-2"
+                            />
                           )}
                         </td>
                       </tr>
@@ -804,6 +826,7 @@ function PhysicalTherapy() {
                   </tbody>
                 </table>
               </div>
+
 
               <div className="flex justify-between mt-4">
                 {/* Left-aligned "Print SOAP Summary" button - only shown if all summaries are verified */}
@@ -813,23 +836,39 @@ function PhysicalTherapy() {
                       className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
                       onClick={() => {
                         handleOpenPTCertificate(selectedRecord, newTherapyRecord);
-                      }} 
+                      }}
                     >
                       Print SOAP Summary
                     </button>
                   )}
                 </div>
-                <PTCertificate isOpen={isPTCertificateOpen} onClose={handleClosePTCertificate} selectedRecord={selectedRecord} newTherapyRecord={newTherapyRecord}/>
+                <PTCertificate isOpen={isPTCertificateOpen} onClose={handleClosePTCertificate} selectedRecord={selectedRecord} newTherapyRecord={newTherapyRecord} />
 
 
-                {/* Right-aligned "Close" button */}
-                <div className="flex-1 text-right">
+                {/* Right-aligned "Close" and "Verify" buttons */}
+                <div className="flex items-center space-x-2 text-right">
                   <button
                     className="bg-custom-red text-white px-4 py-2 rounded-lg"
                     onClick={closeViewRecordModal}
                   >
                     Close
                   </button>
+
+                  {selectedRecord?.SOAPSummaries?.some((entry) => !entry.verifiedBy) && (
+                    <button
+                      className="bg-custom-red text-white px-4 py-2 rounded-lg"
+                      onClick={() => {
+                        // Handle verify for all non-verified entries
+                        selectedRecord?.SOAPSummaries.forEach((entry) => {
+                          if (!entry.verifiedBy) {
+                            handleBatchVerify(selectedRecord._id, entry._id, entry);
+                          }
+                        });
+                      }}
+                    >
+                      Verify
+                    </button>
+                  )}
                 </div>
               </div>
 
