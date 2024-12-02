@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import cover_image from "../assets/cover.jpg";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,12 +13,16 @@ function Login() {
   const [modalError, setModalError] = useState("");
   const [successMessage, setSuccessMessage] = useState(""); // To store the success message
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // New state for success modal
+  // Access environment variable for React URL
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+
+  console.log(apiUrl); // This should log: https://cmrms-full.onrender.com
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await axios.post("https://cmrms-full.onrender.com/login", {
+      const result = await axios.post(`${apiUrl}/login`, {
         email,
         password,
       });
