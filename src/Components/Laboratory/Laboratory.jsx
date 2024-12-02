@@ -2746,8 +2746,8 @@ function Laboratory() {
 
       {isAddOPDModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white py-4 px-6 rounded-lg w-1/2 shadow-lg">
-            <h2 className="text-xl font-semibold mb-4">Add OPD Patient</h2>
+                    <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-2xl max-w-5xl overflow-y-auto flex flex-col justify-between relative">
+                    <h2 className="text-xl font-semibold mb-4">Add OPD Patient</h2>
             <form onSubmit={handleAddOPDSubmit}>
               <div className="grid grid-cols-3 gap-4">
                 {/* Full Name Fields - Display only for Student */}
