@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { BiSearch, BiChevronDown } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
+import ClinicalChemistryCertificate from '../certificatesReports/ClinicalChemistryCertificate.jsx'
+
 
 function LaboratoryResult() {
   const [labRecords, setLabRecords] = useState([]);
@@ -224,6 +226,15 @@ function LaboratoryResult() {
         return value !== "" && value !== null && value !== undefined;
       }
     });
+  };
+  const [isChemistryCertificateOpen, setIsChemistryCertificate] = useState(false);
+
+  const handleOpenChemistryCertificate = (labDetails, ) => {
+    setIsChemistryCertificate(true);
+  };
+
+  const handleCloseChemistryCertificate = () => {
+    setIsChemistryCertificate(false); // Close the modal
   };
 
   return (
@@ -505,7 +516,7 @@ function LaboratoryResult() {
                 />
               </div>
 
-              {/* Blood Chemistry Section */}
+              {/* Blood Chemistry Section  trial*/}
               {requestedCategories.includes("Blood Chemistry") && (
                 <div className="mb-0">
                   <div
@@ -1282,7 +1293,7 @@ function LaboratoryResult() {
                               src={
                                 labDetails.clinicalMicroscopyParasitology
                                   .signature
-                              }
+                              } 
                               alt="Signature"
                               className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
                             />
@@ -1774,8 +1785,17 @@ function LaboratoryResult() {
               )}
             </div>
 
-            {/* Buttons Wrapper */}
+            {/* Buttons Wrapper trial*/}
             <div className="flex justify-end space-x-4 mt-4">
+            {requestedCategories.includes("Blood Chemistry") && isBloodChemistryVisible && labDetails &&(
+              <button
+                onClick={() => handleOpenChemistryCertificate(labDetails)}
+                className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
+              >
+                Clinical Chemistry Certificate
+              </button>
+            )}
+                <ClinicalChemistryCertificate isOpen={isChemistryCertificateOpen} onClose={handleCloseChemistryCertificate} labDetails={labDetails}/>
               <button
                 type="button"
                 onClick={closeModal}

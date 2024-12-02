@@ -7,6 +7,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { useParams } from "react-router-dom";
 import PTCertificate from '../certificatesReports/PTCertificate.jsx'
+
 function PhysicalTherapy() {
   const [isPTCertificateOpen, setIsPTCertificate] = useState(false);
   const { id } = useParams();
@@ -820,8 +821,6 @@ function PhysicalTherapy() {
                   )}
                 </div>
                 <PTCertificate isOpen={isPTCertificateOpen} onClose={handleClosePTCertificate} selectedRecord={selectedRecord} newTherapyRecord={newTherapyRecord}/>
-
-
                 {/* Right-aligned "Close" button */}
                 <div className="flex-1 text-right">
                   <button

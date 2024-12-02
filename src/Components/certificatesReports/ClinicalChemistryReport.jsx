@@ -238,7 +238,7 @@ const ClinicalChemistryReport = ({ isOpen, onClose, selectedReport, labRecords, 
       <div style="display: flex; justify-content: space-between; font-family: 'Times New Roman', Times, serif; font-size: 10pt; margin-top: 0; margin-left: 0.5in; margin-right: 0.5in;">
         <div style="text-align: left;">Telefax No.: (074) 442-3071</div>
         <div style="text-align: center;">Website: www.ubaguio.edu</div>
-        <div style="text-align: right;">E-mail Address: lab@ubaguio.edu</div>
+        <div style="text-align: right;">E-mail Address: clinical_lab@e.ubaguio.edu</div>
       </div>
     <div>
       <div style="margin: 0.5in; font-family: 'Times New Roman', Times, serif; font-size: 10pt;">

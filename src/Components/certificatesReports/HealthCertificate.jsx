@@ -67,7 +67,6 @@ const HealthCertificate = ({ isOpen, onClose, patient }) => {
     // Check if base64Image is not null and has content
     if (!base64Image) {
       console.error("Image could not be fetched.");
-      return;
     }
   
     // Create the PDF content
@@ -105,7 +104,7 @@ const HealthCertificate = ({ isOpen, onClose, patient }) => {
         </div>
         <div style="text-align: right; margin-top: 30px;">
           <!-- Signature Image -->
-        <img src="${base64Image}" alt="Signature" style="max-width: 200px; max-height: 50px; display: block; margin-left: auto; margin-right: 0;" />          
+        ${base64Image ? `<img src="${base64Image}" alt="Signature" style="max-width: 200px; max-height: 50px; margin-right: 10px;" />` : ''}
         <strong>${userData?.lastname} ${userData?.firstname} ${userData?.middlename || ''}</strong>, M.D.
         </div>
         <div style="text-align: right; margin-top: 5px;">
