@@ -768,15 +768,17 @@ function PhysicalTherapy() {
                       {userRole !== "special trainee" && (
                         <th className="border border-gray-300 px-4 py-2"></th>
                       )}
-                      <th
-                        className="border border-gray-300 px-4 py-2">Verification Checklist
-                        <button
-                          onClick={handleSelectAll}
-                          className="bg-custom-red text-white px-2 py-1 rounded-lg"
-                        >
-                          Select All
-                        </button>
-                      </th>
+                      <th className="border border-gray-300 px-4 py-2">
+          Verification Checklist
+          {selectedRecord?.SOAPSummaries?.length > 0 && !selectedRecord.SOAPSummaries.every(entry => entry.verifiedBy) && (
+            <button
+              onClick={handleSelectAll}
+              className="bg-custom-red text-white px-2 py-1 rounded-lg"
+            >
+              Select All
+            </button>
+          )}
+        </th>
                     </tr>
                   </thead>
                   <tbody>
