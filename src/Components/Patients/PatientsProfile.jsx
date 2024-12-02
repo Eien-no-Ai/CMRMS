@@ -2051,6 +2051,42 @@ function PatientsProfile() {
   const handleCloseHealthCertificate = () => {
     setIsHealthCertificate(false); // Close the modal
   };
+
+  const handleAddResultClick = async () => {
+    try {
+      // Extract laboratory request IDs from laboratory records
+      const laboratoryIds = laboratoryRecords.map((record) => record._id);
+
+      // Map over the labIds to update results
+      const labUpdatePromises = laboratoryIds.map((id) =>
+        axios.put(`http://localhost:3001/api/laboratory/${id}`, {
+          labResult: "verified", // Assuming `updatedLabResults` holds your new data
+        })
+      );
+
+      // Extract X-ray IDs from X-ray records
+      const xrayIds = xrayRecords.map((record) => record._id);
+
+      // Map over the xrayIds to update results
+      const xrayUpdatePromises = xrayIds.map((id) =>
+        axios.put(`http://localhost:3001/api/xrayResults/${id}`, {
+          xrayResult: "done", // Assuming `updatedXrayResults` holds your new data
+        })
+      );
+
+      // Wait for all updates to complete
+      await Promise.all([...labUpdatePromises, ...xrayUpdatePromises]);
+
+      // After successful update, log success and update UI
+      console.log("Results updated successfully!");
+      // You can refresh your records here or trigger a modal
+      setIsPackageResultModalOpen(true);
+    } catch (error) {
+      console.error("Error updating lab and X-ray results:", error);
+      alert("Failed to update results.");
+    }
+  };
+
   return (
     <div>
       <Navbar />
@@ -3715,6 +3751,17 @@ function PatientsProfile() {
                                     }
                                   >
                                     Cancel
+                                  </button>
+                                )}
+
+                                {role === "doctor" && status === "Pending" && (
+                                  <button
+                                    className="text-red-500"
+                                    onClick={() =>
+                                      handleAddResultClick(packageNumber)
+                                    }
+                                  >
+                                    Add Result
                                   </button>
                                 )}
                               </div>

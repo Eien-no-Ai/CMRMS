@@ -138,6 +138,7 @@ const LaboratoryResultsSchema = new mongoose.Schema({
   pathologistSignature: { type: String, default: "" },
   verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: "employees" }, // Reference to employee model
   verificationDate: { type: Date, default: Date.now },
+  labResultImage: { type: String, default: "" }, 
   isCreatedAt: { type: Date, default: Date.now },
 });
 
