@@ -34,7 +34,7 @@ function LaboratoryPathologistVerification() {
 
   const fetchLabRecords = () => {
     axios
-      .get("https://cmrms-backend.onrender.com/api/laboratory")
+      .get("https://cmrms-full.onrender.com/api/laboratory")
       .then((response) => {
         const completeRecords = response.data
           .filter(
@@ -52,7 +52,7 @@ function LaboratoryPathologistVerification() {
   const fetchLabResultByRequestId = async (laboratoryId) => {
     try {
       const response = await axios.get(
-        `https://cmrms-backend.onrender.com/api/laboratory-results/by-request/${laboratoryId}`
+        `https://cmrms-full.onrender.com/api/laboratory-results/by-request/${laboratoryId}`
       );
       if (response.status === 200 && response.data) {
         setLabDetails(response.data); // Set lab details
@@ -185,7 +185,7 @@ function LaboratoryPathologistVerification() {
   const fetchSignature = async (section) => {
     try {
       const response = await axios.get(
-        `https://cmrms-backend.onrender.com/api/signature/user/${userId}`
+        `https://cmrms-full.onrender.com/api/signature/user/${userId}`
       );
       if (response.data && response.data.signature) {
         switch (section) {
@@ -237,13 +237,13 @@ function LaboratoryPathologistVerification() {
 
     try {
       const response = await axios.put(
-        `https://cmrms-backend.onrender.com/api/laboratory-results/update/${labDetails._id}`,
+        `https://cmrms-full.onrender.com/api/laboratory-results/update/${labDetails._id}`,
         updatedLabResultData
       );
 
       if (response.status === 200) {
         const labUpdateResponse = await axios.put(
-          `https://cmrms-backend.onrender.com/api/laboratory/${labDetails.laboratoryId}`,
+          `https://cmrms-full.onrender.com/api/laboratory/${labDetails.laboratoryId}`,
           { labResult: "verified" }
         );
 
@@ -274,7 +274,7 @@ function LaboratoryPathologistVerification() {
 
     try {
       const response = await axios.get(
-        `https://cmrms-backend.onrender.com/api/pathologist-signature/${userId}`
+        `https://cmrms-full.onrender.com/api/pathologist-signature/${userId}`
       );
       console.log("Pathologist signature response:", response.data); // Debug log
 

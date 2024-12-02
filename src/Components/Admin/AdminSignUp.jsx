@@ -27,7 +27,7 @@ function AdminSignUp() {
     }
 
     try {
-      await axios.post("https://cmrms-backend.onrender.com/register", {
+      await axios.post("https://cmrms-full.onrender.com/register", {
         firstname: formData.firstname,
         lastname: formData.lastname,
         email: formData.email,

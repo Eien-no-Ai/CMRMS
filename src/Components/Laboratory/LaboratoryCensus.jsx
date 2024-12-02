@@ -17,7 +17,7 @@ function LaboratoryCensus() {
 
   const fetchLabRecords = () => {
     axios
-      .get("https://cmrms-backend.onrender.com/api/laboratory")
+      .get("https://cmrms-full.onrender.com/api/laboratory")
       .then((response) => {
         const completeRecords = response.data
           .filter((record) => record.labResult === "verified")

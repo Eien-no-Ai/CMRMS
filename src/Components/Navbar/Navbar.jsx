@@ -26,7 +26,7 @@ function Navbar() {
   useEffect(() => {
     if (userId) {
       axios
-        .get(`https://cmrms-backend.onrender.com/user/${userId}`)
+        .get(`https://cmrms-full.onrender.com/user/${userId}`)
         .then((response) => {
           setUserData(response.data); // Set the fetched user data
         })

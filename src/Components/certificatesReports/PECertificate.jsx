@@ -18,7 +18,7 @@ const PECertificate = ({ isOpen, onClose, patient, medicalHistory, physicalExamS
   useEffect(() => {
     if (userId) {
       axios
-        .get(`https://cmrms-backend.onrender.com/user/${userId}`)
+        .get(`https://cmrms-full.onrender.com/user/${userId}`)
         .then((response) => {
           setUserData(response.data);
         })

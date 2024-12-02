@@ -26,7 +26,7 @@ function LaboratoryResult() {
 
   const fetchLabRecords = () => {
     axios
-      .get("https://cmrms-backend.onrender.com/api/laboratory")
+      .get("https://cmrms-full.onrender.com/api/laboratory")
       .then((response) => {
         const completeRecords = response.data
           .filter((record) => record.labResult === "verified")
@@ -42,7 +42,7 @@ function LaboratoryResult() {
   const fetchLabResultByRequestId = async (laboratoryId) => {
     try {
       const response = await axios.get(
-        `https://cmrms-backend.onrender.com/api/laboratory-results/by-request/${laboratoryId}`
+        `https://cmrms-full.onrender.com/api/laboratory-results/by-request/${laboratoryId}`
       );
       if (response.status === 200 && response.data) {
         setLabDetails(response.data); // Set lab details
@@ -183,7 +183,7 @@ function LaboratoryResult() {
   const fetchEmployeeDetails = async (employeeId) => {
     try {
       const response = await axios.get(
-        `https://cmrms-backend.onrender.com/api/employees/${employeeId}`
+        `https://cmrms-full.onrender.com/api/employees/${employeeId}`
       );
       if (response.status === 200 && response.data) {
         setVerifiedByEmployee(response.data); // Set the employee details
@@ -198,7 +198,7 @@ function LaboratoryResult() {
   const fetchPathologistDetails = async (pathologistId) => {
     try {
       const response = await axios.get(
-        `https://cmrms-backend.onrender.com/api/employees/${pathologistId}`
+        `https://cmrms-full.onrender.com/api/employees/${pathologistId}`
       );
       if (response.status === 200 && response.data) {
         setVerifiedByPathologist(response.data); // Store pathologist details

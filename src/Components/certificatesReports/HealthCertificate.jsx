@@ -8,7 +8,7 @@ const HealthCertificate = ({ isOpen, onClose, patient }) => {
   const [bp, setBp] = useState("");
   const [pr, setPr] = useState("");
   const userId = localStorage.getItem("userId"); // Get the user ID from localStorage
-  const imageUrl = `https://cmrms-backend.onrender.com/uploads/${userData?.signature}`;
+  const imageUrl = `https://cmrms-full.onrender.com/uploads/${userData?.signature}`;
   const [pdfDataUrl, setPdfDataUrl] = useState(null);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ const HealthCertificate = ({ isOpen, onClose, patient }) => {
   useEffect(() => {
     if (userId) {
       axios
-        .get(`https://cmrms-backend.onrender.com/user/${userId}`)
+        .get(`https://cmrms-full.onrender.com/user/${userId}`)
         .then((response) => {
           setUserData(response.data);
         })
@@ -59,7 +59,7 @@ const HealthCertificate = ({ isOpen, onClose, patient }) => {
   
   
   const generatePDF = async () => {
-    const signatureUrl = `https://cmrms-backend.onrender.com/uploads/${userData?.signature}`;
+    const signatureUrl = `https://cmrms-full.onrender.com/uploads/${userData?.signature}`;
   
     // Fetch the image as Base64
     const base64Image = await fetchImageAsBase64(signatureUrl);

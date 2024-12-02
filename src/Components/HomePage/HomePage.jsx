@@ -83,7 +83,7 @@ const Dashboard = () => {
         // Fetch the logged-in employee's details to determine their department and role
         const userId = localStorage.getItem("userId");
         const employeeResponse = await axios.get(
-          `https://cmrms-backend.onrender.com/user/${userId}`
+          `https://cmrms-full.onrender.com/user/${userId}`
         );
         const { department, role } = employeeResponse.data;
         console.log("Employee Role:", role);
@@ -91,9 +91,9 @@ const Dashboard = () => {
 
         // Fetch all updates (labs, xrays, clinics)
         const [labs, xrays, clinics] = await Promise.all([
-          axios.get("https://cmrms-backend.onrender.com/api/laboratory"),
-          axios.get("https://cmrms-backend.onrender.com/api/xrayResults"),
-          axios.get("https://cmrms-backend.onrender.com/api/clinicalRecords"),
+          axios.get("https://cmrms-full.onrender.com/api/laboratory"),
+          axios.get("https://cmrms-full.onrender.com/api/xrayResults"),
+          axios.get("https://cmrms-full.onrender.com/api/clinicalRecords"),
         ]);
 
         let filteredUpdates = [];
@@ -238,7 +238,7 @@ const Dashboard = () => {
     // Fetch the user data when the component is mounted
     const userId = localStorage.getItem("userId");
     if (userId) {
-      fetch(`https://cmrms-backend.onrender.com/user/${userId}`)
+      fetch(`https://cmrms-full.onrender.com/user/${userId}`)
         .then((response) => response.json())
         .then((data) => {
           setUserRole(data.role);
@@ -259,7 +259,7 @@ const Dashboard = () => {
 
   const fetchPatients = () => {
     axios
-      .get("https://cmrms-backend.onrender.com/patients")
+      .get("https://cmrms-full.onrender.com/patients")
       .then((response) => {
         const sortedPatients = response.data
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))

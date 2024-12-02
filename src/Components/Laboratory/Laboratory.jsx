@@ -166,7 +166,7 @@ function Laboratory() {
       try {
         // Fetch patient data
         const response = await axios.get(
-          `https://cmrms-backend.onrender.com/patients/${record.patient._id}`
+          `https://cmrms-full.onrender.com/patients/${record.patient._id}`
         );
         const patientData = response.data;
 
@@ -392,7 +392,7 @@ function Laboratory() {
 
     try {
       const response = await axios.post(
-        "https://cmrms-backend.onrender.com/api/laboratory-results",
+        "https://cmrms-full.onrender.com/api/laboratory-results",
         dataToSend
       );
 
@@ -401,7 +401,7 @@ function Laboratory() {
 
         // Step 2: Update labResult to "complete" in Laboratory after successful save
         await axios.put(
-          `https://cmrms-backend.onrender.com/api/laboratory/${laboratoryId}`,
+          `https://cmrms-full.onrender.com/api/laboratory/${laboratoryId}`,
           {
             labResult: "for verification",
           }
@@ -444,7 +444,7 @@ function Laboratory() {
 
   const fetchLabRecords = () => {
     axios
-      .get("https://cmrms-backend.onrender.com/api/laboratory")
+      .get("https://cmrms-full.onrender.com/api/laboratory")
       .then((response) => {
         // Filter records where labResult is "pending"
         const pendingRecords = response.data
@@ -606,7 +606,7 @@ function Laboratory() {
     try {
       // Step 1: Add the patient
       const patientResponse = await axios.post(
-        "https://cmrms-backend.onrender.com/add-patient",
+        "https://cmrms-full.onrender.com/add-patient",
         patientData
       );
       const patientId = patientResponse.data.patient._id; // Extract the patient ID
@@ -619,7 +619,7 @@ function Laboratory() {
         referredBy,
       };
 
-      await axios.post("https://cmrms-backend.onrender.com/api/laboratory", labRequestData);
+      await axios.post("https://cmrms-full.onrender.com/api/laboratory", labRequestData);
 
       // Close modal and reset form
       fetchLabRecords();
