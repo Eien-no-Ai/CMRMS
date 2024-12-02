@@ -22,7 +22,7 @@ const VaccineList = () => {
   const fetchVaccines = async () => {
     try {
       const response = await axios.get(
-        "https://cmrms-backend.onrender.com/api/vaccine-list"
+        "http://localhost:3001/api/vaccine-list"
       );
       // Assuming response.data contains an array of vaccines with `createdAt` field
       const sortedVaccines = response.data.sort(
@@ -37,7 +37,7 @@ const VaccineList = () => {
   const handleVaccineSubmit = async () => {
     try {
       const response = await axios.post(
-        "https://cmrms-backend.onrender.com/api/vaccine-list",
+        "http://localhost:3001/api/vaccine-list",
         {
           ...newVaccine,
           createdAt: new Date(), // Add createdAt timestamp
@@ -96,7 +96,7 @@ const VaccineList = () => {
   const handleUpdateVaccine = async () => {
     try {
       await axios.put(
-        `https://cmrms-backend.onrender.com/api/vaccine-list/${editableVaccine._id}`,
+        `http://localhost:3001/api/vaccine-list/${editableVaccine._id}`,
         editableVaccine
       );
 
@@ -124,7 +124,7 @@ const VaccineList = () => {
 
     try {
       await axios.delete(
-        `https://cmrms-backend.onrender.com/api/vaccine-list/${vaccineToDelete._id}`
+        `http://localhost:3001/api/vaccine-list/${vaccineToDelete._id}`
       );
       // Re-fetch vaccines to ensure the list is updated and sorted properly
       await fetchVaccines();

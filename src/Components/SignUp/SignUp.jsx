@@ -16,7 +16,7 @@ function SignUp() {
   const handleSubmit = (e) => {
     e.preventDefault();
     axios
-      .post("https://cmrms-backend.onrender.com/register", {
+      .post("http://localhost:3001/register", {
         firstname: firstname,
         lastname: lastname,
         email: email,
