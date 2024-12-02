@@ -9529,10 +9529,10 @@ function PatientsProfile() {
               </div>
               {annual && (
                 <div className="grid grid-cols-12 gap-4 p-4">
-                  <label className="col-span-2">Year</label>
+                  {/* <label className="col-span-2">Year</label>
                   <div className="col-span-4 border rounded px-3 py-1">
                     {annual.changes.year}
-                  </div>
+                  </div> */}
 
                   <label className="col-span-2">Date Examined</label>
                   <div className="col-span-4 border rounded px-3 py-1">

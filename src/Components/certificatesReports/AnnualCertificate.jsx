@@ -299,8 +299,9 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
             </tr>
             </thead>
             <tbody>
-            <tr><td style="padding: 5px;border: 0.1px solid black;">Year</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.year}</td></tr>
-            <tr><td style="padding: 5px;border: 0.1px solid black;">Blood Pressure</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.bloodPressure}</td></tr>
+            <tr>
+            <tr><td style="padding: 5px;border: 0.1px solid black;">Date Examined</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.dateExamined}</td></tr>
+            <td style="padding: 5px;border: 0.1px solid black;">Blood Pressure</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.bloodPressure}</td></tr>
                         <tr><td colspan="2" style="height: 1in;"></td></tr>
             <tr><td style="padding: 5px;border: 0.1px solid black;">Pulse Rate</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.pulseRate}</td></tr>
             <tr><td style="padding: 5px;border: 0.1px solid black;">Respiration Rate</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.respirationRate}</td></tr>
@@ -309,7 +310,6 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
             <tr><td style="padding: 5px;border: 0.1px solid black;">BMI</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.bmi}</td></tr>
             <tr><td style="padding: 5px;border: 0.1px solid black;">Waist Line</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.wasteLine}</td></tr>
             <tr><td style="padding: 5px;border: 0.1px solid black;">Hip Line</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.hipLine}</td></tr>
-            <tr><td style="padding: 5px;border: 0.1px solid black;">Date Examined</td><td style="padding: 5px;border: 0.1px solid black;">${annual.changes.dateExamined}</td></tr>
             </tbody>
         </table>
         </div>
