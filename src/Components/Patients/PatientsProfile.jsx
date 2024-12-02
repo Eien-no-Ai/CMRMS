@@ -207,7 +207,6 @@ function PatientsProfile() {
     setIsNewTherapyRecordModalOpen(true);
   };
 
-
   const handleNewTherapyRecordClose = () => {
     setIsNewTherapyRecordModalOpen(false);
   };
@@ -222,14 +221,16 @@ function PatientsProfile() {
 
   const handleNewTherapySubmit = async (e) => {
     e.preventDefault();
-    
+
     // Get the selected record
     const selectedRecord = selectedXrayRecords[selectedXray];
-    
+
     // If there's no imageFile in the selected record, set it to null
-    const record = selectedRecord && selectedRecord.imageFile ? selectedRecord.imageFile : null;
-  
-    
+    const record =
+      selectedRecord && selectedRecord.imageFile
+        ? selectedRecord.imageFile
+        : null;
+
     try {
       const response = await axios.post(
         "http://localhost:3001/api/physicalTherapy", // Fix the spelling here
@@ -239,7 +240,7 @@ function PatientsProfile() {
           record, // Include the imageFile if available, or null if not
         }
       );
-      
+
       if (response.status === 200) {
         handleNewTherapyRecordClose();
         fetchPhysicalTherapyRecords();
@@ -254,7 +255,6 @@ function PatientsProfile() {
       console.error("Error adding new record:", error.response || error);
     }
   };
-
 
   const handleNewRecordOpen = () => {
     setIsNewRecordModalOpen(true);
@@ -6508,272 +6508,266 @@ function PatientsProfile() {
         </div>
       </div>
       {isNewTherapyRecordModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
-            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-lg shadow-lg z-50 max-w-3xl w-full overflow-auto h-auto max-h-[90vh]">
-              {/* Form Title */}
-              <h2 className="text-xl font-semibold mb-4 text-center">
-                Result Form
-              </h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-lg shadow-lg z-50 max-w-3xl w-full overflow-auto h-auto max-h-[90vh]">
+            {/* Form Title */}
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              Result Form
+            </h2>
 
-              {/* Main Form Content */}
-              <div className="flex flex-wrap mb-4 gap-4">
-                <form className="flex flex-row items-start gap-4 w-full">
-                  {/* X-ray Result Image - Left Side */}
-                  <div className="w-full md:w-1/2">
-                    <label className="block text-gray-700">X-ray Results</label>
+            {/* Main Form Content */}
+            <div className="flex flex-wrap mb-4 gap-4">
+              <form className="flex flex-row items-start gap-4 w-full">
+                {/* X-ray Result Image - Left Side */}
+                <div className="w-full md:w-1/2">
+                  <label className="block text-gray-700">X-ray Results</label>
 
-                    {/* Dropdown to select X-ray record */}
-                    <select
-                      className="w-full px-3 py-2 border rounded mb-4"
-                      onChange={(e) => setSelectedXray(e.target.value)}
-                      disabled={selectedXrayRecords.length === 0} // Disable if no records available
-                    >
-                      <option value="">Select X-ray</option>
-                      {selectedXrayRecords.map((xray, index) => (
-                        <option key={index} value={index}>
-                          X-ray {index + 1} -{" "}
-                          {new Date(xray.isCreatedAt).toLocaleDateString()}
-                        </option>
-                      ))}
-                    </select>
+                  {/* Dropdown to select X-ray record */}
+                  <select
+                    className="w-full px-3 py-2 border rounded mb-4"
+                    onChange={(e) => setSelectedXray(e.target.value)}
+                    disabled={selectedXrayRecords.length === 0} // Disable if no records available
+                  >
+                    <option value="">Select X-ray</option>
+                    {selectedXrayRecords.map((xray, index) => (
+                      <option key={index} value={index}>
+                        X-ray {index + 1} -{" "}
+                        {new Date(xray.isCreatedAt).toLocaleDateString()}
+                      </option>
+                    ))}
+                  </select>
 
-                    {/* Display selected X-ray record */}
-                    {selectedXray !== null &&
-                      selectedXrayRecords[selectedXray] && (
-                        <div>
-                          <img
-                            src={selectedXrayRecords[selectedXray].imageFile}
-                            alt="X-ray"
-                            className="w-full h-auto object-contain cursor-pointer mb-4 max-h-[60vh] overflow-hidden mx-auto" // Modified styles
-                          />
-                        </div>
-                      )}
-                  </div>
-
-                  {/* Patient Details Section - Right Side */}
-                  <div className="w-full md:w-1/2">
-                    {/* Patient Information */}
-                    <div className="flex mb-4 gap-2">
-                      <div className="w-1/2">
-                        <label className="block text-gray-700">Name</label>
-                        <input
-                          type="text"
-                          name="name"
-                          value={
-                            `${patient.firstname} ${patient.lastname}` || "N/A"
-                          }
-                          readOnly
-                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                  {/* Display selected X-ray record */}
+                  {selectedXray !== null &&
+                    selectedXrayRecords[selectedXray] && (
+                      <div>
+                        <img
+                          src={selectedXrayRecords[selectedXray].imageFile}
+                          alt="X-ray"
+                          className="w-full h-auto object-contain cursor-pointer mb-4 max-h-[60vh] overflow-hidden mx-auto" // Modified styles
                         />
                       </div>
-                      <div className="w-1/4">
-                        <label className="block text-gray-700">Age</label>
-                        <input
-                          type="text"
-                          name="age"
-                          value={calculateAge(patient.birthdate)}
-                          readOnly
-                          className="w-full px-3 py-2 border rounded bg-gray-100"
-                        />
-                      </div>
-                      <div className="w-1/4">
-                        <label className="block text-gray-700">Sex</label>
-                        <input
-                          type="text"
-                          name="sex"
-                          value={patient.sex || "N/A"}
-                          readOnly
-                          className="w-full px-3 py-2 border rounded bg-gray-100"
-                        />
-                      </div>
-                    </div>
+                    )}
+                </div>
 
-                    {/* Course/Dept. or Position */}
-                    <div className="mb-4">
-                      <label className="block text-gray-700">
-                        {patient.patientType === "Student"
-                          ? "Course/Dept."
-                          : "Position"}
-                      </label>
+                {/* Patient Details Section - Right Side */}
+                <div className="w-full md:w-1/2">
+                  {/* Patient Information */}
+                  <div className="flex mb-4 gap-2">
+                    <div className="w-1/2">
+                      <label className="block text-gray-700">Name</label>
                       <input
                         type="text"
-                        name="courseDept"
+                        name="name"
                         value={
-                          patient.patientType === "Student"
-                            ? patient.course || "N/A"
-                            : patient.position || "N/A"
+                          `${patient.firstname} ${patient.lastname}` || "N/A"
                         }
                         readOnly
                         className="w-full px-3 py-2 border rounded bg-gray-100"
                       />
                     </div>
+                    <div className="w-1/4">
+                      <label className="block text-gray-700">Age</label>
+                      <input
+                        type="text"
+                        name="age"
+                        value={calculateAge(patient.birthdate)}
+                        readOnly
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                      />
+                    </div>
+                    <div className="w-1/4">
+                      <label className="block text-gray-700">Sex</label>
+                      <input
+                        type="text"
+                        name="sex"
+                        value={patient.sex || "N/A"}
+                        readOnly
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                      />
+                    </div>
+                  </div>
 
-                    {/* X-ray Information (OR No., Case No., Date, Interpretation) */}
-                    <div className="mb-4">
-                      <div className="flex mb-4 gap-2">
-                        <div className="w-1/3">
-                          <label className="block text-gray-700">OR No.</label>
-                          <input
-                            type="text"
-                            name="XrayNo"
-                            value={
-                              selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
-                                ? selectedXrayRecords[selectedXray].ORNumber ||
-                                  "N/A"
-                                : "N/A"
-                            }
-                            className="w-full px-3 py-2 border rounded"
-                            readOnly
-                          />
-                        </div>
-                        <div className="w-1/3">
-                          <label className="block text-gray-700">
-                            Case No.
-                          </label>
-                          <input
-                            type="text"
-                            name="XrayNo"
-                            value={
-                              selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
-                                ? selectedXrayRecords[selectedXray].XrayNo ||
-                                  "N/A"
-                                : "N/A"
-                            }
-                            className="w-full px-3 py-2 border rounded"
-                            readOnly
-                          />
-                        </div>
-                        <div className="w-1/3">
-                          <label className="block text-gray-700">Date</label>
-                          <input
-                            type="text"
-                            name="date"
-                            value={
-                              selectedXray !== null &&
-                              selectedXrayRecords[selectedXray]
-                                ? new Date(
-                                    selectedXrayRecords[
-                                      selectedXray
-                                    ].isCreatedAt
-                                  ).toLocaleString()
-                                : "N/A"
-                            }
-                            className="w-full px-3 py-2 border rounded"
-                            readOnly
-                          />
-                        </div>
-                      </div>
+                  {/* Course/Dept. or Position */}
+                  <div className="mb-4">
+                    <label className="block text-gray-700">
+                      {patient.patientType === "Student"
+                        ? "Course/Dept."
+                        : "Position"}
+                    </label>
+                    <input
+                      type="text"
+                      name="courseDept"
+                      value={
+                        patient.patientType === "Student"
+                          ? patient.course || "N/A"
+                          : patient.position || "N/A"
+                      }
+                      readOnly
+                      className="w-full px-3 py-2 border rounded bg-gray-100"
+                    />
+                  </div>
 
-                      {/* Diagnosis */}
-                      <div className="w-full">
-                        <label className="block text-gray-700">
-                          Interpretation
-                        </label>
-                        <textarea
-                          name="diagnosis"
-                          className="w-full px-3 py-2 border rounded"
-                          rows="4"
-                          placeholder="No Interpretation available."
+                  {/* X-ray Information (OR No., Case No., Date, Interpretation) */}
+                  <div className="mb-4">
+                    <div className="flex mb-4 gap-2">
+                      <div className="w-1/3">
+                        <label className="block text-gray-700">OR No.</label>
+                        <input
+                          type="text"
+                          name="XrayNo"
                           value={
                             selectedXray !== null &&
                             selectedXrayRecords[selectedXray]
-                              ? selectedXrayRecords[selectedXray].diagnosis ||
-                                ""
-                              : ""
+                              ? selectedXrayRecords[selectedXray].ORNumber ||
+                                "N/A"
+                              : "N/A"
                           }
+                          className="w-full px-3 py-2 border rounded"
                           readOnly
                         />
                       </div>
-
-                      {/*X-ray Findings*/}
-                      <div className="w-full">
-                        <label className="block text-gray-700">
-                          X-ray Findings
-                        </label>
-                        <textarea
-                          name="xrayFindings"
-                          className="w-full px-3 py-2 border rounded"
-                          rows="4"
-                          placeholder="No X-ray findings available."
+                      <div className="w-1/3">
+                        <label className="block text-gray-700">Case No.</label>
+                        <input
+                          type="text"
+                          name="XrayNo"
                           value={
                             selectedXray !== null &&
                             selectedXrayRecords[selectedXray]
-                              ? selectedXrayRecords[selectedXray]
-                                  .xrayFindings || ""
-                              : ""
+                              ? selectedXrayRecords[selectedXray].XrayNo ||
+                                "N/A"
+                              : "N/A"
                           }
-                          required
+                          className="w-full px-3 py-2 border rounded"
+                          readOnly
+                        />
+                      </div>
+                      <div className="w-1/3">
+                        <label className="block text-gray-700">Date</label>
+                        <input
+                          type="text"
+                          name="date"
+                          value={
+                            selectedXray !== null &&
+                            selectedXrayRecords[selectedXray]
+                              ? new Date(
+                                  selectedXrayRecords[selectedXray].isCreatedAt
+                                ).toLocaleString()
+                              : "N/A"
+                          }
+                          className="w-full px-3 py-2 border rounded"
+                          readOnly
                         />
                       </div>
                     </div>
+
+                    {/* Diagnosis */}
+                    <div className="w-full">
+                      <label className="block text-gray-700">
+                        Interpretation
+                      </label>
+                      <textarea
+                        name="diagnosis"
+                        className="w-full px-3 py-2 border rounded"
+                        rows="4"
+                        placeholder="No Interpretation available."
+                        value={
+                          selectedXray !== null &&
+                          selectedXrayRecords[selectedXray]
+                            ? selectedXrayRecords[selectedXray].diagnosis || ""
+                            : ""
+                        }
+                        readOnly
+                      />
+                    </div>
+
+                    {/*X-ray Findings*/}
+                    <div className="w-full">
+                      <label className="block text-gray-700">
+                        X-ray Findings
+                      </label>
+                      <textarea
+                        name="xrayFindings"
+                        className="w-full px-3 py-2 border rounded"
+                        rows="4"
+                        placeholder="No X-ray findings available."
+                        value={
+                          selectedXray !== null &&
+                          selectedXrayRecords[selectedXray]
+                            ? selectedXrayRecords[selectedXray].xrayFindings ||
+                              ""
+                            : ""
+                        }
+                        required
+                      />
+                    </div>
                   </div>
-                </form>
-              </div>
-
-              {/* New Physical Therapy Record Section */}
-              <h2 className="text-lg font-bold mb-4 text-center">
-                New Physical Therapy Record
-              </h2>
-              <form onSubmit={handleNewTherapySubmit}>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium">
-                    Tentative Diagnosis
-                  </label>
-                  <textarea
-                    type="text"
-                    name="Diagnosis"
-                    value={newTherapyRecord.Diagnosis}
-                    onChange={handleNewTherapyRecordChange}
-                    required
-                    className="border rounded-lg w-full p-2 mt-1"
-                  />
-
-                  <label className="block text-sm font-medium">
-                    Chief Complaints
-                  </label>
-                  <textarea
-                    type="text"
-                    name="ChiefComplaints"
-                    value={newTherapyRecord.ChiefComplaints}
-                    onChange={handleNewTherapyRecordChange}
-                    required
-                    className="border rounded-lg w-full p-2 mt-1"
-                  />
-
-                  <label className="block text-sm font-medium">
-                    History Of Present Illness
-                  </label>
-                  <textarea
-                    type="text"
-                    name="HistoryOfPresentIllness"
-                    value={newTherapyRecord.HistoryOfPresentIllness}
-                    onChange={handleNewTherapyRecordChange}
-                    required
-                    className="border rounded-lg w-full p-2 mt-1"
-                  />
-
-                </div>
-                <div className="flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    className="bg-gray-500 text-white py-2 px-4 rounded-lg"
-                    onClick={handleNewTherapyRecordClose}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="bg-custom-red text-white py-2 px-4 rounded-lg"
-                  >
-                    Submit
-                  </button>
                 </div>
               </form>
             </div>
+
+            {/* New Physical Therapy Record Section */}
+            <h2 className="text-lg font-bold mb-4 text-center">
+              New Physical Therapy Record
+            </h2>
+            <form onSubmit={handleNewTherapySubmit}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium">
+                  Tentative Diagnosis
+                </label>
+                <textarea
+                  type="text"
+                  name="Diagnosis"
+                  value={newTherapyRecord.Diagnosis}
+                  onChange={handleNewTherapyRecordChange}
+                  required
+                  className="border rounded-lg w-full p-2 mt-1"
+                />
+
+                <label className="block text-sm font-medium">
+                  Chief Complaints
+                </label>
+                <textarea
+                  type="text"
+                  name="ChiefComplaints"
+                  value={newTherapyRecord.ChiefComplaints}
+                  onChange={handleNewTherapyRecordChange}
+                  required
+                  className="border rounded-lg w-full p-2 mt-1"
+                />
+
+                <label className="block text-sm font-medium">
+                  History Of Present Illness
+                </label>
+                <textarea
+                  type="text"
+                  name="HistoryOfPresentIllness"
+                  value={newTherapyRecord.HistoryOfPresentIllness}
+                  onChange={handleNewTherapyRecordChange}
+                  required
+                  className="border rounded-lg w-full p-2 mt-1"
+                />
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                  onClick={handleNewTherapyRecordClose}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-custom-red text-white py-2 px-4 rounded-lg"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
           </div>
-        )}
+        </div>
+      )}
 
       {/* Vaccine Modal */}
       {isVaccineModalOpen && (
@@ -8506,15 +8500,13 @@ function PatientsProfile() {
                   </button>
 
                   {/* Conditionally Render the PT Refer Button Once */}
-                 
-  <button
-                      className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                      onClick={() =>
-                        handleNewTherapyRecordOpen(selectedRecord)
-                      } // Pass all X-ray records
-                    >
-                      <GiBiceps className="mr-2" /> Refer to PT
-                    </button>
+
+                  <button
+                    className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                    onClick={() => handleNewTherapyRecordOpen(selectedRecord)} // Pass all X-ray records
+                  >
+                    <GiBiceps className="mr-2" /> Refer to PT
+                  </button>
                 </div>
               )}
 

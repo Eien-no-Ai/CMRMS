@@ -107,7 +107,7 @@ function Navbar() {
             </a>
           </>
         )}
-        {role === "senior medtech" && role === "senior medtech" &&(
+        {role === "senior medtech" && role === "senior medtech" && (
           <>
             <a href="/laboratory/census" className="hover:underline">
               Census
@@ -115,24 +115,25 @@ function Navbar() {
           </>
         )}
 
-         {role === "radiologic technologist" || role === "radiologist" &&(
-          <>
-            <a href="/xray/census" className="hover:underline">
-              X-ray Census
-            </a>
-          </>
-        )}
+        {role === "radiologic technologist" ||
+          (role === "radiologist" && (
+            <>
+              <a href="/xray/census" className="hover:underline">
+                X-ray Census
+              </a>
+            </>
+          ))}
 
         <div className="relative" ref={dropdownRef}>
-        <button
-          onClick={toggleDropdown}
-          className="flex items-center cursor-pointer text-white hover:text-gray-300"
-        >
-          <VscAccount size={24} />
-          <span className="ml-2">
-            {userData.firstname ? `${userData.firstname}` : "Hello, User"}
-          </span>
-        </button>
+          <button
+            onClick={toggleDropdown}
+            className="flex items-center cursor-pointer text-white hover:text-gray-300"
+          >
+            <VscAccount size={24} />
+            <span className="ml-2">
+              {userData.firstname ? `${userData.firstname}` : "Hello, User"}
+            </span>
+          </button>
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg py-2 z-10">
               <a
@@ -149,7 +150,6 @@ function Navbar() {
               </button>
             </div>
           )}
-          
         </div>
       </div>
     </div>
