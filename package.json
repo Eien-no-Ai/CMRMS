@@ -15,6 +15,7 @@
     "env": "^0.0.2",
     "express-session": "^1.18.0",
     "html2pdf.js": "^0.9.3",
+    "http-proxy-middleware": "^3.0.3",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.3",
@@ -29,7 +30,7 @@
     "url": "^0.11.4",
     "web-vitals": "^2.1.4"
   },
-   "scripts": {
+  "scripts": {
     "start": "react-scripts start",
     "server": "nodemon server/index.js",
     "build": "react-scripts build",
