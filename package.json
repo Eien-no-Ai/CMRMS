@@ -30,14 +30,14 @@
     "url": "^0.11.4",
     "web-vitals": "^2.1.4"
   },
-"scripts": {
-  "start": "concurrently \"npm run start:client\" \"npm run start:server\"",
-  "start:client": "react-scripts start",
-  "start:server": "cd server && node index.js",
-  "build": "react-scripts build",
-  "test": "react-scripts test",
-  "eject": "react-scripts eject"
-},
+  "scripts": {
+    "start": "concurrently \"npm run start:client\" \"npm run start:server\"",
+    "start:client": "react-scripts start",
+    "start:server": "cd server && node index.js",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -58,6 +58,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "concurrently": "^9.1.0",
     "tailwindcss": "^3.4.10"
   }
 }
