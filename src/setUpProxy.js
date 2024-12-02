@@ -5,7 +5,7 @@ module.exports = function (app) {
   app.use(
     '/api',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/',
+      target: 'http://localhost:3001/',
       changeOrigin: true,
       secure: false,
       ws: true, // For WebSocket support
@@ -16,7 +16,7 @@ module.exports = function (app) {
   app.use(
     '/accounts',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -26,7 +26,7 @@ module.exports = function (app) {
    app.use(
     '/uploads',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -36,7 +36,7 @@ module.exports = function (app) {
    app.use(
     '/forgot-password',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -46,7 +46,7 @@ module.exports = function (app) {
    app.use(
     '/verify-otp',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -56,7 +56,7 @@ module.exports = function (app) {
    app.use(
     '/verify-otp',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -66,7 +66,7 @@ module.exports = function (app) {
    app.use(
     '/register',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -76,7 +76,7 @@ module.exports = function (app) {
  app.use(
     '/login',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -86,7 +86,7 @@ module.exports = function (app) {
  app.use(
     '/user/:id',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -96,7 +96,7 @@ module.exports = function (app) {
  app.use(
     '/user/:id/update-password',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -106,7 +106,7 @@ module.exports = function (app) {
  app.use(
     '/role',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -116,7 +116,7 @@ module.exports = function (app) {
  app.use(
     '/reset-password',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -126,7 +126,7 @@ module.exports = function (app) {
  app.use(
     '/add-account',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -136,7 +136,7 @@ module.exports = function (app) {
  app.use(
     '/delete-account',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -146,7 +146,7 @@ module.exports = function (app) {
  app.use(
     '/search',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -156,7 +156,7 @@ module.exports = function (app) {
  app.use(
     '/add-patient',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -166,7 +166,7 @@ module.exports = function (app) {
  app.use(
     '/patients',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -176,7 +176,7 @@ module.exports = function (app) {
  app.use(
     '/patients/:id',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
@@ -185,7 +185,7 @@ module.exports = function (app) {
       app.use(
         '/xrayResultUpload',
         createProxyMiddleware({
-          target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+          target: 'http://localhost:3001/', // Adjust the target as needed
           changeOrigin: true,
           secure: false,
         })
@@ -195,7 +195,7 @@ module.exports = function (app) {
    app.use(
     '/xrayResultUpload',
     createProxyMiddleware({
-      target: 'https://cmrms-backend.onrender.com/', // Adjust the target as needed
+      target: 'http://localhost:3001/', // Adjust the target as needed
       changeOrigin: true,
       secure: false,
     })
