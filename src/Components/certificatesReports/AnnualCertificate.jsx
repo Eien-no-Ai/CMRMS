@@ -105,17 +105,21 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
     // Create a temporary div to hold the content
     const content = document.createElement('div');
     content.innerHTML = `
-
-        <img src="/ub.png" width="200" height="100" style="display: block; margin-top: 0.5in; margin-left: auto; margin-right: auto;" alt="logo" />
-        <p style="text-align: center; font-family: 'Times New Roman', Times, serif; font-size: 10pt;">
-            MEDICAL CLINIC<br>
-            Upper General Luna RD., Baguio City, PHILIPPINES 2600<br>
-            ANNUAL EMPLOYEE EXAMINATION FORM
-        </p>
-
-
-
+          <img src="/ub.png" width="200" height="100" style="display: block; margin-top: 0.5in; margin-left: auto; margin-right: auto;" alt="logo" />
+          <p style="text-align: center; font-family: 'Times New Roman', Times, serif; font-size: 10pt;">
+            UNIVERSITY OF BAGUIO CLINICAL LABORATORY<br>
+            General Luna Road., Baguio City, Philippines 2600
+          </p>
+          <hr style="border-top: 1px solid black; margin-top: 7px; margin-left: 0.5in; margin-right: 0.5in; margin-bottom: 2px;">
+          <hr style="border-top: 1px solid black; margin-top: 0; margin-left: 0.5in; margin-right: 0.5in; margin-bottom: 0;">
+          <div style="display: flex; justify-content: space-between; font-family: 'Times New Roman', Times, serif; font-size: 10pt; margin-top: 0; margin-left: 0.5in; margin-right: 0.5in;">
+            <div style="text-align: left;">Telefax No.: (074) 442-3071</div>
+            <div style="text-align: center;">Website: www.ubaguio.edu</div>
+        <div style="text-align: right;">E-mail Address: clinical_lab@e.ubaguio.edu</div>
+          </div>
+        </div>
       <div style="margin: 0.5in; font-family: 'Times New Roman', Times, serif; font-size: 10pt;">
+          <div style="text-align: center; margin-bottom: 10px;"><strong>ANNUAL EMPLOYEE EXAMINATION FORM</strong></div>
         <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
           <div><strong>Name:</strong> ${patient?.lastname} ${patient?.firstname} ${patient?.middlename || ""}</div>
           <div><strong>Age:</strong> ${age} years</div>
