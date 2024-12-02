@@ -3,6 +3,7 @@ import { BiSearch, BiChevronDown } from "react-icons/bi";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
 import ClinicalChemistryCertificate from '../certificatesReports/ClinicalChemistryCertificate.jsx'
+import LabCompleteResultCertificate from '../certificatesReports/LabCompleteResultCertificate.jsx'
 
 
 function LaboratoryResult() {
@@ -236,6 +237,17 @@ function LaboratoryResult() {
   const handleCloseChemistryCertificate = () => {
     setIsChemistryCertificate(false); // Close the modal
   };
+
+  const [isLabCompleteResultCertificateOpen, setIsLabCompleteResultCertificate] = useState(false);
+
+  const handleOpenLabCompleteResultCertificate = (labDetails, ) => {
+    setIsLabCompleteResultCertificate(true);
+  };
+
+  const handleCloseLabCompleteResultCertificate = () => {
+    setIsLabCompleteResultCertificate(false); // Close the modal
+  };
+
 
   return (
     <div>
@@ -1787,15 +1799,29 @@ function LaboratoryResult() {
 
             {/* Buttons Wrapper trial*/}
             <div className="flex justify-end space-x-4 mt-4">
-            {requestedCategories.includes("Blood Chemistry") && isBloodChemistryVisible && labDetails &&(
-              <button
-                onClick={() => handleOpenChemistryCertificate(labDetails)}
-                className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
-              >
-                Clinical Chemistry Certificate
-              </button>
-            )}
-                <ClinicalChemistryCertificate isOpen={isChemistryCertificateOpen} onClose={handleCloseChemistryCertificate} labDetails={labDetails} verifiedByPathologist={verifiedByPathologist}/>
+              {requestedCategories.includes("Blood Chemistry") && isBloodChemistryVisible && labDetails && verifiedByPathologist &&(
+                <button
+                  onClick={() => handleOpenChemistryCertificate(labDetails)}
+                  className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
+                >
+                  Clinical Chemistry Form
+                </button>
+              )}
+                  <ClinicalChemistryCertificate isOpen={isChemistryCertificateOpen} onClose={handleCloseChemistryCertificate} labDetails={labDetails} verifiedByPathologist={verifiedByPathologist}/>
+
+                {(
+                  requestedCategories.includes("Hematology") || requestedCategories.includes("Clinical Microscopy and Parasitology") || requestedCategories.includes("Serology")
+                ) && labDetails && verifiedByPathologist && (
+                  <button
+                    onClick={() => handleOpenLabCompleteResultCertificate(labDetails)}
+                    className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
+                  >
+                    Laboratory Result Form
+                  </button>
+                )}
+
+                <LabCompleteResultCertificate isOpen={isLabCompleteResultCertificateOpen} onClose={handleCloseLabCompleteResultCertificate} labDetails={labDetails} verifiedByPathologist={verifiedByPathologist}/>
+
               <button
                 type="button"
                 onClick={closeModal}

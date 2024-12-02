@@ -251,7 +251,7 @@ const ClinicalChemistryCertificate = ({ isOpen, onClose, labDetails, verifiedByP
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-2xl max-w-5xl overflow-y-auto flex flex-col justify-between relative">
-        <h2 className="text-2xl font-semibold">Clinical Chemistry Certificate Form Preview</h2>
+        <h2 className="text-2xl font-semibold">Clinical Chemistry Form Preview</h2>
 
         {pdfDataUrl && (
           <div className="my-4">
