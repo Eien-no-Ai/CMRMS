@@ -2,17 +2,19 @@ import React, { useState, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
 import axios from "axios";
 
-const HealthCertificate = ({ isOpen, onClose, labDetails }) => {
+const ClinicalChemistryCertificate = ({ isOpen, onClose, labDetails, verifiedByPathologist }) => {
   const [userData, setUserData] = useState({});
   const userId = localStorage.getItem("userId"); // Get the user ID from localStorage
   const imageUrl = `http://localhost:3001/uploads/${userData?.signature}`;
   const [pdfDataUrl, setPdfDataUrl] = useState(null);
+  const pathologistUrl = labDetails?.pathologistSignature;
+
 
   useEffect(() => {
-    if (isOpen && labDetails && userData) {
+    if (isOpen && labDetails && userData && verifiedByPathologist) {
       generatePDF();
     }
-  }, [isOpen, labDetails, userData]);
+  }, [isOpen, labDetails, userData, verifiedByPathologist]);
 
   useEffect(() => {
     if (userId) {
@@ -27,43 +29,46 @@ const HealthCertificate = ({ isOpen, onClose, labDetails }) => {
     }
   }, [userId]);
   
-  const fetchImageAsBase64 = async (imageUrl) => {
+  const fetchImageAsBase64 = async (imageUrl, pathologistUrl) => { 
     try {
-      const response = await axios.get(imageUrl, { responseType: 'blob' });
-      const blob = response.data;
+      // Fetch both images in parallel using Promise.all
+      const [imageResponse, pathologistResponse] = await Promise.all([
+        axios.get(imageUrl, { responseType: 'blob' }),
+        axios.get(pathologistUrl, { responseType: 'blob' })
+      ]);
+      
+      // Function to convert a blob to Base64
+      const convertBlobToBase64 = (blob) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result); // Resolve with the Base64 string
+          reader.onerror = reject; // Reject on error
+          reader.readAsDataURL(blob); // Read the blob as a Data URL (Base64)
+        });
+      };
+      
+      // Convert both images to Base64
+      const base64Image = await convertBlobToBase64(imageResponse.data);
+      const base64PathologistImage = await convertBlobToBase64(pathologistResponse.data);
   
-      // Create a FileReader to convert the image to Base64
-      const reader = new FileReader();
-  
-      // Promise to return the Base64 image data once the FileReader is done
-      const base64ImagePromise = new Promise((resolve, reject) => {
-        reader.onloadend = () => {
-          resolve(reader.result); // This will return the Base64 string
-        };
-        reader.onerror = reject; // Handle error if it occurs
-      });
-  
-      // Read the blob as a Data URL (Base64 string)
-      reader.readAsDataURL(blob);
-  
-      // Wait for the Base64 result and return it
-      return await base64ImagePromise;
+      return { base64Image, base64PathologistImage }; // Return both Base64 images
     } catch (error) {
-      console.error("Error fetching image as base64:", error);
-      return null;
+      console.error("Error fetching images as base64:", error);
+      return { base64Image: null, base64PathologistImage: null }; // Return null if an error occurs
     }
   };
   
-  
   const generatePDF = async () => {
     const signatureUrl = `http://localhost:3001/uploads/${userData?.signature}`;
-  
-    // Fetch the image as Base64
-    const base64Image = await fetchImageAsBase64(signatureUrl);
-  
+    const signaturePathologistUrl = labDetails?.pathologistSignature;
+
+    const { base64Image, base64PathologistImage } = await fetchImageAsBase64(signatureUrl, signaturePathologistUrl);  
     // Check if base64Image is not null and has content
     if (!base64Image) {
-      console.error("Image could not be fetched.");
+      console.error("open.");
+    }
+    if (!base64PathologistImage) {
+      console.error("sesame.");
     }
 
         // Compute age from birthdate
@@ -204,18 +209,9 @@ const HealthCertificate = ({ isOpen, onClose, labDetails }) => {
             </div>
 
 
-    <!-- Signature Image -->
-    <!-- ${base64Image ? `<img src="${base64Image}" alt="Signature" style="max-width: 200px; max-height: 50px; margin-right: 10px;" />` : ''} -->
 
-<div style="text-align: right; margin-top: 30px;">
-  <!-- Signature Image -->
-  
-  <!-- <div>
-    <strong>${userData?.lastname} ${userData?.firstname} ${userData?.middlename || ''}</strong>, M.D.
-  </div> -->
-  
   <!-- License Number and Titles side by side -->
-<div style="display: flex; justify-content: space-between; width: 100%; align-items: flex-start;">
+<div style="display: flex; justify-content: space-between; width: 100%; align-items: flex-start; margin-top:50px;">
   <!-- Left Section (Medical Pathologist) -->
   <div style="text-align: left; width: 48%;">
     ${base64Image ? `<img src="${base64Image}" alt="Signature" style="max-width: 200px; max-height: 50px; margin-right: 10px;" />` : ''}
@@ -226,7 +222,8 @@ const HealthCertificate = ({ isOpen, onClose, labDetails }) => {
   
   <!-- Right Section (Clinical Technologist) -->
   <div style="text-align: left; width: 48%; text-align: right;">
-    <strong>Name:</strong> ________________________ <br>
+      ${base64PathologistImage ? `<img src="${base64PathologistImage}" alt="Signature" style="max-width: 200px; max-height: 50px; margin-right: 10px;" />` : ''}
+    <strong>Name:</strong> ${verifiedByPathologist?.lastname} ${verifiedByPathologist?.firstname} ${verifiedByPathologist?.middlename || ''} <br>
     <strong>License Number:</strong> ____________________ <br>
     <div>Clinical Technologist</div>
   </div>
@@ -282,4 +279,4 @@ const HealthCertificate = ({ isOpen, onClose, labDetails }) => {
   );
 };
 
-export default HealthCertificate;
+export default ClinicalChemistryCertificate;

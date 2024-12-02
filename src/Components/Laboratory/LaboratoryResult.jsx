@@ -1795,7 +1795,7 @@ function LaboratoryResult() {
                 Clinical Chemistry Certificate
               </button>
             )}
-                <ClinicalChemistryCertificate isOpen={isChemistryCertificateOpen} onClose={handleCloseChemistryCertificate} labDetails={labDetails}/>
+                <ClinicalChemistryCertificate isOpen={isChemistryCertificateOpen} onClose={handleCloseChemistryCertificate} labDetails={labDetails} verifiedByPathologist={verifiedByPathologist}/>
               <button
                 type="button"
                 onClick={closeModal}

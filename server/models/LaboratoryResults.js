@@ -18,6 +18,7 @@ const LaboratoryResultsSchema = new mongoose.Schema({
     triglyceride: { type: String, default: "" },
     HDL_cholesterol: { type: String, default: "" },
     LDL_cholesterol: { type: String, default: "" },
+    signature: { type: String, default: "" },
   },
   Hematology: {
     redBloodCellCount: { type: String, default: "" },

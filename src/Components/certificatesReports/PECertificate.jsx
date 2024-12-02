@@ -66,6 +66,7 @@ const PECertificate = ({ isOpen, onClose, patient, medicalHistory, physicalExamS
   
     // Fetch the image as Base64
     const base64Image = await fetchImageAsBase64(signatureUrl);
+    
   
     // Check if base64Image is not null and has content
     if (!base64Image) {
