@@ -19,10 +19,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 const nodemailer = require("nodemailer");
-require('dotenv').config();
+require("dotenv").config();
 
 const port = process.env.PORT || 3001;
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
@@ -268,7 +272,6 @@ app.post("/api/packages", async (req, res) => {
     microbiology,
     xrayType,
     xrayDescription,
-    
   } = req.body;
 
   const newPackage = new PackageModel({
@@ -316,11 +319,12 @@ app.get("/api/packages/:id", async (req, res) => {
 
 app.put("/api/packages/:id", async (req, res) => {
   const { id } = req.params;
+  const { isArchived } = req.body; // Get the new value for isArchived
 
   try {
     const updatedPackage = await PackageModel.findByIdAndUpdate(
       id,
-      { isArchived: true }, // Set isArchived to true
+      { isArchived: isArchived }, // Update isArchived to the value passed in the request
       { new: true } // Return the updated document
     );
 
@@ -330,8 +334,8 @@ app.put("/api/packages/:id", async (req, res) => {
 
     res.json(updatedPackage);
   } catch (error) {
-    console.error("Error archiving package:", error);
-    res.status(500).json({ message: "Error archiving package" });
+    console.error("Error updating package:", error);
+    res.status(500).json({ message: "Error updating package" });
   }
 });
 
@@ -457,40 +461,42 @@ app.put("/api/physicalTherapy/:id/soapSummary/:summaryId", async (req, res) => {
   }
 });
 
+app.put(
+  "/api/physicalTherapyVerification/:id/soapSummary/:summaryId",
+  async (req, res) => {
+    const { id, summaryId } = req.params;
+    const { updatedSOAPSummary } = req.body; // Contains firstname and lastname
 
-app.put("/api/physicalTherapyVerification/:id/soapSummary/:summaryId", async (req, res) => {
-  const { id, summaryId } = req.params;
-  const { updatedSOAPSummary } = req.body; // Contains firstname and lastname
+    try {
+      // Update the verifiedBy field and fetch the updated record
+      const updatedRecord = await PhysicalTherapyModel.findOneAndUpdate(
+        { _id: id, "SOAPSummaries._id": summaryId },
+        {
+          $set: {
+            "SOAPSummaries.$.verifiedBy": `${updatedSOAPSummary.firstname} ${updatedSOAPSummary.lastname}`, // Save the full name
+          },
+        },
+        { new: true } // Return the updated document
+      );
 
-  try {
-    // Update the verifiedBy field and fetch the updated record
-    const updatedRecord = await PhysicalTherapyModel.findOneAndUpdate(
-      { _id: id, "SOAPSummaries._id": summaryId },
-      { 
-        $set: { 
-          "SOAPSummaries.$.verifiedBy": `${updatedSOAPSummary.firstname} ${updatedSOAPSummary.lastname}` // Save the full name
-        } 
-      },
-      { new: true } // Return the updated document
-    );
-
-    if (updatedRecord) {
-      res.json({
-        success: true,
-        message: "SOAP summary updated successfully",
-        updatedRecord,
+      if (updatedRecord) {
+        res.json({
+          success: true,
+          message: "SOAP summary updated successfully",
+          updatedRecord,
+        });
+      } else {
+        res.status(404).json({ message: "Record or SOAP summary not found" });
+      }
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Error updating SOAP summary",
+        error: error.message,
       });
-    } else {
-      res.status(404).json({ message: "Record or SOAP summary not found" });
     }
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error updating SOAP summary",
-      error: error.message,
-    });
   }
-});
+);
 
 const fs = require("fs");
 const path = require("path");
@@ -1702,9 +1708,14 @@ app.post("/api/annual-check-up", async (req, res) => {
     const annualCheckUpData = req.body;
 
     // Ensure required fields are present in the request
-    if (!annualCheckUpData.patient || !annualCheckUpData.packageId || !annualCheckUpData.packageNumber) {
+    if (
+      !annualCheckUpData.patient ||
+      !annualCheckUpData.packageId ||
+      !annualCheckUpData.packageNumber
+    ) {
       return res.status(400).json({
-        message: "Missing required fields: patient, packageId, or packageNumber",
+        message:
+          "Missing required fields: patient, packageId, or packageNumber",
       });
     }
 
@@ -1732,11 +1743,13 @@ app.get("/api/annual-check-up/:packageNumber/:patientId", async (req, res) => {
     // Find the annual check-up data by package number and patient ID
     const annualCheckUpData = await AnnualCheckUp.findOne({
       packageNumber,
-      patient: patientId,  // Assuming 'patient' field stores the patient ID
+      patient: patientId, // Assuming 'patient' field stores the patient ID
     });
 
     if (!annualCheckUpData) {
-      return res.status(404).json({ message: "Annual Check-Up data not found" });
+      return res
+        .status(404)
+        .json({ message: "Annual Check-Up data not found" });
     }
 
     res.json(annualCheckUpData);
@@ -1748,7 +1761,6 @@ app.get("/api/annual-check-up/:packageNumber/:patientId", async (req, res) => {
     });
   }
 });
-
 
 //console log
 app.listen(port, () => {

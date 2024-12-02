@@ -3,6 +3,7 @@ import Navbar from "../Navbar/Navbar";
 import { BiSearch } from "react-icons/bi";
 import axios from "axios";
 import { IoArchiveOutline } from "react-icons/io5";
+import { MdRestore } from "react-icons/md";
 
 const Package = () => {
   const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
@@ -321,6 +322,47 @@ const Package = () => {
     }
   };
 
+  const [isRestoreModalOpen, setIsRestoreModalOpen] = useState(false);
+  const [packageToRestore, setPackageToRestore] = useState(null); // Track the package being restored
+
+  // Handle restore modal opening
+  const handleOpenRestoreModal = (packageId) => {
+    setPackageToRestore(packageId);
+    setIsRestoreModalOpen(true);
+  };
+
+  // Handle restoring the package
+  const handleRestore = async () => {
+    if (!packageToRestore) return;
+
+    try {
+      const response = await axios.put(
+        `http://localhost:3001/api/packages/${packageToRestore}`,
+        { isArchived: false }
+      );
+      console.log("Package restored successfully:", response.data);
+
+      // Update the state to reflect the restored package
+      setPackages((prevPackages) =>
+        prevPackages.map((pkg) =>
+          pkg._id === packageToRestore ? { ...pkg, isArchived: false } : pkg
+        )
+      );
+
+      setIsRestoreModalOpen(false); // Close the modal after restoring
+      setPackageToRestore(null); // Reset the package being restored
+    } catch (error) {
+      console.error("Error restoring package:", error);
+      alert("Failed to restore package. Please try again.");
+    }
+  };
+
+  // Handle closing the modal
+  const handleCloseModal = () => {
+    setIsRestoreModalOpen(false);
+    setPackageToRestore(null);
+  };
+
   return (
     <div>
       <Navbar />
@@ -462,17 +504,23 @@ const Package = () => {
                           {pkg.xrayDescription || "No description available"}
                         </td>
                         <td className="py-4">
-                          <button
-                            className={`text-gray-500 hover:text-gray-700 ${
-                              pkg.isArchived
-                                ? "cursor-not-allowed opacity-50"
-                                : ""
-                            }`}
-                            onClick={() => confirmArchive(pkg._id)}
-                            disabled={pkg.isArchived}
-                          >
-                            <IoArchiveOutline size={24} />
-                          </button>
+                          {!pkg.isArchived && (
+                            <button
+                              className="text-gray-500 hover:text-gray-700"
+                              onClick={() => confirmArchive(pkg._id)}
+                            >
+                              <IoArchiveOutline size={24} />
+                            </button>
+                          )}
+
+                          {pkg.isArchived && (
+                            <button
+                              className="text-gray-500 hover:text-gray-700"
+                              onClick={() => handleOpenRestoreModal(pkg._id)}
+                            >
+                              <MdRestore size={24} />
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -834,6 +882,30 @@ const Package = () => {
                   onClick={handleArchive}
                 >
                   Archive
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {isRestoreModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+              <h2 className="text-lg font-bold mb-4">Confirm Restore</h2>
+              <p className="mb-6">
+                Are you sure you want to restore this package?
+              </p>
+              <div className="flex justify-end space-x-4">
+                <button
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg"
+                  onClick={handleCloseModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="bg-custom-red text-white px-4 py-2 rounded-lg"
+                  onClick={handleRestore}
+                >
+                  Restore
                 </button>
               </div>
             </div>
