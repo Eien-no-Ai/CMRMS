@@ -11,6 +11,7 @@ function Xray() {
   const [showFullList, setShowFullList] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isErrorImageModalOpen, setIsErrorImageModalOpen] = useState(false); // Error modal state
   const [result, setResult] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [isPatientAdded, setIsPatientAdded] = useState(false); // State for confirmation modal
@@ -101,13 +102,17 @@ function Xray() {
  
 const handleSubmitResult = async () => {
   // Ensure selectedRecord exists and has an _id
-  if (!selectedRecord || !selectedRecord._id) {
+  if (!selectedRecord || !selectedRecord._id ) {
     console.error(
       "No record selected or selected record doesn't have an _id."
     );
     return;
   }
-
+  if (!formData.imageFile) {
+    setIsErrorImageModalOpen(true); // Open the error modal
+    return;
+  }
+  
   // Prepare the form data to send via axios
   const formDataToSubmit = new FormData();
   formDataToSubmit.append("ORNumber", formData.ORNumber);
@@ -120,6 +125,7 @@ const handleSubmitResult = async () => {
   if (imageFile) {
     formDataToSubmit.append("imageFile", imageFile); // Append image file if exists
   }
+
 
   try {
     // Step 1: Update the existing X-ray record by ID
@@ -158,6 +164,10 @@ const handleSubmitResult = async () => {
       error.response ? error.response.data : error.message
     );
   }
+};
+
+const closeErrorImageModal = () => {
+  setIsErrorImageModalOpen(false); // Close the error modal
 };
 
   const handleInputChange = (e) => {
@@ -630,6 +640,22 @@ const handleSubmitResult = async () => {
                     Submit
                   </button>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+        {isErrorImageModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
+              <h2 className="text-xl text-red-600">Error</h2>
+              <p className="text-center text-gray-600 mb-4">Please upload the X-ray image before submitting.</p>
+              <div className="flex justify-center">
+                <button
+                 onClick={closeErrorImageModal}
+                  className="bg-custom-red text-white px-4 py-2 rounded-md"
+                >
+                  Okay
+                </button>
               </div>
             </div>
           </div>
