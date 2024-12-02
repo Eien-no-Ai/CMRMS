@@ -162,25 +162,23 @@ module.exports = function (app) {
     })
   )
 
-    // Proxy requests to /accounts
- app.use(
+app.use(
     '/patients',
     createProxyMiddleware({
-      target: 'http://localhost:3001/', // Adjust the target as needed
-      changeOrigin: true,
-      secure: false,
+        target: 'http://localhost:3001/', // Adjust the target as needed
+        changeOrigin: true,
+        secure: false,
     })
-  )
+)
 
-      // Proxy requests to /accounts
- app.use(
+app.use(
     '/patients/:id',
     createProxyMiddleware({
-      target: 'http://localhost:3001/', // Adjust the target as needed
-      changeOrigin: true,
-      secure: false,
+        target: 'http://localhost:3001/', // Adjust the target as needed
+        changeOrigin: true,
+        secure: false,
     })
-  )
+)
       // Proxy requests to /accounts
       app.use(
         '/xrayResultUpload',

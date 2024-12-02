@@ -86,7 +86,7 @@ function Navbar() {
         )}
         {role === "nurse" && (
           <>
-            <a href="/patients" className="hover:underline">
+            <a href="/patientslist" className="hover:underline">
               Patients
             </a>
             <a href="/packages" className="hover:underline">
@@ -99,7 +99,7 @@ function Navbar() {
         )}
         {role === "doctor" && (
           <>
-            <a href="/patients" className="hover:underline">
+            <a href="/patientslist" className="hover:underline">
               Patients
             </a>
             <a href="/admin" className="hover:underline">

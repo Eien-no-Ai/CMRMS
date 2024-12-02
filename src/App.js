@@ -101,7 +101,7 @@ function App() {
             }
           />
           <Route
-            path="/patients"
+            path="/patientslist"
             element={
               <PrivateRoute
                 allowedRoles={[
@@ -122,7 +122,7 @@ function App() {
             }
           />
           <Route
-            path="/patients/:id"
+            path="/patientslist/:id"
             element={
               <PrivateRoute
                 allowedRoles={[
