@@ -447,7 +447,7 @@ function PhysicalTherapy() {
       <Navbar />
       <div className="p-6 pt-20 bg-gray-100 min-h-screen">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl font-semibold">Physical Therapy Records</h1>
+          <h1 className="text-3xl font-semibold">Physical Therapy Referrals</h1>
         </div>
 
         <div className="flex justify-between items-center mb-6">
@@ -769,16 +769,16 @@ function PhysicalTherapy() {
                         <th className="border border-gray-300 px-4 py-2"></th>
                       )}
                       <th className="border border-gray-300 px-4 py-2">
-          Verification Checklist
-          {selectedRecord?.SOAPSummaries?.length > 0 && !selectedRecord.SOAPSummaries.every(entry => entry.verifiedBy) && (
-            <button
-              onClick={handleSelectAll}
-              className="bg-custom-red text-white px-2 py-1 rounded-lg"
-            >
-              Select All
-            </button>
-          )}
-        </th>
+                        Verification Checklist
+                        {selectedRecord?.SOAPSummaries?.length > 0 && !selectedRecord.SOAPSummaries.every(entry => entry.verifiedBy) && (
+                          <button
+                            onClick={handleSelectAll}
+                            className="bg-custom-red text-white px-2 py-1 rounded-lg"
+                          >
+                            Select All
+                          </button>
+                        )}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
