@@ -14,7 +14,8 @@ const VaccineModel = require("./models/Vaccine"); // Path to your vaccine routes
 const PhysicalExamStudentModel = require("./models/PhysicalExamStudent");
 const VaccineListModel = require("./models/VaccineList");
 const AnnualCheckUp = require("./models/AnnualCheckUp");
-
+const multer = require("multer");
+const path = require("path");
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -534,7 +535,7 @@ app.put(
 );
 
 const fs = require("fs");
-const path = require("path");
+
 
 // Define the uploads directory path
 const uploadsDir = path.join(__dirname, "uploads");
@@ -546,7 +547,7 @@ if (!fs.existsSync(uploadsDir)) {
 } else {
   console.log("Uploads directory already exists:", uploadsDir);
 }
-const multer = require("multer");
+
 
 // Serve static files from 'uploads' directory
 app.use("/uploads", express.static("uploads"));
