@@ -683,7 +683,7 @@ function Patients() {
               value={selectedPosition}
               onChange={(e) => setSelectedPosition(e.target.value)}
               className="px-2 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none"
-              >
+            >
               <option value="">All Positions</option>
               {positions.map((position, index) => (
                 <option key={index} value={position}>
@@ -1849,8 +1849,6 @@ function Patients() {
                   }
                 ></textarea>
               </div>
-
-              
             </div>
             {/* Conditions Section */}
             <div className="mt-6">

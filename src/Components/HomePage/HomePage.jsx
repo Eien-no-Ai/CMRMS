@@ -77,6 +77,18 @@ const Dashboard = () => {
       .trim();
   };
 
+  const formatDate = (timestamp) => {
+    if (!timestamp) return "Unknown date";
+    const date = new Date(timestamp);
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+  
+
   useEffect(() => {
     const fetchUpdates = async () => {
       try {
@@ -96,140 +108,91 @@ const Dashboard = () => {
           axios.get("https://cmrms-full.onrender.com/api/clinicalRecords"),
         ]);
 
-        let filteredUpdates = [];
+    let filteredUpdates = [];
 
-        if (role === "nurse") {
-          // Only display clinics
-          filteredUpdates = [
-            ...clinics.data
-              .filter((clinic) => !clinic.treatments && !clinic.diagnosis)
-              .map((clinic) => ({
-                type: "Clinic",
-                name: `${clinic.patient?.firstname || "Unknown"} ${
-                  clinic.patient?.lastname || ""
-                }`,
-                action: `complaint: ${
-                  clinic.complaints || "No complaint provided"
-                }`,
-                timestamp: new Date(
-                  clinic.isCreatedAt || clinic.createdAt || Date.now()
-                ),
-                time: calculateTimeAgo(
-                  clinic.isCreatedAt || clinic.createdAt || Date.now()
-                ),
-              })),
-          ];
-        } else if (department === "laboratory") {
-          // Only display labs
-          filteredUpdates = [
-            ...labs.data
-              .filter((lab) => lab.labResult === "pending")
-              .map((lab) => {
-                const testsRequested = extractRequestedLabTests(lab);
-                return {
-                  type: "Lab",
-                  name: `${lab.patient?.firstname || "Unknown"} ${
-                    lab.patient?.lastname || ""
-                  }`,
-                  action: `requested lab work: ${testsRequested.join(", ")}`,
-                  timestamp: new Date(
-                    lab.isCreatedAt || lab.createdAt || Date.now()
-                  ),
-                  time: calculateTimeAgo(
-                    lab.isCreatedAt || lab.createdAt || Date.now()
-                  ),
-                };
-              }),
-          ];
-        } else if (department === "xray") {
-          // Only display xrays
-          filteredUpdates = [
-            ...xrays.data
-              .filter((xray) => xray.xrayResult === "pending")
-              .map((xray) => ({
-                type: "X-Ray",
-                name: `${xray.patient?.firstname || "Unknown"} ${
-                  xray.patient?.lastname || ""
-                }`,
-                action: `requested an X-ray: ${
-                  xray.xrayType || "Unknown Type"
-                }`,
-                timestamp: new Date(
-                  xray.isCreatedAt || xray.createdAt || Date.now()
-                ),
-                time: calculateTimeAgo(
-                  xray.isCreatedAt || xray.createdAt || Date.now()
-                ),
-              })),
-          ];
-        } else {
-          // Display all (labs, xrays, clinics)
-          const labUpdates = labs.data
-            .filter((lab) => lab.labResult === "pending")
-            .map((lab) => {
-              const testsRequested = extractRequestedLabTests(lab);
-              return {
-                type: "Lab",
-                name: `${lab.patient?.firstname || "Unknown"} ${
-                  lab.patient?.lastname || ""
-                }`,
-                action: `requested lab work: ${testsRequested.join(", ")}`,
-                timestamp: new Date(
-                  lab.isCreatedAt || lab.createdAt || Date.now()
-                ),
-                time: calculateTimeAgo(
-                  lab.isCreatedAt || lab.createdAt || Date.now()
-                ),
-              };
-            });
+    // Nurse role: Only display clinics
+    if (role === "nurse") {
+      filteredUpdates = clinics.data
+        .filter((clinic) => !clinic.treatments && !clinic.diagnosis)
+        .map((clinic) => ({
+          type: "Clinic",
+          name: `${clinic.patient?.firstname || "Unknown"} ${clinic.patient?.lastname || ""}`,
+          action: `complaint: ${clinic.complaints || "No complaint provided"}`,
+          timestamp: new Date(clinic.isCreatedAt || clinic.createdAt || Date.now()),
+          time: formatDate(clinic.isCreatedAt || clinic.createdAt || Date.now()),
+        }));
+    } else if (department === "laboratory") {
+      // Laboratory department: Only display labs
+      filteredUpdates = labs.data
+        .filter((lab) => lab.labResult === "pending")
+        .map((lab) => {
+          const testsRequested = extractRequestedLabTests(lab);
+          return {
+            type: "Lab",
+            name: `${lab.patient?.firstname || "Unknown"} ${lab.patient?.lastname || ""}`,
+            action: `requested lab work: ${testsRequested.join(", ")}`,
+            timestamp: new Date(lab.isCreatedAt || lab.createdAt || Date.now()),
+            time: formatDate(lab.isCreatedAt || lab.createdAt || Date.now()),
+          };
+        });
+    } else if (department === "xray") {
+      // X-ray department: Only display xrays
+      filteredUpdates = xrays.data
+        .filter((xray) => xray.xrayResult === "pending")
+        .map((xray) => ({
+          type: "X-Ray",
+          name: `${xray.patient?.firstname || "Unknown"} ${xray.patient?.lastname || ""}`,
+          action: `requested an X-ray: ${xray.xrayType || "Unknown Type"}`,
+          timestamp: new Date(xray.isCreatedAt || xray.createdAt || Date.now()),
+          time: formatDate(xray.isCreatedAt || xray.createdAt || Date.now()),
+        }));
+    } else {
+      // Default: Display all (labs, xrays, clinics)
+      const labUpdates = labs.data
+        .filter((lab) => lab.labResult === "pending")
+        .map((lab) => {
+          const testsRequested = extractRequestedLabTests(lab);
+          return {
+            type: "Lab",
+            name: `${lab.patient?.firstname || "Unknown"} ${lab.patient?.lastname || ""}`,
+            action: `requested lab work: ${testsRequested.join(", ")}`,
+            timestamp: new Date(lab.isCreatedAt || lab.createdAt || Date.now()),
+            time: formatDate(lab.isCreatedAt || lab.createdAt || Date.now()),
+          };
+        });
 
-          const xrayUpdates = xrays.data
-            .filter((xray) => xray.xrayResult === "pending")
-            .map((xray) => ({
-              type: "X-Ray",
-              name: `${xray.patient?.firstname || "Unknown"} ${
-                xray.patient?.lastname || ""
-              }`,
-              action: `requested an X-ray: ${xray.xrayType || "Unknown Type"}`,
-              timestamp: new Date(
-                xray.isCreatedAt || xray.createdAt || Date.now()
-              ),
-              time: calculateTimeAgo(
-                xray.isCreatedAt || xray.createdAt || Date.now()
-              ),
-            }));
+      const xrayUpdates = xrays.data
+        .filter((xray) => xray.xrayResult === "pending")
+        .map((xray) => ({
+          type: "X-Ray",
+          name: `${xray.patient?.firstname || "Unknown"} ${xray.patient?.lastname || ""}`,
+          action: `requested an X-ray: ${xray.xrayType || "Unknown Type"}`,
+          timestamp: new Date(xray.isCreatedAt || xray.createdAt || Date.now()),
+          time: formatDate(xray.isCreatedAt || xray.createdAt || Date.now()),
+        }));
 
-          const clinicUpdates = clinics.data
-            .filter((clinic) => !clinic.treatments && !clinic.diagnosis)
-            .map((clinic) => ({
-              type: "Clinic",
-              name: `${clinic.patient?.firstname || "Unknown"} ${
-                clinic.patient?.lastname || ""
-              }`,
-              action: `complaint: ${
-                clinic.complaints || "No complaint provided"
-              }`,
-              timestamp: new Date(
-                clinic.isCreatedAt || clinic.createdAt || Date.now()
-              ),
-              time: calculateTimeAgo(
-                clinic.isCreatedAt || clinic.createdAt || Date.now()
-              ),
-            }));
+      const clinicUpdates = clinics.data
+        .filter((clinic) => !clinic.treatments && !clinic.diagnosis)
+        .map((clinic) => ({
+          type: "Clinic",
+          name: `${clinic.patient?.firstname || "Unknown"} ${clinic.patient?.lastname || ""}`,
+          action: `complaint: ${clinic.complaints || "No complaint provided"}`,
+          timestamp: new Date(clinic.isCreatedAt || clinic.createdAt || Date.now()),
+          time: formatDate(clinic.isCreatedAt || clinic.createdAt || Date.now()),
+        }));
 
-          filteredUpdates = [...labUpdates, ...xrayUpdates, ...clinicUpdates];
-        }
+      filteredUpdates = [...labUpdates, ...xrayUpdates, ...clinicUpdates];
+    }
 
-        console.log("Filtered Updates:", filteredUpdates);
+    // Sort updates by timestamp (most recent first)
+    filteredUpdates.sort((a, b) => b.timestamp - a.timestamp);
 
-        // Sort updates by timestamp (most recent first)
-        filteredUpdates.sort((a, b) => b.timestamp - a.timestamp);
+    setUpdates(filteredUpdates);
+  } catch (error) {
+    console.error("Error fetching updates:", error);
+  }
+};
 
-        setUpdates(filteredUpdates);
-      } catch (error) {
-        console.error("Error fetching updates:", error);
-      }
-    };
 
     fetchUpdates();
   }, []);
