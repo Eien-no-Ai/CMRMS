@@ -10,7 +10,7 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 import maleImage from "../assets/male.png";
 import PECertificate from "../certificatesReports/PECertificate.jsx";
 import AnnualCertificate from "../certificatesReports/AnnualCertificate.jsx";
-import HealthCertificate from "../certificatesReports/HealthCertificate.jsx";
+import HealthCertificate from "../certificatesReports/ClinicalChemistryCertificate.jsx";
 
 function PatientsProfile() {
   const [selectedXray, setSelectedXray] = useState(null);
@@ -55,6 +55,14 @@ function PatientsProfile() {
     xrayDescription: "",
     xrayFindings: "",
   });
+
+  const [imageFile, setImageFile] = useState(null);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    console.log(file); // Log the file to ensure it's being set
+    setImageFile(file);
+  };
 
   // X-ray description options based on the selected type
   const medicalDescriptions = [
@@ -6579,7 +6587,13 @@ n-2 border rounded px-3 py-1"
                                       className="w-auto h-full object-cover cursor-pointer"
                                     />
                                   </div>
-
+                              <div className="mb-4">
+                                                  <input
+                                                    type="file"
+                                                    onChange={handleImageChange}
+                                                    className="w-full px-3 py-2 border rounded"
+                                                  />
+                                                </div>
                                   <div className="w-1/2">
                                     {/* <div className="flex mb-4">
                                       <div className="w-1/3 mr-2">

@@ -342,7 +342,7 @@ function LaboratoryCensus() {
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-lg shadow p-6 space-y-4">
+          {/* <div className="bg-white border border-gray-200 rounded-lg shadow p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-700">
                 Total Visitors
@@ -369,7 +369,7 @@ function LaboratoryCensus() {
             </div>
             <p className="text-3xl font-bold text-green-500">12,158,187</p>
             <p className="text-sm text-green-600">+8%</p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

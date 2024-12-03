@@ -341,24 +341,59 @@ app.put("/api/packages/:id", async (req, res) => {
 
 // P H Y S I C A L   T H E R A P Y   R E C O R D S
 
-app.post("/api/physicalTherapy", async (req, res) => {
+const storaged = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/"); // Save files to the 'uploads' folder (ensure it's created)
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "_" + file.originalname); // Set a unique filename for each upload
+  },
+});
+
+const uploaded = multer({ storage: storaged });
+
+app.post("/api/physicalTherapy", uploaded.single("record"), (req, res) => {
   const physicalTherapyData = req.body;
+
+  // Log to confirm file is uploaded correctly
+  console.log("File received:", req.file); // This should log the file info if the upload works
 
   // Validate if the provided patient ID is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(physicalTherapyData.patient)) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid patient ID" });
+    return res.status(400).json({
+      success: false,
+      message: "Invalid patient ID",
+    });
   }
 
+  // Check if the record is a file or a URL and save it accordingly
+  if (req.file) {
+    // If an image is uploaded, include its path in the physicalTherapyData
+    const filePath = `https://cmrms-full.onrender.com/uploads/${req.file.filename}`; // Relative path to the file
+    physicalTherapyData.record = filePath; // Save the relative file path in the database
+    console.log("Saved file path:", filePath); // Log the saved file path
+  } else if (physicalTherapyData.recordUrl) {
+    // If a URL is provided instead of a file, save the URL
+    physicalTherapyData.record = physicalTherapyData.recordUrl;
+    console.log("Saved file URL:", physicalTherapyData.record); // Log the saved URL
+  } else {
+    console.log("No file or URL uploaded.");
+  }
+
+  // Create the physical therapy record in the database
   PhysicalTherapyModel.create(physicalTherapyData)
-    .then((physicalTherapyData) =>
+    .then((createdRecord) => {
+      // Send the response back with the full URL to the uploaded file (if a file was uploaded)
+      const fileUrl = createdRecord.record
+        ? `https://cmrms-full.onrender.com${createdRecord.record}` // Full URL for the uploaded file
+        : createdRecord.record; // If it's a URL, use the record itself
       res.json({
         success: true,
         message: "Physical Therapy request created successfully",
-        physicalTherapyData,
-      })
-    )
+        physicalTherapyData: createdRecord,
+        fileUrl: fileUrl, // Return the file URL or record URL
+      });
+    })
     .catch((err) =>
       res.status(500).json({
         success: false,
