@@ -747,7 +747,7 @@ function Patients() {
                         key={patient._id}
                         className="border-b cursor-pointer"
                         onClick={() =>
-                          (window.location.href = `/patients/${patient._id}`)
+                          (window.location.href = `/patientslist/${patient._id}`)
                         }
                       >
                         <td className="py-4">
