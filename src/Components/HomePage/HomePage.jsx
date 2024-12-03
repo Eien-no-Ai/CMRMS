@@ -537,7 +537,7 @@ const Dashboard = () => {
                       key={patient._id}
                       className="flex justify-between items-center py-4 border-b cursor-pointer"
                       onClick={() =>
-                        (window.location.href = `/patients/${patient._id}`)
+                        (window.location.href = `/patientslist/${patient._id}`)
                       }
                     >
                       <div className="w-1/5 flex items-center space-x-4">
