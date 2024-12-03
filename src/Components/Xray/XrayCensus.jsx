@@ -17,7 +17,7 @@ function XrayCensus() {
   }, []);
 
   const fetchXrayRecords = () => {
-    axios.get("http://localhost:3001/api/xrayResults")
+    axios.get("https://cmrms-full.onrender.com/api/xrayResults")
       .then((response) => {
         console.log("Fetched records:", response.data); // Check the structure here
         const completeRecords = response.data
