@@ -86,6 +86,14 @@ function Clinic() {
       });
   };
 
+  const [imageFile, setImageFile] = useState(null);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    console.log(file); // Log the file to ensure it's being set
+    setImageFile(file);
+  };
+
   const indexOfLastRecord = currentPage * clinicRecordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - clinicRecordsPerPage;
 
@@ -460,22 +468,61 @@ function Clinic() {
 
   const handleNewTherapySubmit = async (e) => {
     e.preventDefault();
-
+  
+    // Get the patient ID from selectedRecord or newTherapyRecord
     const patientId = selectedRecord?.patient?._id;
     if (!patientId) {
       console.error("Patient ID is missing or invalid.");
       return; // Exit if patient ID is not available
     }
-
+  
+    // Create a FormData object to handle the image upload along with other form data
+    const formData = new FormData();
+  
+    // Add the patient ID and other new therapy record fields to FormData
+    formData.append('patient', patientId); // Send the patient ID
+    formData.append('Diagnosis', newTherapyRecord.Diagnosis);
+    formData.append('ChiefComplaints', newTherapyRecord.ChiefComplaints);
+    formData.append('HistoryOfPresentIllness', newTherapyRecord.HistoryOfPresentIllness);
+  
+    // Check if there's an image to submit: either from the file input (imageFile) or the selected X-ray record (selectedXrayRecords[selectedXray].imageFile)
+    let record;
+  
+    // First, check if imageFile exists (the uploaded file)
+    if (imageFile) {
+      record = imageFile;  // Use imageFile if it's available
+    } else if (selectedXrayRecords[selectedXray] && selectedXrayRecords[selectedXray].imageFile) {
+      // If imageFile is not available, check if selectedXrayRecords[selectedXray].imageFile exists
+      record = selectedXrayRecords[selectedXray].imageFile; // Use the imageFile from selectedXrayRecords if it's available
+    }
+  
+    // Now handle the formData based on the record (either file or URL)
+    if (record) {
+      if (record instanceof File) {
+        // If it's an image file (File object), append it to the FormData
+        formData.append('record', record);  // Appending the image file
+      } else if (typeof record === 'string') {
+        // If it's a URL (string), append the URL as 'recordUrl'
+        formData.append('recordUrl', record);  // Sending the URL instead of the file
+      }
+    }
+  
+    // Send the form data with image file or URL to the backend
     try {
-      const response = await axios.post(
-        "http://localhost:3001/api/physicalTherapy", // Fix the spelling here
-        {
-          ...newTherapyRecord,
-          patient: patientId,
+      const response = await axios.post("http://localhost:3001/api/physicalTherapy", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Specify the content type for file upload
         }
-      );
+      });
+  
       if (response.status === 200) {
+        console.log("Record created successfully:", response.data);
+  
+        // You can access the uploaded file URL in the response
+        const fileUrl = response.data.fileUrl; // The full URL to the uploaded image
+        console.log("Uploaded file URL:", fileUrl);
+  
+        // Close the form and reset the state after the record is created
         handleNewTherapyRecordClose();
         fetchPhysicalTherapyRecords(patientId);
         setNewTherapyRecord({
@@ -488,7 +535,7 @@ function Clinic() {
       console.error("Error adding new record:", error.response || error);
     }
   };
-
+  
   const handleNewTherapyRecordChange = (e) => {
     const { name, value } = e.target;
     setNewTherapyRecord((prev) => ({
@@ -1662,8 +1709,13 @@ function Clinic() {
                   <div className="w-full md:w-1/2">
                     <label className="block text-gray-700">X-ray Results</label>
 
-                    {/* Dropdown to select X-ray record */}
-                    {/* Only Show Xray Result that is DONE */}
+                    <div className="mb-4">
+                      <input
+                        type="file"
+                        onChange={handleImageChange}
+                        className="w-full px-3 py-2 border rounded"
+                      />
+                    </div>
                     <select
                       className="w-full px-3 py-2 border rounded mb-4"
                       onChange={(e) => setSelectedXray(e.target.value)}

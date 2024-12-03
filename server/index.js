@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
+const multer = require("multer");
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const EmployeeModel = require("./models/Employee");
 const e = require("express");
 const ClinicModel = require("./models/Clinic");
@@ -14,6 +16,7 @@ const VaccineModel = require("./models/Vaccine"); // Path to your vaccine routes
 const PhysicalExamStudentModel = require("./models/PhysicalExamStudent");
 const VaccineListModel = require("./models/VaccineList");
 const AnnualCheckUp = require("./models/AnnualCheckUp");
+
 
 const app = express();
 app.use(cors());
@@ -337,24 +340,59 @@ app.put("/api/packages/:id", async (req, res) => {
 
 // P H Y S I C A L   T H E R A P Y   R E C O R D S
 
-app.post("/api/physicalTherapy", async (req, res) => {
+const storaged = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/"); // Save files to the 'uploads' folder (ensure it's created)
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "_" + file.originalname); // Set a unique filename for each upload
+  },
+});
+
+const uploaded = multer({ storage: storaged });
+
+app.post("/api/physicalTherapy", uploaded.single("record"), (req, res) => {
   const physicalTherapyData = req.body;
+
+  // Log to confirm file is uploaded correctly
+  console.log("File received:", req.file); // This should log the file info if the upload works
 
   // Validate if the provided patient ID is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(physicalTherapyData.patient)) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid patient ID" });
+    return res.status(400).json({
+      success: false,
+      message: "Invalid patient ID",
+    });
   }
 
+  // Check if the record is a file or a URL and save it accordingly
+  if (req.file) {
+    // If an image is uploaded, include its path in the physicalTherapyData
+    const filePath = `http://localhost:3001/uploads/${req.file.filename}`; // Relative path to the file
+    physicalTherapyData.record = filePath; // Save the relative file path in the database
+    console.log("Saved file path:", filePath); // Log the saved file path
+  } else if (physicalTherapyData.recordUrl) {
+    // If a URL is provided instead of a file, save the URL
+    physicalTherapyData.record = physicalTherapyData.recordUrl;
+    console.log("Saved file URL:", physicalTherapyData.record); // Log the saved URL
+  } else {
+    console.log("No file or URL uploaded.");
+  }
+
+  // Create the physical therapy record in the database
   PhysicalTherapyModel.create(physicalTherapyData)
-    .then((physicalTherapyData) =>
+    .then((createdRecord) => {
+      // Send the response back with the full URL to the uploaded file (if a file was uploaded)
+      const fileUrl = createdRecord.record
+        ? `http://localhost:3001${createdRecord.record}` // Full URL for the uploaded file
+        : createdRecord.record; // If it's a URL, use the record itself
       res.json({
         success: true,
         message: "Physical Therapy request created successfully",
-        physicalTherapyData,
-      })
-    )
+        physicalTherapyData: createdRecord,
+        fileUrl: fileUrl, // Return the file URL or record URL
+      });
+    })
     .catch((err) =>
       res.status(500).json({
         success: false,
@@ -364,7 +402,6 @@ app.post("/api/physicalTherapy", async (req, res) => {
     );
 });
 
-// GET endpoint to fetch all Physical Therapy records
 app.get("/api/physicalTherapy", async (req, res) => {
   try {
     const physicalTherapyRecords = await PhysicalTherapyModel.find().populate(
@@ -493,7 +530,6 @@ app.put("/api/physicalTherapyVerification/:id/soapSummary/:summaryId", async (re
 });
 
 const fs = require("fs");
-const path = require("path");
 
 // Define the uploads directory path
 const uploadsDir = path.join(__dirname, "uploads");
@@ -505,7 +541,6 @@ if (!fs.existsSync(uploadsDir)) {
 } else {
   console.log("Uploads directory already exists:", uploadsDir);
 }
-const multer = require("multer");
 
 // Serve static files from 'uploads' directory
 app.use("/uploads", express.static("uploads"));
