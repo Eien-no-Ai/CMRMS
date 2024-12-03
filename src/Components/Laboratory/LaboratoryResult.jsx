@@ -881,7 +881,7 @@ function LaboratoryResult() {
                       <div className="col-span-1"></div>
                       <div className="col-span-3 flex justify-end">
                         {/* Display fetched signature image */}
-                        {labDetails?.Hematology?.signature ? (
+                        {/* {labDetails?.Hematology?.signature ? (
                           <div className="flex justify-end">
                             <img
                               src={labDetails.Hematology.signature}
@@ -891,7 +891,7 @@ function LaboratoryResult() {
                           </div>
                         ) : (
                           <p>No signature available</p>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   )}
@@ -1275,7 +1275,7 @@ function LaboratoryResult() {
                       />
                       <div className="col-span-6 flex justify-end">
                         {/* Display fetched signature image */}
-                        {labDetails?.clinicalMicroscopyParasitology
+                        {/* {labDetails?.clinicalMicroscopyParasitology
                           ?.signature ? (
                           <div className="flex justify-end">
                             <img
@@ -1289,7 +1289,7 @@ function LaboratoryResult() {
                           </div>
                         ) : (
                           <p>No signature available</p>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   )}
@@ -1707,7 +1707,7 @@ function LaboratoryResult() {
                       />
                       <div className="col-span-12 flex justify-end space-x-6 items-center">
                         {/* Display fetched signature image */}
-                        {labDetails?.bloodBankingSerology?.signature ? (
+                        {/* {labDetails?.bloodBankingSerology?.signature ? (
                           <div className="flex flex-col items-center">
                             <img
                               src={labDetails.bloodBankingSerology.signature}
@@ -1717,7 +1717,7 @@ function LaboratoryResult() {
                           </div>
                         ) : (
                           <p>No signature available</p>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   )}
@@ -1725,17 +1725,15 @@ function LaboratoryResult() {
               )}
             </form>
 
-            <div className="flex items-center gap-8">
+            {/* <div className="flex items-center gap-8">
               {labDetails.pathologistSignature && (
                 <div className="flex flex-col items-center">
-                  {/* Display Pathologist's Signature */}
                   <img
                     src={labDetails.pathologistSignature}
                     alt="Pathologist Signature"
                     className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
                   />
 
-                  {/* Display Pathologist's Name and Details */}
                   {verifiedByPathologist ? (
                     <>
                       <p className="text-gray-600 text-xs font-semibold text-center">
@@ -1772,7 +1770,7 @@ function LaboratoryResult() {
                   </p>
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Buttons Wrapper */}
             <div className="flex justify-end space-x-4 mt-4">

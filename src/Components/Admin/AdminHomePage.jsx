@@ -375,6 +375,8 @@ function AdminHomePage() {
                               <option value="radiologic technologist">Radiologic Technologist</option>
                               <option value="radiologist">Radiologist</option>
                               <option value="dentist">Dentist</option> 
+                              <option value="special trainee">Special Trainee</option>
+                              <option value="physical therapist">Physical Therapist</option>
                               <option value="admin">Admin</option>
                             </>
                           )}
@@ -601,6 +603,8 @@ function AdminHomePage() {
                               Radiologic Technologist
                             </option>
                             <option value="radiologist">Radiologist</option>
+                            <option value="special trainee">Special Trainee</option>
+                            <option value="physical therapist">Physical Therapist</option>
                             <option value="admin">Admin</option>
                           </>
                         )}

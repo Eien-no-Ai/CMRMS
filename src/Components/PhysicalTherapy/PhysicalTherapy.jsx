@@ -6,7 +6,7 @@ import { BsThreeDots } from "react-icons/bs";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { useParams } from "react-router-dom";
-import PTCertificate from '../certificatesReports/PTCertificate.jsx'
+import PTCertificate from "../certificatesReports/PTCertificate.jsx";
 function PhysicalTherapy() {
   const [isPTCertificateOpen, setIsPTCertificate] = useState(false);
   const { id } = useParams();
@@ -19,7 +19,9 @@ function PhysicalTherapy() {
   const physicalTherapyRecordsPerPage = 4;
   const [searchQuery, setSearchQuery] = useState("");
   const [showFullList, setShowFullList] = useState(false);
-  const [isNewTherapyRecordModalOpen, setIsNewTherapyRecordModalOpen] = useState(false);
+  const [isXrayModalOpen, setIsXrayModalOpen] = useState(false);
+  const [isNewTherapyRecordModalOpen, setIsNewTherapyRecordModalOpen] =
+    useState(false);
   // New state for the modal
   const [isViewRecordModalOpen, setIsViewRecordModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
@@ -64,15 +66,18 @@ function PhysicalTherapy() {
 
   const handleNewTherapyRecordClose = () => {
     setIsNewTherapyRecordModalOpen(false);
-    setNewTherapyRecord({ SOAPSummary: '' }); // Reset form on close
+    setNewTherapyRecord({ SOAPSummary: "" }); // Reset form on close
   };
 
   // Handler for input change
   const handleNewTherapyRecordChange = (e) => {
-    setNewTherapyRecord({ ...newTherapyRecord, [e.target.name]: e.target.value });
+    setNewTherapyRecord({
+      ...newTherapyRecord,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  const handleOpenPTCertificate = (selectedRecord,) => {
+  const handleOpenPTCertificate = (selectedRecord) => {
     setIsPTCertificate(true);
   };
 
@@ -95,7 +100,7 @@ function PhysicalTherapy() {
         `https://cmrms-full.onrender.com/api/physicalTherapy/${therapyRecordId}`,
         {
           SOAPSummary: newTherapyRecord.SOAPSummary,
-          verifiedBy: ""
+          verifiedBy: "",
         }
       );
 
@@ -110,13 +115,11 @@ function PhysicalTherapy() {
     }
   };
 
-
   const openNewTherapyModal = (id) => {
     setSelectedTherapyId(id); // Set the selected therapy ID when opening the modal
     setNewTherapyRecord({ SOAPSummary: "" }); // Reset the form fields
     setIsNewTherapyRecordModalOpen(true); // Open the modal
   };
-
 
   const handleGenerateReport = () => {
     const pdf = new jsPDF();
@@ -132,7 +135,6 @@ function PhysicalTherapy() {
       new Date(record.isCreatedAt).toLocaleString(),
       record.Diagnosis,
       record.SOAPSummary,
-
     ]);
 
     // Generate the table using autoTable
@@ -145,8 +147,6 @@ function PhysicalTherapy() {
     // Save the PDF with a dynamic filename
     pdf.save("Physical_Therapy_Report.pdf");
   };
-
-
 
   useEffect(() => {
     fetchPhysicalTherapyRecords(); // Fetch physical therapy records on component mount
@@ -164,31 +164,35 @@ function PhysicalTherapy() {
         setRecords(response.data.records);
       })
       .catch((error) => {
-        console.error("There was an error fetching the physical therapy records!", error);
+        console.error(
+          "There was an error fetching the physical therapy records!",
+          error
+        );
       });
   };
-
 
   const indexOfLastRecord = currentPage * physicalTherapyRecordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - physicalTherapyRecordsPerPage;
 
   // Filter records based on search query
-  const filteredPhysicalTherapyRecords = physicalTherapyRecords.filter((record) => {
-    const formattedDate = new Date(record.isCreatedAt).toLocaleDateString();
+  const filteredPhysicalTherapyRecords = physicalTherapyRecords.filter(
+    (record) => {
+      const formattedDate = new Date(record.isCreatedAt).toLocaleDateString();
 
-    // Check if patient exists and has firstname, lastname, and idnumber properties
-    return (
-      record.patient &&
-      (record.patient.firstname
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-        record.patient.lastname
+      // Check if patient exists and has firstname, lastname, and idnumber properties
+      return (
+        record.patient &&
+        (record.patient.firstname
           ?.toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        record.patient.idnumber?.includes(searchQuery) ||
-        formattedDate.includes(searchQuery))
-    );
-  });
+          record.patient.lastname
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          record.patient.idnumber?.includes(searchQuery) ||
+          formattedDate.includes(searchQuery))
+      );
+    }
+  );
 
   const currentPhysicalTherapyRecords = filteredPhysicalTherapyRecords.slice(
     indexOfFirstRecord,
@@ -222,6 +226,8 @@ function PhysicalTherapy() {
   };
 
   const handleSaveEdit = async (recordId, summaryId) => {
+    fetchPhysicalTherapyRecords();
+
     try {
       const response = await axios.put(
         `https://cmrms-full.onrender.com/api/physicalTherapy/${recordId}/soapSummary/${summaryId}`,
@@ -236,15 +242,15 @@ function PhysicalTherapy() {
           entry._id === summaryId ? { ...entry, summary: editSummary } : entry
         );
 
-
         // Update the selectedRecord state with the new SOAP summary
-        setSelectedRecord(prevRecord => ({
+        setSelectedRecord((prevRecord) => ({
           ...prevRecord,
           SOAPSummaries: updatedSOAPSummaries,
         }));
 
         // Exit editing mode
         setEditingEntryId(null);
+        fetchPhysicalTherapyRecords();
 
         // Optionally show success notification or modal
         setIsEditSuccess(true);
@@ -267,7 +273,6 @@ function PhysicalTherapy() {
         .then((data) => {
           setUserRole(data.role);
           setUserData(data); // Store the full user data including _id
-
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
@@ -286,10 +291,11 @@ function PhysicalTherapy() {
 
   // Handle checkbox change for individual summary selection
   const handleCheckboxChange = (summaryId) => {
-    setSelectedSummaries((prevSelected) =>
-      prevSelected.includes(summaryId)
-        ? prevSelected.filter((id) => id !== summaryId)  // Unselect if already selected
-        : [...prevSelected, summaryId]  // Select if not selected
+    setSelectedSummaries(
+      (prevSelected) =>
+        prevSelected.includes(summaryId)
+          ? prevSelected.filter((id) => id !== summaryId) // Unselect if already selected
+          : [...prevSelected, summaryId] // Select if not selected
     );
   };
 
@@ -300,11 +306,12 @@ function PhysicalTherapy() {
       setSelectedSummaries([]);
     } else {
       // Select all summaries
-      const allSummaryIds = selectedRecord?.SOAPSummaries?.map((entry) => entry._id);
+      const allSummaryIds = selectedRecord?.SOAPSummaries?.map(
+        (entry) => entry._id
+      );
       setSelectedSummaries(allSummaryIds);
     }
   };
-
 
   const handleBatchVerify = async () => {
     if (selectedSummaries.length === 0) {
@@ -318,7 +325,9 @@ function PhysicalTherapy() {
 
       // Loop through each selected summary and verify it
       for (const summaryId of selectedSummaries) {
-        const entry = selectedRecord.SOAPSummaries.find((entry) => entry._id === summaryId);
+        const entry = selectedRecord.SOAPSummaries.find(
+          (entry) => entry._id === summaryId
+        );
         if (entry) {
           const response = await axios.put(
             `https://cmrms-full.onrender.com/api/physicalTherapyVerification/${selectedRecord._id}/soapSummary/${summaryId}`,
@@ -332,7 +341,9 @@ function PhysicalTherapy() {
 
           if (response.status === 200) {
             // Update the verifiedBy field for the selected entry
-            const index = updatedSOAPSummaries.findIndex((item) => item._id === entry._id);
+            const index = updatedSOAPSummaries.findIndex(
+              (item) => item._id === entry._id
+            );
             if (index !== -1) {
               updatedSOAPSummaries[index] = {
                 ...updatedSOAPSummaries[index],
@@ -408,10 +419,7 @@ function PhysicalTherapy() {
         Diagnosis,
       };
 
-      await axios.post(
-        "https://cmrms-full.onrender.com/api/physicalTherapy",
-        ptOPD
-      );
+      await axios.post("https://cmrms-full.onrender.com/api/physicalTherapy", ptOPD);
       // Set the confirmation modal state to true
       setIsOPDPatientAdded(true);
       // Close modal and reset form
@@ -482,7 +490,6 @@ function PhysicalTherapy() {
                 className="absolute right-2 top-2 text-gray-400"
                 size={24}
               />
-
             </div>
             <button
               onClick={toggleAddOPDModal}
@@ -543,7 +550,8 @@ function PhysicalTherapy() {
                         </td>
                         <td className="py-4">
                           <p className="font-semibold">
-                            {record.ChiefComplaints || "No SOAP Summary available"}
+                            {record.ChiefComplaints ||
+                              "No SOAP Summary available"}
                           </p>
                         </td>
                         <td className="py-4">
@@ -580,7 +588,6 @@ function PhysicalTherapy() {
                                     openViewRecordModal(record); // Open the therapy modal
                                     toggleDropdown(-1); // Close the dropdown after clicking
                                   }}
-
                                 >
                                   View Records
                                 </button>
@@ -588,7 +595,6 @@ function PhysicalTherapy() {
                                   className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
                                   key={record._id}
                                   onClick={() => {
-
                                     openNewTherapyModal(record._id); // Open the therapy modal
                                     toggleDropdown(-1); // Close the dropdown after clicking
                                   }}
@@ -600,10 +606,8 @@ function PhysicalTherapy() {
                           </div>
                         </td>
                       </tr>
-
                     ))
                   )}
-
                 </tbody>
               </table>
             </div>
@@ -617,20 +621,22 @@ function PhysicalTherapy() {
                 <button
                   onClick={paginatePrev}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 mr-2 rounded-lg border ${currentPage === 1
-                    ? "bg-gray-300"
-                    : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                    }`}
+                  className={`px-4 py-2 mr-2 rounded-lg border ${
+                    currentPage === 1
+                      ? "bg-gray-300"
+                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                  }`}
                 >
                   Previous
                 </button>
                 <button
                   onClick={paginateNext}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg border ${currentPage === totalPages
-                    ? "bg-gray-300"
-                    : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                    }`}
+                  className={`px-4 py-2 rounded-lg border ${
+                    currentPage === totalPages
+                      ? "bg-gray-300"
+                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                  }`}
                 >
                   Next
                 </button>
@@ -641,8 +647,8 @@ function PhysicalTherapy() {
           <div>
             <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 flex justify-center">
               <p className="text-gray-700 flex items-center">
-                <span className="mr-2">&#9432;</span> Full physical therapy record list is
-                not shown to save initial load time.
+                <span className="mr-2">&#9432;</span> Full physical therapy
+                record list is not shown to save initial load time.
               </p>
             </div>
             <div className="flex justify-center mt-4">
@@ -692,7 +698,6 @@ function PhysicalTherapy() {
                   >
                     Submit
                   </button>
-
                 </div>
               </form>
             </div>
@@ -702,8 +707,12 @@ function PhysicalTherapy() {
         {isSOAPSummaryAdded && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
-              <h2 className="text-xl font-semibold mb-4 text-center">SOAP Summary Added</h2>
-              <p className="text-center text-gray-600 mb-4">The SOAP summary has been successfully added.</p>
+              <h2 className="text-xl font-semibold mb-4 text-center">
+                SOAP Summary Added
+              </h2>
+              <p className="text-center text-gray-600 mb-4">
+                The SOAP summary has been successfully added.
+              </p>
               <div className="flex justify-center">
                 <button
                   onClick={() => {
@@ -720,171 +729,262 @@ function PhysicalTherapy() {
         )}
         {/* View Record Modal */}
         {isViewRecordModalOpen && selectedRecord && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-1/2 max-h-[80vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
               <h2 className="text-xl font-semibold mb-4">Record Details</h2>
-              <p><strong>Patient Info:</strong> {selectedRecord.patient?.firstname} {selectedRecord.patient?.lastname}</p>
-              <p><strong>Tentative Diagnosis:</strong> {selectedRecord.Diagnosis}</p>
-              <p><strong>Chief Complaints:</strong> {selectedRecord.ChiefComplaints}</p>
-              <p><strong>History of Present Illness:</strong> {selectedRecord.HistoryOfPresentIllness}</p>
-              <p><strong>Gender:</strong> {selectedRecord.patient?.sex}</p>
-              {/* Conditionally render Referred By field based on patientType */}
-              {selectedRecord.patient?.patientType === "OPD" && (
-                <p><strong>Referred By:</strong> {selectedRecord.referredBy}</p>
-              )}
-              <p><strong>Patient:</strong> {selectedRecord.patient?.patientType}</p>
-              <p>
 
-                {selectedRecord.record && (
-                  <>
-                    <strong>X-ray Image:</strong>
-                    <button
-                      className="bg-custom-red text-white px-4 py-2 rounded-lg mt-2"
-                      onClick={() => setShowXray(!showXray)}
-                    >
-                      {showXray ? 'Hide X-ray' : 'View X-ray'}
-                    </button>
-                  </>
-                )}
-              </p>
-              {/* X-ray Image */}
-              {showXray && selectedRecord.record && (
-                <div className="mt-4">
-                  <img
-                    src={selectedRecord.record}
-                    alt="X-ray"
-                    className="w-full h-auto object-contain max-h-[60vh] mx-auto"
+              {/* Main Form Content */}
+              <div className="flex-grow flex flex-col mb-4">
+                <form className="flex flex-row items-start gap-4">
+                  {/* X-ray Result Image - Left Side */}
+                  <div className="w-1/2">
+                    <label className="block text-gray-700">X-ray Result</label>
+                    <img
+                      src={selectedRecord.record}
+                      alt="X-ray"
+                      className="w-full h-auto object-contain max-h-[70vh]"
+                    />
+                  </div>
+
+                  <div className="w-1/2">
+                    {/* Name, Age, and Sex */}
+                    <div className="flex mb-4">
+                      <div className="w-1/2 mr-2">
+                        <label className="block text-gray-700">Name</label>
+                        <input
+                          type="text"
+                          name="name"
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                          value={`${selectedRecord.patient?.lastname}, ${selectedRecord.patient?.firstname} `}
+                        />
+                      </div>
+                      <div className="w-1/4 mr-2">
+                        <label className="block text-gray-700">Age</label>
+                        <input
+                          type="text"
+                          name="age"
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                        />
+                      </div>
+                      <div className="w-1/4">
+                        <label className="block text-gray-700">Sex</label>
+                        <input
+                          type="text"
+                          name="sex"
+                          className="w-full px-3 py-2 border rounded bg-gray-100"
+                          value={selectedRecord.patient?.sex}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Course/Dept. or Position */}
+                    <div className="mb-4">
+                      <label className="block text-gray-700">
+                        Tentative Diagnosis
+                      </label>
+                      <input
+                        type="text"
+                        name="courseDept"
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                        value={selectedRecord.Diagnosis}
+                      />
+                    </div>
+
+                    <div className="mb-4">
+                      <label className="block text-gray-700">
+                        History of Present Illness
+                      </label>
+                      <input
+                        type="text"
+                        name="courseDept"
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                        value={selectedRecord.HistoryOfPresentIllness}
+                      />
+                    </div>
+
+                    <div className="mb-4">
+                      <label className="block text-gray-700">
+                        Chief Complaints
+                      </label>
+                      <input
+                        type="text"
+                        name="courseDept"
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                        value={selectedRecord.ChiefComplaints}
+                      />
+                    </div>
+                  </div>
+                </form>
+                <div className="mb-4">
+                  <label className="block text-gray-700">Referred By:</label>
+                  <input
+                    type="text"
+                    name="chiefcomplaints"
+                    value={selectedRecord.referredBy}
+                    readOnly
+                    className="w-full px-3 py-2 border rounded bg-gray-100"
                   />
                 </div>
-              )}
 
-              {/* Date and SOAP Summary Table */}
-              <div className="mt-4 overflow-x-auto max-h-60">
-                <table className="min-w-full border-collapse border border-gray-300">
-                  <thead>
-                    <tr>
-                      <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
-                      <th className="border border-gray-300 px-4 py-2 text-left">SOAP Summary</th>
-                      {userRole !== "special trainee" && (
-                        <th className="border border-gray-300 px-4 py-2"></th>
-                      )}
-                      <th className="border border-gray-300 px-4 py-2">
-                        Verification Checklist
-                        {selectedRecord?.SOAPSummaries?.length > 0 && !selectedRecord.SOAPSummaries.every(entry => entry.verifiedBy) && (
-                          <button
-                            onClick={handleSelectAll}
-                            className="bg-custom-red text-white px-2 py-1 rounded-lg"
-                          >
-                            Select All
-                          </button>
-                        )}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedRecord?.SOAPSummaries?.map((entry) => (
-                      <tr key={entry._id}>
-                        <td className="border border-gray-300 px-4 py-2 text-left">
-                          {new Date(entry.date).toLocaleDateString()}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2 text-left break-words max-w-xs">
-                          {editingEntryId === entry._id ? (
-                            <textarea
-                              value={editSummary}
-                              onChange={(e) => setEditSummary(e.target.value)}
-                              className="w-full h-24 border border-gray-300 px-2 py-1 resize-none"
-                              placeholder="Edit SOAP Summary"
-                            />
-                          ) : (
-                            entry.summary
-                          )}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2 flex space-x-2">
+                {/* SOAP Summary List */}
+                <div className="mt-4 space-y-4">
+                <h3 className="text-lg font-semibold text-gray-700">
+                            SOAP Summary
+                          </h3>
+                  {selectedRecord?.SOAPSummaries?.map((entry) => (
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <div>
+                          
+                          {/* Date */}
+                          <p className="text-sm text-gray-500 mb-2">
+                            Date: {new Date(entry.date).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div>
                           {entry.verifiedBy ? (
-                            <span className="text-gray-500 text-sm"></span>
+                            <span className="text-green-500 text-sm">
+                              Verified by {entry.verifiedBy}
+                            </span>
                           ) : (
-                            editingEntryId === entry._id ? (
-                              <>
-                                <button
-                                  className="bg-green-500 text-white px-2 py-1 rounded-lg"
-                                  onClick={() => handleSaveEdit(selectedRecord._id, entry._id)}
-                                >
-                                  Save
-                                </button>
-                                <button
-                                  className="bg-gray-500 text-white px-2 py-1 rounded-lg"
-                                  onClick={() => setEditingEntryId(null)}
-                                >
-                                  Cancel
-                                </button>
-                              </>
-                            ) : (
+                            userRole !== "special trainee" &&
+                            editingEntryId !== entry._id && (
                               <button
-                                className="bg-custom-red text-white px-2 py-1 rounded-lg"
-                                onClick={() => handleEdit(entry._id, entry.summary)}
+                                type="button"
+                                className="bg-custom-red text-white px-3 py-1 rounded-md text-sm"
+                                onClick={() =>
+                                  handleEdit(entry._id, entry.summary)
+                                }
                               >
                                 Edit
                               </button>
                             )
                           )}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {entry.verifiedBy ? (
-                            <span className="text-green-500 text-sm">
-                              Verified by {entry.verifiedBy}
-                            </span>
-                          ) : userRole === "special trainee" ? (
-                            <span className="text-red-500 text-sm">Not yet verified</span>
+
+                          {/* Edit and Cancel Buttons (Visible in Edit Mode) */}
+                          {editingEntryId === entry._id && (
+                            <div className="flex justify-end space-x-2">
+                              <button
+                                className="bg-green-500 text-white px-3 py-1 rounded-md text-sm"
+                                onClick={() =>
+                                  handleSaveEdit(selectedRecord._id, entry._id)
+                                }
+                              >
+                                Save
+                              </button>
+                              <button
+                                className="bg-gray-500 text-white px-3 py-1 rounded-md text-sm"
+                                onClick={() => setEditingEntryId(null)}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div key={entry._id} className="flex flex-col relative">
+                        {/* SOAP Summary Content */}
+                        <div>
+                          {editingEntryId === entry._id ? (
+                            <textarea
+                              value={editSummary}
+                              onChange={(e) => setEditSummary(e.target.value)}
+                              rows="4"
+                              placeholder="Edit SOAP Summary"
+                              className="w-full p-4"
+                            />
                           ) : (
-                            <input
-                              type="checkbox"
-                              checked={selectedSummaries.includes(entry._id)}
-                              onChange={() => handleCheckboxChange(entry._id)}
-                              className="mr-2"
+                            <textarea
+                              value={entry.summary}
+                              rows="4"
+                              placeholder="Edit SOAP Summary"
+                              className="w-full p-4"
                             />
                           )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+
+                        {/* Verification Checkbox (If Applicable) */}
+                        {!entry.verifiedBy &&
+                          userRole !== "special trainee" &&
+                          editingEntryId !== entry._id && ( // Added condition to hide during editing
+                            <div className="absolute top-4 right-4">
+                              <input
+                                type="checkbox"
+                                checked={selectedSummaries.includes(entry._id)}
+                                onChange={() => handleCheckboxChange(entry._id)}
+                                className="mr-2"
+                              />
+                            </div>
+                          )}
+                      </div>
+                    </div>
+                  ))}
+
+                 
+                </div>
               </div>
 
-
               <div className="flex justify-between mt-4">
-                {/* Left-aligned "Print SOAP Summary" button - only shown if all summaries are verified */}
                 <div className="flex-1 text-left">
-                  {selectedRecord.SOAPSummaries?.length > 0 && selectedRecord.SOAPSummaries.every(entry => entry.verifiedBy) && (
-                    <button
-                      className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                      onClick={() => {
-                        handleOpenPTCertificate(selectedRecord, newTherapyRecord);
-                      }}
-                    >
-                      Print SOAP Summary
-                    </button>
-                  )}
+                   {selectedRecord?.SOAPSummaries?.length > 0 &&
+                    !selectedRecord.SOAPSummaries.every(
+                      (entry) => entry.verifiedBy
+                    ) && (
+                      <button
+                        onClick={handleSelectAll}
+                        className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                      >
+                        Select All
+                      </button>
+                    )}
+                  {selectedRecord.SOAPSummaries?.length > 0 &&
+                    selectedRecord.SOAPSummaries.every(
+                      (entry) => entry.verifiedBy
+                    ) && (
+                      <button
+                        className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                        onClick={() => {
+                          handleOpenPTCertificate(
+                            selectedRecord,
+                            newTherapyRecord
+                          );
+                        }}
+                      >
+                        Print SOAP Summary
+                      </button>
+                    )}
                 </div>
-                <PTCertificate isOpen={isPTCertificateOpen} onClose={handleClosePTCertificate} selectedRecord={selectedRecord} newTherapyRecord={newTherapyRecord} />
-
+                <PTCertificate
+                  isOpen={isPTCertificateOpen}
+                  onClose={handleClosePTCertificate}
+                  selectedRecord={selectedRecord}
+                  newTherapyRecord={newTherapyRecord}
+                />
 
                 {/* Right-aligned "Close" and "Verify" buttons */}
                 <div className="flex items-center space-x-2 text-right">
                   <button
-                    className="bg-custom-red text-white px-4 py-2 rounded-lg"
-                    onClick={closeViewRecordModal}
+                        className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                        onClick={closeViewRecordModal}
                   >
                     Close
                   </button>
 
-                  {selectedRecord?.SOAPSummaries?.some((entry) => !entry.verifiedBy) && (
+                  {selectedRecord?.SOAPSummaries?.some(
+                    (entry) => !entry.verifiedBy
+                  ) && (
                     <button
-                      className="bg-custom-red text-white px-4 py-2 rounded-lg"
-                      onClick={() => {
+                    className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                    onClick={() => {
                         // Handle verify for all non-verified entries
                         selectedRecord?.SOAPSummaries.forEach((entry) => {
                           if (!entry.verifiedBy) {
-                            handleBatchVerify(selectedRecord._id, entry._id, entry);
+                            handleBatchVerify(
+                              selectedRecord._id,
+                              entry._id,
+                              entry
+                            );
                           }
                         });
                       }}
@@ -894,8 +994,6 @@ function PhysicalTherapy() {
                   )}
                 </div>
               </div>
-
-
             </div>
           </div>
         )}
@@ -903,8 +1001,12 @@ function PhysicalTherapy() {
         {isVerificationSuccess && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
-              <h2 className="text-xl font-semibold mb-4 text-center">SOAP Summary Verified</h2>
-              <p className="text-center text-gray-600 mb-4">The SOAP summary has been successfully verified.</p>
+              <h2 className="text-xl font-semibold mb-4 text-center">
+                SOAP Summary Verified
+              </h2>
+              <p className="text-center text-gray-600 mb-4">
+                The SOAP summary has been successfully verified.
+              </p>
               <div className="flex justify-center">
                 <button
                   onClick={() => setIsVerificationSuccess(false)} // Close the modal
@@ -920,8 +1022,12 @@ function PhysicalTherapy() {
         {isEditSuccess && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
-              <h2 className="text-xl font-semibold mb-4 text-center">SOAP Summary Edited</h2>
-              <p className="text-center text-gray-600 mb-4">The SOAP summary has been successfully edited.</p>
+              <h2 className="text-xl font-semibold mb-4 text-center">
+                SOAP Summary Edited
+              </h2>
+              <p className="text-center text-gray-600 mb-4">
+                The SOAP summary has been successfully edited.
+              </p>
               <div className="flex justify-center">
                 <button
                   onClick={() => setIsEditSuccess(false)} // Close the modal
@@ -1041,7 +1147,9 @@ function PhysicalTherapy() {
 
                   {/* Referred By field */}
                   <div className="my-4">
-                    <label className="block text-sm font-medium">Referred by</label>
+                    <label className="block text-sm font-medium">
+                      Referred by
+                    </label>
                     <input
                       type="text"
                       name="referredBy"
@@ -1057,7 +1165,9 @@ function PhysicalTherapy() {
                     New Physical Therapy Record
                   </h2>
                   <div className="mb-4">
-                    <label className="block text-sm font-medium">Tentative Diagnosis</label>
+                    <label className="block text-sm font-medium">
+                      Tentative Diagnosis
+                    </label>
                     <textarea
                       type="text"
                       name="Diagnosis"
@@ -1067,7 +1177,9 @@ function PhysicalTherapy() {
                       className="border rounded-lg w-full p-2 mt-1"
                     />
 
-                    <label className="block text-sm font-medium">Chief Complaints</label>
+                    <label className="block text-sm font-medium">
+                      Chief Complaints
+                    </label>
                     <textarea
                       type="text"
                       name="ChiefComplaints"
@@ -1077,12 +1189,16 @@ function PhysicalTherapy() {
                       className="border rounded-lg w-full p-2 mt-1"
                     />
 
-                    <label className="block text-sm font-medium">History Of Present Illness</label>
+                    <label className="block text-sm font-medium">
+                      History Of Present Illness
+                    </label>
                     <textarea
                       type="text"
                       name="HistoryOfPresentIllness"
                       value={HistoryOfPresentIllness}
-                      onChange={(e) => setHistoryOfPresentIllness(e.target.value)}
+                      onChange={(e) =>
+                        setHistoryOfPresentIllness(e.target.value)
+                      }
                       required
                       className="border rounded-lg w-full p-2 mt-1"
                     />
@@ -1112,8 +1228,12 @@ function PhysicalTherapy() {
         {isOPDPatientAdded && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
-              <h2 className="text-xl font-semibold mb-4 text-center">Patient Added</h2>
-              <p className="text-center text-gray-600 mb-4">The OPD patient has been successfully added.</p>
+              <h2 className="text-xl font-semibold mb-4 text-center">
+                Patient Added
+              </h2>
+              <p className="text-center text-gray-600 mb-4">
+                The OPD patient has been successfully added.
+              </p>
               <div className="flex justify-center">
                 <button
                   onClick={() => {
@@ -1125,6 +1245,26 @@ function PhysicalTherapy() {
                   Okay
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+        {isXrayModalOpen && selectedRecord.record && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-4 rounded-lg shadow-lg max-w-3xl w-full relative">
+              <button
+                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                onClick={() => setIsXrayModalOpen(false)}
+              >
+                &times;
+              </button>
+              <h2 className="text-xl font-semibold mb-4 text-center">
+                X-ray Image
+              </h2>
+              <img
+                src={selectedRecord.record}
+                alt="X-ray"
+                className="w-full h-auto object-contain max-h-[70vh]"
+              />
             </div>
           </div>
         )}
