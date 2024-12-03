@@ -764,7 +764,7 @@ function Clinic() {
                                 <button
                                   className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 w-full"
                                   onClick={() =>
-                                    navigate(`/patients/${record.patient._id}`)
+                                    navigate(`/patientslist/${record.patient._id}`)
                                   }
                                 >
                                   View Patient
@@ -1709,7 +1709,13 @@ function Clinic() {
                   {/* X-ray Result Image - Left Side */}
                   <div className="w-full md:w-1/2">
                     <label className="block text-gray-700">X-ray Results</label>
-
+                    <div className="mb-4">
+                                                  <input
+                                                    type="file"
+                                                    onChange={handleImageChange}
+                                                    className="w-full px-3 py-2 border rounded"
+                                                  />
+                                                </div>
                     {/* Dropdown to select X-ray record */}
                     {/* Only Show Xray Result that is DONE */}
                     <select

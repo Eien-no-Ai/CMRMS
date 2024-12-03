@@ -3787,7 +3787,7 @@ function PatientsProfile() {
                                   </button>
                                 )}
 
-                                {role === "doctor" && status === "Pending" && (
+                                {/* {role === "doctor" && status === "Pending" && (
                                   <button
                                     className="text-red-500"
                                     onClick={() =>
@@ -3796,7 +3796,7 @@ function PatientsProfile() {
                                   >
                                     Add Result
                                   </button>
-                                )}
+                                )} */}
                               </div>
                             </div>
                           </li>
@@ -6572,7 +6572,13 @@ n-2 border rounded px-3 py-1"
                               <h2 className="text-center text-xl font-semibold mb-4">
                                 X-Ray Result Form
                               </h2>
-
+                              <div className="mb-4">
+                                                  <button
+                                                    type="file"
+                                                    onChange={handleImageChange}
+                                                    className="w-full px-3 py-2 border rounded"
+                                                  />
+                                                </div>
                               {/* Main Form Content */}
                               <div className="flex-grow flex flex-col mb-4">
                                 <form className="flex flex-row items-start gap-4">
@@ -6587,13 +6593,7 @@ n-2 border rounded px-3 py-1"
                                       className="w-auto h-full object-cover cursor-pointer"
                                     />
                                   </div>
-                              <div className="mb-4">
-                                                  <input
-                                                    type="file"
-                                                    onChange={handleImageChange}
-                                                    className="w-full px-3 py-2 border rounded"
-                                                  />
-                                                </div>
+                            
                                   <div className="w-1/2">
                                     {/* <div className="flex mb-4">
                                       <div className="w-1/3 mr-2">
@@ -6835,6 +6835,13 @@ n-2 border rounded px-3 py-1"
                 <div className="w-full md:w-1/2">
                   <label className="block text-gray-700">X-ray Results</label>
 
+                  <div className="mb-4">
+                                                  <input
+                                                    type="file"
+                                                    onChange={handleImageChange}
+                                                    className="w-full px-3 py-2 border rounded"
+                                                  />
+                                                </div>
                   {/* Dropdown to select X-ray record */}
                   <select
                     className="w-full px-3 py-2 border rounded mb-4"
@@ -8881,7 +8888,13 @@ n-2 border rounded px-3 py-1"
                 <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
                   {/* Form Title */}
                   <h2 className="text-xl font-semibold mb-4">Result Form</h2>
-
+                  <div className="mb-4">
+                                                  <input
+                                                    type="file"
+                                                    onChange={handleImageChange}
+                                                    className="w-full px-3 py-2 border rounded"
+                                                  />
+                                                </div>
                   {/* Main Form Content */}
                   <div className="flex-grow flex flex-col mb-4">
                     <form className="flex flex-row items-start gap-4">
