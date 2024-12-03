@@ -71,7 +71,7 @@ function Patients() {
 
   const fetchPatients = () => {
     axios
-      .get("http://localhost:3001/patients")
+      .get("https://cmrms-full.onrender.com/patients")
       .then((response) => {
         const sortedPatients = response.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -107,7 +107,7 @@ function Patients() {
     if (patientToEdit) {
       // Update existing patient (Edit)
       axios
-        .put(`http://localhost:3001/patients/${patientToEdit._id}`, patientData)
+        .put(`https://cmrms-full.onrender.com/patients/${patientToEdit._id}`, patientData)
         .then((result) => {
           console.log("Patient updated:", result);
           fetchPatients(); // Refresh the patient list after update
@@ -123,7 +123,7 @@ function Patients() {
     } else {
       // Add new patient
       axios
-        .post("http://localhost:3001/add-patient", patientData)
+        .post("https://cmrms-full.onrender.com/add-patient", patientData)
         .then((result) => {
           console.log("Patient added:", result);
           fetchPatients(); // Refresh the patient list after adding a new patient
@@ -265,7 +265,7 @@ function Patients() {
       const patientId = accountToDelete; // Use the stored patient ID
       console.log("Deleting patient with ID:", patientId);
       const result = await axios.delete(
-        `http://localhost:3001/patients/${patientId}`
+        `https://cmrms-full.onrender.com/patients/${patientId}`
       );
       console.log(result);
       fetchPatients();
@@ -574,7 +574,7 @@ function Patients() {
   useEffect(() => {
     if (medicalHistoryId) {
       axios
-        .get(`http://localhost:3001/api/medical-history/id/${medicalHistoryId}`)
+        .get(`https://cmrms-full.onrender.com/api/medical-history/id/${medicalHistoryId}`)
         .then((response) => {
           setMedicalHistory(response.data);
         })
@@ -589,7 +589,7 @@ function Patients() {
     try {
       // Step 1: Add the patient
       const patientResponse = await axios.post(
-        "http://localhost:3001/add-patient",
+        "https://cmrms-full.onrender.com/add-patient",
         patientInfo
       );
       const patientId = patientResponse.data.patient._id;
@@ -601,7 +601,7 @@ function Patients() {
       };
 
       await axios.post(
-        "http://localhost:3001/api/medical-history",
+        "https://cmrms-full.onrender.com/api/medical-history",
         historyData
       );
 
@@ -747,7 +747,7 @@ function Patients() {
                         key={patient._id}
                         className="border-b cursor-pointer"
                         onClick={() =>
-                          (window.location.href = `/patients/${patient._id}`)
+                          (window.location.href = `/patientslist/${patient._id}`)
                         }
                       >
                         <td className="py-4">

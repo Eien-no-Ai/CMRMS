@@ -26,7 +26,7 @@ function Navbar() {
   useEffect(() => {
     if (userId) {
       axios
-        .get(`http://localhost:3001/user/${userId}`)
+        .get(`https://cmrms-full.onrender.com/user/${userId}`)
         .then((response) => {
           setUserData(response.data); // Set the fetched user data
         })
@@ -86,7 +86,7 @@ function Navbar() {
         )}
         {role === "nurse" && (
           <>
-            <a href="/patients" className="hover:underline">
+            <a href="/patientslist" className="hover:underline">
               Patients
             </a>
             <a href="/packages" className="hover:underline">
@@ -99,7 +99,7 @@ function Navbar() {
         )}
         {role === "doctor" && (
           <>
-            <a href="/patients" className="hover:underline">
+            <a href="/patientslist" className="hover:underline">
               Patients
             </a>
             <a href="/admin" className="hover:underline">

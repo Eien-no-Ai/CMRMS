@@ -32,7 +32,7 @@ function XrayResult() {
 
   const fetchXrayRecords = useCallback(() => {
     axios
-      .get("http://localhost:3001/api/xrayResults")
+      .get("https://cmrms-full.onrender.com/api/xrayResults")
       .then((response) => {
         // Filter only for records with xrayResult set to "done" without any role-based restrictions
         const filteredRecords = response.data.filter(
@@ -125,7 +125,7 @@ function XrayResult() {
     try {
       // Step 1: Update the existing X-ray record by ID
       const updateResponse = await axios.put(
-        `http://localhost:3001/api/xrayResults/${selectedRecord._id}`,
+        `https://cmrms-full.onrender.com/api/xrayResults/${selectedRecord._id}`,
         formDataToSubmit,
         {
           headers: {

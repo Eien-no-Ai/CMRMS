@@ -27,7 +27,7 @@ function AdminHomePage() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3001/accounts")
+      .get("https://cmrms-full.onrender.com/accounts")
       .then((response) => {
         setAccounts(response.data);
       })
@@ -122,7 +122,7 @@ function AdminHomePage() {
     event.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:3001/add-account",
+        "https://cmrms-full.onrender.com/add-account",
         newAccount
       );
       if (response.data.message === "Account Created Successfully") {
@@ -155,7 +155,7 @@ function AdminHomePage() {
       const email = accountToUpdate.email; // Use the email of the correct account
   
       try {
-        const response = await axios.post("http://localhost:3001/role", {
+        const response = await axios.post("https://cmrms-full.onrender.com/role", {
           email: email,
           role: newRole,
         });
@@ -189,7 +189,7 @@ function AdminHomePage() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/reset-password",
+        "https://cmrms-full.onrender.com/reset-password",
         {
           email: email,
           lastname: lastname,
@@ -219,7 +219,7 @@ function AdminHomePage() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/delete-account",
+        "https://cmrms-full.onrender.com/delete-account",
         {
           email: email,
         }
@@ -375,6 +375,8 @@ function AdminHomePage() {
                               <option value="radiologic technologist">Radiologic Technologist</option>
                               <option value="radiologist">Radiologist</option>
                               <option value="dentist">Dentist</option> 
+                              <option value="special trainee">Special Trainee</option>
+                              <option value="physical therapist">Physical Therapist</option>
                               <option value="admin">Admin</option>
                             </>
                           )}
@@ -601,6 +603,8 @@ function AdminHomePage() {
                               Radiologic Technologist
                             </option>
                             <option value="radiologist">Radiologist</option>
+                            <option value="special trainee">Special Trainee</option>
+                            <option value="physical therapist">Physical Therapist</option>
                             <option value="admin">Admin</option>
                           </>
                         )}

@@ -90,22 +90,23 @@ const Dashboard = () => {
   
 
   useEffect(() => {
-// Modify the timestamp handling in the map functions for updates
-const fetchUpdates = async () => {
-  try {
-    // Fetch the logged-in employee's details to determine their department and role
-    const userId = localStorage.getItem("userId");
-    const employeeResponse = await axios.get(
-      `http://localhost:3001/user/${userId}`
-    );
-    const { department, role } = employeeResponse.data;
+    const fetchUpdates = async () => {
+      try {
+        // Fetch the logged-in employee's details to determine their department and role
+        const userId = localStorage.getItem("userId");
+        const employeeResponse = await axios.get(
+          `https://cmrms-full.onrender.com/user/${userId}`
+        );
+        const { department, role } = employeeResponse.data;
+        console.log("Employee Role:", role);
+        console.log("Employee Department:", department);
 
-    // Fetch all updates (labs, xrays, clinics)
-    const [labs, xrays, clinics] = await Promise.all([
-      axios.get("http://localhost:3001/api/laboratory"),
-      axios.get("http://localhost:3001/api/xrayResults"),
-      axios.get("http://localhost:3001/api/clinicalRecords"),
-    ]);
+        // Fetch all updates (labs, xrays, clinics)
+        const [labs, xrays, clinics] = await Promise.all([
+          axios.get("https://cmrms-full.onrender.com/api/laboratory"),
+          axios.get("https://cmrms-full.onrender.com/api/xrayResults"),
+          axios.get("https://cmrms-full.onrender.com/api/clinicalRecords"),
+        ]);
 
     let filteredUpdates = [];
 
@@ -200,7 +201,7 @@ const fetchUpdates = async () => {
     // Fetch the user data when the component is mounted
     const userId = localStorage.getItem("userId");
     if (userId) {
-      fetch(`http://localhost:3001/user/${userId}`)
+      fetch(`https://cmrms-full.onrender.com/user/${userId}`)
         .then((response) => response.json())
         .then((data) => {
           setUserRole(data.role);
@@ -221,7 +222,7 @@ const fetchUpdates = async () => {
 
   const fetchPatients = () => {
     axios
-      .get("http://localhost:3001/patients")
+      .get("https://cmrms-full.onrender.com/patients")
       .then((response) => {
         const sortedPatients = response.data
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -499,7 +500,7 @@ const fetchUpdates = async () => {
                       key={patient._id}
                       className="flex justify-between items-center py-4 border-b cursor-pointer"
                       onClick={() =>
-                        (window.location.href = `/patients/${patient._id}`)
+                        (window.location.href = `/patientslist/${patient._id}`)
                       }
                     >
                       <div className="w-1/5 flex items-center space-x-4">

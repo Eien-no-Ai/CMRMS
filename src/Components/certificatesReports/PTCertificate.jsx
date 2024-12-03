@@ -16,7 +16,7 @@ const PTCertificate = ({ isOpen, onClose, selectedRecord, newTherapyRecord }) =>
   useEffect(() => {
     if (userId) {
       axios
-        .get(`http://localhost:3001/user/${userId}`)
+        .get(`https://cmrms-full.onrender.com/user/${userId}`)
         .then((response) => {
           setUserData(response.data);
         })
