@@ -4,6 +4,7 @@ import Navbar from "../Navbar/Navbar";
 import axios from "axios";
 
 function Laboratory() {
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // Add state for success modal
   const [labRecords, setLabRecords] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const labRecordsPerPage = 4;
@@ -428,6 +429,8 @@ function Laboratory() {
             /* reset bloodBankingSerology fields */
           },
         });
+        // Show success modal
+        setShowSuccessModal(true);
       } else {
         console.error("Unexpected response status:", response.status);
         alert("Failed to save laboratory results. Please try again.");
@@ -797,22 +800,20 @@ function Laboratory() {
                 <button
                   onClick={paginatePrev}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 mr-2 rounded-lg border ${
-                    currentPage === 1
-                      ? "bg-gray-300"
-                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                  }`}
+                  className={`px-4 py-2 mr-2 rounded-lg border ${currentPage === 1
+                    ? "bg-gray-300"
+                    : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                    }`}
                 >
                   Previous
                 </button>
                 <button
                   onClick={paginateNext}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg border ${
-                    currentPage === totalPages
-                      ? "bg-gray-300"
-                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                  }`}
+                  className={`px-4 py-2 rounded-lg border ${currentPage === totalPages
+                    ? "bg-gray-300"
+                    : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                    }`}
                 >
                   Next
                 </button>
@@ -940,9 +941,8 @@ function Laboratory() {
                           I. Blood Chemistry
                         </h3>
                         <BiChevronDown
-                          className={`transform transition-transform duration-300 ${
-                            isBloodChemistryVisible ? "rotate-180" : ""
-                          }`}
+                          className={`transform transition-transform duration-300 ${isBloodChemistryVisible ? "rotate-180" : ""
+                            }`}
                           size={24}
                         />
                       </div>
@@ -962,11 +962,10 @@ function Laboratory() {
                             <input
                               type="text"
                               name="bloodSugar"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("bloodSugar")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes("bloodSugar")
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={formData.bloodChemistry?.bloodSugar || ""}
                               onChange={(e) =>
                                 handleInputChange(
@@ -988,11 +987,10 @@ function Laboratory() {
                             <input
                               type="text"
                               name="totalCholesterol"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("totalCholesterol")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes("totalCholesterol")
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={
                                 formData.bloodChemistry?.totalCholesterol || ""
                               }
@@ -1018,11 +1016,10 @@ function Laboratory() {
                             <input
                               type="text"
                               name="triglyceride"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("triglyceride")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes("triglyceride")
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={
                                 formData.bloodChemistry?.triglyceride || ""
                               }
@@ -1046,11 +1043,10 @@ function Laboratory() {
                             <input
                               type="text"
                               name="bloodUricAcid"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("bloodUricAcid")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes("bloodUricAcid")
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={
                                 formData.bloodChemistry?.bloodUricAcid || ""
                               }
@@ -1077,13 +1073,12 @@ function Laboratory() {
                             <input
                               type="text"
                               name="bloodUreaNitrogen"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "bloodUreaNitrogen"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes(
+                                "bloodUreaNitrogen"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={
                                 formData.bloodChemistry?.bloodUreaNitrogen || ""
                               }
@@ -1109,11 +1104,10 @@ function Laboratory() {
                             <input
                               type="text"
                               name="creatinine"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("creatinine")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes("creatinine")
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={formData.bloodChemistry?.creatinine || ""}
                               onChange={(e) =>
                                 handleInputChange(
@@ -1138,11 +1132,10 @@ function Laboratory() {
                             <input
                               type="text"
                               name="SGOT_AST"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("SGOT_AST")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes("SGOT_AST")
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={formData.bloodChemistry?.SGOT_AST || ""}
                               onChange={(e) =>
                                 handleInputChange(
@@ -1167,11 +1160,10 @@ function Laboratory() {
                             <input
                               type="text"
                               name="SGPT_ALT"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("SGPT_ALT")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes("SGPT_ALT")
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={formData.bloodChemistry?.SGPT_ALT || ""}
                               onChange={(e) =>
                                 handleInputChange(
@@ -1196,11 +1188,10 @@ function Laboratory() {
                             <input
                               type="text"
                               name="HDL_cholesterol"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("HDL_cholesterol")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes("HDL_cholesterol")
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={
                                 formData.bloodChemistry?.HDL_cholesterol || ""
                               }
@@ -1227,11 +1218,10 @@ function Laboratory() {
                             <input
                               type="text"
                               name="LDL_cholesterol"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("LDL_cholesterol")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes("LDL_cholesterol")
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={
                                 formData.bloodChemistry?.LDL_cholesterol || ""
                               }
@@ -1264,9 +1254,8 @@ function Laboratory() {
                           II. Hematology
                         </h3>
                         <BiChevronDown
-                          className={`transform transition-transform duration-300 ${
-                            isHematologyVisible ? "rotate-180" : ""
-                          }`}
+                          className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
+                            }`}
                           size={24}
                         />
                       </div>
@@ -1281,46 +1270,44 @@ function Laboratory() {
                           </div>
 
                           {/* Red Blood Cell Count */}
-        <div className="col-span-1">Red Blood Cell Count</div>
-        <div className="col-span-1">
-          <input
-            type="text"
-            name="redBloodCellCount"
-            className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-              requestedCategories.includes("completeBloodCount") ? "border-green-400" : ""
-            }`}
-            value={formData.Hematology?.redBloodCellCount || ""}
-            onChange={(e) =>
-              handleInputChange(e, "Hematology", "redBloodCellCount")
-            }
-            readOnly={!requestedCategories.includes("completeBloodCount")}
-          />
-          {/* Message for Red Blood Cell Count */}
-          {formData.Hematology?.redBloodCellCount && (
-            <div className="text-sm text-red-500 mt-1">
-              {parseFloat(formData.Hematology.redBloodCellCount) < 3.5 ||
-              parseFloat(formData.Hematology.redBloodCellCount) > 5.5
-                ? "Result is outside the reference range."
-                : "Result is within the reference range."}
-            </div>
-          )}
-        </div>
-        <div className="col-span-1">
-          Male: 4.0 - 5.5 x10^12/L; Female: 3.5 - 5.0 x10^12/L
-        </div>
+                          <div className="col-span-1">Red Blood Cell Count</div>
+                          <div className="col-span-1">
+                            <input
+                              type="text"
+                              name="redBloodCellCount"
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes("completeBloodCount") ? "border-green-400" : ""
+                                }`}
+                              value={formData.Hematology?.redBloodCellCount || ""}
+                              onChange={(e) =>
+                                handleInputChange(e, "Hematology", "redBloodCellCount")
+                              }
+                              readOnly={!requestedCategories.includes("completeBloodCount")}
+                            />
+                            {/* Message for Red Blood Cell Count */}
+                            {formData.Hematology?.redBloodCellCount && (
+                              <div className="text-sm text-red-500 mt-1">
+                                {parseFloat(formData.Hematology.redBloodCellCount) < 3.5 ||
+                                  parseFloat(formData.Hematology.redBloodCellCount) > 5.5
+                                  ? "Result is outside the reference range."
+                                  : "Result is within the reference range."}
+                              </div>
+                            )}
+                          </div>
+                          <div className="col-span-1">
+                            Male: 4.0 - 5.5 x10^12/L; Female: 3.5 - 5.0 x10^12/L
+                          </div>
 
                           <div className="col-span-1">Hemoglobin</div>
                           <div className="col-span-1">
                             <input
                               type="text"
                               name="hemoglobin"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes(
+                                "completeBloodCount"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={formData.Hematology?.Hemoglobin || ""}
                               onChange={(e) =>
                                 handleInputChange(e, "Hematology", "Hemoglobin")
@@ -1341,13 +1328,12 @@ function Laboratory() {
                             <input
                               type="text"
                               name="hematocrit"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes(
+                                "completeBloodCount"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={formData.Hematology?.Hematocrit || ""}
                               onChange={(e) =>
                                 handleInputChange(e, "Hematology", "Hematocrit")
@@ -1368,13 +1354,12 @@ function Laboratory() {
                             <input
                               type="text"
                               name="leukocyteCount"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes(
+                                "completeBloodCount"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={formData.Hematology?.LeukocyteCount || ""}
                               onChange={(e) =>
                                 handleInputChange(
@@ -1401,13 +1386,12 @@ function Laboratory() {
                             <input
                               type="text"
                               name="segmenters"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes(
+                                "completeBloodCount"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={
                                 formData.Hematology?.DifferentialCount
                                   ?.segmenters || ""
@@ -1434,13 +1418,12 @@ function Laboratory() {
                             <input
                               type="text"
                               name="lymphocytes"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes(
+                                "completeBloodCount"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={
                                 formData.Hematology?.DifferentialCount
                                   ?.lymphocytes || ""
@@ -1467,13 +1450,12 @@ function Laboratory() {
                             <input
                               type="text"
                               name="monocytes"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes(
+                                "completeBloodCount"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={
                                 formData.Hematology?.DifferentialCount
                                   ?.monocytes || ""
@@ -1500,13 +1482,12 @@ function Laboratory() {
                             <input
                               type="text"
                               name="eosinophils"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes(
+                                "completeBloodCount"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={
                                 formData.Hematology?.DifferentialCount
                                   ?.eosinophils || ""
@@ -1533,13 +1514,12 @@ function Laboratory() {
                             <input
                               type="text"
                               name="basophils"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes(
+                                "completeBloodCount"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={
                                 formData.Hematology?.DifferentialCount
                                   ?.basophils || ""
@@ -1566,13 +1546,12 @@ function Laboratory() {
                             <input
                               type="text"
                               name="total"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes(
+                                "completeBloodCount"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={
                                 formData.Hematology?.DifferentialCount?.total ||
                                 ""
@@ -1599,13 +1578,12 @@ function Laboratory() {
                             <input
                               type="text"
                               name="plateletCount"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes(
+                                "completeBloodCount"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={formData.Hematology?.PlateletCount || ""}
                               onChange={(e) =>
                                 handleInputChange(
@@ -1628,13 +1606,12 @@ function Laboratory() {
                             <input
                               type="text"
                               name="others"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "bleedingTimeClottingTime"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
+                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${requestedCategories.includes(
+                                "bleedingTimeClottingTime"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
                               value={formData.Hematology?.others || ""}
                               onChange={(e) =>
                                 handleInputChange(e, "Hematology", "others")
@@ -1656,800 +1633,771 @@ function Laboratory() {
                   {requestedCategories.includes(
                     "Clinical Microscopy and Parasitology"
                   ) && (
-                    <div className="mb-0">
-                      <div
-                        className="flex items-center justify-between cursor-pointer"
-                        onClick={toggleClinicalMicroscopyVisibility}
-                      >
-                        <h3 className="text-lg font-semibold mb-0 py-2">
-                          III. Clinical Microscopy and Parasitology
-                        </h3>
-                        <BiChevronDown
-                          className={`transform transition-transform duration-300 ${
-                            isClinicalMicroscopyVisible ? "rotate-180" : ""
-                          }`}
-                          size={24}
-                        />
-                      </div>
-                      <div className="w-full h-px bg-gray-300 my-0"></div>
-
-                      {isClinicalMicroscopyVisible && (
-                        <div className="grid grid-cols-6 gap-4 p-4">
-                          {/* Routine Urinalysis - Macroscopic Examination */}
-                          <label className="col-span-3 font-semibold">
-                            Routine Urinalysis
-                          </label>
-
-                          <label className="col-span-1">LMP</label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.LMP || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                null,
-                                "LMP"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <h4 className="col-span-6 font-semibold">
-                            Macroscopic Examination
-                          </h4>
-                          <label className="col-span-1">Color</label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.macroscopicExam?.color ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "macroscopicExam",
-                                "color"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Appearance</label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.macroscopicExam
-                                ?.appearance || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "macroscopicExam",
-                                "appearance"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-
-                          {/* Routine Urinalysis - Chemical Examination */}
-                          <h4 className="col-span-6 font-semibold mt-4">
-                            Chemical Examination
-                          </h4>
-                          <label className="col-span-1">Sugar</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.sugar || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "sugar"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Urobilinogen</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam
-                                ?.urobilinogen || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "urobilinogen"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Albumin</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.albumin || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "albumin"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Ketones</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.ketones || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "ketones"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Blood</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.blood || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "blood"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Nitrite</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.nitrites ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "nitrites"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Bilirubin</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.bilirubin ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "bilirubin"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Leukocyte</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.leukocytes ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "leukocytes"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Reaction</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.reaction ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "reaction"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Specific Gravity</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam
-                                ?.specificGravity || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "specificGravity"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-
-                          {/* Routine Urinalysis - Microscopic Examination */}
-                          <h4 className="col-span-6 font-semibold mt-4">
-                            Microscopic Examination
-                          </h4>
-                          <label className="col-span-1">Pus Cells</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/hpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam
-                                ?.pusCells || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "pusCells"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Epithelial Cells</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/lpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam
-                                ?.epithelialCells || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "epithelialCells"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Red Blood Cells</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/hpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam?.RBC || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "RBC"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Mucus Threads</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/lpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam
-                                ?.mucusThreads || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "mucusThreads"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Bacteria</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/hpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam
-                                ?.bacteria || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "bacteria"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Crystals</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/lpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam
-                                ?.crystals || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "crystals"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Yeast Cells</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/hpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam
-                                ?.yeastCells || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "yeastCells"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Amorphous</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/lpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam
-                                ?.amorphous || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "amorphous"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Cast</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/lpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam?.casts ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "casts"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          <label className="col-span-1">Others</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam?.others ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "others"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-
-                          {/* Routine Fecalysis */}
-                          <h4 className="col-span-6 font-semibold mt-4">
-                            Routine Fecalysis
-                          </h4>
-                          <label className="col-span-1">Color</label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "routineStoolExamination"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineFecalysis?.color || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineFecalysis",
-                                "color"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "routineStoolExamination"
-                              )
-                            }
-                          />
-                          <label className="col-span-1">Consistency</label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "routineStoolExamination"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineFecalysis?.consistency || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineFecalysis",
-                                "consistency"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "routineStoolExamination"
-                              )
-                            }
-                          />
-
-                          {/* Microscopic Examination for Fecalysis */}
-                          <h4 className="col-span-6 font-semibold mt-4">
-                            Microscopic Examination
-                          </h4>
-                          <label className="col-span-1">
-                            Direct Fecal Smear
-                          </label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "routineStoolExamination"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineFecalysis?.microscopicExam
-                                ?.directFecalSmear || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineFecalysis",
-                                "microscopicExam",
-                                "directFecalSmear"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "routineStoolExamination"
-                              )
-                            }
-                          />
-                          <label className="col-span-1">Kato Thick Smear</label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes("katoThickSmear")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineFecalysis?.microscopicExam
-                                ?.katoThickSmear || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineFecalysis",
-                                "microscopicExam",
-                                "katoThickSmear"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("katoThickSmear")
-                            }
-                          />
-                          <label className="col-span-1">Others</label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "fecalOccultBloodTest"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineFecalysis?.others || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineFecalysis",
-                                "others"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "fecalOccultBloodTest"
-                              )
-                            }
+                      <div className="mb-0">
+                        <div
+                          className="flex items-center justify-between cursor-pointer"
+                          onClick={toggleClinicalMicroscopyVisibility}
+                        >
+                          <h3 className="text-lg font-semibold mb-0 py-2">
+                            III. Clinical Microscopy and Parasitology
+                          </h3>
+                          <BiChevronDown
+                            className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible ? "rotate-180" : ""
+                              }`}
+                            size={24}
                           />
                         </div>
-                      )}
-                    </div>
-                  )}
+                        <div className="w-full h-px bg-gray-300 my-0"></div>
+
+                        {isClinicalMicroscopyVisible && (
+                          <div className="grid grid-cols-6 gap-4 p-4">
+                            {/* Routine Urinalysis - Macroscopic Examination */}
+                            <label className="col-span-3 font-semibold">
+                              Routine Urinalysis
+                            </label>
+
+                            <label className="col-span-1">LMP</label>
+                            <input
+                              type="text"
+                              className={`col-span-2 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.LMP || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  null,
+                                  "LMP"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <h4 className="col-span-6 font-semibold">
+                              Macroscopic Examination
+                            </h4>
+                            <label className="col-span-1">Color</label>
+                            <input
+                              type="text"
+                              className={`col-span-2 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.macroscopicExam?.color ||
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "macroscopicExam",
+                                  "color"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Appearance</label>
+                            <input
+                              type="text"
+                              className={`col-span-2 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.macroscopicExam
+                                  ?.appearance || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "macroscopicExam",
+                                  "appearance"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+
+                            {/* Routine Urinalysis - Chemical Examination */}
+                            <h4 className="col-span-6 font-semibold mt-4">
+                              Chemical Examination
+                            </h4>
+                            <label className="col-span-1">Sugar</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.chemicalExam?.sugar || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "chemicalExam",
+                                  "sugar"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Urobilinogen</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.chemicalExam
+                                  ?.urobilinogen || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "chemicalExam",
+                                  "urobilinogen"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Albumin</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.chemicalExam?.albumin || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "chemicalExam",
+                                  "albumin"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Ketones</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.chemicalExam?.ketones || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "chemicalExam",
+                                  "ketones"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Blood</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.chemicalExam?.blood || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "chemicalExam",
+                                  "blood"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Nitrite</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.chemicalExam?.nitrites ||
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "chemicalExam",
+                                  "nitrites"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Bilirubin</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.chemicalExam?.bilirubin ||
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "chemicalExam",
+                                  "bilirubin"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Leukocyte</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.chemicalExam?.leukocytes ||
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "chemicalExam",
+                                  "leukocytes"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Reaction</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.chemicalExam?.reaction ||
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "chemicalExam",
+                                  "reaction"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Specific Gravity</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.chemicalExam
+                                  ?.specificGravity || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "chemicalExam",
+                                  "specificGravity"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+
+                            {/* Routine Urinalysis - Microscopic Examination */}
+                            <h4 className="col-span-6 font-semibold mt-4">
+                              Microscopic Examination
+                            </h4>
+                            <label className="col-span-1">Pus Cells</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              placeholder="/hpf"
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.microscopicExam
+                                  ?.pusCells || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "microscopicExam",
+                                  "pusCells"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Epithelial Cells</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              placeholder="/lpf"
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.microscopicExam
+                                  ?.epithelialCells || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "microscopicExam",
+                                  "epithelialCells"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Red Blood Cells</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              placeholder="/hpf"
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.microscopicExam?.RBC || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "microscopicExam",
+                                  "RBC"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Mucus Threads</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              placeholder="/lpf"
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.microscopicExam
+                                  ?.mucusThreads || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "microscopicExam",
+                                  "mucusThreads"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Bacteria</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              placeholder="/hpf"
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.microscopicExam
+                                  ?.bacteria || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "microscopicExam",
+                                  "bacteria"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Crystals</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              placeholder="/lpf"
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.microscopicExam
+                                  ?.crystals || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "microscopicExam",
+                                  "crystals"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Yeast Cells</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              placeholder="/hpf"
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.microscopicExam
+                                  ?.yeastCells || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "microscopicExam",
+                                  "yeastCells"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Amorphous</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              placeholder="/lpf"
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.microscopicExam
+                                  ?.amorphous || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "microscopicExam",
+                                  "amorphous"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Cast</label>
+                            <input
+                              type="text"
+                              className={`col-span-1 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              placeholder="/lpf"
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.microscopicExam?.casts ||
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "microscopicExam",
+                                  "casts"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+                            <label className="col-span-1">Others</label>
+                            <input
+                              type="text"
+                              className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("routineUrinalysis")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis?.microscopicExam?.others ||
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineUrinalysis",
+                                  "microscopicExam",
+                                  "others"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("routineUrinalysis")
+                              }
+                            />
+
+                            {/* Routine Fecalysis */}
+                            <h4 className="col-span-6 font-semibold mt-4">
+                              Routine Fecalysis
+                            </h4>
+                            <label className="col-span-1">Color</label>
+                            <input
+                              type="text"
+                              className={`col-span-2 border rounded px-3 py-1 ${requestedCategories.includes(
+                                "routineStoolExamination"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineFecalysis?.color || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineFecalysis",
+                                  "color"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes(
+                                  "routineStoolExamination"
+                                )
+                              }
+                            />
+                            <label className="col-span-1">Consistency</label>
+                            <input
+                              type="text"
+                              className={`col-span-2 border rounded px-3 py-1 ${requestedCategories.includes(
+                                "routineStoolExamination"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineFecalysis?.consistency || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineFecalysis",
+                                  "consistency"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes(
+                                  "routineStoolExamination"
+                                )
+                              }
+                            />
+
+                            {/* Microscopic Examination for Fecalysis */}
+                            <h4 className="col-span-6 font-semibold mt-4">
+                              Microscopic Examination
+                            </h4>
+                            <label className="col-span-1">
+                              Direct Fecal Smear
+                            </label>
+                            <input
+                              type="text"
+                              className={`col-span-2 border rounded px-3 py-1 ${requestedCategories.includes(
+                                "routineStoolExamination"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineFecalysis?.microscopicExam
+                                  ?.directFecalSmear || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineFecalysis",
+                                  "microscopicExam",
+                                  "directFecalSmear"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes(
+                                  "routineStoolExamination"
+                                )
+                              }
+                            />
+                            <label className="col-span-1">Kato Thick Smear</label>
+                            <input
+                              type="text"
+                              className={`col-span-2 border rounded px-3 py-1 ${requestedCategories.includes("katoThickSmear")
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineFecalysis?.microscopicExam
+                                  ?.katoThickSmear || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineFecalysis",
+                                  "microscopicExam",
+                                  "katoThickSmear"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes("katoThickSmear")
+                              }
+                            />
+                            <label className="col-span-1">Others</label>
+                            <input
+                              type="text"
+                              className={`col-span-2 border rounded px-3 py-1 ${requestedCategories.includes(
+                                "fecalOccultBloodTest"
+                              )
+                                ? "border-green-400"
+                                : ""
+                                }`}
+                              value={
+                                formData.clinicalMicroscopyParasitology
+                                  ?.routineFecalysis?.others || ""
+                              }
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  "clinicalMicroscopyParasitology",
+                                  "routineFecalysis",
+                                  "others"
+                                )
+                              }
+                              readOnly={
+                                !requestedCategories.includes(
+                                  "fecalOccultBloodTest"
+                                )
+                              }
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
                   {/* Serology Section */}
                   {requestedCategories.includes("Serology") && (
                     <div className="mb-0">
@@ -2461,9 +2409,8 @@ function Laboratory() {
                           IV. Serology
                         </h3>
                         <BiChevronDown
-                          className={`transform transition-transform duration-300 ${
-                            isSerologyVisible ? "rotate-180" : ""
-                          }`}
+                          className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
+                            }`}
                           size={24}
                         />
                       </div>
@@ -2483,13 +2430,12 @@ function Laboratory() {
                           <label className="col-span-1">Method Used</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "hepatitisBSurfaceAntigen"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes(
+                              "hepatitisBSurfaceAntigen"
+                            )
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology
                                 ?.hepatitisBSurfaceAntigen?.methodUsed || ""
@@ -2512,11 +2458,10 @@ function Laboratory() {
                           <label className="col-span-1">Method Used</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("antiHCV")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("antiHCV")
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.antiHAVTest
                                 ?.methodUsed || ""
@@ -2536,13 +2481,12 @@ function Laboratory() {
                           <label className="col-span-1">Lot No.</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "hepatitisBSurfaceAntigen"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes(
+                              "hepatitisBSurfaceAntigen"
+                            )
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology
                                 ?.hepatitisBSurfaceAntigen?.lotNumber || ""
@@ -2565,11 +2509,10 @@ function Laboratory() {
                           <label className="col-span-1">Lot No.</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("antiHCV")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("antiHCV")
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.antiHAVTest
                                 ?.lotNumber || ""
@@ -2589,13 +2532,12 @@ function Laboratory() {
                           <label className="col-span-1">Expiration Date</label>
                           <input
                             type="date"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "hepatitisBSurfaceAntigen"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes(
+                              "hepatitisBSurfaceAntigen"
+                            )
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology
                                 ?.hepatitisBSurfaceAntigen?.expirationDate || ""
@@ -2618,11 +2560,10 @@ function Laboratory() {
                           <label className="col-span-1">Expiration Date</label>
                           <input
                             type="date"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("antiHCV")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("antiHCV")
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.antiHAVTest
                                 ?.expirationDate || ""
@@ -2642,13 +2583,12 @@ function Laboratory() {
                           <label className="col-span-1">Result</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "hepatitisBSurfaceAntigen"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes(
+                              "hepatitisBSurfaceAntigen"
+                            )
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology
                                 ?.hepatitisBSurfaceAntigen?.result || ""
@@ -2671,11 +2611,10 @@ function Laboratory() {
                           <label className="col-span-1">Result</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("antiHCV")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("antiHCV")
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.antiHAVTest
                                 ?.result || ""
@@ -2702,13 +2641,12 @@ function Laboratory() {
                           <label className="col-span-1">Method Used</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "antiTreponemaPallidum"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes(
+                              "antiTreponemaPallidum"
+                            )
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology
                                 ?.treponemaPallidumTest?.methodUsed || ""
@@ -2731,11 +2669,10 @@ function Laboratory() {
                           <label className="col-span-1">Method Used</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("pregnancyTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("pregnancyTest")
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.serumPregnancy
                                 ?.methodUsed || ""
@@ -2757,13 +2694,12 @@ function Laboratory() {
                           <label className="col-span-1">Lot No.</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "antiTreponemaPallidum"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes(
+                              "antiTreponemaPallidum"
+                            )
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology
                                 ?.treponemaPallidumTest?.lotNumber || ""
@@ -2786,11 +2722,10 @@ function Laboratory() {
                           <label className="col-span-1">Lot No.</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("pregnancyTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("pregnancyTest")
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.serumPregnancy
                                 ?.lotNumber || ""
@@ -2812,13 +2747,12 @@ function Laboratory() {
                           <label className="col-span-1">Expiration Date</label>
                           <input
                             type="date"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "antiTreponemaPallidum"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes(
+                              "antiTreponemaPallidum"
+                            )
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology
                                 ?.treponemaPallidumTest?.expirationDate || ""
@@ -2841,11 +2775,10 @@ function Laboratory() {
                           <label className="col-span-1">Expiration Date</label>
                           <input
                             type="date"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("pregnancyTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("pregnancyTest")
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.serumPregnancy
                                 ?.expirationDate || ""
@@ -2867,13 +2800,12 @@ function Laboratory() {
                           <label className="col-span-1">Result</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "antiTreponemaPallidum"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes(
+                              "antiTreponemaPallidum"
+                            )
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology
                                 ?.treponemaPallidumTest?.result || ""
@@ -2896,11 +2828,10 @@ function Laboratory() {
                           <label className="col-span-1">Result</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("pregnancyTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("pregnancyTest")
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.serumPregnancy
                                 ?.result || ""
@@ -2930,13 +2861,12 @@ function Laboratory() {
                           <label className="col-span-1  ">Method Used</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "testForSalmonellaTyphi"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes(
+                              "testForSalmonellaTyphi"
+                            )
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.salmonellaTyphi
                                 ?.methodUsed || ""
@@ -2959,11 +2889,10 @@ function Laboratory() {
                           <label className="col-span-1">ABO Type</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("bloodTyping")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("bloodTyping")
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.bloodTyping
                                 ?.ABOType || ""
@@ -2985,13 +2914,12 @@ function Laboratory() {
                           <label className="col-span-1  ">Lot No.</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "testForSalmonellaTyphi"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes(
+                              "testForSalmonellaTyphi"
+                            )
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.salmonellaTyphi
                                 ?.lotNumber || ""
@@ -3014,11 +2942,10 @@ function Laboratory() {
                           <label className="col-span-1">Rh Type</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("bloodTyping")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("bloodTyping")
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.bloodTyping
                                 ?.RhType || ""
@@ -3042,13 +2969,12 @@ function Laboratory() {
                           </label>
                           <input
                             type="date"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "testForSalmonellaTyphi"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes(
+                              "testForSalmonellaTyphi"
+                            )
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.salmonellaTyphi
                                 ?.expirationDate || ""
@@ -3074,13 +3000,12 @@ function Laboratory() {
                           <label className="col-span-1  ">Result</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "testForSalmonellaTyphi"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes(
+                              "testForSalmonellaTyphi"
+                            )
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.salmonellaTyphi
                                 ?.result || ""
@@ -3111,11 +3036,10 @@ function Laboratory() {
                           <label className="col-span-1">Method Used</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("dengueTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("dengueTest")
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.testDengue
                                 ?.methodUsed || ""
@@ -3136,12 +3060,11 @@ function Laboratory() {
                           <label className="col-span-1">Method Used</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("HIVElsa") ||
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("HIVElsa") ||
                               requestedCategories.includes("HIVRapidTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.others
                                 ?.methodUsed || ""
@@ -3164,11 +3087,10 @@ function Laboratory() {
                           <label className="col-span-1">Lot No.</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("dengueTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("dengueTest")
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.testDengue
                                 ?.lotNumber || ""
@@ -3189,12 +3111,11 @@ function Laboratory() {
                           <label className="col-span-1">Lot No.</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("HIVElsa") ||
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("HIVElsa") ||
                               requestedCategories.includes("HIVRapidTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.others
                                 ?.lotNumber || ""
@@ -3217,11 +3138,10 @@ function Laboratory() {
                           <label className="col-span-1">Expiration Date</label>
                           <input
                             type="date"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("dengueTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("dengueTest")
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.testDengue
                                 ?.expirationDate || ""
@@ -3242,12 +3162,11 @@ function Laboratory() {
                           <label className="col-span-1">Expiration Date</label>
                           <input
                             type="date"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("HIVElsa") ||
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("HIVElsa") ||
                               requestedCategories.includes("HIVRapidTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.others
                                 ?.expirationDate || ""
@@ -3270,11 +3189,10 @@ function Laboratory() {
                           <label className="col-span-1">Result</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("dengueTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("dengueTest")
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.testDengue
                                 ?.result || ""
@@ -3295,12 +3213,11 @@ function Laboratory() {
                           <label className="col-span-1">Result</label>
                           <input
                             type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("HIVElsa") ||
+                            className={`col-span-5 border rounded px-3 py-1 ${requestedCategories.includes("HIVElsa") ||
                               requestedCategories.includes("HIVRapidTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
+                              ? "border-green-400"
+                              : ""
+                              }`}
                             value={
                               formData.bloodBankingSerology?.others?.result ||
                               ""
@@ -3344,7 +3261,23 @@ function Laboratory() {
           </div>
         </div>
       )}
-
+      {showSuccessModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-1/3 max-w-md">
+            <h2 className="text-lg font-semibold text-green-600 mb-4">Laboratory Result Added Successfully!</h2>
+            <p className="text-gray-700 mb-4">The laboratory result has been successfully saved and is now ready for verification.</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                type="button"
+                onClick={() => setShowSuccessModal(false)} // Close the success modal
+                className="px-6 py-2 text-gray-700 border border-gray-400 rounded hover:bg-gray-300 transition duration-300 ease-in-out"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {isAddOPDModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-4 px-6 rounded-lg w-1/2 shadow-lg">
