@@ -15,6 +15,8 @@ const PhysicalExamStudentModel = require("./models/PhysicalExamStudent");
 const VaccineListModel = require("./models/VaccineList");
 const AnnualCheckUp = require("./models/AnnualCheckUp");
 const multer = require("multer");
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const path = require("path");
 const app = express();
 app.use(cors());
@@ -866,8 +868,7 @@ app.post("/verify-otp", async (req, res) => {
   }
 });
 
-// account registration
-app.post("/register", (req, res) => {
+app.post("/register", async (req, res) => {
   const {
     firstname,
     lastname,
@@ -879,45 +880,67 @@ app.post("/register", (req, res) => {
     department,
   } = req.body;
 
+  // Ensure password and confirm password match
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: "Passwords do not match" });
+  }
+
+  // Hash the password
+  const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
+
   const assignedRole = role === "admin" ? "admin" : "user";
 
-  EmployeeModel.create({
-    firstname,
-    lastname,
-    email,
-    password,
-    signature,
-    confirmPassword,
-    role: assignedRole,
-    department, // Save the department
-  })
-    .then((employee) => res.json(employee))
-    .catch((err) =>
-      res.status(500).json({ error: "Error registering user", details: err })
-    );
+  try {
+    const employee = await EmployeeModel.create({
+      firstname,
+      lastname,
+      email,
+      password: hashedPassword, // Save the hashed password
+      signature,
+      role: assignedRole,
+      department,
+    });
+    res.json(employee);
+  } catch (err) {
+    res.status(500).json({ error: "Error registering user", details: err });
+  }
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  EmployeeModel.findOne({ email: email, password: password })
-    .then((user) => {
-      if (user) {
-        if (user.password === password) {
-          res.json({
-            message: "Login Successful",
-            role: user.role, // Include user role in the response
-            userId: user._id, // Return user ID
-          });
-        } else {
-          res.json({ message: "Password Incorrect" });
-        }
-      } else {
-        res.json({ message: "User not registered" });
-      }
-    })
-    .catch((err) => res.json(err));
-});
 
+  try {
+    const user = await EmployeeModel.findOne({ email: email });
+    
+    if (!user) {
+      return res.status(400).json({ message: "User not registered" });
+    }
+
+    // Compare the password with the hashed password in the database
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({ message: "Password Incorrect" });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, role: user.role }, // Payload
+      'yourSecretKey', // Secret key (use a more secure key in production)
+      { expiresIn: '1h' } // Token expiration time (1 hour)
+    );
+
+    // Respond with the token and user info
+    res.json({
+      message: "Login Successful",
+      token, // JWT token
+      role: user.role,
+      userId: user._id,
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Error logging in", details: err });
+  }
+});
 app.get("/user/:id", (req, res) => {
   const { id } = req.params;
   EmployeeModel.findById(id)

@@ -27,6 +27,7 @@ function Login() {
         password,
       });
       if (result.data.message === "Login Successful") {
+        localStorage.setItem("token", result.data.token);
         localStorage.setItem("role", result.data.role);
         localStorage.setItem("userId", result.data.userId);
         if (result.data.role === "admin") {
