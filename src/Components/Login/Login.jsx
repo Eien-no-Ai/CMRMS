@@ -15,20 +15,17 @@ function Login() {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // New state for success modal
   // Access environment variable for React URL
   const apiUrl = process.env.REACT_APP_REACT_URL;
-
-  console.log(apiUrl); // This should log: https://cmrms-full.onrender.com
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log("API URL being sent:", apiUrl);
       const result = await axios.post(`${apiUrl}/login`, {
         email,
         password,
-        headers: {
-          "x-api-key":process.env.API_KEY,
-        },
-      });
+      },
+    );
       if (result.data.message === "Login Successful") {
         localStorage.setItem("token", result.data.token);
         localStorage.setItem("role", result.data.role);
@@ -55,11 +52,8 @@ function Login() {
 
   const handleSendOTP = async () => {
     try {
-      const result = await axios.post("https://cmrms-full.onrender.com/forgot-password", { email },{
-        headers: {
-          "x-api-key":process.env.API_KEY,
-        },
-      });
+      const result = await axios.post("https://cmrms-full.onrender.com/forgot-password", { email },
+    );
       if (result.data.message === "OTP sent successfully") {
         setOtpSent(true); // Show OTP input after sending OTP
       } else {
@@ -78,10 +72,8 @@ function Login() {
         email,
         otp,
         newPassword,
-        headers: {
-          "x-api-key":process.env.API_KEY,
-        },
-      });
+      }
+    );
       console.log(result.data); // Log the response for debugging
       setIsSuccessModalOpen(true); // Open the success modal
       if (result.data.message === "Password updated successfully!") {

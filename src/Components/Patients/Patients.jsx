@@ -74,9 +74,7 @@ function Patients() {
   const fetchPatients = () => {
     axios
       .get("https://cmrms-full.onrender.com/patients",{
-        headers: {
-          "x-api-key":process.env.API_KEY,
-        },
+       
       })
       .then((response) => {
         const sortedPatients = response.data.sort(
@@ -114,9 +112,7 @@ function Patients() {
       // Update existing patient (Edit)
       axios
         .put(`https://cmrms-full.onrender.com/patients/${patientToEdit._id}`, patientData,{
-          headers: {
-            "x-api-key":process.env.API_KEY,
-          },
+  
         })
         .then((result) => {
           console.log("Patient updated:", result);
@@ -134,9 +130,7 @@ function Patients() {
       // Add new patient
       axios
         .post("https://cmrms-full.onrender.com/add-patient", patientData,{
-          headers: {
-            "x-api-key":process.env.API_KEY,
-          },
+          
         })
         .then((result) => {
           console.log("Patient added:", result);
