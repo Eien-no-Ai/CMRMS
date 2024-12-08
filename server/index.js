@@ -23,7 +23,7 @@ app.use(cors());
 app.use(express.json());
 const nodemailer = require("nodemailer");
 require("dotenv").config();
-
+const api_Key = process.env.REACT_APP_API_KEY;
 const port = process.env.PORT || 3001;
 mongoose
   .connect(process.env.MONGODB_URI, {
@@ -34,6 +34,20 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err));
   console.log("MongoDB URI:", process.env.MONGODB_URI);  // Log the MongoDB URI for debugging
 
+  const apiKeyMiddleware = (req, res, next) => {
+    const apiKey = req.headers['api-key'];
+    if (apiKey === api_Key) {
+      next();
+    }
+    else {
+      res.status(401).json({ message: 'Unauthorized' });
+    }
+  };
+
+  app.use('/login',apiKeyMiddleware);
+  app.use('/accounts',apiKeyMiddleware);
+  app.use('/patients',apiKeyMiddleware);
+  app.use('/api/',apiKeyMiddleware);
 // V A C C I N E   L I S T
 app.post("/api/vaccine-list", async (req, res) => {
   try {
@@ -927,7 +941,7 @@ app.post("/login", async (req, res) => {
     // Generate JWT token
     const token = jwt.sign(
       { userId: user._id, role: user.role }, // Payload
-      'yourSecretKey', // Secret key (use a more secure key in production)
+      process.env.JWT_SECRET, // Secret key (use a more secure key in production)
       { expiresIn: '1h' } // Token expiration time (1 hour)
     );
 

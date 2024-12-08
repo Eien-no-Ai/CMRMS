@@ -44,7 +44,9 @@ function Patients() {
   const dropdownRefs = useRef([]);
 
   const [medicalRecords, setMedicalRecords] = useState([]);
-
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
+  // const api_Key = "1324654";
   useEffect(() => {
     fetchPatients();
   }, []);
@@ -72,10 +74,13 @@ function Patients() {
   }, [dropdownIndex]);
 
   const fetchPatients = () => {
+    console.log(api_Key);
     axios
-      .get("https://cmrms-full.onrender.com/patients",{
-       
-      })
+    .get(`${apiUrl}/patients`,{
+        headers: {
+          'api-key': api_Key,
+      }
+    })
       .then((response) => {
         const sortedPatients = response.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -110,10 +115,17 @@ function Patients() {
 
     if (patientToEdit) {
       // Update existing patient (Edit)
+      console.log(api_Key);
+      console.log(apiUrl);
       axios
         .put(`https://cmrms-full.onrender.com/patients/${patientToEdit._id}`, patientData,{
-  
-        })
+        
+        },{
+          headers: {
+            'api-key': api_Key,
+        }
+        }
+      )
         .then((result) => {
           console.log("Patient updated:", result);
           fetchPatients(); // Refresh the patient list after update
@@ -131,7 +143,12 @@ function Patients() {
       axios
         .post("https://cmrms-full.onrender.com/add-patient", patientData,{
           
-        })
+        },{
+          headers: {
+            'api-key': api_Key,
+          }
+        }
+      )
         .then((result) => {
           console.log("Patient added:", result);
           fetchPatients(); // Refresh the patient list after adding a new patient
@@ -275,6 +292,9 @@ function Patients() {
       const result = await axios.delete(
         `https://cmrms-full.onrender.com/patients/${patientId}`
       ,{
+        headers: {
+          'api-key': api_Key,
+        }
       });
       console.log(result);
       fetchPatients();
@@ -583,7 +603,11 @@ function Patients() {
   useEffect(() => {
     if (medicalHistoryId) {
       axios
-        .get(`https://cmrms-full.onrender.com/api/medical-history/id/${medicalHistoryId}`,
+        .get(`https://cmrms-full.onrender.com/api/medical-history/id/${medicalHistoryId}`,{
+          headers: {
+            'api-key': api_Key,
+          }
+        }
         )
         .then((response) => {
           setMedicalHistory(response.data);
@@ -601,6 +625,11 @@ function Patients() {
       const patientResponse = await axios.post(
         "https://cmrms-full.onrender.com/add-patient",
         patientInfo,
+        {
+          headers: {
+            'api-key': api_Key,
+          }
+        }
       );
       const patientId = patientResponse.data.patient._id;
 
@@ -613,6 +642,11 @@ function Patients() {
       await axios.post(
         "https://cmrms-full.onrender.com/api/medical-history",
         historyData,
+        {
+          headers: {
+            'api-key': api_Key,
+          }
+        }
       );
 
       // Close modals and reset form
@@ -663,6 +697,11 @@ function Patients() {
   const fetchClinicalRecords = () => {
     axios
       .get("https://cmrms-full.onrender.com/api/clinicalRecords",
+        {
+          headers: {
+            'api-key': api_Key,
+          }
+        }
       )
       .then((response) => {
         const completeRecords = response.data
@@ -684,8 +723,14 @@ function Patients() {
   
 
   const fetchLabRecords = () => {
+    console.log(api_Key);
+    console.log(apiUrl);
     axios
-      .get("https://cmrms-full.onrender.com/api/laboratory",
+      .get(`${apiUrl}/api/laboratory`,{
+        headers:{
+          'api-key': api_Key,
+        }
+      }
       )
       .then((response) => {
         const completeRecords = response.data

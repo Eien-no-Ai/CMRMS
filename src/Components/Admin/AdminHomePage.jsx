@@ -24,10 +24,17 @@ function AdminHomePage() {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRefs = useRef([]);
-
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   useEffect(() => {
+    console.log(apiUrl);
+    console.log(api_Key);
     axios
-      .get("https://cmrms-full.onrender.com/accounts")
+      .get(`${apiUrl}/accounts`,{
+          headers: {
+            'api-key': api_Key,
+        }
+      })
       .then((response) => {
         setAccounts(response.data);
       })
