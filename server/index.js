@@ -33,6 +33,19 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
   console.log("MongoDB URI:", process.env.MONGODB_URI);  // Log the MongoDB URI for debugging
+
+  const apiKeyMiddleware = (req, res, next) => {
+    const apiKey = req.headers['x-api-key'];
+    if (apiKey && apiKey === process.env.API_KEY) {
+      next();
+    } else {
+      res.status(403).json({ message: 'Unauthorized' });
+    }
+  };
+
+  app.use('/api/', apiKeyMiddleware);
+  app.use('/accounts', apiKeyMiddleware);
+  app.use('/patients', apiKeyMiddleware);
 // V A C C I N E   L I S T
 app.post("/api/vaccine-list", async (req, res) => {
   try {
