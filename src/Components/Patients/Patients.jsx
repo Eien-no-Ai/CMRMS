@@ -275,9 +275,6 @@ function Patients() {
       const result = await axios.delete(
         `https://cmrms-full.onrender.com/patients/${patientId}`
       ,{
-        headers: {
-          "x-api-key":process.env.API_KEY,
-        },
       });
       console.log(result);
       fetchPatients();
@@ -587,11 +584,6 @@ function Patients() {
     if (medicalHistoryId) {
       axios
         .get(`https://cmrms-full.onrender.com/api/medical-history/id/${medicalHistoryId}`,
-        {
-          headers: {
-            "x-api-key":process.env.API_KEY,
-          },
-        }
         )
         .then((response) => {
           setMedicalHistory(response.data);
@@ -609,11 +601,6 @@ function Patients() {
       const patientResponse = await axios.post(
         "https://cmrms-full.onrender.com/add-patient",
         patientInfo,
-        {
-          headers: {
-            "x-api-key":process.env.API_KEY,
-          },
-        }
       );
       const patientId = patientResponse.data.patient._id;
 
@@ -626,11 +613,6 @@ function Patients() {
       await axios.post(
         "https://cmrms-full.onrender.com/api/medical-history",
         historyData,
-        {
-          headers: {
-            "x-api-key":process.env.API_KEY,
-          },
-        }
       );
 
       // Close modals and reset form
@@ -681,11 +663,6 @@ function Patients() {
   const fetchClinicalRecords = () => {
     axios
       .get("https://cmrms-full.onrender.com/api/clinicalRecords",
-      {
-        headers: {
-          "x-api-key":process.env.API_KEY,
-        },
-      }
       )
       .then((response) => {
         const completeRecords = response.data
@@ -709,11 +686,6 @@ function Patients() {
   const fetchLabRecords = () => {
     axios
       .get("https://cmrms-full.onrender.com/api/laboratory",
-      {
-        headers: {
-          "x-api-key":process.env.API_KEY,
-        },
-      }
       )
       .then((response) => {
         const completeRecords = response.data
@@ -729,11 +701,6 @@ function Patients() {
   const fetchPhysicalExamStudent = () => {
     axios
       .get("https://cmrms-full.onrender.com/api/physical-exam-student",
-      {
-        headers: {
-          "x-api-key":process.env.API_KEY,
-        },
-      }
       )
       .then((response) => {
         const completeRecords = response.data
@@ -762,11 +729,6 @@ function Patients() {
     const date = new Date();
     axios
       .get("https://cmrms-full.onrender.com/api/vaccines",
-      {
-        headers: {
-          "x-api-key":process.env.API_KEY,
-        },
-      }
       )
       .then((response) => {
         const completeRecords = response.data
