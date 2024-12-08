@@ -75,7 +75,7 @@ function Patients() {
     axios
       .get("https://cmrms-full.onrender.com/patients",{
         headers: {
-          "x-api-key":API_KEY,
+          "x-api-key":process.env.API_KEY,
         },
       })
       .then((response) => {
@@ -115,7 +115,7 @@ function Patients() {
       axios
         .put(`https://cmrms-full.onrender.com/patients/${patientToEdit._id}`, patientData,{
           headers: {
-            "x-api-key":API_KEY,
+            "x-api-key":process.env.API_KEY,
           },
         })
         .then((result) => {
@@ -135,7 +135,7 @@ function Patients() {
       axios
         .post("https://cmrms-full.onrender.com/add-patient", patientData,{
           headers: {
-            "x-api-key":API_KEY,
+            "x-api-key":process.env.API_KEY,
           },
         })
         .then((result) => {
@@ -282,7 +282,7 @@ function Patients() {
         `https://cmrms-full.onrender.com/patients/${patientId}`
       ,{
         headers: {
-          "x-api-key":API_KEY,
+          "x-api-key":process.env.API_KEY,
         },
       });
       console.log(result);
@@ -595,7 +595,7 @@ function Patients() {
         .get(`https://cmrms-full.onrender.com/api/medical-history/id/${medicalHistoryId}`,
         {
           headers: {
-            "x-api-key":API_KEY,
+            "x-api-key":process.env.API_KEY,
           },
         }
         )
@@ -617,7 +617,7 @@ function Patients() {
         patientInfo,
         {
           headers: {
-            "x-api-key":API_KEY,
+            "x-api-key":process.env.API_KEY,
           },
         }
       );
@@ -634,7 +634,7 @@ function Patients() {
         historyData,
         {
           headers: {
-            "x-api-key":API_KEY,
+            "x-api-key":process.env.API_KEY,
           },
         }
       );
@@ -689,7 +689,7 @@ function Patients() {
       .get("https://cmrms-full.onrender.com/api/clinicalRecords",
       {
         headers: {
-          "x-api-key":API_KEY,
+          "x-api-key":process.env.API_KEY,
         },
       }
       )
@@ -717,7 +717,7 @@ function Patients() {
       .get("https://cmrms-full.onrender.com/api/laboratory",
       {
         headers: {
-          "x-api-key":API_KEY,
+          "x-api-key":process.env.API_KEY,
         },
       }
       )
@@ -737,7 +737,7 @@ function Patients() {
       .get("https://cmrms-full.onrender.com/api/physical-exam-student",
       {
         headers: {
-          "x-api-key":API_KEY,
+          "x-api-key":process.env.API_KEY,
         },
       }
       )
@@ -770,7 +770,7 @@ function Patients() {
       .get("https://cmrms-full.onrender.com/api/vaccines",
       {
         headers: {
-          "x-api-key":API_KEY,
+          "x-api-key":process.env.API_KEY,
         },
       }
       )
