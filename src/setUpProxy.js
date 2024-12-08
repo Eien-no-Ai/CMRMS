@@ -54,16 +54,6 @@ module.exports = function (app) {
 
    // Proxy requests to /accounts
    app.use(
-    '/verify-otp',
-    createProxyMiddleware({
-      target: 'https://cmrms-full.onrender.com/', // Adjust the target as needed
-      changeOrigin: true,
-      secure: false,
-    })
-  );
-
-   // Proxy requests to /accounts
-   app.use(
     '/register',
     createProxyMiddleware({
       target: 'https://cmrms-full.onrender.com/', // Adjust the target as needed

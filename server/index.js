@@ -43,9 +43,24 @@ mongoose
     }
   };
 
-  app.use('/api/', apiKeyMiddleware);
+  app.use('/api/'    , apiKeyMiddleware);
   app.use('/accounts', apiKeyMiddleware);
   app.use('/patients', apiKeyMiddleware);
+  app.use('/login'   , apiKeyMiddleware);
+  app.use('/forgot-password', apiKeyMiddleware);
+  app.use('/uploads', apiKeyMiddleware);
+  app.use('/verify-otp', apiKeyMiddleware);
+  app.use('/user/:id', apiKeyMiddleware);
+  app.use('/user/:id/update-password', apiKeyMiddleware);
+  app.use('/role', apiKeyMiddleware);
+  app.use('/reset-password', apiKeyMiddleware);
+  app.use('/add-account', apiKeyMiddleware);
+  app.use('/delete-account', apiKeyMiddleware);
+  app.use('/search', apiKeyMiddleware);
+  app.use('/add-patient', apiKeyMiddleware);
+  app.use('/patients/:id', apiKeyMiddleware);
+  app.use('/xrayResultUpload', apiKeyMiddleware);
+
 // V A C C I N E   L I S T
 app.post("/api/vaccine-list", async (req, res) => {
   try {
