@@ -36,13 +36,11 @@ function LaboratoryPathologistVerification() {
 
   const fetchLabRecords = () => {
     axios
-      .get(`${apiUrl}/api/laboratory`, 
-        {
+      .get(`${apiUrl}/api/laboratory`, {
         headers: {
           "api-key": api_Key,
-        }
-      }
-      )
+        },
+      })
       .then((response) => {
         const completeRecords = response.data
           .filter(
@@ -202,7 +200,7 @@ function LaboratoryPathologistVerification() {
         {
           headers: {
             "api-key": api_Key,
-          }
+          },
         }
       );
       if (response.data && response.data.signature) {
@@ -260,7 +258,7 @@ function LaboratoryPathologistVerification() {
         {
           headers: {
             "api-key": api_Key,
-          }
+          },
         }
       );
 
@@ -271,13 +269,13 @@ function LaboratoryPathologistVerification() {
           {
             headers: {
               "api-key": api_Key,
-            }
+            },
           }
         );
 
         if (labUpdateResponse.status === 200) {
           // Trigger success modal after verification
-          setShowVerificationModal(true);  // Show modal that verification is complete
+          setShowVerificationModal(true); // Show modal that verification is complete
           setIsModalOpen(false);
           fetchLabRecords();
         } else {
@@ -306,7 +304,7 @@ function LaboratoryPathologistVerification() {
         {
           headers: {
             "api-key": api_Key,
-          }
+          },
         }
       );
       console.log("Pathologist signature response:", response.data); // Debug log
@@ -474,20 +472,22 @@ function LaboratoryPathologistVerification() {
                 <button
                   onClick={paginatePrev}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 mr-2 rounded-lg border ${currentPage === 1
-                    ? "bg-gray-300"
-                    : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                    }`}
+                  className={`px-4 py-2 mr-2 rounded-lg border ${
+                    currentPage === 1
+                      ? "bg-gray-300"
+                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                  }`}
                 >
                   Previous
                 </button>
                 <button
                   onClick={paginateNext}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg border ${currentPage === totalPages
-                    ? "bg-gray-300"
-                    : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                    }`}
+                  className={`px-4 py-2 rounded-lg border ${
+                    currentPage === totalPages
+                      ? "bg-gray-300"
+                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+                  }`}
                 >
                   Next
                 </button>
@@ -626,8 +626,9 @@ function LaboratoryPathologistVerification() {
                       I. Blood Chemistry
                     </h3>
                     <BiChevronDown
-                      className={`transform transition-transform duration-300 ${isBloodChemistryVisible ? "rotate-180" : ""
-                        }`}
+                      className={`transform transition-transform duration-300 ${
+                        isBloodChemistryVisible ? "rotate-180" : ""
+                      }`}
                       size={24}
                     />
                   </div>
@@ -889,8 +890,9 @@ function LaboratoryPathologistVerification() {
                       II. Hematology
                     </h3>
                     <BiChevronDown
-                      className={`transform transition-transform duration-300 ${isHematologyVisible ? "rotate-180" : ""
-                        }`}
+                      className={`transform transition-transform duration-300 ${
+                        isHematologyVisible ? "rotate-180" : ""
+                      }`}
                       size={24}
                     />
                   </div>
@@ -1225,792 +1227,793 @@ function LaboratoryPathologistVerification() {
               {requestedCategories.includes(
                 "Clinical Microscopy and Parasitology"
               ) && (
-                  <div className="mb-0">
-                    <div
-                      className="flex items-center justify-between cursor-pointer"
-                      onClick={toggleClinicalMicroscopyVisibility}
-                    >
-                      <h3 className="text-lg font-semibold mb-0 py-2">
-                        III. Clinical Microscopy and Parasitology
-                      </h3>
-                      <BiChevronDown
-                        className={`transform transition-transform duration-300 ${isClinicalMicroscopyVisible ? "rotate-180" : ""
-                          }`}
-                        size={24}
+                <div className="mb-0">
+                  <div
+                    className="flex items-center justify-between cursor-pointer"
+                    onClick={toggleClinicalMicroscopyVisibility}
+                  >
+                    <h3 className="text-lg font-semibold mb-0 py-2">
+                      III. Clinical Microscopy and Parasitology
+                    </h3>
+                    <BiChevronDown
+                      className={`transform transition-transform duration-300 ${
+                        isClinicalMicroscopyVisible ? "rotate-180" : ""
+                      }`}
+                      size={24}
+                    />
+                  </div>
+                  <div className="w-full h-px bg-gray-300 my-0"></div>
+
+                  {isClinicalMicroscopyVisible && (
+                    <div className="grid grid-cols-6 gap-4 p-4">
+                      {/* Routine Urinalysis - Macroscopic Examination */}
+                      <label className="col-span-3 font-semibold">
+                        Routine Urinalysis
+                      </label>
+
+                      <label className="col-span-1">LMP</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.LMP || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                LMP: e.target.value,
+                              },
+                            },
+                          })
+                        }
                       />
-                    </div>
-                    <div className="w-full h-px bg-gray-300 my-0"></div>
-
-                    {isClinicalMicroscopyVisible && (
-                      <div className="grid grid-cols-6 gap-4 p-4">
-                        {/* Routine Urinalysis - Macroscopic Examination */}
-                        <label className="col-span-3 font-semibold">
-                          Routine Urinalysis
-                        </label>
-
-                        <label className="col-span-1">LMP</label>
-                        <input
-                          type="text"
-                          className="col-span-2 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.LMP || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
+                      <h4 className="col-span-6 font-semibold">
+                        Macroscopic Examination
+                      </h4>
+                      <label className="col-span-1">Color</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.macroscopicExam?.color || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                macroscopicExam: {
                                   ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  LMP: e.target.value,
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <h4 className="col-span-6 font-semibold">
-                          Macroscopic Examination
-                        </h4>
-                        <label className="col-span-1">Color</label>
-                        <input
-                          type="text"
-                          className="col-span-2 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.macroscopicExam?.color || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  macroscopicExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.macroscopicExam,
-                                    color: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Appearance</label>
-                        <input
-                          type="text"
-                          className="col-span-2 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.macroscopicExam?.appearance ||
-                            "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  macroscopicExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.macroscopicExam,
-                                    appearance: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-
-                        {/* Routine Urinalysis - Chemical Examination */}
-                        <h4 className="col-span-6 font-semibold mt-4">
-                          Chemical Examination
-                        </h4>
-                        <label className="col-span-1">Sugar</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.chemicalExam?.sugar || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  chemicalExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.chemicalExam,
-                                    sugar: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Urobilinogen</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.chemicalExam?.urobilinogen ||
-                            "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  chemicalExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.chemicalExam,
-                                    urobilinogen: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Albumin</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.chemicalExam?.albumin || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  chemicalExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.chemicalExam,
-                                    albumin: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Ketones</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.chemicalExam?.ketones || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  chemicalExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.chemicalExam,
-                                    ketones: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Blood</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.chemicalExam?.blood || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  chemicalExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.chemicalExam,
-                                    blood: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Nitrite</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.chemicalExam?.nitrites || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  chemicalExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.chemicalExam,
-                                    nitrites: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Bilirubin</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.chemicalExam?.bilirubin ||
-                            "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  chemicalExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.chemicalExam,
-                                    bilirubin: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Leukocyte</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.chemicalExam?.leukocytes ||
-                            "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  chemicalExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.chemicalExam,
-                                    leukocytes: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Reaction</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.chemicalExam?.reaction || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  chemicalExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.chemicalExam,
-                                    reaction: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Specific Gravity</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.chemicalExam
-                              ?.specificGravity || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  chemicalExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.chemicalExam,
-                                    specificGravity: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-
-                        {/* Routine Urinalysis - Microscopic Examination */}
-                        <h4 className="col-span-6 font-semibold mt-4">
-                          Microscopic Examination
-                        </h4>
-                        <label className="col-span-1">Pus Cells</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          placeholder="/hpf"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.microscopicExam?.pusCells ||
-                            "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  microscopicExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.microscopicExam,
-                                    pusCells: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Epithelial Cells</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          placeholder="/lpf"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.microscopicExam
-                              ?.epithelialCells || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  microscopicExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.microscopicExam,
-                                    epithelialCells: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Red Blood Cells</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          placeholder="/hpf"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.microscopicExam?.RBC || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  microscopicExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.microscopicExam,
-                                    RBC: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Mucus Threads</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          placeholder="/lpf"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.microscopicExam
-                              ?.mucusThreads || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  microscopicExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.microscopicExam,
-                                    mucusThreads: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Bacteria</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          placeholder="/hpf"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.microscopicExam?.bacteria ||
-                            "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  microscopicExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.microscopicExam,
-                                    bacteria: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Crystals</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          placeholder="/lpf"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.microscopicExam?.crystals ||
-                            "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  microscopicExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.microscopicExam,
-                                    crystals: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Yeast Cells</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          placeholder="/hpf"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.microscopicExam?.yeastCells ||
-                            "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  microscopicExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.microscopicExam,
-                                    yeastCells: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Amorphous</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          placeholder="/lpf"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.microscopicExam?.amorphous ||
-                            "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  microscopicExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.microscopicExam,
-                                    amorphous: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Cast</label>
-                        <input
-                          type="text"
-                          className="col-span-1 border rounded px-3 py-1"
-                          placeholder="/lpf"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.microscopicExam?.casts || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  microscopicExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.microscopicExam,
-                                    casts: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Others</label>
-                        <input
-                          type="text"
-                          className="col-span-5 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineUrinalysis?.microscopicExam?.others ||
-                            "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineUrinalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis,
-                                  microscopicExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineUrinalysis?.microscopicExam,
-                                    others: e.target.value,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
-
-                        {/* Routine Fecalysis */}
-                        <h4 className="col-span-6 font-semibold mt-4">
-                          Routine Fecalysis
-                        </h4>
-                        <label className="col-span-1">Color</label>
-                        <input
-                          type="text"
-                          className="col-span-2 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineFecalysis?.color || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineFecalysis: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineFecalysis,
+                                    ?.routineUrinalysis?.macroscopicExam,
                                   color: e.target.value,
                                 },
                               },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Consistency</label>
-                        <input
-                          type="text"
-                          className="col-span-2 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineFecalysis?.consistency || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineFecalysis: {
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Appearance</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.macroscopicExam?.appearance ||
+                          "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                macroscopicExam: {
                                   ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineFecalysis,
-                                  consistency: e.target.value,
+                                    ?.routineUrinalysis?.macroscopicExam,
+                                  appearance: e.target.value,
                                 },
                               },
-                            })
-                          }
-                        />
+                            },
+                          })
+                        }
+                      />
 
-                        {/* Microscopic Examination for Fecalysis */}
-                        <h4 className="col-span-6 font-semibold mt-4">
-                          Microscopic Examination
-                        </h4>
-                        <label className="col-span-1">Direct Fecal Smear</label>
-                        <input
-                          type="text"
-                          className="col-span-2 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineFecalysis?.microscopicExam
-                              ?.directFecalSmear || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineFecalysis: {
+                      {/* Routine Urinalysis - Chemical Examination */}
+                      <h4 className="col-span-6 font-semibold mt-4">
+                        Chemical Examination
+                      </h4>
+                      <label className="col-span-1">Sugar</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.sugar || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                chemicalExam: {
                                   ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineFecalysis,
-                                  microscopicExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineFecalysis?.microscopicExam,
-                                    directFecalSmear: e.target.value,
-                                  },
+                                    ?.routineUrinalysis?.chemicalExam,
+                                  sugar: e.target.value,
                                 },
                               },
-                            })
-                          }
-                        />
-                        <label className="col-span-1">Kato Thick Smear</label>
-                        <input
-                          type="text"
-                          className="col-span-2 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineFecalysis?.microscopicExam
-                              ?.katoThickSmear || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineFecalysis: {
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Urobilinogen</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.urobilinogen ||
+                          "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                chemicalExam: {
                                   ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineFecalysis,
-                                  microscopicExam: {
-                                    ...labDetails.clinicalMicroscopyParasitology
-                                      ?.routineFecalysis?.microscopicExam,
-                                    katoThickSmear: e.target.value,
-                                  },
+                                    ?.routineUrinalysis?.chemicalExam,
+                                  urobilinogen: e.target.value,
                                 },
                               },
-                            })
-                          }
-                        />
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Albumin</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.albumin || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                chemicalExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.chemicalExam,
+                                  albumin: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Ketones</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.ketones || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                chemicalExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.chemicalExam,
+                                  ketones: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Blood</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.blood || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                chemicalExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.chemicalExam,
+                                  blood: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Nitrite</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.nitrites || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                chemicalExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.chemicalExam,
+                                  nitrites: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Bilirubin</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.bilirubin ||
+                          "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                chemicalExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.chemicalExam,
+                                  bilirubin: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Leukocyte</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.leukocytes ||
+                          "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                chemicalExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.chemicalExam,
+                                  leukocytes: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Reaction</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam?.reaction || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                chemicalExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.chemicalExam,
+                                  reaction: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Specific Gravity</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.chemicalExam
+                            ?.specificGravity || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                chemicalExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.chemicalExam,
+                                  specificGravity: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
 
-                        <label className="col-span-1">Others</label>
-                        <input
-                          type="text"
-                          className="col-span-5 border rounded px-3 py-1"
-                          value={
-                            labDetails.clinicalMicroscopyParasitology
-                              ?.routineFecalysis?.others || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              clinicalMicroscopyParasitology: {
-                                ...labDetails.clinicalMicroscopyParasitology,
-                                routineFecalysis: {
+                      {/* Routine Urinalysis - Microscopic Examination */}
+                      <h4 className="col-span-6 font-semibold mt-4">
+                        Microscopic Examination
+                      </h4>
+                      <label className="col-span-1">Pus Cells</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/hpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.pusCells ||
+                          "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                microscopicExam: {
                                   ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineFecalysis,
+                                    ?.routineUrinalysis?.microscopicExam,
+                                  pusCells: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Epithelial Cells</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/lpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam
+                            ?.epithelialCells || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                microscopicExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.microscopicExam,
+                                  epithelialCells: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Red Blood Cells</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/hpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.RBC || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                microscopicExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.microscopicExam,
+                                  RBC: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Mucus Threads</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/lpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam
+                            ?.mucusThreads || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                microscopicExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.microscopicExam,
+                                  mucusThreads: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Bacteria</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/hpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.bacteria ||
+                          "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                microscopicExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.microscopicExam,
+                                  bacteria: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Crystals</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/lpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.crystals ||
+                          "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                microscopicExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.microscopicExam,
+                                  crystals: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Yeast Cells</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/hpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.yeastCells ||
+                          "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                microscopicExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.microscopicExam,
+                                  yeastCells: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Amorphous</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/lpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.amorphous ||
+                          "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                microscopicExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.microscopicExam,
+                                  amorphous: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Cast</label>
+                      <input
+                        type="text"
+                        className="col-span-1 border rounded px-3 py-1"
+                        placeholder="/lpf"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.casts || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                microscopicExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.microscopicExam,
+                                  casts: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Others</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineUrinalysis?.microscopicExam?.others ||
+                          "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineUrinalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineUrinalysis,
+                                microscopicExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineUrinalysis?.microscopicExam,
                                   others: e.target.value,
                                 },
                               },
-                            })
-                          }
-                        />
-                        {/* Signature Button for Clinical Microscopy */}
-                        <div className="col-span-6 flex justify-end">
-                          {/* {!clinicalMicroscopySignatureUrl && (
+                            },
+                          })
+                        }
+                      />
+
+                      {/* Routine Fecalysis */}
+                      <h4 className="col-span-6 font-semibold mt-4">
+                        Routine Fecalysis
+                      </h4>
+                      <label className="col-span-1">Color</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineFecalysis?.color || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineFecalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineFecalysis,
+                                color: e.target.value,
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Consistency</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineFecalysis?.consistency || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineFecalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineFecalysis,
+                                consistency: e.target.value,
+                              },
+                            },
+                          })
+                        }
+                      />
+
+                      {/* Microscopic Examination for Fecalysis */}
+                      <h4 className="col-span-6 font-semibold mt-4">
+                        Microscopic Examination
+                      </h4>
+                      <label className="col-span-1">Direct Fecal Smear</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineFecalysis?.microscopicExam
+                            ?.directFecalSmear || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineFecalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineFecalysis,
+                                microscopicExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineFecalysis?.microscopicExam,
+                                  directFecalSmear: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+                      <label className="col-span-1">Kato Thick Smear</label>
+                      <input
+                        type="text"
+                        className="col-span-2 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineFecalysis?.microscopicExam
+                            ?.katoThickSmear || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineFecalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineFecalysis,
+                                microscopicExam: {
+                                  ...labDetails.clinicalMicroscopyParasitology
+                                    ?.routineFecalysis?.microscopicExam,
+                                  katoThickSmear: e.target.value,
+                                },
+                              },
+                            },
+                          })
+                        }
+                      />
+
+                      <label className="col-span-1">Others</label>
+                      <input
+                        type="text"
+                        className="col-span-5 border rounded px-3 py-1"
+                        value={
+                          labDetails.clinicalMicroscopyParasitology
+                            ?.routineFecalysis?.others || "N/A"
+                        }
+                        onChange={(e) =>
+                          setLabDetails({
+                            ...labDetails,
+                            clinicalMicroscopyParasitology: {
+                              ...labDetails.clinicalMicroscopyParasitology,
+                              routineFecalysis: {
+                                ...labDetails.clinicalMicroscopyParasitology
+                                  ?.routineFecalysis,
+                                others: e.target.value,
+                              },
+                            },
+                          })
+                        }
+                      />
+                      {/* Signature Button for Clinical Microscopy */}
+                      <div className="col-span-6 flex justify-end">
+                        {/* {!clinicalMicroscopySignatureUrl && (
                       <button
                         onClick={(e) => {
                           e.preventDefault(); // Prevents the page refresh
@@ -2021,20 +2024,20 @@ function LaboratoryPathologistVerification() {
                       </button>
                     )} */}
 
-                          {clinicalMicroscopySignatureUrl && (
-                            <div className="flex justify-end">
-                              <img
-                                src={clinicalMicroscopySignatureUrl}
-                                alt="Signature"
-                                className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
-                              />
-                            </div>
-                          )}
-                        </div>
+                        {clinicalMicroscopySignatureUrl && (
+                          <div className="flex justify-end">
+                            <img
+                              src={clinicalMicroscopySignatureUrl}
+                              alt="Signature"
+                              className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
+                            />
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                )}
+                    </div>
+                  )}
+                </div>
+              )}
               {/* Serology Section */}
               {requestedCategories.includes("Serology") && (
                 <div className="mb-0">
@@ -2046,8 +2049,9 @@ function LaboratoryPathologistVerification() {
                       IV. Serology
                     </h3>
                     <BiChevronDown
-                      className={`transform transition-transform duration-300 ${isSerologyVisible ? "rotate-180" : ""
-                        }`}
+                      className={`transform transition-transform duration-300 ${
+                        isSerologyVisible ? "rotate-180" : ""
+                      }`}
                       size={24}
                     />
                   </div>
@@ -2160,10 +2164,10 @@ function LaboratoryPathologistVerification() {
                           labDetails.bloodBankingSerology
                             ?.hepatitisBSurfaceAntigen?.expirationDate
                             ? new Date(
-                              labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                            )
-                              .toISOString()
-                              .split("T")[0]
+                                labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                             : "N/A"
                         }
                         onChange={(e) =>
@@ -2188,10 +2192,10 @@ function LaboratoryPathologistVerification() {
                           labDetails.bloodBankingSerology?.antiHAVTest
                             ?.expirationDate
                             ? new Date(
-                              labDetails.bloodBankingSerology.antiHAVTest.expirationDate
-                            )
-                              .toISOString()
-                              .split("T")[0]
+                                labDetails.bloodBankingSerology.antiHAVTest.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                             : "N/A"
                         }
                         onChange={(e) =>
@@ -2358,10 +2362,10 @@ function LaboratoryPathologistVerification() {
                           labDetails.bloodBankingSerology?.serumPregnancy
                             ?.expirationDate
                             ? new Date(
-                              labDetails.bloodBankingSerology.serumPregnancy.expirationDate
-                            )
-                              .toISOString()
-                              .split("T")[0]
+                                labDetails.bloodBankingSerology.serumPregnancy.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                             : "N/A"
                         }
                         onChange={(e) =>
@@ -2386,10 +2390,10 @@ function LaboratoryPathologistVerification() {
                           labDetails.bloodBankingSerology?.treponemaPallidumTest
                             ?.expirationDate
                             ? new Date(
-                              labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                            )
-                              .toISOString()
-                              .split("T")[0]
+                                labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                             : "N/A"
                         }
                         onChange={(e) =>
@@ -2554,10 +2558,10 @@ function LaboratoryPathologistVerification() {
                           labDetails.bloodBankingSerology?.salmonellaTyphi
                             ?.expirationDate
                             ? new Date(
-                              labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
-                            )
-                              .toISOString()
-                              .split("T")[0]
+                                labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                             : "N/A"
                         }
                         onChange={(e) =>
@@ -2700,10 +2704,10 @@ function LaboratoryPathologistVerification() {
                           labDetails.bloodBankingSerology?.testDengue
                             ?.expirationDate
                             ? new Date(
-                              labDetails.bloodBankingSerology.testDengue.expirationDate
-                            )
-                              .toISOString()
-                              .split("T")[0]
+                                labDetails.bloodBankingSerology.testDengue.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                             : "N/A"
                         }
                         onChange={(e) =>
@@ -2727,10 +2731,10 @@ function LaboratoryPathologistVerification() {
                           labDetails.bloodBankingSerology?.others
                             ?.expirationDate
                             ? new Date(
-                              labDetails.bloodBankingSerology.others.expirationDate
-                            )
-                              .toISOString()
-                              .split("T")[0]
+                                labDetails.bloodBankingSerology.others.expirationDate
+                              )
+                                .toISOString()
+                                .split("T")[0]
                             : "N/A"
                         }
                         onChange={(e) =>
@@ -2839,13 +2843,15 @@ function LaboratoryPathologistVerification() {
         </div>
       )}
       {showVerificationModal && (
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-75 z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-            <h2 className="text-2xl font-semibold text-green-600">Laboratory Result Verified</h2>
-            <p className="mt-4 text-gray-700">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              Laboratory Result Verified
+            </h2>
+            <p className="text-center text-gray-600 mb-4">
               The laboratory result has been successfully verified .
             </p>
-            <div className="flex justify-end mt-6">
+            <div className="flex justify-center">
               <button
                 onClick={() => setShowVerificationModal(false)} // Close the modal
                 className="px-6 py-2 text-white bg-custom-red rounded hover:bg-red-600 transition duration-300 ease-in-out"

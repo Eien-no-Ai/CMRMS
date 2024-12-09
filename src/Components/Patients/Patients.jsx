@@ -4,8 +4,7 @@ import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { BsThreeDots } from "react-icons/bs";
 import Navbar from "../Navbar/Navbar";
 import axios from "axios";
-import MedicalClinicCensus from '../certificatesReports/MedicalClinicCensus.jsx'
-
+import MedicalClinicCensus from "../certificatesReports/MedicalClinicCensus.jsx";
 
 function Patients() {
   const [patients, setPatients] = useState([]);
@@ -16,6 +15,8 @@ function Patients() {
   const [searchQuery, setSearchQuery] = useState("");
   const [message, setMessage] = useState("");
   const [patientToEdit, setPatientToEdit] = useState(null);
+  const [isPatientAdded, setIsPatientAdded] = useState(false);
+  const [isPatientDeleted, setIsPatientDeleted] = useState(false);
 
   const [patientType, setPatientType] = useState("");
   const [firstname, setFirstName] = useState("");
@@ -76,11 +77,11 @@ function Patients() {
   const fetchPatients = () => {
     console.log(api_Key);
     axios
-    .get(`${apiUrl}/patients`,{
+      .get(`${apiUrl}/patients`, {
         headers: {
-          'api-key': api_Key,
-      }
-    })
+          "api-key": api_Key,
+        },
+      })
       .then((response) => {
         const sortedPatients = response.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -118,14 +119,16 @@ function Patients() {
       console.log(api_Key);
       console.log(apiUrl);
       axios
-        .put(`${apiUrl}/patients/${patientToEdit._id}`, patientData,{
-        
-        },{
-          headers: {
-            'api-key': api_Key,
-        }
-        }
-      )
+        .put(
+          `${apiUrl}/patients/${patientToEdit._id}`,
+          patientData,
+          {},
+          {
+            headers: {
+              "api-key": api_Key,
+            },
+          }
+        )
         .then((result) => {
           console.log("Patient updated:", result);
           fetchPatients(); // Refresh the patient list after update
@@ -141,14 +144,16 @@ function Patients() {
     } else {
       // Add new patient
       axios
-        .post(`${apiUrl}/add-patient`, patientData,{
-          
-        },{
-          headers: {
-            'api-key': api_Key,
+        .post(
+          `${apiUrl}/add-patient`,
+          patientData,
+          {},
+          {
+            headers: {
+              "api-key": api_Key,
+            },
           }
-        }
-      )
+        )
         .then((result) => {
           console.log("Patient added:", result);
           fetchPatients(); // Refresh the patient list after adding a new patient
@@ -289,22 +294,17 @@ function Patients() {
     try {
       const patientId = accountToDelete; // Use the stored patient ID
       console.log("Deleting patient with ID:", patientId);
-      const result = await axios.delete(
-        `${apiUrl}/patients/${patientId}`
-      ,{
+      const result = await axios.delete(`${apiUrl}/patients/${patientId}`, {
         headers: {
-          'api-key': api_Key,
-        }
+          "api-key": api_Key,
+        },
       });
       console.log(result);
       fetchPatients();
       setIsConfirmModalOpen(false);
-      setMessage("Patient deleted successfully!");
-      setTimeout(() => setMessage(""), 3000);
+      setIsPatientDeleted(true);
     } catch (err) {
       console.error("Error deleting patient:", err);
-      setMessage("Error deleting patient.");
-      setTimeout(() => setMessage(""), 3000);
     }
   };
 
@@ -603,12 +603,11 @@ function Patients() {
   useEffect(() => {
     if (medicalHistoryId) {
       axios
-        .get(`${apiUrl}/api/medical-history/id/${medicalHistoryId}`,{
+        .get(`${apiUrl}/api/medical-history/id/${medicalHistoryId}`, {
           headers: {
-            'api-key': api_Key,
-          }
-        }
-        )
+            "api-key": api_Key,
+          },
+        })
         .then((response) => {
           setMedicalHistory(response.data);
         })
@@ -627,8 +626,8 @@ function Patients() {
         patientInfo,
         {
           headers: {
-            'api-key': api_Key,
-          }
+            "api-key": api_Key,
+          },
         }
       );
       const patientId = patientResponse.data.patient._id;
@@ -639,22 +638,17 @@ function Patients() {
         ...medicalHistory,
       };
 
-      await axios.post(
-        `${apiUrl}/api/medical-history`,
-        historyData,
-        {
-          headers: {
-            'api-key': api_Key,
-          }
-        }
-      );
+      await axios.post(`${apiUrl}/api/medical-history`, historyData, {
+        headers: {
+          "api-key": api_Key,
+        },
+      });
+      setIsPatientAdded(true);
 
       // Close modals and reset form
       setIsMedicalModalOpen(false);
       resetForm();
       setMedicalHistory(initialMedicalHistoryState); // Reset the medical history form
-      setMessage("Patient and history added successfully!");
-      setTimeout(() => setMessage(""), 3000);
 
       // Refresh the patient list
       fetchPatients();
@@ -670,13 +664,12 @@ function Patients() {
 
   const handleOpenReportModal = () => {
     setIsMonthDateModalOpen(true);
-    handleCloseReportModal();  
+    handleCloseReportModal();
   };
 
   const handleCloseReportModal = () => {
     setIsReportModalOpen(false);
     setIsMonthDateModalOpen(true);
-
   };
 
   const [clinicalRecords, setClinicalRecords] = useState([]);
@@ -696,40 +689,43 @@ function Patients() {
 
   const fetchClinicalRecords = () => {
     axios
-      .get(`${apiUrl}/api/clinicalRecords`,
-        {
-          headers: {
-            'api-key': api_Key,
-          }
-        }
-      )
+      .get(`${apiUrl}/api/clinicalRecords`, {
+        headers: {
+          "api-key": api_Key,
+        },
+      })
       .then((response) => {
         const completeRecords = response.data
           .filter((record) => {
             // Ensure required fields are not empty
-            const isCompleted = record.complaints && record.treatments && record.diagnosis &&
-              record.patient && record.createdBy;
-            
+            const isCompleted =
+              record.complaints &&
+              record.treatments &&
+              record.diagnosis &&
+              record.patient &&
+              record.createdBy;
+
             return isCompleted;
           })
           .sort((a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)); // Sort by most recent creation
-  
+
         setClinicalRecords(completeRecords);
       })
       .catch((error) => {
-        console.error("There was an error fetching the clinical records!", error);
+        console.error(
+          "There was an error fetching the clinical records!",
+          error
+        );
       });
   };
-  
 
   const fetchLabRecords = () => {
     axios
-      .get(`${apiUrl}/api/laboratory`,{
-        headers:{
-          'api-key': api_Key,
-        }
-      }
-      )
+      .get(`${apiUrl}/api/laboratory`, {
+        headers: {
+          "api-key": api_Key,
+        },
+      })
       .then((response) => {
         const completeRecords = response.data
           .filter((record) => record.labResult === "verified")
@@ -743,13 +739,11 @@ function Patients() {
 
   const fetchPhysicalExamStudent = () => {
     axios
-      .get(`${apiUrl}/api/physical-exam-student`,
-        {
-          headers: {
-            'api-key': api_Key,
-          }
-        }
-      )
+      .get(`${apiUrl}/api/physical-exam-student`, {
+        headers: {
+          "api-key": api_Key,
+        },
+      })
       .then((response) => {
         const completeRecords = response.data
           // .filter((record) => {
@@ -759,99 +753,107 @@ function Patients() {
           //     record.visualAcuity || record.abnormalFindings || Object.values(record.abnormalFindings).every(
           //       finding => finding.hasOwnProperty('remarks') || finding.hasOwnProperty('skin')
           //     );
-  
+
           //   // You could also check that `LMP` is not null
           //   return isCompleted || record.LMP;
           // })
           .sort((a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt));
-  
+
         setPEStudent(completeRecords);
       })
       .catch((error) => {
-        console.error("There was an error fetching the physical exam student records!", error);
+        console.error(
+          "There was an error fetching the physical exam student records!",
+          error
+        );
       });
   };
-  
 
   const fetchVaccine = () => {
     const date = new Date();
     axios
-      .get(`${apiUrl}/api/vaccines`,
-        {
-          headers: {
-            'api-key': api_Key,
-          }
-        }
-      )
+      .get(`${apiUrl}/api/vaccines`, {
+        headers: {
+          "api-key": api_Key,
+        },
+      })
       .then((response) => {
         const completeRecords = response.data
           // .filter((record) => {
           //   // Ensure dateAdministered exists and is a valid date, and match by date (ignoring time)
           //   const recordDate = new Date(record.dateAdministered);
           //   const filterDate = new Date(date);
-  
+
           //   // Normalize both dates to midnight (ignoring time)
           //   recordDate.setHours(0, 0, 0, 0);
           //   filterDate.setHours(0, 0, 0, 0);
-  
+
           //   return recordDate.getTime() === filterDate.getTime();
           // })
           .sort((a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt));
-  
-          setVaccine(completeRecords);
+
+        setVaccine(completeRecords);
       })
       .catch((error) => {
-        console.error("There was an error fetching the vaccine records!", error);
+        console.error(
+          "There was an error fetching the vaccine records!",
+          error
+        );
       });
   };
-  
 
   useEffect(() => {
     const getUniqueMonths = (records, dateField) => {
-      return [...new Set(records.map(record => {
-        const date = new Date(record[dateField]);
-        return date.toLocaleString("default", { month: "long", year: "numeric" });
-      }))];
+      return [
+        ...new Set(
+          records.map((record) => {
+            const date = new Date(record[dateField]);
+            return date.toLocaleString("default", {
+              month: "long",
+              year: "numeric",
+            });
+          })
+        ),
+      ];
     };
-  
+
     let allMonths = [];
-  
+
     // Extract unique months from labRecords if available
     if (labRecords.length > 0) {
-      const labMonths = getUniqueMonths(labRecords, 'isCreatedAt');
+      const labMonths = getUniqueMonths(labRecords, "isCreatedAt");
       allMonths = [...allMonths, ...labMonths];
     }
-  
+
     // Extract unique months from clinicalRecords if available
     if (clinicalRecords.length > 0) {
-      const clinicalMonths = getUniqueMonths(clinicalRecords, 'isCreatedAt');
+      const clinicalMonths = getUniqueMonths(clinicalRecords, "isCreatedAt");
       allMonths = [...allMonths, ...clinicalMonths];
     }
-  
+
     // Extract unique months from peStudent if available
     if (peStudent.length > 0) {
-      const peMonths = getUniqueMonths(peStudent, 'isCreatedAt');
+      const peMonths = getUniqueMonths(peStudent, "isCreatedAt");
       allMonths = [...allMonths, ...peMonths];
     }
-  
+
     // Extract unique months from vaccine if available
     if (vaccine.length > 0) {
-      const vaccineMonths = getUniqueMonths(vaccine, 'dateAdministered');
+      const vaccineMonths = getUniqueMonths(vaccine, "dateAdministered");
       allMonths = [...allMonths, ...vaccineMonths];
     }
-  
+
     // Remove duplicate months
     const uniqueMonths = [...new Set(allMonths)];
-  
+
     // Set the available months state
     setAvailableMonths(uniqueMonths);
   }, [labRecords, clinicalRecords, peStudent, vaccine]); // Add all dependencies
-  
 
   const handleCloseDateSelectionModal = () => {
     setFromMonthYear("");
     setToMonthYear("");
-    setIsReportModalOpen(false); 
+    setIsReportModalOpen(false);
     setIsMonthDateModalOpen(false);
   };
 
@@ -870,9 +872,7 @@ function Patients() {
     setFromMonthYear("");
     setToMonthYear("");
     handleCloseDateSelectionModal();
-
   };
-
 
   return (
     <div>
@@ -936,7 +936,7 @@ function Patients() {
               value={selectedPosition}
               onChange={(e) => setSelectedPosition(e.target.value)}
               className="px-2 py-2 rounded-full border border-gray-300 shadow-sm focus:outline-none"
-              >
+            >
               <option value="">All Positions</option>
               {positions.map((position, index) => (
                 <option key={index} value={position}>
@@ -961,24 +961,22 @@ function Patients() {
               />
             </div>
             {role === "nurse" ? (
+              <button
+                onClick={handleModalOpen}
+                className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
+              >
+                Add Patient
+              </button>
+            ) : (
+              <div className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-full bg-gray-100 hover:bg-gray-200 transition">
                 <button
-                  onClick={handleModalOpen}
-                  className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red"
+                  onClick={handleOpenReportModal}
+                  className="text-gray-600 font-medium flex items-center space-x-2 focus:outline-none"
                 >
-                  Add Patient
+                  <span>Generate Report</span>
                 </button>
-              ) : (
-                <div className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-full bg-gray-100 hover:bg-gray-200 transition">
-                  <button
-                    onClick={handleOpenReportModal}
-                    className="text-gray-600 font-medium flex items-center space-x-2 focus:outline-none"
-                  >
-                    <span>Generate Report</span>
-                  </button>
-                </div>
-              )
-            }
-
+              </div>
+            )}
           </div>
         </div>
 
@@ -2113,8 +2111,6 @@ function Patients() {
                   }
                 ></textarea>
               </div>
-
-              
             </div>
             {/* Conditions Section */}
             <div className="mt-6">
@@ -2632,13 +2628,22 @@ function Patients() {
         </div>
       )}
 
-{isMonthDateModalOpen && clinicalRecords && peStudent && vaccine && labRecords && (
+      {isMonthDateModalOpen &&
+        clinicalRecords &&
+        peStudent &&
+        vaccine &&
+        labRecords && (
           <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
             <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
               <h2 className="text-xl font-semibold mb-4">Select Date Range</h2>
-              
+
               <div className="mb-4">
-                <label htmlFor="fromMonthYear" className="block text-sm font-medium text-gray-700">From:</label>
+                <label
+                  htmlFor="fromMonthYear"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  From:
+                </label>
                 <select
                   id="fromMonthYear"
                   value={fromMonthYear}
@@ -2655,7 +2660,12 @@ function Patients() {
               </div>
 
               <div className="mb-4">
-                <label htmlFor="toMonthYear" className="block text-sm font-medium text-gray-700">To:</label>
+                <label
+                  htmlFor="toMonthYear"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  To:
+                </label>
                 <select
                   id="toMonthYear"
                   value={toMonthYear}
@@ -2679,19 +2689,74 @@ function Patients() {
                   Cancel
                 </button>
                 <button
-                  onClick={() => handleOpenMedicalClinicCensus(fromMonthYear, toMonthYear, clinicalRecords, peStudent, vaccine, labRecords)}                  
-                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"                
+                  onClick={() =>
+                    handleOpenMedicalClinicCensus(
+                      fromMonthYear,
+                      toMonthYear,
+                      clinicalRecords,
+                      peStudent,
+                      vaccine,
+                      labRecords
+                    )
+                  }
+                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
                 >
                   Generate Report
                 </button>
               </div>
-              <MedicalClinicCensus isOpen={isMedicalClinicCensusOpen} onClose={handleCloseMedicalClinicCensus} fromMonthYear={fromMonthYear} toMonthYear={toMonthYear} clinicalRecords={clinicalRecords} peStudent={peStudent} vaccine={vaccine} labRecords={labRecords} />
+              <MedicalClinicCensus
+                isOpen={isMedicalClinicCensusOpen}
+                onClose={handleCloseMedicalClinicCensus}
+                fromMonthYear={fromMonthYear}
+                toMonthYear={toMonthYear}
+                clinicalRecords={clinicalRecords}
+                peStudent={peStudent}
+                vaccine={vaccine}
+                labRecords={labRecords}
+              />
             </div>
           </div>
         )}
-
-
-
+      {isPatientAdded && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              Patient Added
+            </h2>
+            <p className="text-center text-gray-600 mb-4">
+              The patient and patient's history has been successfully added.
+            </p>
+            <div className="flex justify-center">
+              <button
+                onClick={() => {
+                  setIsPatientAdded(false); // Close the confirmation modal
+                }}
+                className="px-4 py-2 bg-custom-red text-white rounded-md"
+              >
+                Okay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {isPatientDeleted && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
+          <h2 className="text-xl font-semibold mb-4 text-center">Deletion Successful</h2>
+          <p className="text-center text-gray-600 mb-4">
+            The patient has been successfully deleted.
+          </p>
+          <div className="flex justify-center">
+            <button
+              onClick={() => setIsPatientDeleted(false)} // Close the success modal
+              className="px-4 py-2 bg-custom-red text-white rounded-md"
+              >
+              Okay
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 }
