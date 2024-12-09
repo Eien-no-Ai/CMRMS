@@ -282,7 +282,12 @@ function LaboratoryVerification() {
         // Second, update the labResult field in LaboratoryModel
         const labUpdateResponse = await axios.put(
           `${apiUrl}/api/laboratory/${labDetails.laboratoryId}`, // Make sure labDetails has `laboratoryId`
-          { labResult: "for pathologist verification" }
+          { labResult: "for pathologist verification" },
+          {
+            headers: {
+              "api-key": api_Key,
+            },
+          }
         );
 
         console.log("Response from Laboratory API:", labUpdateResponse.data);
