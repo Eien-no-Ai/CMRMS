@@ -17,6 +17,8 @@ function Laboratory() {
   const [isSerologyVisible, setIsSerologyVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [requestedCategories, setRequestedCategories] = useState([]);
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   const [formData, setFormData] = useState({
     ORNumber: "",
     labNumber: "", // Lab number
@@ -167,7 +169,11 @@ function Laboratory() {
       try {
         // Fetch patient data
         const response = await axios.get(
-          `https://cmrms-full.onrender.com/patients/${record.patient._id}`
+          `${apiUrl}/patients/${record.patient._id}`,{
+            headers: {
+              "api-key": api_Key,
+            },
+          }
         );
         const patientData = response.data;
 
@@ -393,8 +399,13 @@ function Laboratory() {
 
     try {
       const response = await axios.post(
-        "https://cmrms-full.onrender.com/api/laboratory-results",
-        dataToSend
+        `${apiUrl}/api/laboratory-results`,
+        dataToSend,
+        {
+          headers: {
+            "api-key": api_Key,
+          }
+        }
       );
 
       if (response.status === 200) {
@@ -402,9 +413,14 @@ function Laboratory() {
 
         // Step 2: Update labResult to "complete" in Laboratory after successful save
         await axios.put(
-          `https://cmrms-full.onrender.com/api/laboratory/${laboratoryId}`,
+          `${apiUrl}/api/laboratory/${laboratoryId}`,
           {
             labResult: "for verification",
+          },
+          {
+            headers: {
+              "api-key": api_Key,
+            }
           }
         );
         closeModal(); // Close the modal
@@ -447,7 +463,13 @@ function Laboratory() {
 
   const fetchLabRecords = () => {
     axios
-      .get("https://cmrms-full.onrender.com/api/laboratory")
+      .get(`${apiUrl}/api/laboratory`, 
+      {
+        headers: {
+          "api-key": api_Key,
+        }
+      }
+      )
       .then((response) => {
         // Filter records where labResult is "pending"
         const pendingRecords = response.data
@@ -609,8 +631,13 @@ function Laboratory() {
     try {
       // Step 1: Add the patient
       const patientResponse = await axios.post(
-        "https://cmrms-full.onrender.com/add-patient",
+        `${apiUrl}/add-patient`,
         patientData
+        ,{
+          headers: {
+            "api-key": api_Key,
+          }
+        }
       );
       const patientId = patientResponse.data.patient._id; // Extract the patient ID
 
@@ -622,7 +649,14 @@ function Laboratory() {
         referredBy,
       };
 
-      await axios.post("https://cmrms-full.onrender.com/api/laboratory", labRequestData);
+      await axios.post(
+        `${apiUrl}/api/laboratory`, labRequestData
+        ,{
+          headers: {
+            "api-key": api_Key,
+          }
+        }
+      );
 
       // Close modal and reset form
       fetchLabRecords();

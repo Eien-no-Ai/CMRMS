@@ -12,7 +12,8 @@ const VaccineList = () => {
   const [vaccines, setVaccines] = useState([]);
   const [isVaccineModalOpen, setIsVaccineModalOpen] = useState(false);
   const [newVaccine, setNewVaccine] = useState({ name: "" });
-
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   const vaccinesPerPage = 4;
 
   useEffect(() => {
@@ -22,7 +23,12 @@ const VaccineList = () => {
   const fetchVaccines = async () => {
     try {
       const response = await axios.get(
-        "https://cmrms-full.onrender.com/api/vaccine-list"
+        `${apiUrl}/api/vaccine-list`,
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
       );
       // Assuming response.data contains an array of vaccines with `createdAt` field
       const sortedVaccines = response.data.sort(
@@ -37,10 +43,15 @@ const VaccineList = () => {
   const handleVaccineSubmit = async () => {
     try {
       const response = await axios.post(
-        "https://cmrms-full.onrender.com/api/vaccine-list",
+        `${apiUrl}/api/vaccine-list`,
         {
           ...newVaccine,
           createdAt: new Date(), // Add createdAt timestamp
+        },
+        {
+          headers: {
+            "api-key": api_Key,
+          },
         }
       );
 
@@ -96,8 +107,13 @@ const VaccineList = () => {
   const handleUpdateVaccine = async () => {
     try {
       await axios.put(
-        `https://cmrms-full.onrender.com/api/vaccine-list/${editableVaccine._id}`,
-        editableVaccine
+        `${apiUrl}/api/vaccine-list/${editableVaccine._id}`,
+        editableVaccine,
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
       );
 
       // Re-fetch vaccines to ensure the list is updated and sorted properly
@@ -124,7 +140,12 @@ const VaccineList = () => {
 
     try {
       await axios.delete(
-        `https://cmrms-full.onrender.com/api/vaccine-list/${vaccineToDelete._id}`
+        `${apiUrl}/api/vaccine-list/${vaccineToDelete._id}`,
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
       );
       // Re-fetch vaccines to ensure the list is updated and sorted properly
       await fetchVaccines();

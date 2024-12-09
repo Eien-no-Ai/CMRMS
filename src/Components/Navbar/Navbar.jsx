@@ -10,7 +10,8 @@ function Navbar() {
   const userId = localStorage.getItem("userId"); // Get userId from localStorage
   const navigate = useNavigate(); // Initialize navigate
   const dropdownRef = useRef(null); // Create a ref for the dropdown
-
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
@@ -26,7 +27,13 @@ function Navbar() {
   useEffect(() => {
     if (userId) {
       axios
-        .get(`https://cmrms-full.onrender.com/user/${userId}`)
+        .get(`${apiUrl}/user/${userId}`,
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
+        )
         .then((response) => {
           setUserData(response.data); // Set the fetched user data
         })

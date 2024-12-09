@@ -8,6 +8,8 @@ import { MdRestore } from "react-icons/md";
 const Package = () => {
   const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
   const [packageFor, setPackageFor] = useState("");
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   const [newXrayRecord, setNewXrayRecord] = useState({
     xrayType: "",
     xrayDescription: "",
@@ -86,7 +88,13 @@ const Package = () => {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const response = await axios.get("https://cmrms-full.onrender.com/api/packages");
+        const response = await axios.get(`${apiUrl}/api/packages`,
+          {
+            headers: {
+              "api-key": api_Key,
+            },
+          }
+        );
         setPackages(response.data); // Set the fetched packages to state
       } catch (error) {
         console.error("Error fetching packages:", error);
@@ -172,8 +180,13 @@ const Package = () => {
 
       // Send POST request to the API
       const response = await axios.post(
-        "https://cmrms-full.onrender.com/api/packages",
-        packageData
+        `${apiUrl}/api/packages`,
+        packageData,
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
       );
 
       console.log("Package created successfully:", response.data);
@@ -246,7 +259,13 @@ const Package = () => {
 
   const fetchPackages = async () => {
     try {
-      const response = await axios.get("https://cmrms-full.onrender.com/api/packages");
+      const response = await axios.get(`${apiUrl}/api/packages`,
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
+      );
       const sortedPackages = response.data.sort(
         (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
       );
@@ -302,9 +321,14 @@ const Package = () => {
 
     try {
       await axios.put(
-        `https://cmrms-full.onrender.com/api/packages/${packageToArchive}`,
+        `${apiUrl}/api/packages/${packageToArchive}`,
         {
           isArchived: true,
+        },
+        {
+          headers: {
+            "api-key": api_Key,
+          },
         }
       );
 
@@ -337,8 +361,13 @@ const Package = () => {
 
     try {
       const response = await axios.put(
-        `https://cmrms-full.onrender.com/api/packages/${packageToRestore}`,
-        { isArchived: false }
+        `${apiUrl}/api/packages/${packageToRestore}`,
+        { isArchived: false },
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
       );
       console.log("Package restored successfully:", response.data);
 

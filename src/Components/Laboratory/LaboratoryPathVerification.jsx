@@ -27,7 +27,8 @@ function LaboratoryPathologistVerification() {
   const [serologySignatureUrl, setSerologySignatureUrl] = useState(null);
   const userId = localStorage.getItem("userId"); // Get the user ID from local storage
   const [pathologistSignatureUrl, setPathologistSignatureUrl] = useState(null);
-
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   useEffect(() => {
     fetchLabRecords();
     fetchPathologistSignature();
@@ -35,7 +36,13 @@ function LaboratoryPathologistVerification() {
 
   const fetchLabRecords = () => {
     axios
-      .get("https://cmrms-full.onrender.com/api/laboratory")
+      .get(`${apiUrl}/api/laboratory`, 
+        {
+        headers: {
+          "api-key": api_Key,
+        }
+      }
+      )
       .then((response) => {
         const completeRecords = response.data
           .filter(
@@ -53,7 +60,12 @@ function LaboratoryPathologistVerification() {
   const fetchLabResultByRequestId = async (laboratoryId) => {
     try {
       const response = await axios.get(
-        `https://cmrms-full.onrender.com/api/laboratory-results/by-request/${laboratoryId}`
+        `${apiUrl}/api/laboratory-results/by-request/${laboratoryId}`,
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
       );
       if (response.status === 200 && response.data) {
         setLabDetails(response.data); // Set lab details
@@ -186,7 +198,12 @@ function LaboratoryPathologistVerification() {
   const fetchSignature = async (section) => {
     try {
       const response = await axios.get(
-        `https://cmrms-full.onrender.com/api/signature/user/${userId}`
+        `${apiUrl}/api/signature/user/${userId}`,
+        {
+          headers: {
+            "api-key": api_Key,
+          }
+        }
       );
       if (response.data && response.data.signature) {
         switch (section) {
@@ -238,14 +255,24 @@ function LaboratoryPathologistVerification() {
 
     try {
       const response = await axios.put(
-        `https://cmrms-full.onrender.com/api/laboratory-results/update/${labDetails._id}`,
-        updatedLabResultData
+        `${apiUrl}/api/laboratory-results/update/${labDetails._id}`,
+        updatedLabResultData,
+        {
+          headers: {
+            "api-key": api_Key,
+          }
+        }
       );
 
       if (response.status === 200) {
         const labUpdateResponse = await axios.put(
-          `https://cmrms-full.onrender.com/api/laboratory/${labDetails.laboratoryId}`,
-          { labResult: "verified" }
+          `${apiUrl}/api/laboratory/${labDetails.laboratoryId}`,
+          { labResult: "verified" },
+          {
+            headers: {
+              "api-key": api_Key,
+            }
+          }
         );
 
         if (labUpdateResponse.status === 200) {
@@ -275,7 +302,12 @@ function LaboratoryPathologistVerification() {
 
     try {
       const response = await axios.get(
-        `https://cmrms-full.onrender.com/api/pathologist-signature/${userId}`
+        `${apiUrl}/api/pathologist-signature/${userId}`,
+        {
+          headers: {
+            "api-key": api_Key,
+          }
+        }
       );
       console.log("Pathologist signature response:", response.data); // Debug log
 

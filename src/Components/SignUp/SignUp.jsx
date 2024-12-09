@@ -13,10 +13,12 @@ function SignUp() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
   const [signature, setSignature] = useState("");
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   const handleSubmit = (e) => {
     e.preventDefault();
     axios
-      .post("https://cmrms-full.onrender.com/register", {
+      .post(`${apiUrl}/register`, {
         firstname: firstname,
         lastname: lastname,
         email: email,
@@ -24,7 +26,13 @@ function SignUp() {
         signature: signature,
         confirmPassword: confirmPassword,
         department: department, // Add department to the post request
-      })
+      },
+      {
+        headers: {
+          "api-key": api_Key,
+        },
+      }
+    )
       .then((result) => {
         console.log(result);
         navigate("/login");

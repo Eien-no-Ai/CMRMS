@@ -15,7 +15,8 @@ function XrayResult() {
   const [imageFile, setImageFile] = useState(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false); // New state for image modal
   const [fullImageSrc, setFullImageSrc] = useState("");
-
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   const [formData, setFormData] = useState({
     ORNumber: "",
     XrayNo: "",
@@ -32,7 +33,13 @@ function XrayResult() {
 
   const fetchXrayRecords = useCallback(() => {
     axios
-      .get("https://cmrms-full.onrender.com/api/xrayResults")
+      .get(`${apiUrl}/api/xrayResults`,
+      {
+        headers: {
+          "api-key": api_Key,
+        }
+      }
+      )
       .then((response) => {
         // Filter only for records with xrayResult set to "done" without any role-based restrictions
         const filteredRecords = response.data.filter(
@@ -125,11 +132,11 @@ function XrayResult() {
     try {
       // Step 1: Update the existing X-ray record by ID
       const updateResponse = await axios.put(
-        `https://cmrms-full.onrender.com/api/xrayResults/${selectedRecord._id}`,
+        `${apiUrl}/api/xrayResults/${selectedRecord._id}`,
         formDataToSubmit,
         {
           headers: {
-            "Content-Type": "multipart/form-data", // Set the proper content type for file uploads
+            "api-key": api_Key,
           },
         }
       );

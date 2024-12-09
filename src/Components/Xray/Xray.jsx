@@ -16,6 +16,8 @@ function Xray() {
   const [isPatientAdded, setIsPatientAdded] = useState(false); // State for confirmation modal
   const [isResultAdded, setIsResultAdded] = useState(false); // Track result submission success
   const [isErrorImageModalOpen, setIsErrorImageModalOpen] = useState(false); // Error modal state
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   const [formData, setFormData] = useState({
     ORNumber: "",
     XrayNo: "",
@@ -31,7 +33,13 @@ function Xray() {
   });
   const fetchXrayRecords = useCallback(() => {
     axios
-      .get("https://cmrms-full.onrender.com/api/xrayResults")
+      .get(`${apiUrl}/api/xrayResults`,
+      {
+        headers: {
+          "api-key": api_Key,
+        }
+      }
+      )
       .then((response) => {
         // Filter only pending records without any role-based or type-based restrictions
         const filteredRecords = response.data.filter(
@@ -129,11 +137,11 @@ const handleSubmitResult = async () => {
   try {
     // Step 1: Update the existing X-ray record by ID
     const updateResponse = await axios.put(
-      `https://cmrms-full.onrender.com/api/xrayResults/${selectedRecord._id}`,
+      `${apiUrl}/api/xrayResults/${selectedRecord._id}`,
       formDataToSubmit,
       {
         headers: {
-          "Content-Type": "multipart/form-data", // Set the proper content type for file uploads
+          "api-key": api_Key,
         },
       }
     );
@@ -266,8 +274,13 @@ const closeErrorImageModal = () => {
     try {
       // Step 1: Add the patient
       const patientResponse = await axios.post(
-        "https://cmrms-full.onrender.com/add-patient",
-        patientData
+        `${apiUrl}/add-patient`,
+        patientData,
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
       );
       const patientId = patientResponse.data.patient._id; // Extract the patient ID
 
@@ -281,8 +294,13 @@ const closeErrorImageModal = () => {
       };
 
       await axios.post(
-        "https://cmrms-full.onrender.com/api/xrayResults",
-        xrayRequestData
+        `${apiUrl}/api/xrayResults`,
+        xrayRequestData,
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
       );
 
       // Close modal and reset form

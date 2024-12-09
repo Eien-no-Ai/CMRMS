@@ -35,7 +35,8 @@ function PhysicalTherapy() {
   const [editingEntryId, setEditingEntryId] = useState(null); // ID of the SOAP summary being edited
   const [editSummary, setEditSummary] = useState(""); // Text for the current edit
   const [selectedTherapyId, setSelectedTherapyId] = useState(null);
-
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   // Set the selected ID when a record is clicked
   const handleSelectRecord = (id) => {
     setSelectedTherapyId(id);
@@ -97,10 +98,15 @@ function PhysicalTherapy() {
 
     try {
       const response = await axios.put(
-        `https://cmrms-full.onrender.com/api/physicalTherapy/${therapyRecordId}`,
+        `${apiUrl}/api/physicalTherapy/${therapyRecordId}`,
         {
           SOAPSummary: newTherapyRecord.SOAPSummary,
           verifiedBy: "",
+        },
+        {
+          headers: {
+            "api-key": api_Key,
+          },
         }
       );
 
@@ -154,7 +160,13 @@ function PhysicalTherapy() {
 
   const fetchPhysicalTherapyRecords = () => {
     axios
-      .get("https://cmrms-full.onrender.com/api/physicalTherapy")
+      .get(`${apiUrl}/api/physicalTherapy`,
+      {
+        headers: {
+          "api-key": api_Key,
+        },
+      }
+      )
       .then((response) => {
         console.log(response.data && response.data.records); // Add this line to inspect the response
         const sortedRecords = response.data.sort(
@@ -230,9 +242,14 @@ function PhysicalTherapy() {
 
     try {
       const response = await axios.put(
-        `https://cmrms-full.onrender.com/api/physicalTherapy/${recordId}/soapSummary/${summaryId}`,
+        `${apiUrl}/api/physicalTherapy/${recordId}/soapSummary/${summaryId}`,
         {
           updatedSOAPSummary: editSummary,
+        },
+        {
+          headers: {
+            "api-key": api_Key,
+          },
         }
       );
 
@@ -268,7 +285,13 @@ function PhysicalTherapy() {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (userId) {
-      fetch(`https://cmrms-full.onrender.com/user/${userId}`)
+      fetch(`${apiUrl}/user/${userId}`,
+      {
+        headers: {
+          "api-key": api_Key,
+        },
+      }
+      )
         .then((response) => response.json())
         .then((data) => {
           setUserRole(data.role);
@@ -330,11 +353,16 @@ function PhysicalTherapy() {
         );
         if (entry) {
           const response = await axios.put(
-            `https://cmrms-full.onrender.com/api/physicalTherapyVerification/${selectedRecord._id}/soapSummary/${summaryId}`,
+            `${apiUrl}/api/physicalTherapyVerification/${selectedRecord._id}/soapSummary/${summaryId}`,
             {
               updatedSOAPSummary: {
                 firstname: userData.firstname,
                 lastname: userData.lastname,
+              },
+            },
+            {
+              headers: {
+                "api-key": api_Key,
               },
             }
           );
@@ -405,8 +433,13 @@ function PhysicalTherapy() {
     try {
       // Step 1: Add the patient
       const patientResponse = await axios.post(
-        "https://cmrms-full.onrender.com/add-patient",
-        patientData
+        `${apiUrl}/add-patient`,
+        patientData,
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
       );
       const patientId = patientResponse.data.patient._id; // Extract the patient ID
 
@@ -419,7 +452,13 @@ function PhysicalTherapy() {
         Diagnosis,
       };
 
-      await axios.post("https://cmrms-full.onrender.com/api/physicalTherapy", ptOPD);
+      await axios.post(`${apiUrl}/api/physicalTherapy`, ptOPD,
+      {
+        headers: {
+          "api-key": api_Key,
+        }
+      }
+      );
       // Set the confirmation modal state to true
       setIsOPDPatientAdded(true);
       // Close modal and reset form

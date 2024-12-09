@@ -20,14 +20,21 @@ function LaboratoryResult() {
   const [verifiedByEmployee, setVerifiedByEmployee] = useState(null);
   const [verifiedByPathologist, setVerifiedByPathologist] = useState(null);
   const [requestedCategories, setRequestedCategories] = useState([]);
-
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   useEffect(() => {
     fetchLabRecords();
   }, []);
 
   const fetchLabRecords = () => {
     axios
-      .get("https://cmrms-full.onrender.com/api/laboratory")
+      .get(`${apiUrl}/api/laboratory`,
+        {
+          headers: {
+            "api-key": api_Key,
+          }
+        }
+      )
       .then((response) => {
         const completeRecords = response.data
           .filter((record) => record.labResult === "verified")
@@ -44,7 +51,12 @@ function LaboratoryResult() {
   const fetchLabResultByRequestId = async (laboratoryId) => {
     try {
       const response = await axios.get(
-        `https://cmrms-full.onrender.com/api/laboratory-results/by-request/${laboratoryId}`
+        `${apiUrl}/api/laboratory-results/by-request/${laboratoryId}`,
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
       );
       if (response.status === 200 && response.data) {
         setLabDetails(response.data); // Set lab details
@@ -185,7 +197,12 @@ function LaboratoryResult() {
   const fetchEmployeeDetails = async (employeeId) => {
     try {
       const response = await axios.get(
-        `https://cmrms-full.onrender.com/api/employees/${employeeId}`
+        `${apiUrl}/api/employees/${employeeId}`,
+        {
+          headers: {
+            'api-key': api_Key,
+          }
+        }
       );
       if (response.status === 200 && response.data) {
         setVerifiedByEmployee(response.data); // Set the employee details
@@ -200,7 +217,12 @@ function LaboratoryResult() {
   const fetchPathologistDetails = async (pathologistId) => {
     try {
       const response = await axios.get(
-        `https://cmrms-full.onrender.com/api/employees/${pathologistId}`
+        `${apiUrl}/api/employees/${pathologistId}`,
+        {
+          headers: {
+            'api-key': api_Key,
+          }
+        }
       );
       if (response.status === 200 && response.data) {
         setVerifiedByPathologist(response.data); // Store pathologist details

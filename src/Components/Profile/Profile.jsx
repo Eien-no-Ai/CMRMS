@@ -14,10 +14,18 @@ function Profile() {
   const [signatureUrl, setSignatureUrl] = useState(null); // Store the fetched signature URL
   const [selectedRecord, setSelectedRecord] = useState(null);
   // Fetch the user data when the component is mounted
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   useEffect(() => {
     if (userId) {
       axios
-        .get(`https://cmrms-full.onrender.com/user/${userId}`)
+        .get(`${apiUrl}/user/${userId}`,
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
+        )
         .then((response) => {
           setUserData(response.data);
         })
@@ -41,7 +49,13 @@ function Profile() {
     }
 
     axios
-      .put(`https://cmrms-full.onrender.com/user/${userId}/update-password`, { password })
+      .put(`${apiUrl}/user/${userId}/update-password`, { password },
+      {
+        headers: {
+          "api-key": api_Key,
+        },
+      }
+      )
       .then((response) => {
         setSuccessMessage("Password updated successfully");
         setErrorMessage("");
@@ -59,7 +73,13 @@ function Profile() {
   useEffect(() => {
     if (userId) {
       axios
-        .get(`https://cmrms-full.onrender.com/user/${userId}`)
+        .get(`${apiUrl}/user/${userId}`,
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
+        )
         .then((response) => {
           setUserData(response.data);
         })
@@ -80,11 +100,11 @@ function Profile() {
 
     try {
       const response = await axios.post(
-        `https://cmrms-full.onrender.com/api/upload-signature/user/${userId}`, // Ensure correct ID is passed
+        `${apiUrl}/api/upload-signature/user/${userId}`, // Ensure correct ID is passed
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data", // Proper content type
+           'api-key': api_Key,
           },
         }
       );
@@ -126,7 +146,12 @@ function Profile() {
   const fetchSignature = async (userId) => {
     try {
       const response = await axios.get(
-        `https://cmrms-full.onrender.com/api/signature/user/${userId}`
+        `${apiUrl}/api/signature/user/${userId}`,
+        {
+          headers: {
+            'api-key': api_Key,
+          },
+        }
       );
 
       if (response.data && response.data.signature) {

@@ -16,14 +16,21 @@ function LaboratoryCensus() {
   const [fromMonthYear, setFromMonthYear] = useState("");
   const [toMonthYear, setToMonthYear] = useState("");
   const [availableMonths, setAvailableMonths] = useState([]);
-
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   useEffect(() => {
     fetchLabRecords();
   }, []);
 
   const fetchLabRecords = () => {
     axios
-      .get("https://cmrms-full.onrender.com/api/laboratory")
+      .get(`${apiUrl}/api/laboratory`,
+        {
+          headers: {
+            "api_key": api_Key
+          }
+        }
+      )
       .then((response) => {
         const completeRecords = response.data
           .filter((record) => record.labResult === "verified")

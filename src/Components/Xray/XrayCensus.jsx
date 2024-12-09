@@ -11,13 +11,20 @@ function XrayCensus() {
   const [xrayRecords, setXrayRecords] = useState([]);
   const [reports, setReports] = useState({});
   const [selectedMonthYear, setSelectedMonthYear] = useState('');
-
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   useEffect(() => {
     fetchXrayRecords();
   }, []);
 
   const fetchXrayRecords = () => {
-    axios.get("https://cmrms-full.onrender.com/api/xrayResults")
+    axios.get(`${apiUrl}/api/xrayResults`,
+      {
+        headers: {
+          "api-key": api_Key,
+        }
+      }
+    )
       .then((response) => {
         console.log("Fetched records:", response.data); // Check the structure here
         const completeRecords = response.data
@@ -41,39 +48,46 @@ function XrayCensus() {
 
   const generateReports = () => {
     const reports = {};
-
+  
     xrayRecords.forEach((record) => {
       const date = new Date(record.isCreatedAt);
       const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' }); // e.g., 'November 2023'
-
+  
       const patient = record.patient;
-      const xrayType = record.xrayType || 'Unknown Type';
-      const patientType = patient.patientType || 'Unknown';
-
-      let department = 'Unknown Department';
-      if (patientType === 'Student') {
-        department = patient.course || 'Unknown Course';
-      } else if (patientType === 'Employee') {
-        department = patient.position || 'Employee';
-      } else if (patientType === 'OPD') {
-        department = 'OPD';
+  
+      // Ensure patient is not null or undefined
+      if (patient) {
+        const xrayType = record.xrayType || 'Unknown Type';
+        const patientType = patient.patientType || 'Unknown';
+  
+        let department = 'Unknown Department';
+        if (patientType === 'Student') {
+          department = patient.course || 'Unknown Course';
+        } else if (patientType === 'Employee') {
+          department = patient.position || 'Employee';
+        } else if (patientType === 'OPD') {
+          department = 'OPD';
+        } else {
+          department = patientType;
+        }
+  
+        if (!reports[monthYear]) {
+          reports[monthYear] = {};
+        }
+        if (!reports[monthYear][xrayType]) {
+          reports[monthYear][xrayType] = {};
+        }
+        if (!reports[monthYear][xrayType][patientType]) {
+          reports[monthYear][xrayType][patientType] = 0;
+        }
+  
+        reports[monthYear][xrayType][patientType]++;
       } else {
-        department = patientType;
+        // Handle the case where patient is null or undefined
+        console.warn("Record has no patient:", record);
       }
-
-      if (!reports[monthYear]) {
-        reports[monthYear] = {};
-      }
-      if (!reports[monthYear][xrayType]) {
-        reports[monthYear][xrayType] = {};
-      }
-      if (!reports[monthYear][xrayType][patientType]) {
-        reports[monthYear][xrayType][patientType] = 0;
-      }
-
-      reports[monthYear][xrayType][patientType]++;
     });
-
+  
     return reports;
   };
 
