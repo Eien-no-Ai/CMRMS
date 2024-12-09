@@ -129,8 +129,12 @@ function AdminHomePage() {
     event.preventDefault();
     try {
       const response = await axios.post(
-        "https://cmrms-full.onrender.com/add-account",
-        newAccount
+        `${apiUrl}/add-account`,
+        newAccount,{
+          headers: {
+            'api-key': api_Key,
+          }
+        }
       );
       if (response.data.message === "Account Created Successfully") {
         setAccounts([...accounts, response.data.account]);
@@ -162,10 +166,15 @@ function AdminHomePage() {
       const email = accountToUpdate.email; // Use the email of the correct account
   
       try {
-        const response = await axios.post("https://cmrms-full.onrender.com/role", {
+        const response = await axios.post(`${apiUrl}/role`, {
           email: email,
           role: newRole,
-        });
+        },{
+          headers: {
+            'api-key': api_Key,
+          }
+        }
+      );
   
         if (response.data.message === "Role Updated") {
           setAccounts((prevAccounts) => {
@@ -196,10 +205,14 @@ function AdminHomePage() {
 
     try {
       const response = await axios.post(
-        "https://cmrms-full.onrender.com/reset-password",
+        `${apiUrl}/reset-password`,
         {
           email: email,
           lastname: lastname,
+        },{
+          headers: {
+            'api-key': api_Key,
+          }
         }
       );
 
@@ -226,10 +239,16 @@ function AdminHomePage() {
 
     try {
       const response = await axios.post(
-        "https://cmrms-full.onrender.com/delete-account",
+        `${apiUrl}/delete-account`,
         {
           email: email,
+        },
+        {
+          headers: {
+            'api-key': api_Key,
+          }
         }
+      
       );
 
       if (response.data.message === "Account Deleted Successfully") {

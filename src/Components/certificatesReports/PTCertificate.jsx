@@ -3,6 +3,8 @@ import html2pdf from 'html2pdf.js';
 import axios from 'axios';
 
 const PTCertificate = ({ isOpen, onClose, selectedRecord, newTherapyRecord }) => {
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   const [userData, setUserData] = useState({});
   const userId = localStorage.getItem("userId"); // Get the user ID from localStorage
   const [pdfDataUrl, setPdfDataUrl] = useState(null);
@@ -16,7 +18,7 @@ const PTCertificate = ({ isOpen, onClose, selectedRecord, newTherapyRecord }) =>
   useEffect(() => {
     if (userId) {
       axios
-        .get(`https://cmrms-full.onrender.com/user/${userId}`)
+        .get(`${apiUrl}/user/${userId}`)
         .then((response) => {
           setUserData(response.data);
         })

@@ -10,6 +10,8 @@ import { MdOutlineVerifiedUser } from "react-icons/md";
 import { IoFileTrayFullOutline } from "react-icons/io5";
 
 const Dashboard = () => {
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   const [userRole, setUserRole] = useState(null);
   const [patients, setPatients] = useState([]);
   const [updates, setUpdates] = useState([]);
@@ -95,18 +97,35 @@ const Dashboard = () => {
         // Fetch the logged-in employee's details to determine their department and role
         const userId = localStorage.getItem("userId");
         const employeeResponse = await axios.get(
-          `https://cmrms-full.onrender.com/user/${userId}`
+          `${apiUrl}/user/${userId}`,
+          {
+            headers: {
+              "api-key": api_Key,
+            },
+          }
         );
         const { department, role } = employeeResponse.data;
         console.log("Employee Role:", role);
         console.log("Employee Department:", department);
 
-        // Fetch all updates (labs, xrays, clinics)
-        const [labs, xrays, clinics] = await Promise.all([
-          axios.get("https://cmrms-full.onrender.com/api/laboratory"),
-          axios.get("https://cmrms-full.onrender.com/api/xrayResults"),
-          axios.get("https://cmrms-full.onrender.com/api/clinicalRecords"),
-        ]);
+       // Fetch all updates (labs, xrays, clinics)
+      const [labs, xrays, clinics] = await Promise.all([
+        axios.get(`${apiUrl}/api/laboratory`, {
+          headers: {
+            "api-key": api_Key,
+          }
+        }),
+        axios.get(`${apiUrl}/api/xrayResults`, {
+          headers: {
+            "api-key": api_Key,
+          }
+        }),
+        axios.get(`${apiUrl}/api/clinicalRecords`, {
+          headers: {
+            "api-key": api_Key,
+          }
+        }),
+      ]);
 
     let filteredUpdates = [];
 
@@ -201,7 +220,7 @@ const Dashboard = () => {
     // Fetch the user data when the component is mounted
     const userId = localStorage.getItem("userId");
     if (userId) {
-      fetch(`https://cmrms-full.onrender.com/user/${userId}`)
+      fetch(`${apiUrl}/user/${userId}`)
         .then((response) => response.json())
         .then((data) => {
           setUserRole(data.role);
@@ -222,7 +241,13 @@ const Dashboard = () => {
 
   const fetchPatients = () => {
     axios
-      .get("https://cmrms-full.onrender.com/patients")
+      .get(`${apiUrl}/patients`,
+        {
+          headers: {
+            "api-key": api_Key,
+          }
+        }
+      )
       .then((response) => {
         const sortedPatients = response.data
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))

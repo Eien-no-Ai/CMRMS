@@ -3,6 +3,8 @@ import cover_image from "../assets/cover.jpg";
 import axios from "axios"; 
 
 function AdminSignUp() {
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -27,13 +29,18 @@ function AdminSignUp() {
     }
 
     try {
-      await axios.post("https://cmrms-full.onrender.com/register", {
+      await axios.post(`${apiUrl}/register`, {
         firstname: formData.firstname,
         lastname: formData.lastname,
         email: formData.email,
         password: formData.password,
         role: "admin",
-      });
+      },{
+        headers:{
+          'api_key': api_Key
+        }
+      }
+    );
       alert("Registration Successful");
     } catch (error) {
       console.error("Error registering admin:", error);

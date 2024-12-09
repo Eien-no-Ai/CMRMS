@@ -56,7 +56,7 @@ function Login() {
 
   const handleSendOTP = async () => {
     try {
-      const result = await axios.post("https://cmrms-full.onrender.com/forgot-password", { 
+      const result = await axios.post(`${apiUrl}/forgot-password`, { 
         email 
       },
       {
@@ -79,7 +79,7 @@ function Login() {
   // Handle password reset with OTP
   const handleResetPassword = async () => {
     try {
-      const result = await axios.post("https://cmrms-full.onrender.com/verify-otp", {
+      const result = await axios.post(`${apiUrl}/verify-otp`, {
         email,
         otp,
         newPassword,

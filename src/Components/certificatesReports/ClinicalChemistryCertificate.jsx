@@ -3,9 +3,11 @@ import html2pdf from 'html2pdf.js';
 import axios from "axios";
 
 const ClinicalChemistryCertificate = ({ isOpen, onClose, labDetails, verifiedByPathologist }) => {
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   const [userData, setUserData] = useState({});
   const userId = localStorage.getItem("userId"); // Get the user ID from localStorage
-  const imageUrl = `https://cmrms-full.onrender.com/uploads/${userData?.signature}`;
+  const imageUrl = `${apiUrl}/uploads/${userData?.signature}`;
   const [pdfDataUrl, setPdfDataUrl] = useState(null);
   const pathologistUrl = labDetails?.pathologistSignature;
 
@@ -19,7 +21,7 @@ const ClinicalChemistryCertificate = ({ isOpen, onClose, labDetails, verifiedByP
   useEffect(() => {
     if (userId) {
       axios
-        .get(`https://cmrms-full.onrender.com/user/${userId}`)
+        .get(`${apiUrl}/user/${userId}`)
         .then((response) => {
           setUserData(response.data);
         })
@@ -59,7 +61,7 @@ const ClinicalChemistryCertificate = ({ isOpen, onClose, labDetails, verifiedByP
   };
   
   const generatePDF = async () => {
-    const signatureUrl = `https://cmrms-full.onrender.com/uploads/${userData?.signature}`;
+    const signatureUrl = `${apiUrl}/uploads/${userData?.signature}`;
     const signaturePathologistUrl = labDetails?.pathologistSignature;
 
     const { base64Image, base64PathologistImage } = await fetchImageAsBase64(signatureUrl, signaturePathologistUrl);  

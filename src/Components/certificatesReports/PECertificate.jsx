@@ -4,6 +4,8 @@ import axios from "axios";
 
 
 const PECertificate = ({ isOpen, onClose, patient, medicalHistory, physicalExamStudent }) => {
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   const [userData, setUserData] = useState({});
   const userId = localStorage.getItem("userId"); // Get the user ID from localStorage
 
@@ -18,7 +20,7 @@ const PECertificate = ({ isOpen, onClose, patient, medicalHistory, physicalExamS
   useEffect(() => {
     if (userId) {
       axios
-        .get(`https://cmrms-full.onrender.com/user/${userId}`)
+        .get(`${apiUrl}/user/${userId}`)
         .then((response) => {
           setUserData(response.data);
         })

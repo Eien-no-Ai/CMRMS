@@ -6,7 +6,8 @@ import axios from "axios";
 const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual }) => {
   const [userData, setUserData] = useState({});
   const userId = localStorage.getItem("userId"); // Get the user ID from localStorage
-
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   const [pdfDataUrl, setPdfDataUrl] = useState(null);
 
   useEffect(() => {
@@ -18,7 +19,13 @@ const AnnualCertificate = ({ isOpen, onClose, patient, medicalHistory, annual })
   useEffect(() => {
     if (userId) {
       axios
-        .get(`https://cmrms-full.onrender.com/user/${userId}`)
+        .get(`${apiUrl}/user/${userId}`,
+            {
+                headers: {
+                'api-key': api_Key,
+                },
+            }
+        )
         .then((response) => {
           setUserData(response.data);
         })

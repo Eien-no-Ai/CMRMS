@@ -47,7 +47,7 @@ mongoose
   app.use('/login',apiKeyMiddleware);
   app.use('/accounts',apiKeyMiddleware);
   app.use('/patients',apiKeyMiddleware);
-  app.use('/api/',apiKeyMiddleware);
+  app.use('/api',apiKeyMiddleware);
 // V A C C I N E   L I S T
 app.post("/api/vaccine-list", async (req, res) => {
   try {

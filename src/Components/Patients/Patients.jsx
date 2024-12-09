@@ -118,7 +118,7 @@ function Patients() {
       console.log(api_Key);
       console.log(apiUrl);
       axios
-        .put(`https://cmrms-full.onrender.com/patients/${patientToEdit._id}`, patientData,{
+        .put(`${apiUrl}/patients/${patientToEdit._id}`, patientData,{
         
         },{
           headers: {
@@ -141,7 +141,7 @@ function Patients() {
     } else {
       // Add new patient
       axios
-        .post("https://cmrms-full.onrender.com/add-patient", patientData,{
+        .post(`${apiUrl}/add-patient`, patientData,{
           
         },{
           headers: {
@@ -290,7 +290,7 @@ function Patients() {
       const patientId = accountToDelete; // Use the stored patient ID
       console.log("Deleting patient with ID:", patientId);
       const result = await axios.delete(
-        `https://cmrms-full.onrender.com/patients/${patientId}`
+        `${apiUrl}/patients/${patientId}`
       ,{
         headers: {
           'api-key': api_Key,
@@ -603,7 +603,7 @@ function Patients() {
   useEffect(() => {
     if (medicalHistoryId) {
       axios
-        .get(`https://cmrms-full.onrender.com/api/medical-history/id/${medicalHistoryId}`,{
+        .get(`${apiUrl}/api/medical-history/id/${medicalHistoryId}`,{
           headers: {
             'api-key': api_Key,
           }
@@ -623,7 +623,7 @@ function Patients() {
     try {
       // Step 1: Add the patient
       const patientResponse = await axios.post(
-        "https://cmrms-full.onrender.com/add-patient",
+        `${apiUrl}/add-patient`,
         patientInfo,
         {
           headers: {
@@ -640,7 +640,7 @@ function Patients() {
       };
 
       await axios.post(
-        "https://cmrms-full.onrender.com/api/medical-history",
+        `${apiUrl}/api/medical-history`,
         historyData,
         {
           headers: {
@@ -696,7 +696,7 @@ function Patients() {
 
   const fetchClinicalRecords = () => {
     axios
-      .get("https://cmrms-full.onrender.com/api/clinicalRecords",
+      .get(`${apiUrl}/api/clinicalRecords`,
         {
           headers: {
             'api-key': api_Key,
@@ -723,8 +723,6 @@ function Patients() {
   
 
   const fetchLabRecords = () => {
-    console.log(api_Key);
-    console.log(apiUrl);
     axios
       .get(`${apiUrl}/api/laboratory`,{
         headers:{
@@ -745,7 +743,12 @@ function Patients() {
 
   const fetchPhysicalExamStudent = () => {
     axios
-      .get("https://cmrms-full.onrender.com/api/physical-exam-student",
+      .get(`${apiUrl}/api/physical-exam-student`,
+        {
+          headers: {
+            'api-key': api_Key,
+          }
+        }
       )
       .then((response) => {
         const completeRecords = response.data
@@ -773,7 +776,12 @@ function Patients() {
   const fetchVaccine = () => {
     const date = new Date();
     axios
-      .get("https://cmrms-full.onrender.com/api/vaccines",
+      .get(`${apiUrl}/api/vaccines`,
+        {
+          headers: {
+            'api-key': api_Key,
+          }
+        }
       )
       .then((response) => {
         const completeRecords = response.data

@@ -3,10 +3,12 @@ import html2pdf from 'html2pdf.js';
 import axios from "axios";
 
 const MedicalClinicCensus = ({ isOpen, onClose, clinicalRecords, peStudent, vaccine, labRecords, fromMonthYear, toMonthYear}) => {
+  const apiUrl = process.env.REACT_APP_REACT_URL;
+  const api_Key = process.env.REACT_APP_API_KEY;
   const [userData, setUserData] = useState({});
   const userId = localStorage.getItem("userId"); // Get the user ID from localStorage
   const [pdfDataUrl, setPdfDataUrl] = useState(null);
-  const imageUrl = `https://cmrms-full.onrender.com/uploads/${userData?.signature}`;
+  const imageUrl = `${apiUrl}/uploads/${userData?.signature}`;
 
 
   useEffect(() => {
@@ -18,7 +20,7 @@ const MedicalClinicCensus = ({ isOpen, onClose, clinicalRecords, peStudent, vacc
   useEffect(() => {
     if (userId) {
       axios
-        .get(`https://cmrms-full.onrender.com/user/${userId}`)
+        .get(`${apiUrl}/user/${userId}`)
         .then((response) => {
           setUserData(response.data);
         })
@@ -64,7 +66,7 @@ const MedicalClinicCensus = ({ isOpen, onClose, clinicalRecords, peStudent, vacc
   const toDate = new Date(toMonthYear);
 
   const generatePDF = async () => {
-    const signatureUrl = `https://cmrms-full.onrender.com/uploads/${userData?.signature}`;
+    const signatureUrl = `${apiUrl}/uploads/${userData?.signature}`;
   
     // Fetch the image as Base64
     const base64Image = await fetchImageAsBase64(signatureUrl);
