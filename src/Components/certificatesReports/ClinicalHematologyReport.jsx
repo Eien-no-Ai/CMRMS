@@ -20,7 +20,13 @@ const ClinicalHematologyReport = ({ isOpen, onClose, selectedReport, labRecords,
   useEffect(() => {
     if (userId) {
       axios
-        .get(`${apiUrl}/user/${userId}`)
+        .get(`${apiUrl}/user/${userId}`,
+          {
+            headers: {
+             'api_key': api_Key,
+            },
+          }
+        )
         .then((response) => {
           setUserData(response.data);
         })

@@ -25,11 +25,11 @@ function LaboratoryCensus() {
   const fetchLabRecords = () => {
     axios
       .get(`${apiUrl}/api/laboratory`,
-        {
-          headers: {
-            "api_key": api_Key
-          }
-        }
+      {
+        headers: {
+          "api-key": api_Key,
+        },
+      }
       )
       .then((response) => {
         const completeRecords = response.data
@@ -62,7 +62,7 @@ function LaboratoryCensus() {
 
   const generateReports = () => {
     const reports = {};
-
+  
     const testNames = [
       "bloodSugar", // GLU
       "totalCholesterol", // T. CHOLE
@@ -75,18 +75,25 @@ function LaboratoryCensus() {
       "SGOT_AST", // SGOT
       "SGPT_ALT", // SGPT,
     ];
-
+  
     labRecords.forEach((record) => {
       const date = new Date(record.isCreatedAt);
       const monthYear = date.toLocaleString("default", {
         month: "long",
         year: "numeric",
       }); // e.g., 'November 2019'
-
+  
       const patient = record.patient;
+  
+      // Check if patient exists
+      if (!patient) {
+        console.warn("Record has no patient:", record);
+        return; // Skip this record if patient is null or undefined
+      }
+  
       const patientType = patient.patientType || "Unknown";
       const sex = patient.sex || "Unknown";
-
+  
       let department = "Unknown Department";
       if (patientType === "Student") {
         department = patient.course || "Unknown Course";
@@ -97,7 +104,7 @@ function LaboratoryCensus() {
       } else {
         department = patientType;
       }
-
+  
       if (!reports[monthYear]) {
         reports[monthYear] = {};
       }
@@ -115,32 +122,28 @@ function LaboratoryCensus() {
           reports[monthYear][patientType][department].tests[testName] = 0;
         });
       }
-
+  
       const sexKey = sex === "Male" || sex === "Female" ? sex : "Unknown";
-
+  
       // Add patient ID to the appropriate set to avoid duplicates
       const patientId = patient._id;
       if (sexKey === "Male") {
         reports[monthYear][patientType][department].MalePatients.add(patientId);
       } else if (sexKey === "Female") {
-        reports[monthYear][patientType][department].FemalePatients.add(
-          patientId
-        );
+        reports[monthYear][patientType][department].FemalePatients.add(patientId);
       } else {
-        reports[monthYear][patientType][department].UnknownPatients.add(
-          patientId
-        );
+        reports[monthYear][patientType][department].UnknownPatients.add(patientId);
       }
-
+  
       // Count tests
       let tests = getTestsPerformed(record);
       tests = tests.filter((testName) => testNames.includes(testName));
-
+  
       tests.forEach((testName) => {
         reports[monthYear][patientType][department].tests[testName]++;
       });
     });
-
+  
     // After processing all records, replace the sets with counts
     // For easier rendering
     for (const monthYear in reports) {
@@ -150,7 +153,7 @@ function LaboratoryCensus() {
           deptData.Male = deptData.MalePatients.size;
           deptData.Female = deptData.FemalePatients.size;
           deptData.Unknown = deptData.UnknownPatients.size;
-
+  
           // Remove the sets to save memory
           delete deptData.MalePatients;
           delete deptData.FemalePatients;
@@ -158,9 +161,10 @@ function LaboratoryCensus() {
         }
       }
     }
-
+  
     return reports;
   };
+  
 
   const getTestsPerformed = (record) => {
     const tests = [];
