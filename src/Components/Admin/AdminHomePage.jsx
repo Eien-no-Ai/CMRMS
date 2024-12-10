@@ -30,9 +30,9 @@ function AdminHomePage() {
     console.log(apiUrl);
     console.log(api_Key);
     axios
-      .get(`${apiUrl}/accounts`,{
-          headers: {
-            'api-key': api_Key,
+      .get(`${apiUrl}/accounts`, {
+        headers: {
+          'api-key': api_Key,
         }
       })
       .then((response) => {
@@ -86,8 +86,8 @@ function AdminHomePage() {
   const accountsToDisplay = searchQuery
     ? filteredAccounts
     : !showFullList
-    ? []
-    : accounts.slice(indexOfFirstAccount, indexOfLastAccount);
+      ? []
+      : accounts.slice(indexOfFirstAccount, indexOfLastAccount);
   const totalPages = Math.ceil(filteredAccounts.length / accountsPerPage);
 
   const paginateNext = () => {
@@ -107,6 +107,13 @@ function AdminHomePage() {
   };
 
   const handleModalOpen = () => {
+    setErrorMessages({
+      firstname: "",
+      lastname: "",
+      email: "",
+      role: "",
+      department: "",
+    });
     setIsModalOpen(true);
   };
 
@@ -125,16 +132,58 @@ function AdminHomePage() {
     setDropdownIndex(dropdownIndex === index ? null : index);
   };
 
+  const [errorMessages, setErrorMessages] = useState({
+    firstname: "",
+    lastname: "",
+    email: "",
+    role: "",
+    department: "",
+  });
+
   const handleAddAccount = async (event) => {
     event.preventDefault();
+
+    let ValidationErrors = {
+      firstname: "",
+      lastname: "",
+      email: "",
+      role: "",
+      department: "",
+    };
+
+    if (!newAccount.firstname) {
+      ValidationErrors.firstname = "Firstname required.";
+    }
+
+    if (!newAccount.lastname) {
+      ValidationErrors.lastname = "Lastname required.";
+    }
+
+    if (!newAccount.email) {
+      ValidationErrors.email = "Email required.";
+    }
+
+    if (!newAccount.department) {
+      ValidationErrors.department = "Department required.";
+    }
+
+    if (!newAccount.role) {
+      ValidationErrors.role = "Role required.";
+    }
+
+    if (Object.values(ValidationErrors).some((err) => err)) {
+      setErrorMessages(ValidationErrors);
+      return;
+    }
+
     try {
       const response = await axios.post(
         `${apiUrl}/add-account`,
-        newAccount,{
-          headers: {
-            'api-key': api_Key,
-          }
+        newAccount, {
+        headers: {
+          'api-key': api_Key,
         }
+      }
       );
       if (response.data.message === "Account Created Successfully") {
         setAccounts([...accounts, response.data.account]);
@@ -158,24 +207,24 @@ function AdminHomePage() {
   const handleRoleChange = async (localIndex, newRole) => {
     // Get the index of the filtered accounts
     const filteredIndex = (currentPage - 1) * accountsPerPage + localIndex;
-    
+
     // Find the account from the filtered accounts
     const accountToUpdate = filteredAccounts[filteredIndex];
-  
+
     if (accountToUpdate) {
       const email = accountToUpdate.email; // Use the email of the correct account
-  
+
       try {
         const response = await axios.post(`${apiUrl}/role`, {
           email: email,
           role: newRole,
-        },{
+        }, {
           headers: {
             'api-key': api_Key,
           }
         }
-      );
-  
+        );
+
         if (response.data.message === "Role Updated") {
           setAccounts((prevAccounts) => {
             const updatedAccounts = [...prevAccounts];
@@ -196,7 +245,7 @@ function AdminHomePage() {
       }
     }
   };
-  
+
 
   const handleResetPassword = async (index) => {
     const fullIndex = (currentPage - 1) * accountsPerPage + index;
@@ -209,11 +258,11 @@ function AdminHomePage() {
         {
           email: email,
           lastname: lastname,
-        },{
-          headers: {
-            'api-key': api_Key,
-          }
+        }, {
+        headers: {
+          'api-key': api_Key,
         }
+      }
       );
 
       if (response.data.message === "Password Reset Successfully") {
@@ -248,7 +297,7 @@ function AdminHomePage() {
             'api-key': api_Key,
           }
         }
-      
+
       );
 
       if (response.data.message === "Account Deleted Successfully") {
@@ -400,7 +449,7 @@ function AdminHomePage() {
                               <option value="senior medtech">Senior MedTech</option>
                               <option value="radiologic technologist">Radiologic Technologist</option>
                               <option value="radiologist">Radiologist</option>
-                              <option value="dentist">Dentist</option> 
+                              <option value="dentist">Dentist</option>
                               <option value="special trainee">Special Trainee</option>
                               <option value="physical therapist">Physical Therapist</option>
                               <option value="admin">Admin</option>
@@ -456,22 +505,20 @@ function AdminHomePage() {
                   <button
                     onClick={paginatePrev}
                     disabled={currentPage === 1}
-                    className={`px-4 py-2 mr-2 rounded-lg border ${
-                      currentPage === 1
+                    className={`px-4 py-2 mr-2 rounded-lg border ${currentPage === 1
                         ? "bg-gray-300"
                         : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                    }`}
+                      }`}
                   >
                     Previous
                   </button>
                   <button
                     onClick={paginateNext}
                     disabled={currentPage === totalPages}
-                    className={`px-4 py-2 rounded-lg border ${
-                      currentPage === totalPages
+                    className={`px-4 py-2 rounded-lg border ${currentPage === totalPages
                         ? "bg-gray-300"
                         : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                    }`}
+                      }`}
                   >
                     Next
                   </button>
@@ -533,30 +580,49 @@ function AdminHomePage() {
                   <div className="col-span-3">
                     <label className="block mb-2">Full Name</label>
                     <div className="grid grid-cols-3 gap-4">
-                      <input
-                        type="text"
-                        name="firstname"
-                        value={newAccount.firstname}
-                        onChange={handleInputChange}
-                        placeholder="First Name"
-                        className="px-4 py-2 border rounded w-full"
-                      />
-                      <input
-                        type="text"
-                        name="middlename"
-                        placeholder="Middle Name"
-                        className="px-4 py-2 border rounded w-full"
-                      />
-                      <input
-                        type="text"
-                        name="lastname"
-                        value={newAccount.lastname}
-                        onChange={handleInputChange}
-                        placeholder="Last Name"
-                        className="px-4 py-2 border rounded w-full"
-                      />
+                      <div className="col-span-1">
+                        <input
+                          type="text"
+                          name="firstname"
+                          value={newAccount.firstname}
+                          onChange={handleInputChange}
+                          placeholder="First Name"
+                          className="px-4 py-2 border rounded w-full"
+                        />
+                        {errorMessages.firstname && (
+                          <p className="px-4 py-2 text-red-500 text-sm">
+                            {errorMessages.firstname}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="col-span-1">
+                        <input
+                          type="text"
+                          name="middlename"
+                          placeholder="Middle Name"
+                          className="px-4 py-2 border rounded w-full"
+                        />
+                      </div>
+
+                      <div className="col-span-1">
+                        <input
+                          type="text"
+                          name="lastname"
+                          value={newAccount.lastname}
+                          onChange={handleInputChange}
+                          placeholder="Last Name"
+                          className="px-4 py-2 border rounded w-full"
+                        />
+                        {errorMessages.lastname && (
+                          <p className="px-4 py-2 text-red-500 text-sm">
+                            {errorMessages.lastname}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
+
 
                   {/* Department Selection */}
                   <div className="col-span-3">
@@ -573,6 +639,11 @@ function AdminHomePage() {
                       <option value="xray">X-Ray</option>
                       <option value="pt">Physical Therapy</option>
                     </select>
+                    {errorMessages.department && (
+                      <p className="text-red-500 text-sm">
+                        {errorMessages.department}
+                      </p>
+                    )}
                   </div>
 
                   <div className="col-span-3 grid grid-cols-2 gap-4">
@@ -610,10 +681,10 @@ function AdminHomePage() {
                             <option value="radiologist">Radiologist</option>
                           </>
                         ) : newAccount.department === "pt" ? (
-                        <>
-                          <option value="special trainee">Special Trainee</option>
-                          <option value="physical therapist">Physical Therapist</option>
-                        </>
+                          <>
+                            <option value="special trainee">Special Trainee</option>
+                            <option value="physical therapist">Physical Therapist</option>
+                          </>
                         ) : (
                           <>
                             <option value="nurse">Nurse</option>
@@ -635,6 +706,11 @@ function AdminHomePage() {
                           </>
                         )}
                       </select>
+                      {errorMessages.role && (
+                        <p className="text-red-500 text-sm">
+                          {errorMessages.role}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block mb-2">E-mail Address</label>
@@ -646,6 +722,11 @@ function AdminHomePage() {
                         placeholder="example@example.com"
                         className="px-4 py-2 border rounded w-full"
                       />
+                      {errorMessages.email && (
+                        <p className="text-red-500 text-sm">
+                          {errorMessages.email}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>

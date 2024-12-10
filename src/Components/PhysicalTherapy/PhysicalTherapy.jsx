@@ -127,32 +127,6 @@ function PhysicalTherapy() {
     setIsNewTherapyRecordModalOpen(true); // Open the modal
   };
 
-  const handleGenerateReport = () => {
-    const pdf = new jsPDF();
-
-    // Set the title of the report
-    pdf.text("Physical Therapy Report", 20, 20);
-
-    // Table headers
-    const headers = ["Date", "Diagnosis", "SOAP Summary"];
-
-    // Use filteredPhysicalTherapyRecords instead of currentPhysicalTherapyRecords
-    const tableData = filteredPhysicalTherapyRecords.map((record) => [
-      new Date(record.isCreatedAt).toLocaleString(),
-      record.Diagnosis,
-      record.SOAPSummary,
-    ]);
-
-    // Generate the table using autoTable
-    pdf.autoTable({
-      head: [headers],
-      body: tableData,
-      startY: 30, // Start table below the title
-    });
-
-    // Save the PDF with a dynamic filename
-    pdf.save("Physical_Therapy_Report.pdf");
-  };
 
   useEffect(() => {
     fetchPhysicalTherapyRecords(); // Fetch physical therapy records on component mount
@@ -414,6 +388,22 @@ function PhysicalTherapy() {
   const [HistoryOfPresentIllness, setHistoryOfPresentIllness] = useState(""); // State for "History of Present Illness"
   const [Diagnosis, setDiagnosis] = useState(""); // State for "Diagnosis"
   const [isAddOPDModalOpen, setIsAddOPDModalOpen] = useState(false);
+
+  const [errorMessages, setErrorMessages] = useState({
+    firstname: "",
+    lastname: "",
+    birthdate: "",
+    address: "",
+    phonenumber: "",
+    email: "",
+    course: "",
+    sex: "",
+    referredBy: "",
+    ChiefComplaints: "",
+    HistoryOfPresentIllness: "",
+    Diagnosis: "",
+  });
+
   const handleAddOPDSubmit = async (e) => {
     e.preventDefault();
 
@@ -429,6 +419,53 @@ function PhysicalTherapy() {
       sex,
       patientType: "OPD",
     };
+
+    let ValidationErrors = {
+      firstname: "",
+      lastname: "",
+      birthdate: "",
+      address: "",
+      phonenumber: "",
+      email: "",
+      course: "",
+      sex: "",
+      referredBy: "",
+      ChiefComplaints: "",
+      HistoryOfPresentIllness: "",
+      Diagnosis: "",
+    }
+
+    if (!firstname) {
+      ValidationErrors.firstname = "First name is ";
+    }
+
+    if (!lastname) {
+      ValidationErrors.lastname = "Last name is ";
+    }
+
+    if (!phonenumber) {
+      ValidationErrors.phonenumber = "Phone Number is ";
+    }
+
+    if (!email) {
+      ValidationErrors.email = "Email is ";
+    }
+
+    if (!referredBy) {
+      ValidationErrors.referredBy = "Referred by is ";
+    }
+
+    if (!ChiefComplaints) {
+      ValidationErrors.ChiefComplaints = "Chief Complaints is ";
+    }
+
+    if (!HistoryOfPresentIllness) {
+      ValidationErrors.HistoryOfPresentIllness = "History of Present Illness is ";
+    }
+
+    if (!Diagnosis) {
+      ValidationErrors.Diagnosis = "Diagnosis is ";
+    }
 
     try {
       // Step 1: Add the patient
@@ -719,7 +756,7 @@ function PhysicalTherapy() {
                     value={newTherapyRecord.SOAPSummary}
                     onChange={handleNewTherapyRecordChange}
                     // onChange={(e) => handleNewTherapyRecordChange(e.target.value)}
-                    required
+                    
                     className="border rounded-lg w-full p-2 mt-1 h-80"
                   />
                 </div>
@@ -1099,8 +1136,13 @@ function PhysicalTherapy() {
                           onChange={(e) => setFirstName(e.target.value)}
                           placeholder="First Name"
                           className="px-4 py-2 border rounded w-full"
-                          required
+                          
                         />
+                        {errorMessages.firstname && (
+                          <p className="text-red-500 text-sm">
+                            {errorMessages.firstname}
+                          </p>
+                        )}
                         <input
                           type="text"
                           value={middlename}
@@ -1114,8 +1156,13 @@ function PhysicalTherapy() {
                           onChange={(e) => setLastName(e.target.value)}
                           placeholder="Last Name"
                           className="px-4 py-2 border rounded w-full"
-                          required
+                          
                         />
+                        {errorMessages.lastname && (
+                          <p className="text-red-500 text-sm">
+                            {errorMessages.lastname}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -1127,7 +1174,7 @@ function PhysicalTherapy() {
                         value={birthdate}
                         onChange={(e) => setBirthDate(e.target.value)}
                         className="px-4 py-2 border rounded w-full"
-                        required
+                        
                       />
                     </div>
 
@@ -1137,7 +1184,7 @@ function PhysicalTherapy() {
                         value={sex}
                         onChange={(e) => setSex(e.target.value)}
                         className="px-4 py-2 border rounded w-full"
-                        required
+                        
                       >
                         <option value="">Select Sex</option>
                         <option value="Male">Male</option>
@@ -1178,8 +1225,13 @@ function PhysicalTherapy() {
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="example@example.com"
                           className="px-4 py-2 border rounded w-full"
-                          required
+                          
                         />
+                        {errorMessages.email && (
+                          <p className="text-red-500 text-sm">
+                            {errorMessages.email}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1197,6 +1249,11 @@ function PhysicalTherapy() {
                       className="border rounded-lg w-full p-2 mt-1"
                       placeholder="Enter name of referrer"
                     />
+                    {errorMessages.referredBy && (
+                      <p className="text-red-500 text-sm">
+                        {errorMessages.referredBy}
+                      </p>
+                    )}
                   </div>
 
                   {/* New Physical Therapy Record Section */}
@@ -1212,10 +1269,14 @@ function PhysicalTherapy() {
                       name="Diagnosis"
                       value={Diagnosis}
                       onChange={(e) => setDiagnosis(e.target.value)}
-                      required
+                      
                       className="border rounded-lg w-full p-2 mt-1"
                     />
-
+                    {errorMessages.Diagnosis && (
+                      <p className="text-red-500 text-sm">
+                        {errorMessages.Diagnosis}
+                      </p>
+                    )}
                     <label className="block text-sm font-medium">
                       Chief Complaints
                     </label>
@@ -1224,10 +1285,14 @@ function PhysicalTherapy() {
                       name="ChiefComplaints"
                       value={ChiefComplaints}
                       onChange={(e) => setChiefComplaints(e.target.value)}
-                      required
+                      
                       className="border rounded-lg w-full p-2 mt-1"
                     />
-
+                    {errorMessages.ChiefComplaints && (
+                      <p className="text-red-500 text-sm">
+                        {errorMessages.ChiefComplaints}
+                      </p>
+                    )}
                     <label className="block text-sm font-medium">
                       History Of Present Illness
                     </label>
@@ -1238,9 +1303,13 @@ function PhysicalTherapy() {
                       onChange={(e) =>
                         setHistoryOfPresentIllness(e.target.value)
                       }
-                      required
                       className="border rounded-lg w-full p-2 mt-1"
                     />
+                    {errorMessages.HistoryOfPresentIllness && (
+                      <p className="text-red-500 text-sm">
+                        {errorMessages.HistoryOfPresentIllness}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex justify-end space-x-4">
