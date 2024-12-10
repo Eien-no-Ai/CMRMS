@@ -1420,14 +1420,18 @@ app.post("/api/clinicalRecords", async (req, res) => {
     );
 });
 
-app.put("/api/clinicalRecords/:id", async (req, res) => {
+app.put("/api/clinicalRecords/:id", async (req, res) => { 
   const { id } = req.params;
   const updatedData = req.body;
+
+  // Explicitly set isVerified to true
+  updatedData.isVerified = true;
 
   try {
     const updatedRecord = await ClinicModel.findByIdAndUpdate(id, updatedData, {
       new: true,
     });
+
     if (updatedRecord) {
       res.json({
         success: true,
@@ -1445,6 +1449,7 @@ app.put("/api/clinicalRecords/:id", async (req, res) => {
     });
   }
 });
+
 
 // GET endpoint to fetch all clinical records
 app.get("/api/clinicalRecords", async (req, res) => {

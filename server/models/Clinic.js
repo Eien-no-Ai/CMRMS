@@ -12,6 +12,7 @@ const ClinicSchema = new mongoose.Schema(
     emergencyTreatment: String,
     diagnosis: String,
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "employees" },
+    isVerified: { type: Boolean, default: false },
     isCreatedAt: { type: Date, default: Date.now },
   },
   { timestamps: true }

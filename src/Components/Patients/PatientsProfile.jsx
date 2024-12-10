@@ -18,6 +18,9 @@ function PatientsProfile() {
   const [errorModal, setErrorModal] = useState(false);
   const [showLabSuccessModal, setShowLabSuccessModal] = useState(false);
   const [showXraySuccessModal, setShowXraySuccessModal] = useState(false);
+  const [showPtSuccessModal, setShowPtSuccessModal] = useState(false);
+  const [showError, setShowError] = useState(false);
+
   const [isVerifyDetails, setIsVerifyDetails] = useState(false);
   const [selectedXray, setSelectedXray] = useState(null);
   const { id } = useParams();
@@ -49,6 +52,7 @@ function PatientsProfile() {
     treatments: "",
     emergencyTreatments: "",
     diagnosis: "",
+    isVerified: false,
   });
   const [laboratoryRecords, setLaboratoryRecords] = useState([]);
   const [clinicalRecords, setClinicalRecords] = useState([]);
@@ -279,6 +283,7 @@ function PatientsProfile() {
       );
 
       if (response.status === 200) {
+        setShowPtSuccessModal(true);
         handleNewTherapyRecordClose();
         fetchPhysicalTherapyRecords();
         setNewTherapyRecord({
@@ -328,6 +333,7 @@ function PatientsProfile() {
       ...newRecord,
       patient: id,
       createdBy: userId, // Add the logged-in user's ID as createdBy
+      isVerified: false,
     };
 
     try {
@@ -772,6 +778,9 @@ function PatientsProfile() {
 
   const updateClinicalRecord = async (selectedRecord) => {
     try {
+      // Ensure isVerified is set to true in the selectedRecord
+      selectedRecord.isVerified = true;
+
       const response = await axios.put(
         `${apiUrl}/api/clinicalRecords/${selectedRecord._id}`,
         selectedRecord,
@@ -781,6 +790,7 @@ function PatientsProfile() {
           },
         }
       );
+
       if (response.status === 200) {
         setShowVerifySuccessModal(true);
         setIsVerifyDetails(false);
@@ -7521,7 +7531,8 @@ n-2 border rounded px-3 py-1"
                           </div>
                           {role === "doctor" &&
                             !selectedLabTests.length && // Check if lab records are empty
-                            !selectedXrayRecords.length && ( // Check if x-ray records are empty
+                            !selectedXrayRecords.length && // Check if x-ray records are empty
+                            !selectedRecord.isVerified && ( // Check if isVerified is false
                               <button
                                 className="text-custom-red"
                                 onClick={() => {
@@ -7577,7 +7588,8 @@ n-2 border rounded px-3 py-1"
                           </div>
                           {role === "doctor" &&
                             !selectedLabTests.length && // Check if lab records are empty
-                            !selectedXrayRecords.length && ( // Check if x-ray records are empty
+                            !selectedXrayRecords.length &&
+                            !selectedRecord.isVerified && ( // Check if isVerified is false // Check if x-ray records are empty
                               <button
                                 className="text-custom-red"
                                 onClick={() => {
@@ -9262,31 +9274,35 @@ n-2 border rounded px-3 py-1"
 
             <div className="flex justify-between items-center mt-4">
               {/* Left Side: Doctor-Specific Button Group */}
-              {role === "doctor" && (
-                <div className="flex space-x-2">
-                  <button
-                    className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                    onClick={() => handleLabModalOpen(selectedRecord)}
-                  >
-                    <SlChemistry className="mr-2" /> Lab Request
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                    onClick={() => handleNewXrayModalOpen(selectedRecord)}
-                  >
-                    <FaXRay className="mr-2" /> X-Ray Request
-                  </button>
+              {role === "doctor" &&
+                selectedRecord.treatments &&
+                selectedRecord.treatments.length > 0 &&
+                selectedRecord.diagnosis &&
+                selectedRecord.diagnosis.length > 0 && (
+                  <div className="flex space-x-2">
+                    <button
+                      className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                      onClick={() => handleLabModalOpen(selectedRecord)}
+                    >
+                      <SlChemistry className="mr-2" /> Lab Request
+                    </button>
+                    <button
+                      className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                      onClick={() => handleNewXrayModalOpen(selectedRecord)}
+                    >
+                      <FaXRay className="mr-2" /> X-Ray Request
+                    </button>
 
-                  {/* Conditionally Render the PT Refer Button Once */}
+                    {/* Conditionally Render the PT Refer Button Once */}
 
-                  <button
-                    className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
-                    onClick={() => handleNewTherapyRecordOpen(selectedRecord)} // Pass all X-ray records
-                  >
-                    <GiBiceps className="mr-2" /> Refer to PT
-                  </button>
-                </div>
-              )}
+                    <button
+                      className="px-4 py-2 bg-custom-red text-white rounded-md flex items-center border border-transparent hover:bg-white hover:text-custom-red hover:border-custom-red transition ease-in-out duration-300"
+                      onClick={() => handleNewTherapyRecordOpen(selectedRecord)} // Pass all X-ray records
+                    >
+                      <GiBiceps className="mr-2" /> Refer to PT
+                    </button>
+                  </div>
+                )}
 
               {/* Right Side: Close and Submit Buttons */}
               <div className="flex space-x-4">
@@ -9356,10 +9372,19 @@ n-2 border rounded px-3 py-1"
               type="text"
               className="border rounded-lg w-full p-2 mt-1 h-80"
               value={newTreatment}
-              onChange={(e) => setNewTreatment(e.target.value)}
+              onChange={(e) => {
+                setNewTreatment(e.target.value);
+                setShowError(false); // Reset error when user types
+              }}
               placeholder="Enter treatment"
+              required
             />
-            <div className="flex justify-end space-x-3">
+            {showError && (
+              <p className="text-sm text-red-500 mt-1">
+                Treatment is required.
+              </p>
+            )}
+            <div className="flex justify-end space-x-3 mt-4">
               <button
                 className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border transition duration-200"
                 onClick={() => {
@@ -9367,6 +9392,7 @@ n-2 border rounded px-3 py-1"
                   setNewTreatment("");
                   setIsEditingTreatment(false);
                   setEditingTreatmentIndex(null);
+                  setShowError(false); // Reset error on cancel
                 }}
               >
                 Cancel
@@ -9374,6 +9400,10 @@ n-2 border rounded px-3 py-1"
               <button
                 className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
                 onClick={() => {
+                  if (newTreatment.trim() === "") {
+                    setShowError(true); // Show error if input is empty
+                    return;
+                  }
                   if (isEditingTreatment) {
                     // Edit existing treatment
                     const updatedTreatments = selectedRecord.treatments
@@ -9401,6 +9431,7 @@ n-2 border rounded px-3 py-1"
                   setNewTreatment("");
                   setIsEditingTreatment(false);
                   setEditingTreatmentIndex(null);
+                  setShowError(false); // Reset error after successful add
                 }}
               >
                 {isEditingTreatment ? "Save" : "Add"}
@@ -9450,10 +9481,18 @@ n-2 border rounded px-3 py-1"
               type="text"
               className="border rounded-lg w-full p-2 mt-1 h-80"
               value={newDiagnosis}
-              onChange={(e) => setNewDiagnosis(e.target.value)}
+              onChange={(e) => {
+                setNewDiagnosis(e.target.value);
+                setShowError(false); // Reset error when the user types
+              }}
               placeholder="Enter diagnosis"
             />
-            <div className="flex justify-end space-x-3">
+            {showError && (
+              <p className="text-sm text-red-500 mt-1">
+                Diagnosis is required.
+              </p>
+            )}
+            <div className="flex justify-end space-x-3 mt-4">
               <button
                 className="bg-gray-500 text-white py-2 px-4 rounded-lg"
                 onClick={() => {
@@ -9461,6 +9500,7 @@ n-2 border rounded px-3 py-1"
                   setNewDiagnosis("");
                   setIsEditingDiagnosis(false);
                   setEditingDiagnosisIndex(null);
+                  setShowError(false); // Reset error on cancel
                 }}
               >
                 Cancel
@@ -9468,6 +9508,10 @@ n-2 border rounded px-3 py-1"
               <button
                 className="bg-custom-red text-white py-2 px-4 rounded-lg"
                 onClick={() => {
+                  if (newDiagnosis.trim() === "") {
+                    setShowError(true); // Show error if input is empty
+                    return;
+                  }
                   if (isEditingDiagnosis) {
                     // Edit existing diagnosis
                     const updatedDiagnosis = selectedRecord.diagnosis
@@ -9493,6 +9537,7 @@ n-2 border rounded px-3 py-1"
                   setNewDiagnosis("");
                   setIsEditingDiagnosis(false);
                   setEditingDiagnosisIndex(null);
+                  setShowError(false); // Reset error after successful add
                 }}
               >
                 {isEditingDiagnosis ? "Save" : "Add"}
@@ -11246,6 +11291,24 @@ n-2 border rounded px-3 py-1"
             <div className="flex justify-center">
               <button
                 onClick={() => setShowXraySuccessModal(false)} // Close the success modal
+                className="px-4 py-2 bg-custom-red text-white rounded-md"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showPtSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
+            <h2 className="text-xl font-semibold mb-4 text-center">Success</h2>
+            <p className="text-center text-gray-600 mb-4">
+              The pt referral has been successfully submitted.
+            </p>
+            <div className="flex justify-center">
+              <button
+                onClick={() => setShowPtSuccessModal(false)} // Close the success modal
                 className="px-4 py-2 bg-custom-red text-white rounded-md"
               >
                 Close
