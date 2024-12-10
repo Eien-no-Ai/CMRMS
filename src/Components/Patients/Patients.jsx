@@ -256,6 +256,22 @@ function Patients() {
   };
 
   const handleModalClose = () => {
+    setErrorMessage({
+      firstname: "",
+      lastname: "",
+      birthdate: "",
+      idnumber: "",
+      address: "",
+      phonenumber: "",
+      email: "",
+      course: "",
+      year: "",
+      sex: "",
+      patientType: "",
+      emergencyContact: "",
+      position: "",
+      bloodType: "",
+    });
     setIsModalOpen(false);
     resetForm();
     setPatientToEdit(null); // Clear the editing state
@@ -549,7 +565,42 @@ function Patients() {
 
   const [isMedicalModalOpen, setIsMedicalModalOpen] = useState(false);
 
+  const [errorMessage, setErrorMessage] = useState({
+    firstname: "",
+    lastname: "",
+    birthdate: "",
+    idnumber: "",
+    address: "",
+    phonenumber: "",
+    email: "",
+    course: "",
+    year: "",
+    sex: "",
+    patientType: "",
+    emergencyContact: "",
+    position: "",
+    bloodType: "",
+  });
+  
   const handleMedicalOpen = () => {
+    // Reset the error messages when the modal is opened
+    setErrorMessage({
+      firstname: "",
+      lastname: "",
+      birthdate: "",
+      idnumber: "",
+      address: "",
+      phonenumber: "",
+      email: "",
+      course: "",
+      year: "",
+      sex: "",
+      patientType: "",
+      emergencyContact: "",
+      position: "",
+      bloodType: "",
+    });
+  
     const patientData = {
       firstname,
       middlename,
@@ -567,12 +618,49 @@ function Patients() {
       position,
       bloodType,
     };
-
-    setPatientInfo(patientData);
-    setIsModalOpen(false); // Close the patient info modal
-    setIsMedicalModalOpen(true); // Open the medical history modal
+  
+    let ValidationErrors = {
+      firstname: "",
+      lastname: "",
+      birthdate: "",
+      idnumber: "",
+      address: "",
+      phonenumber: "",
+      email: "",
+      course: "",
+      year: "",
+      sex: "",
+      patientType: "",
+      emergencyContact: "",
+      position: "",
+      bloodType: "",
+    };
+  
+    const duplicateEmail = patients.find((p) => p.email === email);
+    if (duplicateEmail) {
+      setErrorMessage((prev) => ({
+        ...prev,
+        email: "Email already exists.",
+      }));
+      ValidationErrors.email = "Email already exists.";
+    }
+  
+    const duplicateIdNumber = patients.find((p) => p.idnumber === idnumber);
+    if (duplicateIdNumber) {
+      setErrorMessage((prev) => ({
+        ...prev,
+        idnumber: "ID Number already exists.",
+      }));
+      ValidationErrors.idnumber = "ID Number already exists.";
+    }
+  
+    if (Object.values(ValidationErrors).every((val) => val === "")) {
+      setPatientInfo(patientData);
+      setIsModalOpen(false); // Close the patient info modal
+      setIsMedicalModalOpen(true); // Open the medical history modal
+    }
   };
-
+  
   const handleMedicalClose = () => {
     setIsMedicalModalOpen(false);
     setMedicalHistory(initialMedicalHistoryState); // Reset the medical history form
@@ -1251,6 +1339,11 @@ function Patients() {
                         className="px-4 py-2 border rounded w-full"
                         required
                       />
+                      {errorMessage.idnumber && (
+                        <p className="text-red-500 text-sm">
+                          {errorMessage.idnumber}
+                        </p>
+                      )}
                     </div>
 
                     {/* Course and Year */}
@@ -1371,6 +1464,11 @@ function Patients() {
                         className="px-4 py-2 border rounded w-full"
                         required
                       />
+                         {errorMessage.email && (
+                          <p className="text-red-500 text-sm">
+                            {errorMessage.email}
+                          </p>
+                         )}
                     </div>
                   </div>
                 </div>
@@ -1447,6 +1545,11 @@ function Patients() {
                         className="px-4 py-2 border rounded w-full"
                         required
                       />
+                       {errorMessage.idnumber && (
+                        <p className="text-red-500 text-sm">
+                          {errorMessage.idnumber}
+                        </p>
+                      )}
                     </div>
 
                     {/* Position/ Department */}
@@ -1535,6 +1638,11 @@ function Patients() {
                         className="px-4 py-2 border rounded w-full"
                         required
                       />
+                       {errorMessage.email && (
+                        <p className="text-red-500 text-sm">
+                          {errorMessage.email}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1657,6 +1765,11 @@ function Patients() {
                         className="px-4 py-2 border rounded w-full"
                         required
                       />
+                       {errorMessage.email && (
+                        <p className="text-red-500 text-sm">
+                          {errorMessage.email}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
