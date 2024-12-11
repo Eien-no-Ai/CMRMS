@@ -19,6 +19,7 @@ const LaboratoryResultsSchema = new mongoose.Schema({
     HDL_cholesterol: { type: String, default: "" },
     LDL_cholesterol: { type: String, default: "" },
   },
+
   Hematology: {
     redBloodCellCount: { type: String, default: "" },
     Hemoglobin: { type: String, default: "" },
@@ -82,6 +83,7 @@ const LaboratoryResultsSchema = new mongoose.Schema({
     },
     signature: { type: String, default: "" },
   },
+
   bloodBankingSerology: {
     hepatitisBSurfaceAntigen: {
       methodUsed: { type: String, default: "" },
@@ -138,7 +140,7 @@ const LaboratoryResultsSchema = new mongoose.Schema({
   pathologistSignature: { type: String, default: "" },
   verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: "employees" }, // Reference to employee model
   verificationDate: { type: Date, default: Date.now },
-  labResultImage: { type: String, default: "" }, 
+  labResultImage: { type: String, default: "" },
   isCreatedAt: { type: Date, default: Date.now },
 });
 

@@ -56,11 +56,11 @@ function Laboratory() {
 
     clinicalMicroscopyParasitology: {
       routineUrinalysis: {
+        LMP: "",
         macroscopicExam: {
           color: "",
           appearance: "",
         },
-        LMP: "",
         chemicalExam: {
           sugar: "",
           albumin: "",
@@ -372,7 +372,626 @@ function Laboratory() {
       }));
     }
   };
+
+  const [errorMessage, setErrorMessage] = useState({
+    ORNumber: "",
+    labNumber: "",
+
+    // Blood Chemistry Errors
+    bloodSugar: "",
+    bloodUreaNitrogen: "",
+    bloodUricAcid: "",
+    creatinine: "",
+    SGOT_AST: "",
+    SGPT_ALT: "",
+    totalCholesterol: "",
+    triglyceride: "",
+    HDL_cholesterol: "",
+    LDL_cholesterol: "",
+
+    // Hematology Errors
+    redBloodCellCount: "",
+    Hemoglobin: "",
+    Hematocrit: "",
+    LeukocyteCount: "",
+    "DifferentialCount.segmenters": "",
+    "DifferentialCount.lymphocytes": "",
+    "DifferentialCount.monocytes": "",
+    "DifferentialCount.eosinophils": "",
+    "DifferentialCount.basophils": "",
+    "DifferentialCount.total": "",
+    PlateletCount: "",
+
+    // Clinical Microscopy and Parasitology Errors
+    "routineUrinalysis.LMP": "",
+    "routineUrinalysis.macroscopicExam.color": "",
+    "routineUrinalysis.macroscopicExam.appearance": "",
+    "routineUrinalysis.chemicalExam.sugar": "",
+    "routineUrinalysis.chemicalExam.albumin": "",
+    "routineUrinalysis.chemicalExam.blood": "",
+    "routineUrinalysis.chemicalExam.bilirubin": "",
+    "routineUrinalysis.chemicalExam.urobilinogen": "",
+    "routineUrinalysis.chemicalExam.ketones": "",
+    "routineUrinalysis.chemicalExam.nitrites": "",
+    "routineUrinalysis.chemicalExam.leukocytes": "",
+    "routineUrinalysis.chemicalExam.reaction": "",
+    "routineUrinalysis.chemicalExam.specificGravity": "",
+    "routineUrinalysis.microscopicExam.pusCells": "",
+    "routineUrinalysis.microscopicExam.RBC": "",
+    "routineUrinalysis.microscopicExam.epithelialCells": "",
+    "routineUrinalysis.microscopicExam.casts": "",
+    "routineUrinalysis.microscopicExam.crystals": "",
+    "routineUrinalysis.microscopicExam.bacteria": "",
+    "routineUrinalysis.microscopicExam.yeastCells": "",
+    "routineUrinalysis.microscopicExam.mucusThreads": "",
+    "routineUrinalysis.microscopicExam.amorphous": "",
+    "routineUrinalysis.microscopicExam.others": "",
+    "routineFecalysis.color": "",
+    "routineFecalysis.consistency": "",
+    "routineFecalysis.bacteria": "",
+    "routineFecalysis.microscopicExam.directFecalSmear": "",
+    "routineFecalysis.microscopicExam.katoThickSmear": "",
+    "routineFecalysis.others": "",
+
+    // BloodBanking Serology Errors
+    "bloodBankingSerology.hepatitisBSurfaceAntigen.methodUsed": "",
+    "bloodBankingSerology.hepatitisBSurfaceAntigen.lotNumber": "",
+    "bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate": "",
+    "bloodBankingSerology.hepatitisBSurfaceAntigen.result": "",
+
+    "bloodBankingSerology.serumPregnancy.methodUsed": "",
+    "bloodBankingSerology.serumPregnancy.lotNumber": "",
+    "bloodBankingSerology.serumPregnancy.expirationDate": "",
+    "bloodBankingSerology.serumPregnancy.result": "",
+
+    "bloodBankingSerology.salmonellaTyphi.methodUsed": "",
+    "bloodBankingSerology.salmonellaTyphi.lotNumber": "",
+    "bloodBankingSerology.salmonellaTyphi.expirationDate": "",
+    "bloodBankingSerology.salmonellaTyphi.result": "",
+
+    "bloodBankingSerology.testDengue.methodUsed": "",
+    "bloodBankingSerology.testDengue.lotNumber": "",
+    "bloodBankingSerology.testDengue.expirationDate": "",
+    "bloodBankingSerology.testDengue.result": "",
+
+    "bloodBankingSerology.antiHAVTest.methodUsed": "",
+    "bloodBankingSerology.antiHAVTest.lotNumber": "",
+    "bloodBankingSerology.antiHAVTest.expirationDate": "",
+    "bloodBankingSerology.antiHAVTest.result": "",
+
+    "bloodBankingSerology.treponemaPallidumTest.methodUsed": "",
+    "bloodBankingSerology.treponemaPallidumTest.lotNumber": "",
+    "bloodBankingSerology.treponemaPallidumTest.expirationDate": "",
+    "bloodBankingSerology.treponemaPallidumTest.result": "",
+
+    "bloodBankingSerology.bloodTyping.ABOType": "",
+    "bloodBankingSerology.bloodTyping.RhType": "",
+
+    "bloodBankingSerology.others.methodUsed": "",
+    "bloodBankingSerology.others.lotNumber": "",
+    "bloodBankingSerology.others.expirationDate": "",
+    "bloodBankingSerology.others.result": "",
+    "bloodBankingSerology.signature": "",
+  });
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Helper function to check if a field is empty
+    const isEmpty = (value) => {
+      return (
+        value === undefined ||
+        value === null ||
+        (typeof value === "string" && value.trim() === "")
+      );
+    };
+
+    // Validate Top-Level Fields
+    if (isEmpty(formData.ORNumber)) {
+      newErrors.ORNumber = "OR Number is required.";
+    }
+
+    if (isEmpty(formData.labNumber)) {
+      newErrors.labNumber = "Lab Number is required.";
+    }
+
+    // Validate Blood Chemistry Fields
+    if (requestedCategories.includes("bloodSugar")) {
+      if (isEmpty(formData.bloodChemistry?.bloodSugar)) {
+        newErrors.bloodSugar = "Blood Sugar is required.";
+      } else if (isNaN(formData.bloodChemistry.bloodSugar)) {
+        newErrors.bloodSugar = "Blood Sugar must be a number.";
+      }
+    }
+
+    if (requestedCategories.includes("bloodUreaNitrogen")) {
+      if (isEmpty(formData.bloodChemistry?.bloodUreaNitrogen)) {
+        newErrors.bloodUreaNitrogen = "Blood Urea Nitrogen is required.";
+      } else if (isNaN(formData.bloodChemistry.bloodUreaNitrogen)) {
+        newErrors.bloodUreaNitrogen = "Blood Urea Nitrogen must be a number.";
+      }
+    }
+
+    if (requestedCategories.includes("bloodUricAcid")) {
+      if (isEmpty(formData.bloodChemistry?.bloodUricAcid)) {
+        newErrors.bloodUricAcid = "Blood Uric Acid is required.";
+      } else if (isNaN(formData.bloodChemistry.bloodUricAcid)) {
+        newErrors.bloodUricAcid = "Blood Uric Acid must be a number.";
+      }
+    }
+
+    if (requestedCategories.includes("creatinine")) {
+      if (isEmpty(formData.bloodChemistry?.creatinine)) {
+        newErrors.creatinine = "Creatinine is required.";
+      } else if (isNaN(formData.bloodChemistry.creatinine)) {
+        newErrors.creatinine = "Creatinine must be a number.";
+      }
+    }
+
+    if (requestedCategories.includes("SGOT_AST")) {
+      if (isEmpty(formData.bloodChemistry?.SGOT_AST)) {
+        newErrors.SGOT_AST = "SGOT_AST is required.";
+      } else if (isNaN(formData.bloodChemistry.SGOT_AST)) {
+        newErrors.SGOT_AST = "SGOT_AST must be a number.";
+      }
+    }
+
+    if (requestedCategories.includes("SGPT_ALT")) {
+      if (isEmpty(formData.bloodChemistry?.SGPT_ALT)) {
+        newErrors.SGPT_ALT = "SGPT_ALT is required.";
+      } else if (isNaN(formData.bloodChemistry.SGOT_AST)) {
+        newErrors.SGOT_AST = "SGOT_AST must be a number.";
+      }
+    }
+
+    if (requestedCategories.includes("totalCholesterol")) {
+      if (isEmpty(formData.bloodChemistry?.totalCholesterol)) {
+        newErrors.totalCholesterol = "Total Cholesterol is required.";
+      } else if (isNaN(formData.bloodChemistry.totalCholesterol)) {
+        newErrors.totalCholesterol = "Total Cholesterol must be a number.";
+      }
+    }
+
+    if (requestedCategories.includes("triglyceride")) {
+      if (isEmpty(formData.bloodChemistry?.triglyceride)) {
+        newErrors.triglyceride = "Triglyceride is required.";
+      } else if (isNaN(formData.bloodChemistry.triglyceride)) {
+        newErrors.triglyceride = "Triglyceride must be a number.";
+      }
+    }
+
+    if (requestedCategories.includes("HDL_cholesterol")) {
+      if (isEmpty(formData.bloodChemistry?.HDL_cholesterol)) {
+        newErrors.HDL_cholesterol = "HDL Cholesterol is required.";
+      } else if (isNaN(formData.bloodChemistry.HDL_cholesterol)) {
+        newErrors.HDL_cholesterol = "HDL Cholesterol must be a number.";
+      }
+    }
+
+    if (requestedCategories.includes("LDL_cholesterol")) {
+      if (isEmpty(formData.bloodChemistry?.LDL_cholesterol)) {
+        newErrors.LDL_cholesterol = "LDL Cholesterol is required.";
+      } else if (isNaN(formData.bloodChemistry.LDL_cholesterol)) {
+        newErrors.LDL_cholesterol = "HDL Cholesterol must be a number.";
+      }
+    }
+
+    // Validate Hematology Fields
+    if (requestedCategories.includes("completeBloodCount")) {
+      // Red Blood Cell Count
+      if (isEmpty(formData.Hematology?.redBloodCellCount)) {
+        newErrors.redBloodCellCount = "Red Blood Cell Count is required.";
+      } else if (isNaN(formData.Hematology.redBloodCellCount)) {
+        newErrors.redBloodCellCount = "Red Blood Cell Count must be a number.";
+      }
+
+      // Hemoglobin
+      if (isEmpty(formData.Hematology?.Hemoglobin)) {
+        newErrors.Hemoglobin = "Hemoglobin is required.";
+      } else if (isNaN(formData.Hematology.Hemoglobin)) {
+        newErrors.Hemoglobin = "Hemoglobin must be a number.";
+      }
+
+      // Hematocrit
+      if (isEmpty(formData.Hematology?.Hematocrit)) {
+        newErrors.Hematocrit = "Hematocrit is required.";
+      } else if (isNaN(formData.Hematology.Hematocrit)) {
+        newErrors.Hematocrit = "Hematocrit must be a number.";
+      }
+
+      // Leukocyte Count
+      if (isEmpty(formData.Hematology?.LeukocyteCount)) {
+        newErrors.LeukocyteCount = "Leukocyte Count is required.";
+      } else if (isNaN(formData.Hematology.LeukocyteCount)) {
+        newErrors.LeukocyteCount = "Leukocyte Count must be a number.";
+      }
+
+      // Differential Count Fields
+      const differentialFields = [
+        "segmenters",
+        "lymphocytes",
+        "monocytes",
+        "eosinophils",
+        "basophils",
+        "total",
+      ];
+
+      differentialFields.forEach((field) => {
+        const key = `DifferentialCount.${field}`;
+        if (isEmpty(formData.Hematology?.DifferentialCount?.[field])) {
+          newErrors[key] = `${
+            field.charAt(0).toUpperCase() + field.slice(1)
+          } is required.`;
+        } else if (isNaN(formData.Hematology.DifferentialCount[field])) {
+          newErrors[key] = `${
+            field.charAt(0).toUpperCase() + field.slice(1)
+          } must be a number.`;
+        }
+      });
+
+      // Platelet Count
+      if (isEmpty(formData.Hematology?.PlateletCount)) {
+        newErrors.PlateletCount = "Platelet Count is required.";
+      } else if (isNaN(formData.Hematology.PlateletCount)) {
+        newErrors.PlateletCount = "Platelet Count must be a number.";
+      }
+    }
+
+    if (requestedCategories.includes("bleedingTimeClottingTime")) {
+      if (isEmpty(formData.Hematology?.others)) {
+        newErrors.others = "This field is required.";
+      }
+    }
+
+    // Validate Clinical Microscopy and Parasitology Fields
+
+    if (requestedCategories.includes("routineUrinalysis")) {
+      if (
+        isEmpty(formData.clinicalMicroscopyParasitology?.routineUrinalysis.LMP)
+      ) {
+        newErrors["routineUrinalysis.LMP"] = "LMP is required.";
+      }
+
+      // Macroscopic Examination
+      const macroscopicFields = ["color", "appearance"];
+      macroscopicFields.forEach((field) => {
+        const key = `routineUrinalysis.macroscopicExam.${field}`;
+        if (
+          isEmpty(
+            formData.clinicalMicroscopyParasitology?.routineUrinalysis
+              .macroscopicExam[field]
+          )
+        ) {
+          newErrors[key] = `${
+            field.charAt(0).toUpperCase() + field.slice(1)
+          } is required.`;
+        }
+      });
+
+      // Chemical Examination
+      const chemicalFields = [
+        "sugar",
+        "albumin",
+        "blood",
+        "bilirubin",
+        "urobilinogen",
+        "ketones",
+        "nitrites",
+        "leukocytes",
+        "reaction",
+        "specificGravity",
+      ];
+
+      chemicalFields.forEach((field) => {
+        const key = `routineUrinalysis.chemicalExam.${field}`;
+        const value =
+          formData.clinicalMicroscopyParasitology?.routineUrinalysis
+            ?.chemicalExam?.[field];
+        if (isEmpty(value)) {
+          newErrors[key] = `${
+            field.charAt(0).toUpperCase() + field.slice(1)
+          } is required.`;
+        } else if (
+          [
+            "sugar",
+            "albumin",
+            "blood",
+            "bilirubin",
+            "urobilinogen",
+            "ketones",
+            "nitrites",
+            "leukocytes",
+            "reaction",
+            "specificGravity",
+          ].includes(field)
+        ) {
+          if (isNaN(value)) {
+            newErrors[key] = `${
+              field.charAt(0).toUpperCase() + field.slice(1)
+            } must be a number.`;
+          }
+        }
+      });
+
+      // Microscopic Examination
+      const microscopicFields = [
+        "pusCells",
+        "RBC",
+        "epithelialCells",
+        "casts",
+        "crystals",
+        "bacteria",
+        "yeastCells",
+        "mucusThreads",
+        "amorphous",
+        "others",
+      ];
+
+      microscopicFields.forEach((field) => {
+        const key = `routineUrinalysis.microscopicExam.${field}`;
+        const value =
+          formData.clinicalMicroscopyParasitology?.routineUrinalysis
+            ?.microscopicExam?.[field];
+        if (isEmpty(value)) {
+          newErrors[key] = `${
+            field.charAt(0).toUpperCase() + field.slice(1)
+          } is required.`;
+        }
+      });
+    }
+
+    // Validate Routine Fecalysis
+    if (requestedCategories.includes("routineStoolExamination")) {
+      if (
+        isEmpty(
+          formData.clinicalMicroscopyParasitology?.routineFecalysis?.color
+        )
+      ) {
+        newErrors["routineFecalysis.color"] = "Color is required.";
+      }
+
+      if (
+        isEmpty(
+          formData.clinicalMicroscopyParasitology?.routineFecalysis?.consistency
+        )
+      ) {
+        newErrors["routineFecalysis.consistency"] = "Consistency is required.";
+      }
+    }
+
+    if (requestedCategories.includes("katoThickSmear")) {
+      // Microscopic Examination
+      const fecalMicroscopicFields = ["directFecalSmear", "katoThickSmear"];
+      fecalMicroscopicFields.forEach((field) => {
+        const key = `routineFecalysis.microscopicExam.${field}`;
+        const value =
+          formData.clinicalMicroscopyParasitology?.routineFecalysis
+            ?.microscopicExam?.[field];
+        if (isEmpty(value)) {
+          newErrors[key] = `${
+            field === "directFecalSmear"
+              ? "Direct Fecal Smear"
+              : "Kato Thick Smear"
+          } is required.`;
+        }
+      });
+    }
+
+    if (requestedCategories.includes("fecalOccultBloodTest")) {
+      if (
+        isEmpty(
+          formData.clinicalMicroscopyParasitology?.routineFecalysis?.others
+        )
+      ) {
+        newErrors["routineFecalysis.others"] = "Others field is required.";
+      }
+    }
+
+    // Validate Blood Banking Serology Fields
+    if (requestedCategories.includes("hepatitisBSurfaceAntigen")) {
+      // Hepatitis B Surface Antigen
+      if (
+        isEmpty(
+          formData.bloodBankingSerology?.hepatitisBSurfaceAntigen?.methodUsed
+        )
+      ) {
+        newErrors.hepatitisBSurfaceAntigenMethodUsed =
+          "Method Used is required for Hepatitis B Surface Antigen.";
+      }
+      if (
+        isEmpty(
+          formData.bloodBankingSerology?.hepatitisBSurfaceAntigen?.lotNumber
+        )
+      ) {
+        newErrors.hepatitisBSurfaceAntigenLotNumber =
+          "Lot Number is required for Hepatitis B Surface Antigen.";
+      }
+      if (
+        isEmpty(
+          formData.bloodBankingSerology?.hepatitisBSurfaceAntigen
+            ?.expirationDate
+        )
+      ) {
+        newErrors.hepatitisBSurfaceAntigenExpirationDate =
+          "Expiration Date is required for Hepatitis B Surface Antigen.";
+      }
+      if (
+        isEmpty(formData.bloodBankingSerology?.hepatitisBSurfaceAntigen?.result)
+      ) {
+        newErrors.hepatitisBSurfaceAntigenResult =
+          "Result is required for Hepatitis B Surface Antigen.";
+      }
+    }
+    if (requestedCategories.includes("pregnancyTest")) {
+      // Serum Pregnancy
+      if (isEmpty(formData.bloodBankingSerology?.serumPregnancy?.methodUsed)) {
+        newErrors.serumPregnancyMethodUsed =
+          "Method Used is required for Serum Pregnancy.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.serumPregnancy?.lotNumber)) {
+        newErrors.serumPregnancyLotNumber =
+          "Lot Number is required for Serum Pregnancy.";
+      }
+      if (
+        isEmpty(formData.bloodBankingSerology?.serumPregnancy?.expirationDate)
+      ) {
+        newErrors.serumPregnancyExpirationDate =
+          "Expiration Date is required for Serum Pregnancy.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.serumPregnancy?.result)) {
+        newErrors.serumPregnancyResult =
+          "Result is required for Serum Pregnancy.";
+      }
+    }
+
+    if (requestedCategories.includes("testForSalmonellaTyphi")) {
+      // Salmonella Typhi
+      if (isEmpty(formData.bloodBankingSerology?.salmonellaTyphi?.methodUsed)) {
+        newErrors.salmonellaTyphiMethodUsed =
+          "Method Used is required for Salmonella Typhi.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.salmonellaTyphi?.lotNumber)) {
+        newErrors.salmonellaTyphiLotNumber =
+          "Lot Number is required for Salmonella Typhi.";
+      }
+      if (
+        isEmpty(formData.bloodBankingSerology?.salmonellaTyphi?.expirationDate)
+      ) {
+        newErrors.salmonellaTyphiExpirationDate =
+          "Expiration Date is required for Salmonella Typhi.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.salmonellaTyphi?.result)) {
+        newErrors.salmonellaTyphiResult =
+          "Result is required for Salmonella Typhi.";
+      }
+    }
+
+    if (requestedCategories.includes("dengueTest")) {
+      // Test Dengue
+      if (isEmpty(formData.bloodBankingSerology?.testDengue?.methodUsed)) {
+        newErrors.testDengueMethodUsed =
+          "Method Used is required for Test Dengue.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.testDengue?.lotNumber)) {
+        newErrors.testDengueLotNumber =
+          "Lot Number is required for Test Dengue.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.testDengue?.expirationDate)) {
+        newErrors.testDengueExpirationDate =
+          "Expiration Date is required for Test Dengue.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.testDengue?.result)) {
+        newErrors.testDengueResult = "Result is required for Test Dengue.";
+      }
+    }
+
+    if (requestedCategories.includes("antiHCV")) {
+      // Anti HAV Test
+      if (isEmpty(formData.bloodBankingSerology?.antiHAVTest?.methodUsed)) {
+        newErrors.antiHAVTestMethodUsed =
+          "Method Used is required for Anti HAV Test.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.antiHAVTest?.lotNumber)) {
+        newErrors.antiHAVTestLotNumber =
+          "Lot Number is required for Anti HAV Test.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.antiHAVTest?.expirationDate)) {
+        newErrors.antiHAVTestExpirationDate =
+          "Expiration Date is required for Anti HAV Test.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.antiHAVTest?.result)) {
+        newErrors.antiHAVTestResult = "Result is required for Anti HAV Test.";
+      }
+    }
+
+    if (requestedCategories.includes("antiTreponemaPallidum")) {
+      // Treponema Pallidum Test
+      if (
+        isEmpty(
+          formData.bloodBankingSerology?.treponemaPallidumTest?.methodUsed
+        )
+      ) {
+        newErrors.treponemaPallidumTestMethodUsed =
+          "Method Used is required for Treponema Pallidum Test.";
+      }
+      if (
+        isEmpty(formData.bloodBankingSerology?.treponemaPallidumTest?.lotNumber)
+      ) {
+        newErrors.treponemaPallidumTestLotNumber =
+          "Lot Number is required for Treponema Pallidum Test.";
+      }
+      if (
+        isEmpty(
+          formData.bloodBankingSerology?.treponemaPallidumTest?.expirationDate
+        )
+      ) {
+        newErrors.treponemaPallidumTestExpirationDate =
+          "Expiration Date is required for Treponema Pallidum Test.";
+      }
+      if (
+        isEmpty(formData.bloodBankingSerology?.treponemaPallidumTest?.result)
+      ) {
+        newErrors.treponemaPallidumTestResult =
+          "Result is required for Treponema Pallidum Test.";
+      }
+    }
+    if (requestedCategories.includes("bloodTyping")) {
+      // Blood Typing
+      if (isEmpty(formData.bloodBankingSerology?.bloodTyping?.ABOType)) {
+        newErrors.bloodTypingABOType = "ABO Type is required for Blood Typing.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.bloodTyping?.RhType)) {
+        newErrors.bloodTypingRhType = "Rh Type is required for Blood Typing.";
+      }
+    }
+    if (requestedCategories.includes("HIVELsa")) {
+      // Others
+      if (isEmpty(formData.bloodBankingSerology?.others?.methodUsed)) {
+        newErrors.othersMethodUsed = "Method Used is required for Others.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.others?.lotNumber)) {
+        newErrors.othersLotNumber = "Lot Number is required for Others.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.others?.expirationDate)) {
+        newErrors.othersExpirationDate =
+          "Expiration Date is required for Others.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.others?.result)) {
+        newErrors.othersResult = "Result is required for Others.";
+      }
+    }
+
+    if (requestedCategories.includes("HIVRapidTest")) {
+      // Others
+      if (isEmpty(formData.bloodBankingSerology?.others?.methodUsed)) {
+        newErrors.othersMethodUsed = "Method Used is required for Others.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.others?.lotNumber)) {
+        newErrors.othersLotNumber = "Lot Number is required for Others.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.others?.expirationDate)) {
+        newErrors.othersExpirationDate =
+          "Expiration Date is required for Others.";
+      }
+      if (isEmpty(formData.bloodBankingSerology?.others?.result)) {
+        newErrors.othersResult = "Result is required for Others.";
+      }
+    }
+
+    // Set the error messages
+    setErrorMessage(newErrors);
+
+    // Determine if there are any errors
+    const hasErrors = Object.keys(newErrors).length > 0;
+
+    return !hasErrors; // Returns true if no errors
+  };
+
   const handleSaveResult = async () => {
+    if (!validateForm()) {
+      return; // Stop submission if there are validation errors
+    }
+
     console.log("Current form data:", formData);
 
     const {
@@ -889,7 +1508,13 @@ function Laboratory() {
                       handleInputChange(e, null, null, null, "ORNumber")
                     } // Adjusted the onChange handler
                     className="w-full px-3 py-2 border rounded"
+                    required
                   />
+                  {errorMessage.ORNumber && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessage.ORNumber}
+                    </p>
+                  )}
                 </div>
 
                 <div className="w-3/4 mr-2">
@@ -902,7 +1527,13 @@ function Laboratory() {
                       handleInputChange(e, null, null, null, "labNumber")
                     }
                     className="w-full px-3 py-2 border rounded"
+                    required
                   />
+                  {errorMessage.labNumber && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessage.labNumber}
+                    </p>
+                  )}
                 </div>
 
                 <div className="w-1/4">
@@ -1012,7 +1643,13 @@ function Laboratory() {
                               readOnly={
                                 !requestedCategories.includes("bloodSugar")
                               }
+                              required
                             />
+                            {errorMessage.bloodSugar && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.bloodSugar}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">70 - 105 mg/dL</div>
 
@@ -1042,7 +1679,13 @@ function Laboratory() {
                                   "totalCholesterol"
                                 )
                               }
+                              required
                             />
+                            {errorMessage.totalCholesterol && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.totalCholesterol}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">140 - 200 mg/dL</div>
 
@@ -1070,7 +1713,13 @@ function Laboratory() {
                               readOnly={
                                 !requestedCategories.includes("triglyceride")
                               }
+                              required
                             />
+                            {errorMessage.triglyceride && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.triglyceride}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">{"<200 mg/dL"}</div>
 
@@ -1098,7 +1747,13 @@ function Laboratory() {
                               readOnly={
                                 !requestedCategories.includes("bloodUricAcid")
                               }
+                              required
                             />
+                            {errorMessage.bloodUricAcid && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.bloodUricAcid}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">
                             MEN: 3.5 - 7.2 mg/dL <br />
@@ -1133,7 +1788,13 @@ function Laboratory() {
                                   "bloodUreaNitrogen"
                                 )
                               }
+                              required
                             />
+                            {errorMessage.bloodUreaNitrogen && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.bloodUreaNitrogen}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">4.67 - 23.35 mg/dL</div>
 
@@ -1159,7 +1820,13 @@ function Laboratory() {
                               readOnly={
                                 !requestedCategories.includes("creatinine")
                               }
+                              required
                             />
+                            {errorMessage.creatinine && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.creatinine}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">
                             MEN: 0.7 - 1.2 mg/dL <br />
@@ -1188,7 +1855,13 @@ function Laboratory() {
                               readOnly={
                                 !requestedCategories.includes("SGOT_AST")
                               }
+                              required
                             />
+                            {errorMessage.SGOT_AST && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.SGOT_AST}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">
                             MEN: UP TO 40 U/L <br />
@@ -1217,7 +1890,13 @@ function Laboratory() {
                               readOnly={
                                 !requestedCategories.includes("SGPT_ALT")
                               }
+                              required
                             />
+                            {errorMessage.SGPT_ALT && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.SGPT_ALT}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">
                             MEN: UP TO 41 U/L <br />
@@ -1248,7 +1927,13 @@ function Laboratory() {
                               readOnly={
                                 !requestedCategories.includes("HDL_cholesterol")
                               }
+                              required
                             />
+                            {errorMessage.HDL_cholesterol && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.HDL_cholesterol}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">
                             MEN: 40 - 50 mg/dL <br />
@@ -1279,7 +1964,13 @@ function Laboratory() {
                               readOnly={
                                 !requestedCategories.includes("LDL_cholesterol")
                               }
+                              required
                             />
+                            {errorMessage.LDL_cholesterol && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.LDL_cholesterol}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">{"<130 mg/dL"}</div>
                         </div>
@@ -1342,19 +2033,12 @@ function Laboratory() {
                                   "completeBloodCount"
                                 )
                               }
+                              required
                             />
-                            {/* Message for Red Blood Cell Count */}
-                            {formData.Hematology?.redBloodCellCount && (
-                              <div className="text-sm text-red-500 mt-1">
-                                {parseFloat(
-                                  formData.Hematology.redBloodCellCount
-                                ) < 3.5 ||
-                                parseFloat(
-                                  formData.Hematology.redBloodCellCount
-                                ) > 5.5
-                                  ? "Result is outside the reference range."
-                                  : "Result is within the reference range."}
-                              </div>
+                            {errorMessage.redBloodCellCount && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.redBloodCellCount}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">
@@ -1382,7 +2066,13 @@ function Laboratory() {
                                   "completeBloodCount"
                                 )
                               }
+                              required
                             />
+                            {errorMessage.Hemoglobin && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.Hemoglobin}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">
                             Male: 140 - 180 g/L; Female: 120 - 180 g/L
@@ -1409,7 +2099,13 @@ function Laboratory() {
                                   "completeBloodCount"
                                 )
                               }
+                              required
                             />
+                            {errorMessage.Hematocrit && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.Hematocrit}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">
                             Male: 0.40 - 0.54; Female: 0.37 - 0.47
@@ -1440,7 +2136,13 @@ function Laboratory() {
                                   "completeBloodCount"
                                 )
                               }
+                              required
                             />
+                            {errorMessage.LeukocyteCount && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.LeukocyteCount}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">5.0 - 10.0 x10^9/L</div>
 
@@ -1477,7 +2179,13 @@ function Laboratory() {
                                   "completeBloodCount"
                                 )
                               }
+                              required
                             />
+                            {errorMessage["DifferentialCount.segmenters"] && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage["DifferentialCount.segmenters"]}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">0.50 - 0.70</div>
 
@@ -1510,7 +2218,13 @@ function Laboratory() {
                                   "completeBloodCount"
                                 )
                               }
+                              required
                             />
+                            {errorMessage["DifferentialCount.lymphocytes"] && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage["DifferentialCount.lymphocytes"]}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">0.20 - 0.40</div>
 
@@ -1543,7 +2257,13 @@ function Laboratory() {
                                   "completeBloodCount"
                                 )
                               }
+                              required
                             />
+                            {errorMessage["DifferentialCount.monocytes"] && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage["DifferentialCount.monocytes"]}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">0.00 - 0.07</div>
 
@@ -1577,6 +2297,11 @@ function Laboratory() {
                                 )
                               }
                             />
+                            {errorMessage["DifferentialCount.eosinophils"] && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage["DifferentialCount.eosinophils"]}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">0.00 - 0.05</div>
 
@@ -1609,7 +2334,13 @@ function Laboratory() {
                                   "completeBloodCount"
                                 )
                               }
+                              required
                             />
+                            {errorMessage["DifferentialCount.basophils"] && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage["DifferentialCount.basophils"]}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">0.00 - 0.01</div>
 
@@ -1642,7 +2373,13 @@ function Laboratory() {
                                   "completeBloodCount"
                                 )
                               }
+                              required
                             />
+                            {errorMessage["DifferentialCount.total"] && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage["DifferentialCount.total"]}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1"></div>
 
@@ -1671,7 +2408,13 @@ function Laboratory() {
                                   "completeBloodCount"
                                 )
                               }
+                              required
                             />
+                            {errorMessage.PlateletCount && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.PlateletCount}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">150 - 400 x10^9/L</div>
 
@@ -1696,7 +2439,13 @@ function Laboratory() {
                                   "bleedingTimeClottingTime"
                                 )
                               }
+                              required
                             />
+                            {errorMessage.others && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.others}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1"></div>
                         </div>
@@ -1756,7 +2505,13 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage["routineUrinalysis.LMP"] && (
+                            <p className="text-red-500 text-sm">
+                              {errorMessage["routineUrinalysis.LMP"]}
+                            </p>
+                          )}
                           <h4 className="col-span-6 font-semibold">
                             Macroscopic Examination
                           </h4>
@@ -1786,6 +2541,17 @@ function Laboratory() {
                               !requestedCategories.includes("routineUrinalysis")
                             }
                           />
+                          {errorMessage[
+                            "routineUrinalysis.macroscopicExam.color"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.macroscopicExam.color"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Appearance</label>
                           <input
                             type="text"
@@ -1811,7 +2577,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.macroscopicExam.appearance"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.macroscopicExam.appearance"
+                                ]
+                              }
+                            </p>
+                          )}
 
                           {/* Routine Urinalysis - Chemical Examination */}
                           <h4 className="col-span-6 font-semibold mt-4">
@@ -1841,7 +2619,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.chemicalExam.sugar"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.chemicalExam.sugar"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Urobilinogen</label>
                           <input
                             type="text"
@@ -1867,7 +2657,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.chemicalExam.urobilinogen"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.chemicalExam.urobilinogen"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Albumin</label>
                           <input
                             type="text"
@@ -1892,7 +2694,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.chemicalExam.albumin"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.chemicalExam.albumin"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Ketones</label>
                           <input
                             type="text"
@@ -1917,7 +2731,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.chemicalExam.ketones"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.chemicalExam.ketones"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Blood</label>
                           <input
                             type="text"
@@ -1942,7 +2768,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.chemicalExam.blood"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.chemicalExam.blood"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Nitrite</label>
                           <input
                             type="text"
@@ -1968,7 +2806,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.chemicalExam.nitrites"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.chemicalExam.nitrites"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Bilirubin</label>
                           <input
                             type="text"
@@ -1994,7 +2844,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.chemicalExam.bilirubin"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.chemicalExam.bilirubin"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Leukocyte</label>
                           <input
                             type="text"
@@ -2020,7 +2882,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.chemicalExam.leukocytes"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.chemicalExam.leukocytes"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Reaction</label>
                           <input
                             type="text"
@@ -2046,7 +2920,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.chemicalExam.reaction"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.chemicalExam.reaction"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Specific Gravity</label>
                           <input
                             type="text"
@@ -2072,7 +2958,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.chemicalExam.specificGravity"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.chemicalExam.specificGravity"
+                                ]
+                              }
+                            </p>
+                          )}
 
                           {/* Routine Urinalysis - Microscopic Examination */}
                           <h4 className="col-span-6 font-semibold mt-4">
@@ -2104,7 +3002,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.microscopicExam.pusCells"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.microscopicExam.pusCells"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Epithelial Cells</label>
                           <input
                             type="text"
@@ -2131,7 +3041,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.microscopicExam.epithelialCells"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.microscopicExam.epithelialCells"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Red Blood Cells</label>
                           <input
                             type="text"
@@ -2157,7 +3079,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.microscopicExam.RBC"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.microscopicExam.RBC"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Mucus Threads</label>
                           <input
                             type="text"
@@ -2184,7 +3118,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.microscopicExam.mucusThreads"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.microscopicExam.mucusThreads"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Bacteria</label>
                           <input
                             type="text"
@@ -2211,7 +3157,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.microscopicExam.bacteria"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.microscopicExam.bacteria"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Crystals</label>
                           <input
                             type="text"
@@ -2238,7 +3196,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.microscopicExam.crystals"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.microscopicExam.crystals"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Yeast Cells</label>
                           <input
                             type="text"
@@ -2265,7 +3235,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.microscopicExam.yeastCells"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.microscopicExam.yeastCells"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Amorphous</label>
                           <input
                             type="text"
@@ -2292,7 +3274,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.microscopicExam.amorphous"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.microscopicExam.amorphous"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Cast</label>
                           <input
                             type="text"
@@ -2319,7 +3313,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.microscopicExam.casts"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.microscopicExam.casts"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Others</label>
                           <input
                             type="text"
@@ -2345,7 +3351,19 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("routineUrinalysis")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineUrinalysis.microscopicExam.others"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineUrinalysis.microscopicExam.others"
+                                ]
+                              }
+                            </p>
+                          )}
 
                           {/* Routine Fecalysis */}
                           <h4 className="col-span-6 font-semibold mt-4">
@@ -2370,6 +3388,7 @@ function Laboratory() {
                                 e,
                                 "clinicalMicroscopyParasitology",
                                 "routineFecalysis",
+                                null,
                                 "color"
                               )
                             }
@@ -2378,7 +3397,13 @@ function Laboratory() {
                                 "routineStoolExamination"
                               )
                             }
+                            required
                           />
+                          {errorMessage["routineFecalysis.color"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["routineFecalysis.color"]}
+                            </p>
+                          )}
                           <label className="col-span-1">Consistency</label>
                           <input
                             type="text"
@@ -2398,6 +3423,7 @@ function Laboratory() {
                                 e,
                                 "clinicalMicroscopyParasitology",
                                 "routineFecalysis",
+                                null,
                                 "consistency"
                               )
                             }
@@ -2406,7 +3432,13 @@ function Laboratory() {
                                 "routineStoolExamination"
                               )
                             }
+                            required
                           />
+                          {errorMessage["routineFecalysis.color"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["routineFecalysis.color"]}
+                            </p>
+                          )}
 
                           {/* Microscopic Examination for Fecalysis */}
                           <h4 className="col-span-6 font-semibold mt-4">
@@ -2418,9 +3450,7 @@ function Laboratory() {
                           <input
                             type="text"
                             className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "routineStoolExamination"
-                              )
+                              requestedCategories.includes("katoThickSmear")
                                 ? "border-green-400"
                                 : ""
                             }`}
@@ -2439,11 +3469,21 @@ function Laboratory() {
                               )
                             }
                             readOnly={
-                              !requestedCategories.includes(
-                                "routineStoolExamination"
-                              )
+                              !requestedCategories.includes("katoThickSmear")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineFecalysis.microscopicExam.directFecalSmear"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineFecalysis.microscopicExam.directFecalSmear"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Kato Thick Smear</label>
                           <input
                             type="text"
@@ -2469,7 +3509,20 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("katoThickSmear")
                             }
+                            required
                           />
+                          {errorMessage[
+                            "routineFecalysis.microscopicExam.katoThickSmear"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "routineFecalysis.microscopicExam.katoThickSmear"
+                                ]
+                              }
+                            </p>
+                          )}
+
                           <label className="col-span-1">Others</label>
                           <input
                             type="text"
@@ -2489,6 +3542,7 @@ function Laboratory() {
                                 e,
                                 "clinicalMicroscopyParasitology",
                                 "routineFecalysis",
+                                null,
                                 "others"
                               )
                             }
@@ -2497,7 +3551,13 @@ function Laboratory() {
                                 "fecalOccultBloodTest"
                               )
                             }
+                            required
                           />
+                          {errorMessage["routineFecalysis.others"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["routineFecalysis.others"]}
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
@@ -2560,7 +3620,19 @@ function Laboratory() {
                                 "hepatitisBSurfaceAntigen"
                               )
                             }
+                            required
                           />
+                          {errorMessage[
+                            "hepatitisBSurfaceAntigenMethodUsed"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "hepatitisBSurfaceAntigenMethodUsed"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Method Used</label>
                           <input
                             type="text"
@@ -2583,7 +3655,13 @@ function Laboratory() {
                               )
                             }
                             readOnly={!requestedCategories.includes("antiHCV")}
+                            required
                           />
+                          {errorMessage["antiHAVTestMethodUsed"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["antiHAVTestMethodUsed"]}
+                            </p>
+                          )}
 
                           <label className="col-span-1">Lot No.</label>
                           <input
@@ -2613,7 +3691,19 @@ function Laboratory() {
                                 "hepatitisBSurfaceAntigen"
                               )
                             }
+                            required
                           />
+                          {errorMessage[
+                            "hepatitisBSurfaceAntigenLotNumber"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "hepatitisBSurfaceAntigenLotNumber"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Lot No.</label>
                           <input
                             type="text"
@@ -2636,7 +3726,13 @@ function Laboratory() {
                               )
                             }
                             readOnly={!requestedCategories.includes("antiHCV")}
+                            required
                           />
+                          {errorMessage["antiHAVTestLotNumber"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["antiHAVTestLotNumber"]}
+                            </p>
+                          )}
 
                           <label className="col-span-1">Expiration Date</label>
                           <input
@@ -2666,7 +3762,19 @@ function Laboratory() {
                                 "hepatitisBSurfaceAntigen"
                               )
                             }
+                            required
                           />
+                          {errorMessage[
+                            "hepatitisBSurfaceAntigenExpirationDate"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "hepatitisBSurfaceAntigenExpirationDate"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Expiration Date</label>
                           <input
                             type="date"
@@ -2689,7 +3797,13 @@ function Laboratory() {
                               )
                             }
                             readOnly={!requestedCategories.includes("antiHCV")}
+                            required
                           />
+                          {errorMessage["antiHAVTestExpirationDate"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["antiHAVTestExpirationDate"]}
+                            </p>
+                          )}
 
                           <label className="col-span-1">Result</label>
                           <input
@@ -2719,7 +3833,13 @@ function Laboratory() {
                                 "hepatitisBSurfaceAntigen"
                               )
                             }
+                            required
                           />
+                          {errorMessage["hepatitisBSurfaceAntigenResult"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["hepatitisBSurfaceAntigenResult"]}
+                            </p>
+                          )}
                           <label className="col-span-1">Result</label>
                           <input
                             type="text"
@@ -2742,7 +3862,13 @@ function Laboratory() {
                               )
                             }
                             readOnly={!requestedCategories.includes("antiHCV")}
+                            required
                           />
+                          {errorMessage["antiHAVTestResult"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["antiHAVTestResult"]}
+                            </p>
+                          )}
 
                           {/* Serum Pregnancy and Test for Treponema pallidum / Syphilis */}
                           <h4 className="col-span-6 font-semibold">
@@ -2779,7 +3905,14 @@ function Laboratory() {
                                 "antiTreponemaPallidum"
                               )
                             }
+                            required
                           />
+                          {errorMessage["treponemaPallidumTestMethodUsed"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["treponemaPallidumTestMethodUsed"]}
+                            </p>
+                          )}
+
                           <label className="col-span-1">Method Used</label>
                           <input
                             type="text"
@@ -2804,7 +3937,13 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("pregnancyTest")
                             }
+                            required
                           />
+                          {errorMessage["serumPregnancyMethodUsed"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["serumPregnancyMethodUsed"]}
+                            </p>
+                          )}
 
                           <label className="col-span-1">Lot No.</label>
                           <input
@@ -2834,7 +3973,14 @@ function Laboratory() {
                                 "antiTreponemaPallidum"
                               )
                             }
+                            required
                           />
+                          {errorMessage["treponemaPallidumTestLotNumber"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["treponemaPallidumTestLotNumber"]}
+                            </p>
+                          )}
+
                           <label className="col-span-1">Lot No.</label>
                           <input
                             type="text"
@@ -2859,7 +4005,13 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("pregnancyTest")
                             }
+                            required
                           />
+                          {errorMessage["serumPregnancyLotNumber"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["serumPregnancyLotNumber"]}
+                            </p>
+                          )}
 
                           <label className="col-span-1">Expiration Date</label>
                           <input
@@ -2889,7 +4041,19 @@ function Laboratory() {
                                 "antiTreponemaPallidum"
                               )
                             }
+                            required
                           />
+                          {errorMessage[
+                            "treponemaPallidumTestExpirationDate"
+                          ] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {
+                                errorMessage[
+                                  "treponemaPallidumTestExpirationDate"
+                                ]
+                              }
+                            </p>
+                          )}
                           <label className="col-span-1">Expiration Date</label>
                           <input
                             type="date"
@@ -2914,7 +4078,13 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("pregnancyTest")
                             }
+                            required
                           />
+                          {errorMessage["serumPregnancyExpirationDate"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["serumPregnancyExpirationDate"]}
+                            </p>
+                          )}
 
                           <label className="col-span-1">Result</label>
                           <input
@@ -2944,7 +4114,13 @@ function Laboratory() {
                                 "antiTreponemaPallidum"
                               )
                             }
+                            required
                           />
+                          {errorMessage["treponemaPallidumTestResult"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["treponemaPallidumTestResult"]}
+                            </p>
+                          )}
                           <label className="col-span-1">Result</label>
                           <input
                             type="text"
@@ -2969,7 +4145,13 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("pregnancyTest")
                             }
+                            required
                           />
+                          {errorMessage["serumPregnancyResult"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["serumPregnancyResult"]}
+                            </p>
+                          )}
 
                           {/* Salmonella typhi and Blood Typing */}
                           <h4 className="col-span-6 font-semibold">
@@ -3007,7 +4189,13 @@ function Laboratory() {
                                 "testForSalmonellaTyphi"
                               )
                             }
+                            required
                           />
+                          {errorMessage["salmonellaTyphiMethodUsed"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["salmonellaTyphiMethodUsed"]}
+                            </p>
+                          )}
                           <label className="col-span-1">ABO Type</label>
                           <input
                             type="text"
@@ -3032,7 +4220,13 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("bloodTyping")
                             }
+                            required
                           />
+                          {errorMessage["bloodTypingABOType"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["bloodTypingABOType"]}
+                            </p>
+                          )}
 
                           <label className="col-span-1  ">Lot No.</label>
                           <input
@@ -3062,7 +4256,13 @@ function Laboratory() {
                                 "testForSalmonellaTyphi"
                               )
                             }
+                            required
                           />
+                          {errorMessage["salmonellaTyphiLotNumber"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["salmonellaTyphiLotNumber"]}
+                            </p>
+                          )}
                           <label className="col-span-1">Rh Type</label>
                           <input
                             type="text"
@@ -3087,7 +4287,13 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("bloodTyping")
                             }
+                            required
                           />
+                          {errorMessage["bloodTypingRhType"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["bloodTypingRhType"]}
+                            </p>
+                          )}
 
                           <label className="col-span-1  ">
                             Expiration Date
@@ -3119,7 +4325,13 @@ function Laboratory() {
                                 "testForSalmonellaTyphi"
                               )
                             }
+                            required
                           />
+                          {errorMessage["salmonellaTyphiExpirationDate"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["salmonellaTyphiExpirationDate"]}
+                            </p>
+                          )}
 
                           <label className="col-span-6"></label>
 
@@ -3151,7 +4363,13 @@ function Laboratory() {
                                 "testForSalmonellaTyphi"
                               )
                             }
+                            required
                           />
+                          {errorMessage["salmonellaTyphiResult"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["salmonellaTyphiResult"]}
+                            </p>
+                          )}
                           <label className="col-span-6"></label>
 
                           {/* Test for Dengue and Others */}
@@ -3184,7 +4402,13 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("dengueTest")
                             }
+                            required
                           />
+                          {errorMessage["testDengueMethodUsed"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["testDengueMethodUsed"]}
+                            </p>
+                          )}
                           <label className="col-span-1">Method Used</label>
                           <input
                             type="text"
@@ -3211,7 +4435,13 @@ function Laboratory() {
                               !requestedCategories.includes("HIVElsa") &&
                               !requestedCategories.includes("HIVRapidTest")
                             }
+                            required
                           />
+                          {errorMessage["othersMethodUsed"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["othersMethodUsed"]}
+                            </p>
+                          )}
 
                           <label className="col-span-1">Lot No.</label>
                           <input
@@ -3237,7 +4467,13 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("dengueTest")
                             }
+                            required
                           />
+                          {errorMessage["testDengueLotNumber"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["testDengueLotNumber"]}
+                            </p>
+                          )}
                           <label className="col-span-1">Lot No.</label>
                           <input
                             type="text"
@@ -3264,7 +4500,13 @@ function Laboratory() {
                               !requestedCategories.includes("HIVElsa") &&
                               !requestedCategories.includes("HIVRapidTest")
                             }
+                            required
                           />
+                          {errorMessage["othersLotNumber"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["othersLotNumber"]}
+                            </p>
+                          )}
 
                           <label className="col-span-1">Expiration Date</label>
                           <input
@@ -3290,7 +4532,13 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("dengueTest")
                             }
+                            required
                           />
+                          {errorMessage["testDengueExpirationDate"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["testDengueExpirationDate"]}
+                            </p>
+                          )}
                           <label className="col-span-1">Expiration Date</label>
                           <input
                             type="date"
@@ -3317,7 +4565,13 @@ function Laboratory() {
                               !requestedCategories.includes("HIVElsa") &&
                               !requestedCategories.includes("HIVRapidTest")
                             }
+                            required
                           />
+                          {errorMessage["othersExpirationDate"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["othersExpirationDate"]}
+                            </p>
+                          )}
 
                           <label className="col-span-1">Result</label>
                           <input
@@ -3343,7 +4597,14 @@ function Laboratory() {
                             readOnly={
                               !requestedCategories.includes("dengueTest")
                             }
+                            required
                           />
+                          {errorMessage["testDengueResult"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["testDengueResult"]}
+                            </p>
+                          )}
+
                           <label className="col-span-1">Result</label>
                           <input
                             type="text"
@@ -3366,8 +4627,17 @@ function Laboratory() {
                                 "result"
                               )
                             }
-                            readOnly={!requestedCategories.includes("HIVElsa")}
+                            readOnly={
+                              !requestedCategories.includes("HIVElsa") &&
+                              !requestedCategories.includes("HIVRapidTest")
+                            }
+                            required
                           />
+                          {errorMessage["othersResult"] && (
+                            <p className="text-red-500 text-sm col-span-6">
+                              {errorMessage["othersResult"]}
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
