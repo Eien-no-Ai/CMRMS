@@ -13,8 +13,10 @@ function XrayResult() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [result, setResult] = useState("");
   const [imageFile, setImageFile] = useState(null);
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false); // New state for image modal
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [fullImageSrc, setFullImageSrc] = useState("");
+  const [isImageLoading, setIsImageLoading] = useState(false);
+  const [imageError, setImageError] = useState(null);
   const apiUrl = process.env.REACT_APP_REACT_URL;
   const api_Key = process.env.REACT_APP_API_KEY;
   const [formData, setFormData] = useState({
@@ -31,32 +33,53 @@ function XrayResult() {
     imageFile: "",
   });
 
-  const fetchXrayRecords = useCallback(() => {
-    axios
-      .get(`${apiUrl}/api/xrayResults`,
-      {
+  // Utility function to fetch an image as a Base64 string
+  const fetchImageAsBase64 = async (imageUrl) => {
+    try {
+      const response = await axios.get(imageUrl, { responseType: 'blob' });
+      const blob = response.data;
+
+      const reader = new FileReader();
+
+      const base64ImagePromise = new Promise((resolve, reject) => {
+        reader.onloadend = () => {
+          resolve(reader.result); // Base64 string
+        };
+        reader.onerror = reject;
+      });
+
+      reader.readAsDataURL(blob);
+
+      return await base64ImagePromise;
+    } catch (error) {
+      console.error("Error fetching image as base64:", error);
+      return null;
+    }
+  };
+
+  const fetchXrayRecords = useCallback(async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/xrayResults`, {
         headers: {
           "api-key": api_Key,
         }
-      }
-      )
-      .then((response) => {
-        // Filter only for records with xrayResult set to "done" without any role-based restrictions
-        const filteredRecords = response.data.filter(
-          (record) => record.xrayResult === "done"
-        );
-
-        // Sort the records by creation date, most recent first
-        const sortedRecords = filteredRecords.sort(
-          (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
-        );
-
-        setXrayRecords(sortedRecords);
-      })
-      .catch((error) => {
-        console.error("There was an error fetching the X-ray records!", error);
       });
-  }, []);
+
+      // Filter records with xrayResult === "done"
+      const filteredRecords = response.data.filter(
+        (record) => record.xrayResult === "done"
+      );
+
+      // Sort records by creation date, most recent first
+      const sortedRecords = filteredRecords.sort(
+        (a, b) => new Date(b.isCreatedAt) - new Date(a.isCreatedAt)
+      );
+
+      setXrayRecords(sortedRecords);
+    } catch (error) {
+      console.error("There was an error fetching the X-ray records!", error);
+    }
+  }, [apiUrl, api_Key]);
 
   useEffect(() => {
     if (userRole) {
@@ -87,10 +110,24 @@ function XrayResult() {
 
   const [selectedRecord, setSelectedRecord] = useState(null); // Add this to your state
 
-  const handleAddResult = (record) => {
+  const handleAddResult = async (record) => {
     setSelectedRecord(record); // Store the selected record
+    setIsImageLoading(true);
+    setImageError(null);
 
-    // Set formData to include the necessary fields, pulling values from selectedRecord
+    let base64Image = "";
+
+    if (record.imageFile) {
+      try {
+        base64Image = await fetchImageAsBase64(record.imageFile);
+        if (!base64Image) {
+          throw new Error("Failed to fetch image.");
+        }
+      } catch (error) {
+        setImageError("Unable to load image.");
+      }
+    }
+
     setFormData({
       ORNumber: record.ORNumber || "",
       XrayNo: record.XrayNo || "", // Use record's XrayNo if available
@@ -102,8 +139,9 @@ function XrayResult() {
       patientType: record.patient.patientType,
       diagnosis: record.diagnosis || "", // If there's an existing diagnosis
       xrayFindings: record.xrayFindings || "", // If there's an existing xrayFindings
-      imageFile: record.imageFile || "", // If there's an existing image file
+      imageFile: base64Image || "", // Use Base64 image
     });
+    setIsImageLoading(false);
     setIsModalOpen(true); // Open the modal
   };
 
@@ -396,12 +434,20 @@ function XrayResult() {
                   {/* X-ray Result Image - Left Side */}
                   <div className="w-1/2">
                     <label className="block text-gray-700">X-ray Result</label>
-                    <img
-                      src={`${formData.imageFile}`}
-                      alt="X-ray"
-                      className="w-auto h-full object-cover cursor-pointer"
-                      onClick={() => handleImageClick(formData.imageFile)}
-                    />
+                    {isImageLoading ? (
+                      <p className="text-gray-500">Loading image...</p>
+                    ) : imageError ? (
+                      <p className="text-red-500">{imageError}</p>
+                    ) : formData.imageFile ? (
+                      <img
+                        src={formData.imageFile}
+                        alt="X-ray"
+                        className="w-auto h-full object-cover cursor-pointer"
+                        onClick={() => handleImageClick(formData.imageFile)}
+                      />
+                    ) : (
+                      <p className="text-gray-500">No image available.</p>
+                    )}
                   </div>
 
                   {/* Details Section - Right Side */}
@@ -412,7 +458,7 @@ function XrayResult() {
                         <label className="block text-gray-700">OR No.</label>
                         <input
                           type="text"
-                          name="XrayNo"
+                          name="ORNumber"
                           value={formData.ORNumber}
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border rounded"
@@ -503,7 +549,6 @@ function XrayResult() {
                         name="xrayFindings"
                         className="w-full px-3 py-2 border rounded"
                         rows="4"
-                        // placeholder="Enter findings..."
                         value={formData.xrayFindings}
                         onChange={handleInputChange}
                         readOnly={userRole === "radiologist"}
