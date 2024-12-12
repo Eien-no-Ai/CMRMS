@@ -19,6 +19,7 @@ function PatientsProfile() {
   const [showLabSuccessModal, setShowLabSuccessModal] = useState(false);
   const [showXraySuccessModal, setShowXraySuccessModal] = useState(false);
   const [showPtSuccessModal, setShowPtSuccessModal] = useState(false);
+  const [showPESuccessModal, setShowPESuccessModal] = useState(false);
   const [showError, setShowError] = useState(false);
 
   const [isVerifyDetails, setIsVerifyDetails] = useState(false);
@@ -1772,6 +1773,7 @@ function PatientsProfile() {
 
       console.log("Physical exam saved successfully:", response.data);
       if (response.status === 200) {
+        setShowPESuccessModal(true);
         setisPackageInfoModalOpen(false);
         setPhysicalExamStudent({ ...physicalExamStudent });
       }
@@ -2119,8 +2121,8 @@ function PatientsProfile() {
 
   const validatePEForm = () => {
     const newErrors = {};
-     // Helper function to check if a field is empty
-     const isEmpty = (value) => {
+    // Helper function to check if a field is empty
+    const isEmpty = (value) => {
       return (
         value === undefined ||
         value === null ||
@@ -2170,7 +2172,6 @@ function PatientsProfile() {
   };
 
   const [errorMessages, setErrorMessages] = useState({
-
     //Changes Errors
     bloodPressure: "",
     pulseRate: "",
@@ -2194,80 +2195,80 @@ function PatientsProfile() {
   });
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
 
     // Validate changes fields
-       // Helper function to check if a field is empty
-       const isEmpty = (value) => {
-        return (
-          value === undefined ||
-          value === null ||
-          (typeof value === "string" && value.trim() === "")
-        );
-      };
-
-      //Validate changes fields
-      if (isEmpty(annual.changes.bloodPressure)) {
-        newErrors.bloodPressure = "Blood Pressure is required";
-      }
-
-      if (isEmpty(annual.changes.pulseRate)) {
-        newErrors.pulseRate = "Pulse Rate is required";
-      }
-
-      if (isEmpty(annual.changes.respirationRate)) {
-        newErrors.respirationRate = "Respiration Rate is required";
-      }
-
-      if (isEmpty(annual.changes.height)) {
-        newErrors.height = "Height is required";
-      }
-
-      if (isEmpty(annual.changes.weight)) {
-        newErrors.weight = "Weight is required";
-      }
-
-      if (isEmpty(annual.changes.wasteLine)) {
-        newErrors.wasteLine = "Waste Line is required";
-      }
-
-      if (isEmpty(annual.changes.hipLine)) {
-        newErrors.hipLine = "Hip Line is required";
-      }
-
-      // Validate lab exam fields
-      if (isEmpty(annual.labExam.chestXray)) {
-        newErrors.chestXray = "Chest X-ray is required";
-      }
-
-      if (isEmpty(annual.labExam.urinalysis)) {
-        newErrors.urinalysis = "Urinalysis is required";
-      }
-
-      if (isEmpty(annual.labExam.completeBloodCount)) {
-        newErrors.completeBloodCount = "Complete Blood Count is required";
-      }
-
-      if (isEmpty(annual.labExam.fecalysis)) {
-        newErrors.fecalysis = "Fecalysis is required";
-      }
-
-      // Validate others fields
-      if (isEmpty(annual.others.medications)) {
-        newErrors.medications = "Medications is required";
-      }
-
-      if (isEmpty(annual.others.remarksRecommendations)) {
-        newErrors.remarksRecommendations = "Remarks Recommendations is required";
-      }
-
-      setErrorMessages(newErrors);
-
-      //Determines if there are  errors
-      const hasErrors = Object.keys(newErrors).length > 0;
-
-      return !hasErrors;
+    // Helper function to check if a field is empty
+    const isEmpty = (value) => {
+      return (
+        value === undefined ||
+        value === null ||
+        (typeof value === "string" && value.trim() === "")
+      );
     };
+
+    //Validate changes fields
+    if (isEmpty(annual.changes.bloodPressure)) {
+      newErrors.bloodPressure = "Blood Pressure is required";
+    }
+
+    if (isEmpty(annual.changes.pulseRate)) {
+      newErrors.pulseRate = "Pulse Rate is required";
+    }
+
+    if (isEmpty(annual.changes.respirationRate)) {
+      newErrors.respirationRate = "Respiration Rate is required";
+    }
+
+    if (isEmpty(annual.changes.height)) {
+      newErrors.height = "Height is required";
+    }
+
+    if (isEmpty(annual.changes.weight)) {
+      newErrors.weight = "Weight is required";
+    }
+
+    if (isEmpty(annual.changes.wasteLine)) {
+      newErrors.wasteLine = "Waste Line is required";
+    }
+
+    if (isEmpty(annual.changes.hipLine)) {
+      newErrors.hipLine = "Hip Line is required";
+    }
+
+    // Validate lab exam fields
+    if (isEmpty(annual.labExam.chestXray)) {
+      newErrors.chestXray = "Chest X-ray is required";
+    }
+
+    if (isEmpty(annual.labExam.urinalysis)) {
+      newErrors.urinalysis = "Urinalysis is required";
+    }
+
+    if (isEmpty(annual.labExam.completeBloodCount)) {
+      newErrors.completeBloodCount = "Complete Blood Count is required";
+    }
+
+    if (isEmpty(annual.labExam.fecalysis)) {
+      newErrors.fecalysis = "Fecalysis is required";
+    }
+
+    // Validate others fields
+    if (isEmpty(annual.others.medications)) {
+      newErrors.medications = "Medications is required";
+    }
+
+    if (isEmpty(annual.others.remarksRecommendations)) {
+      newErrors.remarksRecommendations = "Remarks Recommendations is required";
+    }
+
+    setErrorMessages(newErrors);
+
+    //Determines if there are  errors
+    const hasErrors = Object.keys(newErrors).length > 0;
+
+    return !hasErrors;
+  };
 
   // When submitting the form, ensure the packageNumber is correctly extracted
   const handleAnnualSubmit = async (packageNumber) => {
@@ -2277,19 +2278,17 @@ function PatientsProfile() {
 
     try {
       const packageId = selectedRecords?.labRecords[0]?.packageId;
-      const validPackageNumber = selectedRecords?.labRecords[0]?.packageNumber; // Correctly access packageNumber
+      const packageNumber = selectedRecords?.labRecords[0]?.packageNumber;
 
-      if (!validPackageNumber) {
-        alert("Package ID not found. Please select a valid package.");
-        return;
-      }
+      // Ensure packageNumber is a string
+      const packageNumberString = packageNumber.toString();
 
       const response = await axios.post(
         `${apiUrl}/api/annual-check-up`,
         {
           patient: id,
-          packageId, // Add packageId to the request body
-          packageNumber: validPackageNumber, // Pass valid packageNumber
+          packageId,
+          packageNumber: packageNumberString, // Send the stringified packageNumber
           ...annual,
         },
         {
@@ -2305,6 +2304,7 @@ function PatientsProfile() {
         setAnnual({ ...annual });
       }
       setisAnnualModalOpen(false);
+      setShowPESuccessModal(true);
     } catch (error) {
       console.error(
         "Error adding annual check-up:",
@@ -4700,7 +4700,6 @@ function PatientsProfile() {
                                 {PEerrorMessages.visualAcuity}
                               </p>
                             )}
-                            
                           </div>
                         )}
                         <hr />
@@ -11325,7 +11324,6 @@ n-2 border rounded px-3 py-1"
                       {errorMessages.completeBloodCount}
                     </p>
                   )}
-
                 </div>
 
                 <div>
@@ -11576,6 +11574,24 @@ n-2 border rounded px-3 py-1"
             <div className="flex justify-center">
               <button
                 onClick={() => setShowPtSuccessModal(false)} // Close the success modal
+                className="px-4 py-2 bg-custom-red text-white rounded-md"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showPESuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
+            <h2 className="text-xl font-semibold mb-4 text-center">Success</h2>
+            <p className="text-center text-gray-600 mb-4">
+              The physical examination has been successfully submitted.
+            </p>
+            <div className="flex justify-center">
+              <button
+                onClick={() => setShowPESuccessModal(false)} // Close the success modal
                 className="px-4 py-2 bg-custom-red text-white rounded-md"
               >
                 Close
