@@ -1742,9 +1742,10 @@ function PatientsProfile() {
   };
 
   const handlePESubmit = async (packageNumber) => {
-    if (!validateForm()) {
+    if (!validatePEForm()) {
       return; // Stop submission if there are validation errors
     }
+
     try {
       // Check if selectedRecords has labRecords with a valid packageId
       const packageId = selectedRecords?.labRecords[0]?.packageId;
@@ -2104,8 +2105,7 @@ function PatientsProfile() {
       },
     }));
   };
-
-  const [errorMessages, setErrorMessages] = useState({
+  const [PEerrorMessages, setPEErrorMessages] = useState({
     //Physical Exam Student Errors
     temperature: "",
     bloodPressure: "",
@@ -2115,7 +2115,61 @@ function PatientsProfile() {
     weight: "",
     bodyBuilt: "",
     visualAcuity: "",
- 
+  });
+
+  const validatePEForm = () => {
+    const newErrors = {};
+     // Helper function to check if a field is empty
+     const isEmpty = (value) => {
+      return (
+        value === undefined ||
+        value === null ||
+        (typeof value === "string" && value.trim() === "")
+      );
+    };
+
+    //Physical Exam Student Errors
+    if (isEmpty(physicalExamStudent.temperature)) {
+      newErrors.temperature = "Temperature is required";
+    }
+
+    if (isEmpty(physicalExamStudent.bloodPressure)) {
+      newErrors.bloodPressure = "Blood Pressure is required";
+    }
+
+    if (isEmpty(physicalExamStudent.pulseRate)) {
+      newErrors.pulseRate = "Pulse Rate is required";
+    }
+
+    if (isEmpty(physicalExamStudent.respirationRate)) {
+      newErrors.respirationRate = "Respiration Rate is required";
+    }
+
+    if (isEmpty(physicalExamStudent.height)) {
+      newErrors.height = "Height is required";
+    }
+
+    if (isEmpty(physicalExamStudent.weight)) {
+      newErrors.weight = "Weight is required";
+    }
+
+    if (isEmpty(physicalExamStudent.bodyBuilt)) {
+      newErrors.bodyBuilt = "Body Built is required";
+    }
+
+    if (isEmpty(physicalExamStudent.visualAcuity)) {
+      newErrors.visualAcuity = "Visual Acuity is required";
+    }
+
+    setPEErrorMessages(newErrors);
+
+    //Determines if there are  errors
+    const hasErrors = Object.keys(newErrors).length > 0;
+
+    return !hasErrors;
+  };
+
+  const [errorMessages, setErrorMessages] = useState({
 
     //Changes Errors
     bloodPressure: "",
@@ -2151,40 +2205,6 @@ function PatientsProfile() {
           (typeof value === "string" && value.trim() === "")
         );
       };
-
-      //Physical Exam Student Errors
-      if (isEmpty(physicalExamStudent.temperature)) {
-        newErrors.temperature = "Temperature is required";
-      }
-
-      if (isEmpty(physicalExamStudent.bloodPressure)) {
-        newErrors.bloodPressure = "Blood Pressure is required";
-      }
-
-      if (isEmpty(physicalExamStudent.pulseRate)) {
-        newErrors.pulseRate = "Pulse Rate is required";
-      }
-
-      if (isEmpty(physicalExamStudent.respirationRate)) {
-        newErrors.respirationRate = "Respiration Rate is required";
-      }
-
-      if (isEmpty(physicalExamStudent.height)) {
-        newErrors.height = "Height is required";
-      }
-
-      if (isEmpty(physicalExamStudent.weight)) {
-        newErrors.weight = "Weight is required";
-      }
-
-      if (isEmpty(physicalExamStudent.bodyBuilt)) {
-        newErrors.bodyBuilt = "Body Built is required";
-      }
-
-      if (isEmpty(physicalExamStudent.visualAcuity)) {
-        newErrors.visualAcuity = "Visual Acuity is required";
-      }
-
 
       //Validate changes fields
       if (isEmpty(annual.changes.bloodPressure)) {
@@ -4567,9 +4587,9 @@ function PatientsProfile() {
                                 )
                               }
                             />
-                            {errorMessages.temperature && (
+                            {PEerrorMessages.temperature && (
                               <p className="text-red-500 text-sm col-span-6">
-                                {errorMessages.temperature}
+                                {PEerrorMessages.temperature}
                               </p>
                             )}
                             <label className="col-span-2">Height</label>
@@ -4581,9 +4601,9 @@ function PatientsProfile() {
                                 handlePEInputChange("height", e.target.value)
                               }
                             />
-                            {errorMessages.height && (
+                            {PEerrorMessages.height && (
                               <p className="text-red-500 text-sm col-span-6">
-                                {errorMessages.height}
+                                {PEerrorMessages.height}
                               </p>
                             )}
                             <label className="col-span-2">Blood Pressure</label>
@@ -4598,9 +4618,9 @@ function PatientsProfile() {
                                 )
                               }
                             />
-                            {errorMessages.bloodPressure && (
+                            {PEerrorMessages.bloodPressure && (
                               <p className="text-red-500 text-sm col-span-6">
-                                {errorMessages.bloodPressure}
+                                {PEerrorMessages.bloodPressure}
                               </p>
                             )}
                             <label className="col-span-2">Weight</label>
@@ -4612,9 +4632,9 @@ function PatientsProfile() {
                                 handlePEInputChange("weight", e.target.value)
                               }
                             />
-                            {errorMessages.weight && (
+                            {PEerrorMessages.weight && (
                               <p className="text-red-500 text-sm col-span-6">
-                                {errorMessages.weight}
+                                {PEerrorMessages.weight}
                               </p>
                             )}
                             <label className="col-span-2">Pulse Rate</label>
@@ -4626,9 +4646,9 @@ function PatientsProfile() {
                                 handlePEInputChange("pulseRate", e.target.value)
                               }
                             />
-                            {errorMessages.pulseRate && (
+                            {PEerrorMessages.pulseRate && (
                               <p className="text-red-500 text-sm col-span-6">
-                                {errorMessages.pulseRate}
+                                {PEerrorMessages.pulseRate}
                               </p>
                             )}
 
@@ -4641,9 +4661,9 @@ function PatientsProfile() {
                                 handlePEInputChange("bodyBuilt", e.target.value)
                               }
                             />
-                            {errorMessages.bodyBuilt && (
+                            {PEerrorMessages.bodyBuilt && (
                               <p className="text-red-500 text-sm col-span-6">
-                                {errorMessages.bodyBuilt}
+                                {PEerrorMessages.bodyBuilt}
                               </p>
                             )}
                             <label className="col-span-2">Respiration</label>
@@ -4658,9 +4678,9 @@ function PatientsProfile() {
                                 )
                               }
                             />
-                            {errorMessages.respirationRate && (
+                            {PEerrorMessages.respirationRate && (
                               <p className="text-red-500 text-sm col-span-6">
-                                {errorMessages.respirationRate}
+                                {PEerrorMessages.respirationRate}
                               </p>
                             )}
                             <label className="col-span-2">Visual Acuity</label>
@@ -4675,9 +4695,9 @@ function PatientsProfile() {
                                 )
                               }
                             />
-                            {errorMessages.visualAcuity && (
+                            {PEerrorMessages.visualAcuity && (
                               <p className="text-red-500 text-sm col-span-6">
-                                {errorMessages.visualAcuity}
+                                {PEerrorMessages.visualAcuity}
                               </p>
                             )}
                             
