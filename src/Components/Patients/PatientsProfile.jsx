@@ -857,6 +857,7 @@ function PatientsProfile() {
   };
 
   const handleAnnualClose = () => {
+    setErrorMessages([]); // Clear any error messages
     setisAnnualModalOpen(false);
     setAnnual(defaultAnnual); // Reset the form data when closing
   };
@@ -1741,6 +1742,9 @@ function PatientsProfile() {
   };
 
   const handlePESubmit = async (packageNumber) => {
+    if (!validateForm()) {
+      return; // Stop submission if there are validation errors
+    }
     try {
       // Check if selectedRecords has labRecords with a valid packageId
       const packageId = selectedRecords?.labRecords[0]?.packageId;
@@ -2101,8 +2105,156 @@ function PatientsProfile() {
     }));
   };
 
+  const [errorMessages, setErrorMessages] = useState({
+    //Physical Exam Student Errors
+    temperature: "",
+    bloodPressure: "",
+    pulseRate: "",
+    respirationRate: "",
+    height: "",
+    weight: "",
+    bodyBuilt: "",
+    visualAcuity: "",
+ 
+
+    //Changes Errors
+    bloodPressure: "",
+    pulseRate: "",
+    respirationRate: "",
+    height: "",
+    weight: "",
+    bmi: "",
+    wasteLine: "",
+    hipLine: "",
+    dateExamined: "",
+
+    //Lab Exam Errors
+    chestXray: "",
+    urinalysis: "",
+    completeBloodCount: "",
+    fecalysis: "",
+
+    //Others Errors
+    medications: "",
+    remarksRecommendations: "",
+  });
+
+  const validateForm = () => {
+    const newErrors = {}
+
+    // Validate changes fields
+       // Helper function to check if a field is empty
+       const isEmpty = (value) => {
+        return (
+          value === undefined ||
+          value === null ||
+          (typeof value === "string" && value.trim() === "")
+        );
+      };
+
+      //Physical Exam Student Errors
+      if (isEmpty(physicalExamStudent.temperature)) {
+        newErrors.temperature = "Temperature is required";
+      }
+
+      if (isEmpty(physicalExamStudent.bloodPressure)) {
+        newErrors.bloodPressure = "Blood Pressure is required";
+      }
+
+      if (isEmpty(physicalExamStudent.pulseRate)) {
+        newErrors.pulseRate = "Pulse Rate is required";
+      }
+
+      if (isEmpty(physicalExamStudent.respirationRate)) {
+        newErrors.respirationRate = "Respiration Rate is required";
+      }
+
+      if (isEmpty(physicalExamStudent.height)) {
+        newErrors.height = "Height is required";
+      }
+
+      if (isEmpty(physicalExamStudent.weight)) {
+        newErrors.weight = "Weight is required";
+      }
+
+      if (isEmpty(physicalExamStudent.bodyBuilt)) {
+        newErrors.bodyBuilt = "Body Built is required";
+      }
+
+      if (isEmpty(physicalExamStudent.visualAcuity)) {
+        newErrors.visualAcuity = "Visual Acuity is required";
+      }
+
+
+      //Validate changes fields
+      if (isEmpty(annual.changes.bloodPressure)) {
+        newErrors.bloodPressure = "Blood Pressure is required";
+      }
+
+      if (isEmpty(annual.changes.pulseRate)) {
+        newErrors.pulseRate = "Pulse Rate is required";
+      }
+
+      if (isEmpty(annual.changes.respirationRate)) {
+        newErrors.respirationRate = "Respiration Rate is required";
+      }
+
+      if (isEmpty(annual.changes.height)) {
+        newErrors.height = "Height is required";
+      }
+
+      if (isEmpty(annual.changes.weight)) {
+        newErrors.weight = "Weight is required";
+      }
+
+      if (isEmpty(annual.changes.wasteLine)) {
+        newErrors.wasteLine = "Waste Line is required";
+      }
+
+      if (isEmpty(annual.changes.hipLine)) {
+        newErrors.hipLine = "Hip Line is required";
+      }
+
+      // Validate lab exam fields
+      if (isEmpty(annual.labExam.chestXray)) {
+        newErrors.chestXray = "Chest X-ray is required";
+      }
+
+      if (isEmpty(annual.labExam.urinalysis)) {
+        newErrors.urinalysis = "Urinalysis is required";
+      }
+
+      if (isEmpty(annual.labExam.completeBloodCount)) {
+        newErrors.completeBloodCount = "Complete Blood Count is required";
+      }
+
+      if (isEmpty(annual.labExam.fecalysis)) {
+        newErrors.fecalysis = "Fecalysis is required";
+      }
+
+      // Validate others fields
+      if (isEmpty(annual.others.medications)) {
+        newErrors.medications = "Medications is required";
+      }
+
+      if (isEmpty(annual.others.remarksRecommendations)) {
+        newErrors.remarksRecommendations = "Remarks Recommendations is required";
+      }
+
+      setErrorMessages(newErrors);
+
+      //Determines if there are  errors
+      const hasErrors = Object.keys(newErrors).length > 0;
+
+      return !hasErrors;
+    };
+
   // When submitting the form, ensure the packageNumber is correctly extracted
   const handleAnnualSubmit = async (packageNumber) => {
+    if (!validateForm()) {
+      return; // Stop submission if there are validation errors
+    }
+
     try {
       const packageId = selectedRecords?.labRecords[0]?.packageId;
       const validPackageNumber = selectedRecords?.labRecords[0]?.packageNumber; // Correctly access packageNumber
@@ -4415,7 +4567,11 @@ function PatientsProfile() {
                                 )
                               }
                             />
-
+                            {errorMessages.temperature && (
+                              <p className="text-red-500 text-sm col-span-6">
+                                {errorMessages.temperature}
+                              </p>
+                            )}
                             <label className="col-span-2">Height</label>
                             <input
                               type="text"
@@ -4425,7 +4581,11 @@ function PatientsProfile() {
                                 handlePEInputChange("height", e.target.value)
                               }
                             />
-
+                            {errorMessages.height && (
+                              <p className="text-red-500 text-sm col-span-6">
+                                {errorMessages.height}
+                              </p>
+                            )}
                             <label className="col-span-2">Blood Pressure</label>
                             <input
                               type="text"
@@ -4438,7 +4598,11 @@ function PatientsProfile() {
                                 )
                               }
                             />
-
+                            {errorMessages.bloodPressure && (
+                              <p className="text-red-500 text-sm col-span-6">
+                                {errorMessages.bloodPressure}
+                              </p>
+                            )}
                             <label className="col-span-2">Weight</label>
                             <input
                               type="text"
@@ -4448,7 +4612,11 @@ function PatientsProfile() {
                                 handlePEInputChange("weight", e.target.value)
                               }
                             />
-
+                            {errorMessages.weight && (
+                              <p className="text-red-500 text-sm col-span-6">
+                                {errorMessages.weight}
+                              </p>
+                            )}
                             <label className="col-span-2">Pulse Rate</label>
                             <input
                               type="text"
@@ -4458,6 +4626,11 @@ function PatientsProfile() {
                                 handlePEInputChange("pulseRate", e.target.value)
                               }
                             />
+                            {errorMessages.pulseRate && (
+                              <p className="text-red-500 text-sm col-span-6">
+                                {errorMessages.pulseRate}
+                              </p>
+                            )}
 
                             <label className="col-span-2">Body Built</label>
                             <input
@@ -4468,7 +4641,11 @@ function PatientsProfile() {
                                 handlePEInputChange("bodyBuilt", e.target.value)
                               }
                             />
-
+                            {errorMessages.bodyBuilt && (
+                              <p className="text-red-500 text-sm col-span-6">
+                                {errorMessages.bodyBuilt}
+                              </p>
+                            )}
                             <label className="col-span-2">Respiration</label>
                             <input
                               type="text"
@@ -4481,7 +4658,11 @@ function PatientsProfile() {
                                 )
                               }
                             />
-
+                            {errorMessages.respirationRate && (
+                              <p className="text-red-500 text-sm col-span-6">
+                                {errorMessages.respirationRate}
+                              </p>
+                            )}
                             <label className="col-span-2">Visual Acuity</label>
                             <input
                               type="text"
@@ -4494,6 +4675,12 @@ function PatientsProfile() {
                                 )
                               }
                             />
+                            {errorMessages.visualAcuity && (
+                              <p className="text-red-500 text-sm col-span-6">
+                                {errorMessages.visualAcuity}
+                              </p>
+                            )}
+                            
                           </div>
                         )}
                         <hr />
@@ -10505,7 +10692,11 @@ n-2 border rounded px-3 py-1"
                       handleAnnualInputChange("height", e.target.value)
                     }
                   />
-
+                  {errorMessages.height && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessages.height}
+                    </p>
+                  )}
                   <label className="col-span-2">Blood Pressure</label>
                   <input
                     type="text"
@@ -10515,7 +10706,11 @@ n-2 border rounded px-3 py-1"
                       handleAnnualInputChange("bloodPressure", e.target.value)
                     }
                   />
-
+                  {errorMessages.bloodPressure && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessages.bloodPressure}
+                    </p>
+                  )}
                   <label className="col-span-2">Weight</label>
                   <input
                     type="text"
@@ -10525,6 +10720,11 @@ n-2 border rounded px-3 py-1"
                       handleAnnualInputChange("weight", e.target.value)
                     }
                   />
+                  {errorMessages.weight && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessages.weight}
+                    </p>
+                  )}
 
                   <label className="col-span-2">Pulse Rate</label>
                   <input
@@ -10535,7 +10735,11 @@ n-2 border rounded px-3 py-1"
                       handleAnnualInputChange("pulseRate", e.target.value)
                     }
                   />
-
+                  {errorMessages.pulseRate && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessages.pulseRate}
+                    </p>
+                  )}
                   <label className="col-span-2">BMI</label>
                   <div className="col-span-4 border rounded px-3 py-1">
                     {annual.changes.bmi || "Not available"}{" "}
@@ -10551,7 +10755,11 @@ n-2 border rounded px-3 py-1"
                       handleAnnualInputChange("respirationRate", e.target.value)
                     }
                   />
-
+                  {errorMessages.respirationRate && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessages.respirationRate}
+                    </p>
+                  )}
                   <label className="col-span-2">Waste Line</label>
                   <input
                     type="text"
@@ -10561,7 +10769,11 @@ n-2 border rounded px-3 py-1"
                       handleAnnualInputChange("wasteLine", e.target.value)
                     }
                   />
-
+                  {errorMessages.wasteLine && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessages.wasteLine}
+                    </p>
+                  )}
                   <label className="col-span-2">Hip Line</label>
                   <input
                     type="text"
@@ -10571,6 +10783,11 @@ n-2 border rounded px-3 py-1"
                       handleAnnualInputChange("hipLine", e.target.value)
                     }
                   />
+                  {errorMessages.hipLine && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessages.hipLine}
+                    </p>
+                  )}
                 </div>
               )}
               <hr />
@@ -11036,7 +11253,11 @@ n-2 border rounded px-3 py-1"
                       handleAnnualInputChange("chestXray", e.target.value)
                     }
                   />
-
+                  {errorMessages.chestXray && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessages.chestXray}
+                    </p>
+                  )}
                   <label className="col-span-2">Urinalysis</label>
                   <input
                     type="text"
@@ -11046,6 +11267,11 @@ n-2 border rounded px-3 py-1"
                       handleAnnualInputChange("urinalysis", e.target.value)
                     }
                   />
+                  {errorMessages.urinalysis && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessages.urinalysis}
+                    </p>
+                  )}
 
                   <label className="col-span-2">Fecalysis</label>
                   <input
@@ -11056,6 +11282,11 @@ n-2 border rounded px-3 py-1"
                       handleAnnualInputChange("fecalysis", e.target.value)
                     }
                   />
+                  {errorMessages.fecalysis && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessages.fecalysis}
+                    </p>
+                  )}
 
                   <label className="col-span-2">Complete Blood Count</label>
                   <input
@@ -11069,6 +11300,12 @@ n-2 border rounded px-3 py-1"
                       )
                     }
                   />
+                  {errorMessages.completeBloodCount && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessages.completeBloodCount}
+                    </p>
+                  )}
+
                 </div>
 
                 <div>
@@ -11091,6 +11328,11 @@ n-2 border rounded px-3 py-1"
                         handleAnnualInputChange("medications", e.target.value)
                       }
                     />
+                    {errorMessages.medications && (
+                      <p className="text-red-500 text-sm">
+                        {errorMessages.medications}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -11117,6 +11359,11 @@ n-2 border rounded px-3 py-1"
                         )
                       }
                     />
+                    {errorMessages.remarksRecommendations && (
+                      <p className="text-red-500 text-sm">
+                        {errorMessages.remarksRecommendations}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
