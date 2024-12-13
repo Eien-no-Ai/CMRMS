@@ -20,6 +20,8 @@ function Laboratory() {
   const [requestedCategories, setRequestedCategories] = useState([]);
   const apiUrl = process.env.REACT_APP_REACT_URL;
   const api_Key = process.env.REACT_APP_API_KEY;
+  // Error State for Test Selection
+  const [testSelectionError, setTestSelectionError] = useState("");
   const [formData, setFormData] = useState({
     ORNumber: "",
     labNumber: "", // Lab number
@@ -373,6 +375,70 @@ function Laboratory() {
     }
   };
 
+  const [OPDerrorMessage, setOPDErrorMessage] = useState({
+    firstname: "",
+    lastname: "",
+    birthdate: "",
+    sex: "",
+    address: "",
+    phonenumber: "",
+    email: "",
+    referredBy: "",
+  });
+
+  const validateOPDForm = () => {
+    const newErrors = {};
+
+    // Helper function to check if a field is empty
+    const isEmpty = (value) => {
+      return (
+        value === undefined ||
+        value === null ||
+        (typeof value === "string" && value.trim() === "")
+      );
+    };
+
+    // Validate Top-Level Fields
+    if (isEmpty(firstname)) {
+      newErrors.firstname = "First Name is required.";
+    }
+
+    if (isEmpty(lastname)) {
+      newErrors.lastname = "Last Name is required.";
+    }
+
+    if (isEmpty(birthdate)) {
+      newErrors.birthdate = "Birthdate is required.";
+    }
+
+    if (isEmpty(sex)) {
+      newErrors.sex = "Gender is required.";
+    }
+
+    if (isEmpty(address)) {
+      newErrors.address = "Address is required.";
+    }
+
+    if (isEmpty(phonenumber)) {
+      newErrors.phonenumber = "Phone Number is required.";
+    }
+
+    if (isEmpty(email)) {
+      newErrors.email = "Email is required.";
+    }
+
+    if (isEmpty(referredBy)) {
+      newErrors.referredBy = "Referred By is required.";
+    }
+
+    setOPDErrorMessage(newErrors);
+
+      // Determine if there are any errors
+      const hasErrors = Object.keys(newErrors).length > 0;
+
+      return !hasErrors; // Returns true if no errors
+    
+  };
   const [errorMessage, setErrorMessage] = useState({
     ORNumber: "",
     labNumber: "",
@@ -1216,6 +1282,36 @@ function Laboratory() {
 
   const [formReqData, setFormReqData] = useState(initialFormData);
 
+  // Utility Function to Check if At Least One Test is Selected
+  const isAtLeastOneTestSelected = () => {
+    const sections = [
+      "bloodChemistry",
+      "hematology",
+      "clinicalMicroscopyParasitology",
+      "bloodBankingSerology",
+      "microbiology",
+    ];
+
+    for (let section of sections) {
+      const sectionData = formReqData[section];
+      for (let key in sectionData) {
+        if (typeof sectionData[key] === "object" && sectionData[key] !== null) {
+          for (let subKey in sectionData[key]) {
+            if (sectionData[key][subKey] !== "") {
+              return true;
+            }
+          }
+        } else {
+          if (sectionData[key] !== "") {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  };
+
   const handleReqInputChange = (section, field) => {
     setFormReqData((prevData) => ({
       ...prevData,
@@ -1228,11 +1324,22 @@ function Laboratory() {
 
   const handleLabModalOpen = (e) => {
     e.preventDefault();
-    setIsLabModalOpen(true);
+    if(validateOPDForm()) {
+      setIsLabModalOpen(true);
+    }
   };
 
   const handleAddOPDSubmit = async (e) => {
     e.preventDefault();
+
+   // Reset previous error message
+    setTestSelectionError("");
+
+    // Validate that at least one test is selected
+    if (!isAtLeastOneTestSelected()) {
+      setTestSelectionError("Please select at least one laboratory test.");
+      return; // Stop submission if no tests are selected
+    }
 
     const patientData = {
       firstname,
@@ -1299,11 +1406,14 @@ function Laboratory() {
     setEmergencyContact("");
     setPosition("");
     setPatientType("OPD");
+    setReferredBy("");
+    setFormReqData(initialFormData);
   };
 
   const [isAddOPDModalOpen, setIsAddOPDModalOpen] = useState(false);
 
   const toggleAddOPDModal = () => {
+    setOPDErrorMessage([]);
     setIsAddOPDModalOpen(!isAddOPDModalOpen);
   };
   const handleLabModalClose = () => {
@@ -1645,25 +1755,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.bloodChemistry?.bloodSugar &&
-                              errorMessage.bloodSugar && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.bloodSugar}
-                                </p>
-                              )}
-                            {formData.bloodChemistry?.bloodSugar && (
-                              <>
-                                {formData.bloodChemistry?.bloodSugar < 70 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Below Reference Range
-                                  </span>
-                                ) : formData.bloodChemistry?.bloodSugar >
-                                  105 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Above Reference Range
-                                  </span>
-                                ) : null}
-                              </>
+                            {errorMessage.bloodSugar && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.bloodSugar}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">70 - 105 mg/dL</div>
@@ -1696,26 +1791,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.bloodChemistry?.totalCholesterol &&
-                              errorMessage.totalCholesterol && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.totalCholesterol}
-                                </p>
-                              )}
-                            {formData.bloodChemistry?.totalCholesterol && (
-                              <>
-                                {formData.bloodChemistry?.totalCholesterol <
-                                140 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Below Reference Range
-                                  </span>
-                                ) : formData.bloodChemistry?.totalCholesterol >
-                                  200 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Above Reference Range
-                                  </span>
-                                ) : null}
-                              </>
+                            {errorMessage.totalCholesterol && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.totalCholesterol}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">140 - 200 mg/dL</div>
@@ -1746,18 +1825,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.bloodChemistry?.triglyceride &&
-                              errorMessage.triglyceride && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.triglyceride}
-                                </p>
-                              )}
-                            {formData.bloodChemistry?.triglyceride && (
-                              <>
-                                {formData.bloodChemistry?.triglyceride > 200 ? (
-                                  <span className="text-red-500">Above</span>
-                                ) : null}
-                              </>
+                            {errorMessage.triglyceride && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.triglyceride}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">{"<200 mg/dL"}</div>
@@ -1788,40 +1859,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.bloodChemistry?.bloodUricAcid &&
-                              errorMessage.bloodUricAcid && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.bloodUricAcid}
-                                </p>
-                              )}
-                            {formData.bloodChemistry?.bloodUricAcid && (
-                              <>
-                                {formData.sex === "Male" ? (
-                                  formData.bloodChemistry.bloodUricAcid <
-                                  3.5 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Below Reference Range
-                                    </span>
-                                  ) : formData.bloodChemistry.bloodUricAcid >
-                                    7.2 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : formData.sex === "Female" ? (
-                                  formData.bloodChemistry.bloodUricAcid <
-                                  2.6 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Below Reference Range
-                                    </span>
-                                  ) : formData.bloodChemistry.bloodUricAcid >
-                                    6.0 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : null}
-                              </>
+                            {errorMessage.bloodUricAcid && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.bloodUricAcid}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">
@@ -1859,26 +1900,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.bloodChemistry?.bloodUreaNitrogen &&
-                              errorMessage.bloodUreaNitrogen && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.bloodUreaNitrogen}
-                                </p>
-                              )}
-                            {formData.bloodChemistry?.bloodUreaNitrogen && (
-                              <>
-                                {formData.bloodChemistry?.bloodUreaNitrogen <
-                                4.67 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Below Reference Range
-                                  </span>
-                                ) : formData.bloodChemistry?.bloodUreaNitrogen >
-                                  23.35 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Above Reference Range
-                                  </span>
-                                ) : null}
-                              </>
+                            {errorMessage.bloodUreaNitrogen && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.bloodUreaNitrogen}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">4.67 - 23.35 mg/dL</div>
@@ -1907,38 +1932,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.bloodChemistry?.creatinine &&
-                              errorMessage.creatinine && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.creatinine}
-                                </p>
-                              )}
-                            {formData.bloodChemistry?.creatinine && (
-                              <>
-                                {formData.sex === "Male" ? (
-                                  formData.bloodChemistry.creatinine < 0.7 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Below Reference Range
-                                    </span>
-                                  ) : formData.bloodChemistry.creatinine >
-                                    1.2 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : formData.sex === "Female" ? (
-                                  formData.bloodChemistry.creatinine < 0.6 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Below Reference Range
-                                    </span>
-                                  ) : formData.bloodChemistry.creatinine >
-                                    1.1 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : null}
-                              </>
+                            {errorMessage.creatinine && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.creatinine}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">
@@ -1970,28 +1967,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.bloodChemistry?.SGOT_AST &&
-                              errorMessage.SGOT_AST && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.SGOT_AST}
-                                </p>
-                              )}
-                            {formData.bloodChemistry?.SGOT_AST && (
-                              <>
-                                {formData.sex === "Male" ? (
-                                  formData.bloodChemistry.SGOT_AST > 40 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : formData.sex === "Female" ? (
-                                  formData.bloodChemistry.SGOT_AST > 33 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : null}
-                              </>
+                            {errorMessage.SGOT_AST && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.SGOT_AST}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">
@@ -2023,28 +2002,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.bloodChemistry?.SGPT_ALT &&
-                              errorMessage.SGPT_ALT && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.SGPT_ALT}
-                                </p>
-                              )}
-                            {formData.bloodChemistry?.SGPT_ALT && (
-                              <>
-                                {formData.sex === "Male" ? (
-                                  formData.bloodChemistry.SGPT_ALT > 41 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : formData.sex === "Female" ? (
-                                  formData.bloodChemistry.SGPT_ALT > 32 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : null}
-                              </>
+                            {errorMessage.SGPT_ALT && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.SGPT_ALT}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">
@@ -2078,40 +2039,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.bloodChemistry?.HDL_cholesterol &&
-                              errorMessage.HDL_cholesterol && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.HDL_cholesterol}
-                                </p>
-                              )}
-                            {formData.bloodChemistry?.HDL_cholesterol && (
-                              <>
-                                {formData.sex === "Male" ? (
-                                  formData.bloodChemistry.HDL_cholesterol <
-                                  0.7 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Below Reference Range
-                                    </span>
-                                  ) : formData.bloodChemistry.HDL_cholesterol >
-                                    1.2 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : formData.sex === "Female" ? (
-                                  formData.bloodChemistry.HDL_cholesterol <
-                                  0.6 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Below Reference Range
-                                    </span>
-                                  ) : formData.bloodChemistry.HDL_cholesterol >
-                                    1.1 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : null}
-                              </>
+                            {errorMessage.HDL_cholesterol && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.HDL_cholesterol}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">
@@ -2145,19 +2076,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.bloodChemistry?.LDL_cholesterol &&
-                              errorMessage.LDL_cholesterol && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.LDL_cholesterol}
-                                </p>
-                              )}
-                            {formData.bloodChemistry?.LDL_cholesterol && (
-                              <>
-                                {formData.bloodChemistry?.LDL_cholesterol >
-                                130 ? (
-                                  <span className="text-red-500">Above</span>
-                                ) : null}
-                              </>
+                            {errorMessage.LDL_cholesterol && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.LDL_cholesterol}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">{"<130 mg/dL"}</div>
@@ -2223,40 +2145,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.Hematology?.redBloodCellCount &&
-                              errorMessage.redBloodCellCount && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.redBloodCellCount}
-                                </p>
-                              )}
-                            {formData.Hematology?.redBloodCellCount && (
-                              <>
-                                {formData.sex === "Male" ? (
-                                  formData.Hematology.redBloodCellCount <
-                                  4.0 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Below Reference Range
-                                    </span>
-                                  ) : formData.Hematology.redBloodCellCount >
-                                    5.5 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : formData.sex === "Female" ? (
-                                  formData.Hematology.redBloodCellCount <
-                                  3.5 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Below Reference Range
-                                    </span>
-                                  ) : formData.Hematology.redBloodCellCount >
-                                    5.0 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : null}
-                              </>
+                            {errorMessage.redBloodCellCount && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.redBloodCellCount}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">
@@ -2286,36 +2178,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.Hematology?.Hemoglobin &&
-                              errorMessage.Hemoglobin && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.Hemoglobin}
-                                </p>
-                              )}
-                            {formData.Hematology?.Hemoglobin && (
-                              <>
-                                {formData.sex === "Male" ? (
-                                  formData.Hematology.Hemoglobin < 140 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Below Reference Range
-                                    </span>
-                                  ) : formData.Hematology.Hemoglobin > 180 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : formData.sex === "Female" ? (
-                                  formData.Hematology.Hemoglobin < 120 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Below Reference Range
-                                    </span>
-                                  ) : formData.Hematology.Hemoglobin > 180 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : null}
-                              </>
+                            {errorMessage.Hemoglobin && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.Hemoglobin}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">
@@ -2345,36 +2211,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.Hematology?.Hematocrit &&
-                              errorMessage.Hematocrit && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.Hematocrit}
-                                </p>
-                              )}
-                            {formData.Hematology?.Hemoglobin && (
-                              <>
-                                {formData.sex === "Male" ? (
-                                  formData.Hematology.Hemoglobin < 0.4 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Below Reference Range
-                                    </span>
-                                  ) : formData.Hematology.Hemoglobin > 0.54 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : formData.sex === "Female" ? (
-                                  formData.Hematology.Hemoglobin < 0.37 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Below Reference Range
-                                    </span>
-                                  ) : formData.Hematology.Hemoglobin > 0.47 ? (
-                                    <span className="text-red-500 text-sm">
-                                      Above Reference Range
-                                    </span>
-                                  ) : null
-                                ) : null}
-                              </>
+                            {errorMessage.Hematocrit && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.Hematocrit}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">
@@ -2408,25 +2248,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.Hematology?.LeukocyteCount &&
-                              errorMessage.LeukocyteCount && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.LeukocyteCount}
-                                </p>
-                              )}
-                            {formData.Hematology?.LeukocyteCount && (
-                              <>
-                                {formData.Hematology?.LeukocyteCount < 5.0 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Below Reference Range
-                                  </span>
-                                ) : formData.Hematology?.LeukocyteCount >
-                                  10.0 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Above Reference Range
-                                  </span>
-                                ) : null}
-                              </>
+                            {errorMessage.LeukocyteCount && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.LeukocyteCount}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">5.0 - 10.0 x10^9/L</div>
@@ -2466,28 +2291,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.Hematology?.DifferentialCount
-                              ?.segmenters &&
-                              errorMessage["DifferentialCount.segmenters"] && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage["DifferentialCount.segmenters"]}
-                                </p>
-                              )}
-                            {formData.Hematology?.DifferentialCount
-                              ?.segmenters && (
-                              <>
-                                {formData.Hematology?.DifferentialCount
-                                  ?.segmenters < 0.5 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Below Reference Range
-                                  </span>
-                                ) : formData.Hematology?.DifferentialCount
-                                    ?.segmenters > 0.7 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Above Reference Range
-                                  </span>
-                                ) : null}
-                              </>
+                            {errorMessage["DifferentialCount.segmenters"] && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage["DifferentialCount.segmenters"]}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">0.50 - 0.70</div>
@@ -2523,32 +2330,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.Hematology?.DifferentialCount
-                              ?.lymphocytes &&
-                              errorMessage["DifferentialCount.lymphocytes"] && (
-                                <p className="text-red-500 text-sm">
-                                  {
-                                    errorMessage[
-                                      "DifferentialCount.lymphocytes"
-                                    ]
-                                  }
-                                </p>
-                              )}
-                            {formData.Hematology?.DifferentialCount
-                              ?.lymphocytes && (
-                              <>
-                                {formData.Hematology?.DifferentialCount
-                                  ?.lymphocytes < 0.2 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Below Reference Range
-                                  </span>
-                                ) : formData.Hematology?.DifferentialCount
-                                    ?.lymphocytes > 0.4 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Above Reference Range
-                                  </span>
-                                ) : null}
-                              </>
+                            {errorMessage["DifferentialCount.lymphocytes"] && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage["DifferentialCount.lymphocytes"]}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">0.20 - 0.40</div>
@@ -2584,28 +2369,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.Hematology?.DifferentialCount
-                              ?.monocytes &&
-                              errorMessage["DifferentialCount.monocytes"] && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage["DifferentialCount.monocytes"]}
-                                </p>
-                              )}
-                            {formData.Hematology?.DifferentialCount
-                              ?.monocytes && (
-                              <>
-                                {formData.Hematology?.DifferentialCount
-                                  ?.monocytes < 0.0 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Below Reference Range
-                                  </span>
-                                ) : formData.Hematology?.DifferentialCount
-                                    ?.monocytes > 0.07 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Above Reference Range
-                                  </span>
-                                ) : null}
-                              </>
+                            {errorMessage["DifferentialCount.monocytes"] && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage["DifferentialCount.monocytes"]}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">0.00 - 0.07</div>
@@ -2640,32 +2407,10 @@ function Laboratory() {
                                 )
                               }
                             />
-                            {!formData.Hematology?.DifferentialCount
-                              ?.eosinophils &&
-                              errorMessage["DifferentialCount.eosinophils"] && (
-                                <p className="text-red-500 text-sm">
-                                  {
-                                    errorMessage[
-                                      "DifferentialCount.eosinophils"
-                                    ]
-                                  }
-                                </p>
-                              )}
-                            {formData.Hematology?.DifferentialCount
-                              ?.eosinophils && (
-                              <>
-                                {formData.Hematology?.DifferentialCount
-                                  ?.eosinophils < 0.0 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Below Reference Range
-                                  </span>
-                                ) : formData.Hematology?.DifferentialCount
-                                    ?.eosinophils > 0.05 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Above Reference Range
-                                  </span>
-                                ) : null}
-                              </>
+                            {errorMessage["DifferentialCount.eosinophils"] && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage["DifferentialCount.eosinophils"]}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">0.00 - 0.05</div>
@@ -2701,12 +2446,11 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.Hematology?.basophils &&
-                              errorMessage["DifferentialCount.basophils"] && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage["DifferentialCount.basophils"]}
-                                </p>
-                              )}
+                            {errorMessage["DifferentialCount.basophils"] && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage["DifferentialCount.basophils"]}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1">0.00 - 0.01</div>
 
@@ -2741,12 +2485,11 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.Hematology?.total &&
-                              errorMessage["DifferentialCount.total"] && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage["DifferentialCount.total"]}
-                                </p>
-                              )}
+                            {errorMessage["DifferentialCount.total"] && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage["DifferentialCount.total"]}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1"></div>
 
@@ -2777,24 +2520,10 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.Hematology?.PlateletCount &&
-                              errorMessage.PlateletCount && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.PlateletCount}
-                                </p>
-                              )}
-                            {formData.Hematology?.PlateletCount && (
-                              <>
-                                {formData.Hematology?.PlateletCount < 150 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Below Reference Range
-                                  </span>
-                                ) : formData.Hematology?.PlateletCount > 400 ? (
-                                  <span className="text-red-500 text-sm">
-                                    Above Reference Range
-                                  </span>
-                                ) : null}
-                              </>
+                            {errorMessage.PlateletCount && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.PlateletCount}
+                              </p>
                             )}
                           </div>
                           <div className="col-span-1">150 - 400 x10^9/L</div>
@@ -2822,12 +2551,11 @@ function Laboratory() {
                               }
                               required
                             />
-                            {!formData.Hematology?.others &&
-                              errorMessage.others && (
-                                <p className="text-red-500 text-sm">
-                                  {errorMessage.others}
-                                </p>
-                              )}
+                            {errorMessage.others && (
+                              <p className="text-red-500 text-sm">
+                                {errorMessage.others}
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-1"></div>
                         </div>
@@ -5065,8 +4793,13 @@ function Laboratory() {
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="First Name"
                       className="px-4 py-2 border rounded w-full"
-                      required
+                      
                     />
+                    {OPDerrorMessage.firstname && (
+                      <p className="text-red-500 text-sm col-span-3">
+                        {OPDerrorMessage.firstname}
+                      </p>
+                    )}
                     <input
                       type="text"
                       value={middlename}
@@ -5080,8 +4813,14 @@ function Laboratory() {
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Last Name"
                       className="px-4 py-2 border rounded w-full"
-                      required
+                      
                     />
+                    {OPDerrorMessage.lastname && (
+                      <p className="text-red-500 text-sm col-span-3">
+                        {OPDerrorMessage.lastname}
+                      </p>
+                    )}
+
                   </div>
                 </div>
 
@@ -5093,8 +4832,14 @@ function Laboratory() {
                     value={birthdate}
                     onChange={(e) => setBirthDate(e.target.value)}
                     className="px-4 py-2 border rounded w-full"
-                    required
+                    
                   />
+                  {OPDerrorMessage.birthdate && (
+                    <p className="text-red-500 text-sm">
+                      {OPDerrorMessage.birthdate}
+                    </p>
+                  )}
+                  
                 </div>
 
                 <div className="col-span-1">
@@ -5103,12 +4848,17 @@ function Laboratory() {
                     value={sex}
                     onChange={(e) => setSex(e.target.value)}
                     className="px-4 py-2 border rounded w-full"
-                    required
+                    
                   >
                     <option value="">Select Sex</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                   </select>
+                  {OPDerrorMessage.sex && (
+                    <p className="text-red-500 text-sm">
+                      {OPDerrorMessage.sex}
+                      </p>
+                      )}
                 </div>
 
                 {/* Address */}
@@ -5121,6 +4871,11 @@ function Laboratory() {
                     placeholder="Address"
                     className="px-4 py-2 border rounded w-full"
                   />
+                  {OPDerrorMessage.address && (
+                    <p className="text-red-500 text-sm">
+                      {OPDerrorMessage.address}
+                    </p>
+                  )}
                 </div>
 
                 {/* Phone Number and Email */}
@@ -5134,6 +4889,12 @@ function Laboratory() {
                       placeholder="(000) 000-0000"
                       className="px-4 py-2 border rounded w-full"
                     />
+                    {OPDerrorMessage.phonenumber && (
+                      <p className="text-red-500 text-sm">
+                        {OPDerrorMessage.phonenumber}
+                      </p>
+                    )}
+
                   </div>
 
                   <div>
@@ -5144,8 +4905,13 @@ function Laboratory() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="example@example.com"
                       className="px-4 py-2 border rounded w-full"
-                      required
+                      
                     />
+                    {OPDerrorMessage.email && (
+                      <p className="text-red-500 text-sm">
+                        {OPDerrorMessage.email}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -5159,6 +4925,11 @@ function Laboratory() {
                   className="border rounded-lg w-full p-2 mt-1"
                   placeholder="Enter name of referrer"
                 />
+                {OPDerrorMessage.referredBy && (
+                  <p className="text-red-500 text-sm">
+                    {OPDerrorMessage.referredBy}
+                  </p>
+                )}
               </div>
 
               <div className="flex justify-end mt-4 space-x-3">
@@ -5186,6 +4957,13 @@ function Laboratory() {
             <h2 className="text-lg font-bold mb-4 text-center">
               Laboratory Request Form
             </h2>
+
+            {/* Display Error Message */}
+            {testSelectionError && (
+              <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+                {testSelectionError}
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* I. Blood Chemistry */}
@@ -5537,9 +5315,7 @@ function Laboratory() {
                   <label className="block">
                     <input
                       type="checkbox"
-                      checked={
-                        formReqData.bloodBankingSerology.dengueTest !== ""
-                      }
+                      checked={formReqData.bloodBankingSerology.dengueTest !== ""}
                       onChange={() =>
                         handleReqInputChange(
                           "bloodBankingSerology",
@@ -5553,9 +5329,7 @@ function Laboratory() {
                   <label className="block">
                     <input
                       type="checkbox"
-                      checked={
-                        formReqData.bloodBankingSerology.HIVRapidTest !== ""
-                      }
+                      checked={formReqData.bloodBankingSerology.HIVRapidTest !== ""}
                       onChange={() =>
                         handleReqInputChange(
                           "bloodBankingSerology",
@@ -5596,6 +5370,8 @@ function Laboratory() {
                 </div>
               </div>
             </div>
+
+            {/* Modal Actions */}
             <div className="flex justify-end mt-4 space-x-3">
               <button
                 className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:gray-500 hover:border-gray-500 border transition duration-200"
