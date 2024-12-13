@@ -108,70 +108,64 @@ function Xray() {
   };
 
  
-const handleSubmitResult = async () => {
-  // Ensure selectedRecord exists and has an _id
-  if (!selectedRecord || !selectedRecord._id ) {
-    console.error(
-      "No record selected or selected record doesn't have an _id."
-    );
-    return;
-  }
-  if (!imageFile) {
-    setIsErrorImageModalOpen(true); // Open the error modal
-    return;  // Don't proceed with form submission
-  }
-  // Prepare the form data to send via axios
-  const formDataToSubmit = new FormData();
-  formDataToSubmit.append("ORNumber", formData.ORNumber);
-  formDataToSubmit.append("XrayNo", formData.XrayNo);
-  formDataToSubmit.append("diagnosis", formData.diagnosis);
-  formDataToSubmit.append("xrayFindings", formData.xrayFindings);
-  formDataToSubmit.append("patientId", selectedRecord.patient._id);
-  formDataToSubmit.append("clinicId", selectedRecord.clinicId);
-
-  if (imageFile) {
-    formDataToSubmit.append("imageFile", imageFile); // Append image file if exists
-  }
-
-
-  try {
-    // Step 1: Update the existing X-ray record by ID
-    const updateResponse = await axios.put(
-      `${apiUrl}/api/xrayResults/${selectedRecord._id}`,
-      formDataToSubmit,
-      {
-        headers: {
-          "api-key": api_Key,
-        },
-      }
-    );
-
-    console.log("Response from backend:", updateResponse.data);
-
-    if (updateResponse.data.success) {
-      console.log(
-        "X-ray result submitted successfully:",
-        updateResponse.data.updatedRecord
-      );
-      // Set the confirmation modal state to true
-      setIsResultAdded(true);
-      setIsModalOpen(false);
-      setResult("");
-      setImageFile(null);
-      fetchXrayRecords();
-    } else {
-      console.error(
-        "Failed to update X-ray record:",
-        updateResponse.data.message
-      );
+  const handleSubmitResult = async () => {
+    // Ensure selectedRecord exists and has an _id
+    if (!selectedRecord || !selectedRecord._id) {
+      console.error("No record selected or selected record doesn't have an _id.");
+      return;
     }
-  } catch (error) {
-    console.error(
-      "Error in submission process:",
-      error.response ? error.response.data : error.message
-    );
-  }
-};
+  
+    if (!formData.imageFile) {
+      setIsErrorImageModalOpen(true); // Open the error modal
+      return; // Don't proceed with form submission
+    }
+  
+    // Prepare the data to send via axios
+    const dataToSubmit = {
+      ORNumber: formData.ORNumber,
+      XrayNo: formData.XrayNo,
+      diagnosis: formData.diagnosis,
+      xrayFindings: formData.xrayFindings,
+      patientId: selectedRecord.patient._id,
+      clinicId: selectedRecord.clinicId,
+      imageFile: formData.imageFile, // Cloudinary URL
+    };
+  
+    try {
+      // Update the existing X-ray record by ID
+      const updateResponse = await axios.put(
+        `${apiUrl}/api/xrayResults/${selectedRecord._id}`,
+        dataToSubmit,
+        {
+          headers: {
+            "Content-Type": "application/json", // Ensure JSON is sent
+            "api-key": api_Key,
+          },
+        }
+      );
+  
+      console.log("Response from backend:", updateResponse.data);
+  
+      if (updateResponse.data.success) {
+        console.log("X-ray result submitted successfully:", updateResponse.data.updatedRecord);
+        // Set the confirmation modal state to true
+        setIsResultAdded(true);
+        setIsModalOpen(false);
+        setResult("");
+        setImageFile(null);
+        fetchXrayRecords();
+      } else {
+        console.error("Failed to update X-ray record:", updateResponse.data.message);
+      }
+    } catch (error) {
+      console.error(
+        "Error in submission process:",
+        error.response ? error.response.data : error.message
+      );
+      // Optionally, handle the error (e.g., show a notification to the user)
+    }
+  };
+   
 
 const closeErrorImageModal = () => {
   setIsErrorImageModalOpen(false); // Close the error modal
@@ -185,12 +179,38 @@ const closeErrorImageModal = () => {
     });
   };
 
-  const handleImageChange = (event) => {
+  const handleImageChange = async (event) => {
     const file = event.target.files[0];
-    if (file) {
-      setImageFile(file);  // Store the selected file
-    } else {
-      setImageFile(null);  // Reset the state if no file selected
+    if (!file) return;
+  
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", "cmrms_upload");
+    data.append("cloud_name", "dl9d5rge6");
+  
+    try {
+      const res = await fetch("https://api.cloudinary.com/v1_1/dl9d5rge6/image/upload", {
+        method: "POST",
+        body: data,
+      });
+  
+      if (!res.ok) {
+        throw new Error("Failed to upload image to Cloudinary");
+      }
+  
+      const uploadedImage = await res.json();
+      console.log("Uploaded Image:", uploadedImage.url);
+  
+      setFormData({
+        ...formData,
+        imageFile: uploadedImage.url, // Save the Cloudinary URL to the form data
+      });
+  
+      // Optionally, you can clear the local imageFile state if you have one
+      setImageFile(file); // Assuming you have this state to manage the file
+    } catch (error) {
+      console.error("Error uploading image to Cloudinary:", error);
+      // Optionally, handle the error (e.g., show a notification to the user)
     }
   };
   

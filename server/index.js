@@ -48,6 +48,7 @@ mongoose
   app.use('/accounts',apiKeyMiddleware);
   app.use('/patients',apiKeyMiddleware);
   app.use('/api',apiKeyMiddleware);
+  app.use('/add-patient',apiKeyMiddleware);
 // V A C C I N E   L I S T
 app.post("/api/vaccine-list", async (req, res) => {
   try {
@@ -1545,81 +1546,85 @@ app.get("/api/xrayResults/:patientId", async (req, res) => {
 
 const router = express.Router();
 // Ensure the folder exists or create it
-const xrayResultUploadPath = path.join(__dirname, "./xrayResultUpload");
-if (!fs.existsSync(xrayResultUploadPath)) {
-  fs.mkdirSync(xrayResultUploadPath, { recursive: true }); // Create the folder if it doesn't exist
-}
+// const xrayResultUploadPath = path.join(__dirname, "./xrayResultUpload");
+// if (!fs.existsSync(xrayResultUploadPath)) {
+//   fs.mkdirSync(xrayResultUploadPath, { recursive: true }); // Create the folder if it doesn't exist
+// }
 
-// Multer storage setup
-const storagee = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "./xrayResultUpload/"); // Folder where files will be uploaded
-  },
-  filename: (req, file, cb) => {
-    const originalName = file.originalname;
-    const extension = originalName.split(".").pop(); // Extract the file extension
-    // const filename = ${req.body.XrayNo}_${Date.now()}.${extension};
-    // cb(null, filename);
-    const filename = `${req.body.XrayNo}_${Date.now()}.${extension}`;
-    cb(null, filename);
-  },
+// // Multer storage setup
+// const storagee = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, "./xrayResultUpload/"); // Folder where files will be uploaded
+//   },
+//   filename: (req, file, cb) => {
+//     const originalName = file.originalname;
+//     const extension = originalName.split(".").pop(); // Extract the file extension
+//     // const filename = ${req.body.XrayNo}_${Date.now()}.${extension};
+//     // cb(null, filename);
+//     const filename = `${req.body.XrayNo}_${Date.now()}.${extension}`;
+//     cb(null, filename);
+//   },
+// });
+
+// app.use(
+//   "/xrayResultUpload",
+//   express.static(path.join(__dirname, "xrayResultUpload"))
+// );
+// const uploadd = multer({ storage: storagee });
+
+// Assuming you have required necessary modules and initialized Express app
+
+app.put("/api/xrayResults/:id", async (req, res) => {
+  const { patientId, clinicId, ORNumber, XrayNo, diagnosis, xrayFindings, imageFile } = req.body;
+
+  try {
+    // Validate the incoming data
+    if (!ORNumber || !XrayNo || !patientId || !clinicId) {
+      return res.status(400).json({
+        success: false,
+        message: "Required fields are missing.",
+      });
+    }
+
+    // Find the existing record by ID
+    const existingRecord = await XrayModel.findById(req.params.id);
+    if (!existingRecord) {
+      return res.status(404).json({
+        success: false,
+        message: "No matching record found for the given ID.",
+      });
+    }
+
+    // Update fields
+    existingRecord.ORNumber = ORNumber;
+    existingRecord.XrayNo = XrayNo;
+    existingRecord.diagnosis = diagnosis || existingRecord.diagnosis;
+    existingRecord.xrayFindings = xrayFindings || existingRecord.xrayFindings;
+
+    // Update imageFile with the Cloudinary URL if provided
+    if (imageFile) {
+      existingRecord.imageFile = imageFile;
+    }
+
+    // Set xrayResult to 'done'
+    existingRecord.xrayResult = "done";
+
+    // Save the updated record
+    const updatedXray = await existingRecord.save();
+    console.log("Updated X-ray record:", updatedXray); // Log the updated record
+
+    // Return success and include the imageFile for preview
+    return res.json({
+      success: true,
+      updatedRecord: updatedXray,
+      imageFile: existingRecord.imageFile, // Return the Cloudinary URL for preview
+    });
+  } catch (error) {
+    console.error("Error updating X-ray record:", error);
+    res.status(500).json({ success: false, message: "Error updating X-ray record", error });
+  }
 });
 
-app.use(
-  "/xrayResultUpload",
-  express.static(path.join(__dirname, "xrayResultUpload"))
-);
-const uploadd = multer({ storage: storagee });
-
-// API endpoint to handle PUT request for updating X-ray results
-app.put(
-  "/api/xrayResults/:id",
-  uploadd.single("imageFile"),
-  async (req, res) => {
-    const { patientId, clinicId, ORNumber, XrayNo, diagnosis, xrayFindings } =
-      req.body;
-    const imageFile = req.file ? req.file.filename : ""; // Check if a new file was uploaded
-
-    try {
-      // Find the existing record by ID
-      const existingRecord = await XrayModel.findById(req.params.id);
-      if (!existingRecord) {
-        return res.status(400).json({
-          success: false,
-          message: "No matching record found for the given patient and clinic.",
-        });
-      }
-
-      // Update fields
-      existingRecord.ORNumber = ORNumber; // Update ORNumber here
-      existingRecord.XrayNo = XrayNo;
-      existingRecord.diagnosis = diagnosis || "";
-      existingRecord.xrayFindings = xrayFindings || "";
-      // Only update imageFile if a new image is uploaded
-      if (imageFile) {
-        const imageUrl = `https://cmrms-full.onrender.com/xrayResultUpload/${imageFile}`;
-        existingRecord.imageFile = imageUrl;
-      }
-
-      // Set xrayResult to 'done'
-      existingRecord.xrayResult = "done";
-
-      // Save the updated record
-      const updatedXray = await existingRecord.save();
-      console.log("Updated X-ray record:", updatedXray); // Log the updated record
-
-      // Return success and include the imageFile for preview
-      return res.json({
-        success: true,
-        updatedRecord: updatedXray,
-        imageFile: existingRecord.imageFile, // Return the existing or new image URL for preview
-      });
-    } catch (error) {
-      console.error("Error updating X-ray record:", error);
-      res.status(500).json({ message: "Error updating X-ray record", error });
-    }
-  }
-);
 
 // Endpoint to get X-ray result by ID
 app.get("/api/xrayResults/id/:id", async (req, res) => {

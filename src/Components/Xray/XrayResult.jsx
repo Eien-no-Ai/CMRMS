@@ -33,30 +33,6 @@ function XrayResult() {
     imageFile: "",
   });
 
-  // Utility function to fetch an image as a Base64 string
-  const fetchImageAsBase64 = async (imageUrl) => {
-    try {
-      const response = await axios.get(imageUrl, { responseType: 'blob' });
-      const blob = response.data;
-
-      const reader = new FileReader();
-
-      const base64ImagePromise = new Promise((resolve, reject) => {
-        reader.onloadend = () => {
-          resolve(reader.result); // Base64 string
-        };
-        reader.onerror = reject;
-      });
-
-      reader.readAsDataURL(blob);
-
-      return await base64ImagePromise;
-    } catch (error) {
-      console.error("Error fetching image as base64:", error);
-      return null;
-    }
-  };
-
   const fetchXrayRecords = useCallback(async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/xrayResults`, {
@@ -115,19 +91,6 @@ function XrayResult() {
     setIsImageLoading(true);
     setImageError(null);
 
-    let base64Image = "";
-
-    if (record.imageFile) {
-      try {
-        base64Image = await fetchImageAsBase64(record.imageFile);
-        if (!base64Image) {
-          throw new Error("Failed to fetch image.");
-        }
-      } catch (error) {
-        setImageError("Unable to load image.");
-      }
-    }
-
     setFormData({
       ORNumber: record.ORNumber || "",
       XrayNo: record.XrayNo || "", // Use record's XrayNo if available
@@ -139,8 +102,10 @@ function XrayResult() {
       patientType: record.patient.patientType,
       diagnosis: record.diagnosis || "", // If there's an existing diagnosis
       xrayFindings: record.xrayFindings || "", // If there's an existing xrayFindings
-      imageFile: base64Image || "", // Use Base64 image
+      imageFile: record.imageFile || "", // Use Base64 image
     });
+    console.log("Selected record:", record);
+
     setIsImageLoading(false);
     setIsModalOpen(true); // Open the modal
   };
