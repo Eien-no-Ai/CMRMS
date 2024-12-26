@@ -286,86 +286,52 @@ function PhysicalTherapy() {
   }, []);
   const [selectedSummaries, setSelectedSummaries] = useState([]);
 
-  // Handle checkbox change for individual summary selection
-  const handleCheckboxChange = (summaryId) => {
-    setSelectedSummaries(
-      (prevSelected) =>
-        prevSelected.includes(summaryId)
-          ? prevSelected.filter((id) => id !== summaryId) // Unselect if already selected
-          : [...prevSelected, summaryId] // Select if not selected
-    );
-  };
+  // Handle individual verification
+  const handleVerify = async (recordId, entryId, index) => {
+    // Ensure all previous summaries are verified
+    const allPreviousVerified = selectedRecord.SOAPSummaries
+      .slice(0, index)
+      .every((entry) => entry.verifiedBy);
 
-  // Handle "Select All" functionality
-  const handleSelectAll = () => {
-    if (selectedSummaries.length === selectedRecord?.SOAPSummaries?.length) {
-      // If all are already selected, unselect all
-      setSelectedSummaries([]);
-    } else {
-      // Select all summaries
-      const allSummaryIds = selectedRecord?.SOAPSummaries?.map(
-        (entry) => entry._id
-      );
-      setSelectedSummaries(allSummaryIds);
-    }
-  };
-
-  const handleBatchVerify = async () => {
-    if (selectedSummaries.length === 0) {
-      console.error("Please select at least one SOAP summary to verify.");
+    if (!allPreviousVerified) {
+      alert('Please verify all previous SOAP summaries before verifying this one.');
       return;
     }
 
     try {
-      // Create a copy of the current SOAP summaries to update
-      const updatedSOAPSummaries = [...selectedRecord.SOAPSummaries];
-
-      // Loop through each selected summary and verify it
-      for (const summaryId of selectedSummaries) {
-        const entry = selectedRecord.SOAPSummaries.find(
-          (entry) => entry._id === summaryId
-        );
-        if (entry) {
-          const response = await axios.put(
-            `${apiUrl}/api/physicalTherapyVerification/${selectedRecord._id}/soapSummary/${summaryId}`,
-            {
-              updatedSOAPSummary: {
-                firstname: userData.firstname,
-                lastname: userData.lastname,
-              },
-            },
-            {
-              headers: {
-                "api-key": api_Key,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            // Update the verifiedBy field for the selected entry
-            const index = updatedSOAPSummaries.findIndex(
-              (item) => item._id === entry._id
-            );
-            if (index !== -1) {
-              updatedSOAPSummaries[index] = {
-                ...updatedSOAPSummaries[index],
-                verifiedBy: `${userData.firstname} ${userData.lastname}`,
-              };
-            }
-          }
+      const response = await axios.put(
+        `${apiUrl}/api/physicalTherapyVerification/${recordId}/soapSummary/${entryId}`,
+        {
+          updatedSOAPSummary: {
+            firstname: userData.firstname,
+            lastname: userData.lastname,
+          },
+        },
+        {
+          headers: {
+            'api-key': api_Key,
+          },
         }
-      }
-
-      // After all summaries have been processed, update the selectedRecord state
-      fetchPhysicalTherapyRecords();
-      setSelectedRecord({
-        ...selectedRecord,
-        SOAPSummaries: updatedSOAPSummaries,
+      );
+      setSelectedRecord((prevRecord) => {
+        const updatedSummaries = [...prevRecord.SOAPSummaries];
+        updatedSummaries[index] = {
+          ...updatedSummaries[index],
+          verifiedBy: `${userData.firstname} ${userData.lastname}`,
+        };
+        return {
+          ...prevRecord,
+          SOAPSummaries: updatedSummaries,
+        };
       });
-
-      console.log("All selected SOAP summaries verified successfully.");
+      if (response.status === 200) {
+        // Update the selectedRecord state with the verified summary
+        fetchPhysicalTherapyRecords();
+        alert('SOAP summary verified successfully.');
+          
+      }
     } catch (error) {
-      console.error("Error verifying SOAP summaries:", error.response || error);
+      console.error('Error verifying SOAP summary:', error.response || error);
     }
   };
 
@@ -804,275 +770,251 @@ function PhysicalTherapy() {
           </div>
         )}
         {/* View Record Modal */}
-        {isViewRecordModalOpen && selectedRecord && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
-              <h2 className="text-xl font-semibold mb-4">Record Details</h2>
+      {/* View Record Modal */}
+      {isViewRecordModalOpen && selectedRecord && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white py-4 px-6 rounded-lg w-4/5 h-4/5 shadow-lg max-w-5xl overflow-y-auto flex flex-col relative">
+            <h2 className="text-xl font-semibold mb-4">Record Details</h2>
 
-              {/* Main Form Content */}
-              <div className="flex-grow flex flex-col mb-4">
-                <form className="flex flex-row items-start gap-4">
-                  {/* X-ray Result Image - Left Side */}
-                  <div className="w-1/2">
-                    <label className="block text-gray-700">X-ray Result</label>
-                    <img
-                      src={selectedRecord.record}
-                      alt="X-ray"
-                      className="w-full h-auto object-contain max-h-[70vh]"
-                    />
-                  </div>
-
-                  <div className="w-1/2">
-                    {/* Name, Age, and Sex */}
-                    <div className="flex mb-4">
-                      <div className="w-1/2 mr-2">
-                        <label className="block text-gray-700">Name</label>
-                        <input
-                          type="text"
-                          name="name"
-                          className="w-full px-3 py-2 border rounded bg-gray-100"
-                          value={`${selectedRecord.patient?.lastname}, ${selectedRecord.patient?.firstname} `}
-                        />
-                      </div>
-                      <div className="w-1/4 mr-2">
-                        <label className="block text-gray-700">Age</label>
-                        <input
-                          type="text"
-                          name="age"
-                          className="w-full px-3 py-2 border rounded bg-gray-100"
-                        />
-                      </div>
-                      <div className="w-1/4">
-                        <label className="block text-gray-700">Sex</label>
-                        <input
-                          type="text"
-                          name="sex"
-                          className="w-full px-3 py-2 border rounded bg-gray-100"
-                          value={selectedRecord.patient?.sex}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Course/Dept. or Position */}
-                    <div className="mb-4">
-                      <label className="block text-gray-700">
-                        Tentative Diagnosis
-                      </label>
-                      <input
-                        type="text"
-                        name="courseDept"
-                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                        value={selectedRecord.Diagnosis}
-                      />
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-gray-700">
-                        History of Present Illness
-                      </label>
-                      <input
-                        type="text"
-                        name="courseDept"
-                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                        value={selectedRecord.HistoryOfPresentIllness}
-                      />
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-gray-700">
-                        Chief Complaints
-                      </label>
-                      <input
-                        type="text"
-                        name="courseDept"
-                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                        value={selectedRecord.ChiefComplaints}
-                      />
-                    </div>
-                  </div>
-                </form>
-                <div className="mb-4">
-                  <label className="block text-gray-700">Referred By:</label>
-                  <input
-                    type="text"
-                    name="chiefcomplaints"
-                    value={selectedRecord.referredBy}
-                    readOnly
-                    className="w-full px-3 py-2 border rounded bg-gray-100"
+            {/* Main Form Content */}
+            <div className="flex-grow flex flex-col mb-4">
+              <form className="flex flex-row items-start gap-4">
+                {/* X-ray Result Image - Left Side */}
+                <div className="w-1/2">
+                  <label className="block text-gray-700">X-ray Result</label>
+                  <img
+                    src={selectedRecord.record}
+                    alt="X-ray"
+                    className="w-full h-auto object-contain max-h-[70vh]"
                   />
                 </div>
 
-                {/* SOAP Summary List */}
-                <div className="mt-4 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700">
-                            SOAP Summary
-                          </h3>
-                  {selectedRecord?.SOAPSummaries?.map((entry) => (
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <div>
-                          
-                          {/* Date */}
-                          <p className="text-sm text-gray-500 mb-2">
-                            Date: {new Date(entry.date).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div>
-                          {entry.verifiedBy ? (
-                            <span className="text-green-500 text-sm">
-                              Verified by {entry.verifiedBy}
-                            </span>
-                          ) : (
-                            userRole !== "special trainee" &&
-                            editingEntryId !== entry._id && (
-                              <button
-                                type="button"
-                                className="bg-custom-red text-white px-3 py-1 rounded-md text-sm"
-                                onClick={() =>
-                                  handleEdit(entry._id, entry.summary)
-                                }
-                              >
-                                Edit
-                              </button>
-                            )
-                          )}
-
-                          {/* Edit and Cancel Buttons (Visible in Edit Mode) */}
-                          {editingEntryId === entry._id && (
-                            <div className="flex justify-end space-x-2">
-                              <button
-                                className="bg-green-500 text-white px-3 py-1 rounded-md text-sm"
-                                onClick={() =>
-                                  handleSaveEdit(selectedRecord._id, entry._id)
-                                }
-                              >
-                                Save
-                              </button>
-                              <button
-                                className="bg-gray-500 text-white px-3 py-1 rounded-md text-sm"
-                                onClick={() => setEditingEntryId(null)}
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div key={entry._id} className="flex flex-col relative">
-                        {/* SOAP Summary Content */}
-                        <div>
-                          {editingEntryId === entry._id ? (
-                            <textarea
-                              value={editSummary}
-                              onChange={(e) => setEditSummary(e.target.value)}
-                              rows="4"
-                              placeholder="Edit SOAP Summary"
-                              className="w-full p-4"
-                            />
-                          ) : (
-                            <textarea
-                              value={entry.summary}
-                              rows="4"
-                              placeholder="Edit SOAP Summary"
-                              className="w-full p-4"
-                            />
-                          )}
-                        </div>
-
-                        {/* Verification Checkbox (If Applicable) */}
-                        {!entry.verifiedBy &&
-                          userRole !== "special trainee" &&
-                          editingEntryId !== entry._id && ( // Added condition to hide during editing
-                            <div className="absolute top-4 right-4">
-                              <input
-                                type="checkbox"
-                                checked={selectedSummaries.includes(entry._id)}
-                                onChange={() => handleCheckboxChange(entry._id)}
-                                className="mr-2"
-                              />
-                            </div>
-                          )}
-                      </div>
+                <div className="w-1/2">
+                  {/* Name, Age, and Sex */}
+                  <div className="flex mb-4">
+                    <div className="w-1/2 mr-2">
+                      <label className="block text-gray-700">Name</label>
+                      <input
+                        type="text"
+                        name="name"
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                        value={`${selectedRecord.patient?.lastname}, ${selectedRecord.patient?.firstname} `}
+                        readOnly
+                      />
                     </div>
-                  ))}
+                    <div className="w-1/4 mr-2">
+                      <label className="block text-gray-700">Age</label>
+                      <input
+                        type="text"
+                        name="age"
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                        value={selectedRecord.patient?.age || ''}
+                        readOnly
+                      />
+                    </div>
+                    <div className="w-1/4">
+                      <label className="block text-gray-700">Sex</label>
+                      <input
+                        type="text"
+                        name="sex"
+                        className="w-full px-3 py-2 border rounded bg-gray-100"
+                        value={selectedRecord.patient?.sex}
+                        readOnly
+                      />
+                    </div>
+                  </div>
 
-                 
+                  {/* Tentative Diagnosis */}
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Tentative Diagnosis</label>
+                    <input
+                      type="text"
+                      name="diagnosis"
+                      className="w-full px-3 py-2 border rounded bg-gray-100"
+                      value={selectedRecord.Diagnosis}
+                      readOnly
+                    />
+                  </div>
+
+                  {/* History of Present Illness */}
+                  <div className="mb-4">
+                    <label className="block text-gray-700">History of Present Illness</label>
+                    <input
+                      type="text"
+                      name="history"
+                      className="w-full px-3 py-2 border rounded bg-gray-100"
+                      value={selectedRecord.HistoryOfPresentIllness}
+                      readOnly
+                    />
+                  </div>
+
+                  {/* Chief Complaints */}
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Chief Complaints</label>
+                    <input
+                      type="text"
+                      name="chiefComplaints"
+                      className="w-full px-3 py-2 border rounded bg-gray-100"
+                      value={selectedRecord.ChiefComplaints}
+                      readOnly
+                    />
+                  </div>
                 </div>
+              </form>
+              <div className="mb-4">
+                <label className="block text-gray-700">Referred By:</label>
+                <input
+                  type="text"
+                  name="referredBy"
+                  value={selectedRecord.referredBy}
+                  readOnly
+                  className="w-full px-3 py-2 border rounded bg-gray-100"
+                />
               </div>
 
-              <div className="flex justify-between mt-4">
-                <div className="flex-1 text-left">
-                   {selectedRecord?.SOAPSummaries?.length > 0 &&
-                    !selectedRecord.SOAPSummaries.every(
-                      (entry) => entry.verifiedBy
-                    ) && (
-                      <button
-                        onClick={handleSelectAll}
-                        className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                      >
-                        Select All
-                      </button>
-                    )}
-                  {selectedRecord.SOAPSummaries?.length > 0 &&
-                    selectedRecord.SOAPSummaries.every(
-                      (entry) => entry.verifiedBy
-                    ) && (
-                      <button
-                        className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                        onClick={() => {
-                          handleOpenPTCertificate(
-                            selectedRecord,
-                            newTherapyRecord
-                          );
-                        }}
-                      >
-                        Print SOAP Summary
-                      </button>
-                    )}
-                </div>
-                <PTCertificate
-                  isOpen={isPTCertificateOpen}
-                  onClose={handleClosePTCertificate}
-                  selectedRecord={selectedRecord}
-                  newTherapyRecord={newTherapyRecord}
-                />
+              {/* SOAP Summary List */}
+              <div className="mt-4 space-y-4">
+                <h3 className="text-lg font-semibold text-gray-700">SOAP Summary</h3>
+                <strong><i><p>*Verify SOAP Summaries from the first added to the latest </p></i></strong>
+                {selectedRecord?.SOAPSummaries?.map((entry, index) => (
+                  <div key={entry._id} className="flex flex-col relative p-4 border rounded">
+                    <div className="flex justify-between items-center mb-2">
+                      <div>
+                        {/* Date */}
+                        <p className="text-sm text-gray-500 mb-2">
+                          Date: {new Date(entry.date).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div>
+                        {entry.verifiedBy ? (
+                          <span className="text-green-500 text-sm">
+                            Verified by {entry.verifiedBy}
+                          </span>
+                        ) : (
+                          userRole !== 'special trainee' &&
+                          editingEntryId !== entry._id && (
+                            <button
+                              type="button"
+                              className="bg-custom-red text-white px-3 py-1 rounded-md text-sm mr-2"
+                              onClick={() => handleEdit(entry._id, entry.summary)}
+                            >
+                              Edit
+                            </button>
+                          )
+                        )}
 
-                {/* Right-aligned "Close" and "Verify" buttons */}
-                <div className="flex items-center space-x-2 text-right">
-                  <button
-                        className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                        onClick={closeViewRecordModal}
-                  >
-                    Close
-                  </button>
+                        {/* Edit and Cancel Buttons (Visible in Edit Mode) */}
+                        {editingEntryId === entry._id && (
+                          <div className="flex justify-end space-x-2">
+                            <button
+                              className="bg-green-500 text-white px-3 py-1 rounded-md text-sm"
+                              onClick={() =>
+                                handleSaveEdit(selectedRecord._id, entry._id)
+                              }
+                            >
+                              Save
+                            </button>
+                            <button
+                              className="bg-gray-500 text-white px-3 py-1 rounded-md text-sm"
+                              onClick={() => setEditingEntryId(null)}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
-                  {selectedRecord?.SOAPSummaries?.some(
-                    (entry) => !entry.verifiedBy
+                    {/* SOAP Summary Content */}
+                    <div>
+                      {editingEntryId === entry._id ? (
+                        <textarea
+                          value={editSummary}
+                          onChange={(e) => setEditSummary(e.target.value)}
+                          rows="4"
+                          placeholder="Edit SOAP Summary"
+                          className="w-full p-4 border rounded"
+                        />
+                      ) : (
+                        <textarea
+                          value={entry.summary}
+                          rows="4"
+                          placeholder="SOAP Summary"
+                          className="w-full p-4 border rounded"
+                          readOnly
+                        />
+                      )}
+                    </div>
+
+                    {/* Verify Button */}
+                    {!entry.verifiedBy && userRole !== 'special trainee' && (
+                      <div className="mt-2 flex justify-end">
+                        <button
+                          className={`${
+                            selectedRecord.SOAPSummaries
+                              .slice(0, index)
+                              .every((prevEntry) => prevEntry.verifiedBy)
+                              ? 'bg-custom-red hover:bg-red-600'
+                              : 'bg-gray-300 cursor-not-allowed'
+                          } text-white py-1 px-3 rounded-md text-sm`}
+                          onClick={() =>
+                            handleVerify(selectedRecord._id, entry._id, index)
+                          }
+                          disabled={
+                            !selectedRecord.SOAPSummaries
+                              .slice(0, index)
+                              .every((prevEntry) => prevEntry.verifiedBy)
+                          }
+                        >
+                          Verify
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-between mt-4">
+              <div className="flex-1 text-left">
+                {selectedRecord?.SOAPSummaries?.length > 0 &&
+                  selectedRecord.SOAPSummaries.every(
+                    (entry) => entry.verifiedBy
                   ) && (
                     <button
-                    className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                    onClick={() => {
-                        // Handle verify for all non-verified entries
-                        selectedRecord?.SOAPSummaries.forEach((entry) => {
-                          if (!entry.verifiedBy) {
-                            handleBatchVerify(
-                              selectedRecord._id,
-                              entry._id,
-                              entry
-                            );
-                          }
-                        });
+                      className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                      onClick={() => {
+                        handleOpenPTCertificate(
+                          selectedRecord,
+                          newTherapyRecord
+                        );
                       }}
                     >
-                      Verify
+                      Print SOAP Summary
                     </button>
                   )}
-                </div>
+              </div>
+              <PTCertificate
+                isOpen={isPTCertificateOpen}
+                onClose={handleClosePTCertificate}
+                selectedRecord={selectedRecord}
+                newTherapyRecord={newTherapyRecord}
+              />
+
+              {/* Right-aligned "Close" button */}
+              <div className="flex items-center space-x-2 text-right">
+                <button
+                  className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+                  onClick={closeViewRecordModal}
+                >
+                  Close
+                </button>
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
+      
         {/* Verification Success Modal */}
         {isVerificationSuccess && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
