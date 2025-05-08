@@ -347,8 +347,8 @@ function LaboratoryPathologistVerification() {
               <table className="min-w-full">
                 <thead>
                   <tr className="text-left text-gray-600">
-                    <th className="py-3 w-1/4">Patient Info</th>
-                    <th className="py-3 w-1/4">Lab Test Req</th>
+                    <th className="py-3 w-1/4">Patient Infos</th>
+                    <th className="py-3 w-1/4">Lab Test Reqs</th>
                     <th className="py-3 w-1/4">Status</th>
                     <th className="py-3 w-1/12"></th>
                   </tr>
