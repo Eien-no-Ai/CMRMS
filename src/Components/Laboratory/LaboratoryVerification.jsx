@@ -60,6 +60,19 @@ const hasNonEmptyTest = (test) => {
   });
 };
 
+
+const openModal = async (laboratoryId) => {
+  console.log("🧪 Requesting result for laboratoryId:", laboratoryId);
+  const result = await fetchLabResultByRequestId(laboratoryId);
+  if (result) {
+    setLabDetails(result); // assumes you use this to populate modal content
+    setIsModalOpen(true);
+  } else {
+    console.error("❌ Failed to fetch lab result — modal will not open");
+  }
+};
+
+
 const fetchLabResultByRequestId = async (laboratoryId) => {
   try {
     const response = await axios.get(
@@ -68,18 +81,12 @@ const fetchLabResultByRequestId = async (laboratoryId) => {
     console.log("✅ Lab Result fetched:", response.data);
     return response.data;
   } catch (error) {
-    console.error("❌ Error fetching lab result:", error.response?.data || error);
+    console.error(
+      "❌ Error fetching lab result:",
+      error.response?.data || error.message || error
+    );
     return null;
   }
-};
-
-
-
-const openModal = async (laboratoryId) => {
-  const result = await fetchLabResultByRequestId(laboratoryId);
-  console.log("📄 Lab result fetched:", result);
-  setLabDetails(result);      // ✅ update correct state
-  setIsModalOpen(true);       // ✅ open modal
 };
 
 

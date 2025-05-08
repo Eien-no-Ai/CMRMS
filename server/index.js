@@ -16,6 +16,8 @@ const VaccineModel = require("./models/Vaccine"); // Path to your vaccine routes
 const PhysicalExamStudentModel = require("./models/PhysicalExamStudent");
 const VaccineListModel = require("./models/VaccineList");
 const AnnualCheckUp = require("./models/AnnualCheckUp");
+const LaboratoryListModel = require("./models/LaboratoryList");
+
 
 
 const app = express();
@@ -659,11 +661,8 @@ app.post("/api/laboratory-results", async (req, res) => {
     labNumber,
     patient,
     clinicId,
-    laboratoryId, // Accept laboratoryId in the request
-    bloodChemistry,
-    Hematology,
-    clinicalMicroscopyParasitology,
-    bloodBankingSerology,
+    laboratoryId,
+    results, // ✅ Accept dynamic, flexible results
   } = req.body;
 
   try {
@@ -672,11 +671,8 @@ app.post("/api/laboratory-results", async (req, res) => {
       labNumber,
       patient,
       clinicId,
-      laboratoryId, // Save laboratoryId in the database
-      bloodChemistry,
-      Hematology,
-      clinicalMicroscopyParasitology,
-      bloodBankingSerology,
+      laboratoryId,
+      results, // ✅ Save as-is
     });
 
     res.json({
@@ -684,31 +680,30 @@ app.post("/api/laboratory-results", async (req, res) => {
       labResults,
     });
   } catch (error) {
-    console.error("Error saving laboratory results:", error);
+    console.error("❌ Error saving laboratory results:", error);
     res.status(500).json({ message: "Error saving laboratory results", error });
   }
 });
 
-// Endpoint to get lab results by ID
-app.get("/api/laboratory-results/:id", async (req, res) => {
+
+// ✅ Working route to get lab result by laboratory request ID
+router.get("/api/laboratory-results/by-request/:id", async (req, res) => {
   const { id } = req.params;
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: "Invalid ID format" });
-  }
 
   try {
-    const labResult = await LaboratoryResultsModel.findById(id);
-    if (!labResult) {
-      return res.status(404).json({ message: "Laboratory result not found" });
+    const result = await LaboratoryResults.findOne({ laboratoryId: id }).populate("patient");
+
+    if (!result) {
+      return res.status(404).json({ error: "Lab result not found for this laboratoryId" });
     }
-    res.json(labResult);
+
+    return res.json(result);
   } catch (error) {
-    console.error("Error fetching laboratory result:", error);
-    res
-      .status(500)
-      .json({ message: "Error fetching laboratory result", error });
+    console.error("❌ Error fetching lab result:", error);
+    res.status(500).json({ error: "Server error" });
   }
 });
+
 
 // Endpoint to get lab result by laboratory request ID
 app.get(
@@ -1802,6 +1797,62 @@ app.get("/api/annual-check-up/:packageNumber/:patientId", async (req, res) => {
     });
   }
 });
+
+
+// L A B O R A T O R Y   T E S T   L I S T
+app.post("/api/laboratorytest-list", async (req, res) => {
+  try {
+    const newLaboratoryTest = await LaboratoryListModel.create(req.body);
+    res.status(201).json(newLaboratoryTest);
+  } catch (error) {
+    res.status(500).json({ message: "Error adding laboratory test to list", error });
+  }
+});
+
+app.get("/api/laboratorytest-list", async (req, res) => {
+  try {
+    const laboratorytests = await LaboratoryListModel.find();
+    res.json(laboratorytests);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching laboratory test", error });
+  }
+});
+
+app.delete("/api/laboratorytest-list/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deletedLaboratoryTest = await LaboratoryListModel.findByIdAndDelete(id);
+    if (!deletedLaboratoryTest) {
+      return res.status(404).json({ message: "Laboratory Test not found" });
+    }
+    res.json({ message: "Laboratory test deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting laboratory test", error });
+  }
+});
+
+app.put("/api/laboratorytest-list/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
+
+    const updatedLaboratoryTest = await LaboratoryListModel.findByIdAndUpdate(
+      id,
+      req.body,  // Body contains the updated data
+      { new: true, runValidators: true } // Return the updated test object
+    );
+    if (!updatedLaboratoryTest) {
+      return res.status(404).json({ message: "Laboratory Test not found" });
+    }
+    res.json(updatedLaboratoryTest); // Return the updated test
+  } catch (error) {
+    console.error("Error updating laboratory test:", error.stack);
+    res.status(500).json({ message: "Error updating laboratory test", error });
+  }
+});
+
 
 
 //console log
