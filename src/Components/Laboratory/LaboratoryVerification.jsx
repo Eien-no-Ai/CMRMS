@@ -46,71 +46,87 @@ function LaboratoryVerification() {
       });
   };
 
-  // Fetch lab result by laboratory request ID
-  const fetchLabResultByRequestId = async (laboratoryId) => {
-    try {
-      const response = await axios.get(
-        `http://localhost:3001/api/laboratory-results/by-request/${laboratoryId}`
-      );
-      if (response.status === 200 && response.data) {
-        setLabDetails(response.data); // Set lab details
-
-        // Determine requested categories
-        const categories = [];
-
-        if (
-          response.data.bloodChemistry &&
-          hasNonEmptyFields(response.data.bloodChemistry)
-        ) {
-          categories.push("Blood Chemistry");
-        }
-
-        if (
-          response.data.Hematology &&
-          hasNonEmptyFields(response.data.Hematology)
-        ) {
-          categories.push("Hematology");
-        }
-
-        if (
-          response.data.clinicalMicroscopyParasitology &&
-          hasNonEmptyFields(response.data.clinicalMicroscopyParasitology)
-        ) {
-          categories.push("Clinical Microscopy and Parasitology");
-        }
-
-        if (
-          response.data.bloodBankingSerology &&
-          hasNonEmptyFields(response.data.bloodBankingSerology)
-        ) {
-          categories.push("Serology");
-        }
-
-        setRequestedCategories(categories);
-
-        // Set visibility states
-        setIsBloodChemistryVisible(categories.includes("Blood Chemistry"));
-        setHematologyVisible(categories.includes("Hematology"));
-        setClinicalMicroscopyVisible(
-          categories.includes("Clinical Microscopy and Parasitology")
-        );
-        setSerologyVisible(categories.includes("Serology"));
-
-        setIsModalOpen(true); // Open the modal
-      } else {
-        alert("No laboratory result found for this request ID.");
-      }
-    } catch (error) {
-      console.error("Error fetching laboratory result by request ID:", error);
-      alert(
-        "Failed to load laboratory result. Please check the request ID and try again."
+// Helper to check if a test has any filled result or subfields
+const hasNonEmptyTest = (test) => {
+  if (!test || typeof test !== "object") return false;
+  return Object.values(test).some((value) => {
+    if (typeof value === "string") return value.trim() !== "";
+    if (typeof value === "object") {
+      return Object.values(value).some(
+        (subValue) => typeof subValue === "string" && subValue.trim() !== ""
       );
     }
-  };
+    return false;
+  });
+};
 
-  const openModal = (laboratoryId) => {
-    fetchLabResultByRequestId(laboratoryId);
-  };
+const fetchLabResultByRequestId = async (laboratoryId) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:3001/api/laboratory-results/by-request/${laboratoryId}`
+    );
+    console.log("✅ Lab Result fetched:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error fetching lab result:", error.response?.data || error);
+    return null;
+  }
+};
+
+
+
+// const openModal = async (laboratoryId) => {
+//   const result = await fetchLabResultByRequestId(laboratoryId);
+//   console.log("📄 Lab result fetched:", result);
+//   setLabDetails(result);      // ✅ update correct state
+//   setIsModalOpen(true);       // ✅ open modal
+// };
+
+const openModal = async (laboratoryId) => {
+  const result = await fetchLabResultByRequestId(laboratoryId);
+  console.log("📄 Lab result fetched:", result);
+
+  const transformedTestResults = result.results?.reduce((acc, item) => {
+    if (!acc[item.category]) acc[item.category] = {};
+
+    const testEntry = {};
+
+    // If result is an object (not just a string), extract fields
+    if (typeof item.result === "object" && item.result !== null) {
+      for (const [key, val] of Object.entries(item.result)) {
+        if (key === "result") {
+          testEntry.result = val;
+        } else {
+          testEntry[key] = val;
+        }
+      }
+    } else {
+      testEntry.result = item.result;
+    }
+
+    testEntry.referenceRange = item.referenceRange || "";
+
+    // Handle additional subtests
+    if (item.additionalTests?.length) {
+      item.additionalTests.forEach((sub) => {
+        testEntry[sub.testName] = sub.result;
+        if (sub.referenceRange && !testEntry.referenceRange) {
+          testEntry.referenceRange = sub.referenceRange;
+        }
+      });
+    }
+
+    acc[item.category][item.testName] = testEntry;
+    return acc;
+  }, {}) || {};
+
+  setLabDetails({
+    ...result,
+    testResults: transformedTestResults,
+  });
+
+  setIsModalOpen(true);
+};
 
   const closeModal = () => {
     setLabDetails(null);
@@ -207,81 +223,138 @@ function LaboratoryVerification() {
     }
   };
 
-  // Verify button handler
-  const verifyLabResult = async () => {
-    if (!labDetails) {
-      alert("Lab details not found. Unable to verify.");
-      return;
-    }
+// const verifyLabResult = async () => {
+//   if (!labDetails || !labDetails.testResults) {
+//     alert("Lab details not found. Unable to verify.");
+//     return;
+//   }
 
-    const employeeId = localStorage.getItem("userId"); // Get the employee ID (assuming logged-in user is the verifier)
+//   const employeeId = localStorage.getItem("userId");
 
-    // Prepare the updated data for LaboratoryResultsModel
-    const updatedLabResultData = {
-      bloodChemistry: {
-        ...labDetails.bloodChemistry,
-        signature: labDetails.bloodChemistry?.signature,
-      },
-      Hematology: {
-        ...labDetails.Hematology,
-        signature: hematologySignatureUrl || labDetails.Hematology?.signature, // Fallback to existing signature if not updated
-      },
-      clinicalMicroscopyParasitology: {
-        ...labDetails.clinicalMicroscopyParasitology,
-        signature:
-          clinicalMicroscopySignatureUrl ||
-          labDetails.clinicalMicroscopyParasitology?.signature,
-      },
-      bloodBankingSerology: {
-        ...labDetails.bloodBankingSerology,
-        signature:
-          serologySignatureUrl || labDetails.bloodBankingSerology?.signature,
-      },
-      pathologistSignature:
-        pathologistSignatureUrl || labDetails.pathologistSignature, // Add pathologist's signature with fallback
-      verifiedBy: employeeId, // Add the employee ID who verified the result
-      verificationDate: new Date(), // Track when it was verified
+//   // Prepare updated testResults object
+//   const updatedTestResults = {};
+
+//   for (const [category, tests] of Object.entries(labDetails.testResults)) {
+//     updatedTestResults[category] = {
+//       ...tests,
+//       signature: (category === "Hematology" && hematologySignatureUrl) ||
+//                  (category === "clinicalMicroscopyParasitology" && clinicalMicroscopySignatureUrl) ||
+//                  (category === "bloodBankingSerology" && serologySignatureUrl) ||
+//                  tests.signature || null
+//     };
+//   }
+
+//   const updatedLabResultData = {
+//     testResults: updatedTestResults,
+//     pathologistSignature: pathologistSignatureUrl || labDetails.pathologistSignature || null,
+//     verifiedBy: employeeId,
+//     verificationDate: new Date(),
+//   };
+
+//   console.log("Updated Data for verification:", updatedLabResultData);
+
+//   try {
+//     // First, update the LaboratoryResultsModel
+//     const response = await axios.put(
+//       `http://localhost:3001/api/laboratory-results/update/${labDetails._id}`,
+//       updatedLabResultData
+//     );
+
+//     console.log("Response from LaboratoryResults API:", response.data);
+
+//     if (response.status === 200) {
+//       // Second, update lab status
+//       const labUpdateResponse = await axios.put(
+//         `http://localhost:3001/api/laboratory/${labDetails.laboratoryId}`,
+//         { labResult: "vefiried" }
+//       );
+
+//       console.log("Response from Laboratory API:", labUpdateResponse.data);
+
+//       if (labUpdateResponse.status === 200) {
+//         alert("Lab result successfully verified and marked as complete.");
+//         console.log("Verification successful!");
+//         setIsModalOpen(false);
+//         fetchLabRecords();
+//         fetchVerifiedByEmployee(employeeId);
+//       } else {
+//         alert("Failed to update lab result status.");
+//       }
+//     } else {
+//       alert("Failed to verify the lab result.");
+//     }
+//   } catch (error) {
+//     console.error("Error verifying lab result:", error);
+//     alert("An error occurred during verification.");
+//   }
+// };
+
+const verifyLabResult = async () => {
+  if (!labDetails || !labDetails.testResults) {
+    alert("Lab details not found. Unable to verify.");
+    return;
+  }
+
+  const employeeId = localStorage.getItem("userId");
+
+  // Prepare updated testResults object
+  const updatedTestResults = {};
+
+  for (const [category, tests] of Object.entries(labDetails.testResults)) {
+    updatedTestResults[category] = {
+      ...tests,
+      signature:
+        (category === "Hematology" && hematologySignatureUrl) ||
+        (category === "clinicalMicroscopyParasitology" && clinicalMicroscopySignatureUrl) ||
+        (category === "bloodBankingSerology" && serologySignatureUrl) ||
+        tests.signature || null,
     };
+  }
 
-    // Debugging to see the updated data before the API call
-    console.log("Updated Data for verification:", updatedLabResultData);
+  const updatedLabResultData = {
+    testResults: updatedTestResults,
+    pathologistSignature: pathologistSignatureUrl || labDetails.pathologistSignature || null,
+    verifiedBy: employeeId,
+    verificationDate: new Date(),
+  };
 
-    try {
-      // First, update the laboratory results (in LaboratoryResultsModel)
-      const response = await axios.put(
-        `http://localhost:3001/api/laboratory-results/update/${labDetails._id}`,
-        updatedLabResultData
+  console.log("Updated Data for verification:", updatedLabResultData);
+
+  try {
+    // Step 1: Update LaboratoryResultsModel
+    const response = await axios.put(
+      `http://localhost:3001/api/laboratory-results/update/${labDetails._id}`,
+      updatedLabResultData
+    );
+
+    if (response.status === 200) {
+      console.log("Lab results updated successfully.");
+
+      // ✅ Step 2: Update the main Laboratory record status to 'verified'
+      const labUpdateResponse = await axios.put(
+        `http://localhost:3001/api/laboratory/${labDetails.laboratoryId}`,
+        { labResult: "verified" }
       );
 
-      console.log("Response from LaboratoryResults API:", response.data);
+      if (labUpdateResponse.status === 200) {
+        console.log("Main lab status updated to verified.");
 
-      if (response.status === 200) {
-        // Second, update the labResult field in LaboratoryModel
-        const labUpdateResponse = await axios.put(
-          `http://localhost:3001/api/laboratory/${labDetails.laboratoryId}`, // Make sure labDetails has `laboratoryId`
-          { labResult: "for pathologist verification" }
-        );
-
-        console.log("Response from Laboratory API:", labUpdateResponse.data);
-
-        if (labUpdateResponse.status === 200) {
-          alert("Lab result successfully verified and marked as complete.");
-          setIsModalOpen(false); // Close modal after successful update
-          fetchLabRecords(); // Refresh the lab records list
-
-          // Optionally, fetch the employee who verified the result
-          fetchVerifiedByEmployee(employeeId);
-        } else {
-          alert("Failed to update lab result status. Please try again.");
-        }
+        alert("Lab result successfully verified and marked as complete.");
+        setIsModalOpen(false);
+        fetchLabRecords();
+        fetchVerifiedByEmployee(employeeId);
       } else {
-        alert("Failed to verify the lab result. Please try again.");
+        alert("Failed to update main lab status.");
       }
-    } catch (error) {
-      console.error("Error verifying lab result:", error);
-      alert("An error occurred while verifying the lab result.");
+    } else {
+      alert("Failed to update lab results.");
     }
-  };
+  } catch (error) {
+    console.error("Error verifying lab result:", error);
+    alert("An error occurred during verification.");
+  }
+};
+
 
   const fetchVerifiedByEmployee = async (employeeId) => {
     try {
@@ -322,6 +395,9 @@ function LaboratoryVerification() {
     });
   };
 
+    const [selectedRecord, setSelectedRecord] = useState(null);
+
+
   return (
     <div>
       <Navbar />
@@ -358,145 +434,149 @@ function LaboratoryVerification() {
           </div>
         </div>
         {searchQuery || showFullList ? (
-          <div>
-            <div className="bg-white p-6 py-1 rounded-lg shadow-md">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="text-left text-gray-600">
-                    <th className="py-3 w-1/4">Patient Info</th>
-                    <th className="py-3 w-1/4">Lab Test Req</th>
-                    <th className="py-3 w-1/4">Status</th>
-                    <th className="py-3 w-1/12"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentLabRecords.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan="4"
-                        className="py-4 text-center text-gray-500"
+  <div>
+    <div className="bg-white p-6 py-1 rounded-lg shadow-md">
+      <table className="min-w-full">
+        <thead>
+          <tr className="text-left text-gray-600">
+            <th className="py-3 w-1/4">Patient Info</th>
+            <th className="py-3 w-1/4">Lab Test Reqss</th>
+            <th className="py-3 w-1/4">Status</th>
+            <th className="py-3 w-1/12"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentLabRecords.length === 0 ? (
+            <tr>
+              <td colSpan="4" className="py-4 text-center text-gray-500">
+                No laboratory request for verification found.
+              </td>
+            </tr>
+          ) : (
+            [...currentLabRecords]
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .map((record) => {
+                const testNames =
+                  record.tests?.map((test) => test.name).filter(Boolean).join(", ") ||
+                  "No test data available";
+
+
+                  const categoryMappings = {
+                    "Blood Chemistry": "bloodChemistry",
+                    "Hematology": "Hematology",
+                    "Clinical Microscopy and Parasitology": "clinicalMicroscopyParasitology",
+                    "Serology": "bloodBankingSerology",
+                  };
+                  
+                  const toggleFunctions = {
+                    "Blood Chemistry": toggleBloodChemistryVisibility,
+                    "Hematology": toggleHematologyVisibility,
+                    "Clinical Microscopy and Parasitology": toggleClinicalMicroscopyVisibility,
+                    "Serology": toggleSerologyVisibility,
+                  };
+                  
+                  const visibilityStates = {
+                    "Blood Chemistry": isBloodChemistryVisible,
+                    "Hematology": isHematologyVisible,
+                    "Clinical Microscopy and Parasitology": isClinicalMicroscopyVisible,
+                    "Serology": isSerologyVisible,
+                  };
+                  
+                  const categoryTitles = {
+                    "Blood Chemistry": "I. Blood Chemistry",
+                    "Hematology": "II. Hematology",
+                    "Clinical Microscopy and Parasitology": "III. Clinical Microscopy & Parasitology",
+                    "Serology": "IV. Blood Banking And Serology",
+                  };
+
+                return (
+                  <tr key={record._id} className="border-b">
+                    <td className="py-4">
+                      {record.patient ? (
+                        <>
+                          <p className="font-semibold">
+                            {record.patient.lastname}, {record.patient.firstname}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {record.createdAt
+                              ? new Date(record.createdAt).toLocaleString()
+                              : "Unknown date"}
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-sm text-gray-500">No patient data</p>
+                      )}
+                    </td>
+                    <td className="py-4">
+                      <p className="font-semibold">{testNames}</p>
+                    </td>
+                    <td className="py-4">
+                      <p>{record.labResult || "Pending"}</p>
+                    </td>
+                    <td className="py-4">
+                      <button
+                        onClick={() => openModal(record._id)}
+                        className="text-custom-red"
                       >
-                        No laboratory request for verification found.
-                      </td>
-                    </tr>
-                  ) : (
-                    currentLabRecords.map((record) => {
-                      const allTests = [
-                        ...Object.entries(record.bloodChemistry || {})
-                          .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
-                        ...Object.entries(record.hematology || {})
-                          .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
-                        ...Object.entries(
-                          record.clinicalMicroscopyParasitology || {}
-                        )
-                          .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
-                        ...Object.entries(record.bloodBankingSerology || {})
-                          .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
-                        ...Object.entries(record.microbiology || {})
-                          .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
-                      ]
-                        .filter(Boolean)
-                        .join(", ");
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+          )}
+        </tbody>
+      </table>
+    </div>
 
-                      return (
-                        <tr key={record._id} className="border-b">
-                          <td className="py-4">
-                            {record.patient ? (
-                              <>
-                                <p className="font-semibold">
-                                  {record.patient.lastname},{" "}
-                                  {record.patient.firstname}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  {new Date(
-                                    record.isCreatedAt
-                                  ).toLocaleString()}
-                                </p>
-                              </>
-                            ) : (
-                              <p className="text-sm text-gray-500">
-                                No patient data
-                              </p>
-                            )}
-                          </td>
-                          <td className="py-4">
-                            <p className="font-semibold">
-                              {allTests || "No test data available"}
-                            </p>
-                          </td>
-                          <td className="py-4">
-                            <p>{record.labResult}</p>
-                          </td>
-                          <td className="py-4 ">
-                            <button
-                              onClick={() => openModal(record._id)}
-                              className="text-custom-red"
-                            >
-                              View
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+    <div className="flex justify-between items-center mt-4">
+      <div>
+        Page <span className="text-custom-red">{currentPage}</span> of {totalPages}
+      </div>
+      <div>
+        <button
+          onClick={paginatePrev}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 mr-2 rounded-lg border ${
+            currentPage === 1
+              ? "bg-gray-300"
+              : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+          }`}
+        >
+          Previous
+        </button>
+        <button
+          onClick={paginateNext}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 rounded-lg border ${
+            currentPage === totalPages
+              ? "bg-gray-300"
+              : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+          }`}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+) : (
+  <div>
+    <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 flex justify-center">
+      <p className="text-gray-700 flex items-center">
+        <span className="mr-2">&#9432;</span> Whole laboratory request for verification list is not shown to save initial load time.
+      </p>
+    </div>
+    <div className="flex justify-center mt-4">
+      <button
+        onClick={toggleListVisibility}
+        className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+      >
+        Load All Laboratory Requests.
+      </button>
+    </div>
+  </div>
+)}
 
-            <div className="flex justify-between items-center mt-4">
-              <div>
-                Page <span className="text-custom-red">{currentPage}</span> of{" "}
-                {totalPages}
-              </div>
-              <div>
-                <button
-                  onClick={paginatePrev}
-                  disabled={currentPage === 1}
-                  className={`px-4 py-2 mr-2 rounded-lg border ${
-                    currentPage === 1
-                      ? "bg-gray-300"
-                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                  }`}
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={paginateNext}
-                  disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg border ${
-                    currentPage === totalPages
-                      ? "bg-gray-300"
-                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                  }`}
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 flex justify-center">
-              <p className="text-gray-700 flex items-center">
-                <span className="mr-2">&#9432;</span> Whole laboratory request
-                for verification list is not shown to save initial load time.
-              </p>
-            </div>
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={toggleListVisibility}
-                className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-              >
-                Load All Laboratory Requests.
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Modal for Viewing Details */}
@@ -600,2214 +680,65 @@ function LaboratoryVerification() {
                   readOnly
                 />
               </div>
-              {/* Blood Chemistry Section */}
-              {requestedCategories.includes("Blood Chemistry") && (
-                <div className="mb-0">
-                  <div
-                    className="flex items-center justify-between cursor-pointer"
-                    onClick={toggleBloodChemistryVisibility}
-                  >
-                    <h3 className="text-lg font-semibold my-0 py-2">
-                      I. Blood Chemistry
-                    </h3>
-                    <BiChevronDown
-                      className={`transform transition-transform duration-300 ${
-                        isBloodChemistryVisible ? "rotate-180" : ""
-                      }`}
-                      size={24}
-                    />
-                  </div>
-                  <div className="w-full h-px bg-gray-300 my-0"></div>
+{Object.entries(labDetails.testResults || {}).map(([categoryName, tests], catIndex) => (
+  <div key={catIndex} className="mb-6">
+    <h3 className="text-lg font-bold border-b pb-1 mb-2">{`${catIndex + 1}. ${categoryName}`}</h3>
 
-                  {isBloodChemistryVisible && (
-                    <div className="grid grid-cols-3 gap-4 p-4">
-                      <div className="col-span-1 font-semibold">Test</div>
-                      <div className="col-span-1 font-semibold">Result</div>
-                      <div className="col-span-1 font-semibold">
-                        Reference Range
-                      </div>
+    {Object.entries(tests).map(([testName, testValue], testIndex) => (
+      <div key={testIndex} className="mb-4 space-y-1">
+        {/* If it's a simple test with result */}
+        {typeof testValue.result === "string" ? (
+          <>
+            <div className="flex items-center gap-4 text-sm">
+              <div className="min-w-[150px] font-semibold">{testName}</div>
+              <input
+                type="text"
+                value={testValue.result}
+                readOnly
+                className="flex-1 px-3 py-1 border rounded bg-gray-100"
+              />
+            </div>
+            {testValue.referenceRange && (
+              <div className="text-xs font-bold text-red-600 ml-[150px]">
+                Reference: {testValue.referenceRange}
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            {/* Main test name (no direct result) */}
+            <div className="text-sm font-semibold">{testName}</div>
 
-                      {/* FBS */}
-                      <div className="col-span-1">FBS</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="bloodSugar"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={labDetails.bloodChemistry?.bloodSugar || ""}
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              bloodChemistry: {
-                                ...labDetails.bloodChemistry,
-                                bloodSugar: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">70 - 105 mg/dL</div>
-
-                      {/* Total Cholesterol */}
-                      <div className="col-span-1">Total Cholesterol</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="totalCholesterol"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={
-                            labDetails.bloodChemistry?.totalCholesterol || ""
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              bloodChemistry: {
-                                ...labDetails.bloodChemistry,
-                                totalCholesterol: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">140 - 200 mg/dL</div>
-
-                      {/* Triglycerides */}
-                      <div className="col-span-1">Triglycerides</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="triglyceride"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={labDetails.bloodChemistry?.triglyceride || ""}
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              bloodChemistry: {
-                                ...labDetails.bloodChemistry,
-                                triglyceride: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">{"<200 mg/dL"}</div>
-
-                      {/* Blood Uric Acid */}
-                      <div className="col-span-1">Blood Uric Acid</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="bloodUricAcid"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={labDetails.bloodChemistry?.bloodUricAcid || ""}
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              bloodChemistry: {
-                                ...labDetails.bloodChemistry,
-                                bloodUricAcid: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">
-                        MEN: 3.5 - 7.2 mg/dL <br />
-                        WOMEN: 2.6 - 6.0 mg/dL
-                      </div>
-
-                      {/* Blood Urea Nitrogen */}
-                      <div className="col-span-1">Blood Urea Nitrogen</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="bloodUreaNitrogen"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={
-                            labDetails.bloodChemistry?.bloodUreaNitrogen || ""
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              bloodChemistry: {
-                                ...labDetails.bloodChemistry,
-                                bloodUreaNitrogen: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">4.67 - 23.35 mg/dL</div>
-
-                      {/* Creatinine */}
-                      <div className="col-span-1">Creatinine</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="creatinine"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={labDetails.bloodChemistry?.creatinine || ""}
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              bloodChemistry: {
-                                ...labDetails.bloodChemistry,
-                                creatinine: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">
-                        MEN: 0.7 - 1.2 mg/dL <br />
-                        WOMEN: 0.6 - 1.1 mg/dL
-                      </div>
-
-                      {/* AST/SGOT */}
-                      <div className="col-span-1">AST/SGOT</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="SGOT_AST"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={labDetails.bloodChemistry?.SGOT_AST || ""}
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              bloodChemistry: {
-                                ...labDetails.bloodChemistry,
-                                SGOT_AST: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">
-                        MEN: UP TO 40 U/L <br />
-                        WOMEN: UP TO 33 U/L
-                      </div>
-
-                      {/* ALT/SGPT */}
-                      <div className="col-span-1">ALT/SGPT</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="SGPT_ALT"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={labDetails.bloodChemistry?.SGPT_ALT || ""}
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              bloodChemistry: {
-                                ...labDetails.bloodChemistry,
-                                SGPT_ALT: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">
-                        MEN: UP TO 41 U/L <br />
-                        WOMEN: UP TO 32 U/L
-                      </div>
-
-                      {/* Direct HDL */}
-                      <div className="col-span-1">Direct HDL</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="HDL_cholesterol"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={
-                            labDetails.bloodChemistry?.HDL_cholesterol || ""
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              bloodChemistry: {
-                                ...labDetails.bloodChemistry,
-                                HDL_cholesterol: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">
-                        MEN: 40 - 50 mg/dL <br />
-                        WOMEN: 45 - 60 mg/dL
-                      </div>
-
-                      {/* Direct LDL */}
-                      <div className="col-span-1">Direct LDL</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="LDL_cholesterol"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={
-                            labDetails.bloodChemistry?.LDL_cholesterol || ""
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              bloodChemistry: {
-                                ...labDetails.bloodChemistry,
-                                LDL_cholesterol: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">{"<130 mg/dL"}</div>
-                    </div>
-                  )}
+            {/* Subtests */}
+            {Object.entries(testValue).map(([subTest, subVal], subIndex) =>
+              subTest !== "referenceRange" && subTest !== "result" ? (
+                <div key={subIndex} className="flex items-center gap-4 text-sm ml-4">
+                  <div className="min-w-[150px]">{subTest}</div>
+                  <input
+                    type="text"
+                    value={subVal}
+                    readOnly
+                    className="flex-1 px-3 py-1 border rounded bg-gray-100"
+                  />
                 </div>
-              )}
+              ) : null
+            )}
 
-              {/* Hematology Section */}
-              {requestedCategories.includes("Hematology") && (
-                <div className="mb-0">
-                  <div
-                    className="flex items-center justify-between cursor-pointer"
-                    onClick={toggleHematologyVisibility}
-                  >
-                    <h3 className="text-lg font-semibold my-0 py-2">
-                      II. Hematology
-                    </h3>
-                    <BiChevronDown
-                      className={`transform transition-transform duration-300 ${
-                        isHematologyVisible ? "rotate-180" : ""
-                      }`}
-                      size={24}
-                    />
-                  </div>
-                  <div className="w-full h-px bg-gray-300 my-0"></div>
+            {/* Reference range for group */}
+            {testValue.referenceRange && (
+              <div className="text-xs font-bold text-red-600 ml-[150px]">
+                Reference: {testValue.referenceRange}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    ))}
+  </div>
+))}
 
-                  {isHematologyVisible && (
-                    <div className="grid grid-cols-3 gap-4 p-4">
-                      <div className="col-span-1 font-semibold">Tests</div>
-                      <div className="col-span-1 font-semibold">Result</div>
-                      <div className="col-span-1 font-semibold">
-                        Reference Range
-                      </div>
 
-                      <div className="col-span-1">Red Blood Cell Count</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="redBloodCellCount"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={
-                            labDetails.Hematology?.redBloodCellCount || "N/A"
-                          }
-                          onChange={(e) => {
-                            setLabDetails({
-                              ...labDetails,
-                              Hematology: {
-                                ...labDetails.Hematology,
-                                redBloodCellCount: e.target.value,
-                              },
-                            });
-                          }}
-                        />
-                      </div>
-                      <div className="col-span-1">
-                        Male: 4.0 - 5.5 x10^12/L; Female: 3.5 - 5.0 x10^12/L
-                      </div>
-
-                      <div className="col-span-1">Hemoglobin</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="hemoglobin"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={labDetails.Hematology?.Hemoglobin || "N/A"}
-                          onChange={(e) => {
-                            setLabDetails({
-                              ...labDetails,
-                              Hematology: {
-                                ...labDetails.Hematology,
-                                Hemoglobin: e.target.value,
-                              },
-                            });
-                          }}
-                        />
-                      </div>
-                      <div className="col-span-1">
-                        Male: 140 - 180 g/L; Female: 120 - 180 g/L
-                      </div>
-
-                      <div className="col-span-1">Hematocrit</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="hematocrit"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={labDetails.Hematology?.Hematocrit || "N/A"}
-                          onChange={(e) => {
-                            setLabDetails({
-                              ...labDetails,
-                              Hematology: {
-                                ...labDetails.Hematology,
-                                Hematocrit: e.target.value,
-                              },
-                            });
-                          }}
-                        />
-                      </div>
-                      <div className="col-span-1">
-                        Male: 0.40 - 0.54; Female: 0.37 - 0.47
-                      </div>
-
-                      <div className="col-span-1">Leukocyte Count</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="leukocyteCount"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={labDetails.Hematology?.LeukocyteCount || "N/A"}
-                          onChange={(e) => {
-                            setLabDetails({
-                              ...labDetails,
-                              Hematology: {
-                                ...labDetails.Hematology,
-                                LeukocyteCount: e.target.value,
-                              },
-                            });
-                          }}
-                        />
-                      </div>
-                      <div className="col-span-1">5.0 - 10.0 x10^9/L</div>
-
-                      <div className="col-span-1">Differential Count</div>
-                      <div className="col-span-1"></div>
-                      <div className="col-span-1"></div>
-
-                      <div className="col-span-1 ml-9">Segmenters</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="segmenters"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={
-                            labDetails.Hematology?.DifferentialCount
-                              ?.segmenters || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              Hematology: {
-                                ...labDetails.Hematology,
-                                DifferentialCount: {
-                                  ...labDetails.Hematology?.DifferentialCount,
-                                  segmenters: e.target.value,
-                                },
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">0.50 - 0.70</div>
-
-                      <div className="col-span-1 ml-9">Lymphocytes</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="lymphocytes"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={
-                            labDetails.Hematology?.DifferentialCount
-                              ?.lymphocytes || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              Hematology: {
-                                ...labDetails.Hematology,
-                                DifferentialCount: {
-                                  ...labDetails.Hematology?.DifferentialCount,
-                                  lymphocytes: e.target.value,
-                                },
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">0.20 - 0.40</div>
-
-                      <div className="col-span-1 ml-9">Monocytes</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="monocytes"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={
-                            labDetails.Hematology?.DifferentialCount
-                              ?.monocytes || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              Hematology: {
-                                ...labDetails.Hematology,
-                                DifferentialCount: {
-                                  ...labDetails.Hematology?.DifferentialCount,
-                                  monocytes: e.target.value,
-                                },
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">0.00 - 0.07</div>
-
-                      <div className="col-span-1 ml-9">Eosinophils</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="eosinophils"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={
-                            labDetails.Hematology?.DifferentialCount
-                              ?.eosinophils || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              Hematology: {
-                                ...labDetails.Hematology,
-                                DifferentialCount: {
-                                  ...labDetails.Hematology?.DifferentialCount,
-                                  eosinophils: e.target.value,
-                                },
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">0.00 - 0.05</div>
-
-                      <div className="col-span-1 ml-9">Basophils</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="basophils"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={
-                            labDetails.Hematology?.DifferentialCount
-                              ?.basophils || "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              Hematology: {
-                                ...labDetails.Hematology,
-                                DifferentialCount: {
-                                  ...labDetails.Hematology?.DifferentialCount,
-                                  basophils: e.target.value,
-                                },
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">0.00 - 0.01</div>
-
-                      <div className="col-span-1 ml-9">Total</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="total"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={
-                            labDetails.Hematology?.DifferentialCount?.total ||
-                            "N/A"
-                          }
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              Hematology: {
-                                ...labDetails.Hematology,
-                                DifferentialCount: {
-                                  ...labDetails.Hematology?.DifferentialCount,
-                                  total: e.target.value,
-                                },
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1"></div>
-
-                      <div className="col-span-1">Platelet Count</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="plateletCount"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={labDetails.Hematology?.PlateletCount || "N/A"}
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              Hematology: {
-                                ...labDetails.Hematology,
-                                PlateletCount: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1">150 - 400 x10^9/L</div>
-
-                      <div className="col-span-1">Others</div>
-                      <div className="col-span-1">
-                        <input
-                          type="text"
-                          name="others"
-                          className="w-full px-3 py-1 border rounded bg-gray-100"
-                          value={labDetails.Hematology?.others || "N/A"}
-                          onChange={(e) =>
-                            setLabDetails({
-                              ...labDetails,
-                              Hematology: {
-                                ...labDetails.Hematology,
-                                others: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="col-span-1"></div>
-                      <div className="col-span-1"></div>
-
-                      <div className="col-span-3 flex justify-end">
-                        {/* {!hematologySignatureUrl && (
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault(); // Prevents the page refresh
-                            fetchSignature("hematology");
-                          }}
-                        >
-                          Attach Signature
-                        </button>
-                      )} */}
-
-                        {/* Display fetched signature image */}
-                        {hematologySignatureUrl && (
-                          <div className="flex justify-end">
-                            <img
-                              src={hematologySignatureUrl}
-                              alt="Signature"
-                              className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Clinical */}
-
-              {requestedCategories.includes(
-                "Clinical Microscopy and Parasitology"
-              ) && (
-                <div className="mb-0">
-                  <div
-                    className="flex items-center justify-between cursor-pointer"
-                    onClick={toggleClinicalMicroscopyVisibility}
-                  >
-                    <h3 className="text-lg font-semibold mb-0 py-2">
-                      III. Clinical Microscopy and Parasitology
-                    </h3>
-                    <BiChevronDown
-                      className={`transform transition-transform duration-300 ${
-                        isClinicalMicroscopyVisible ? "rotate-180" : ""
-                      }`}
-                      size={24}
-                    />
-                  </div>
-                  <div className="w-full h-px bg-gray-300 my-0"></div>
-
-                  {isClinicalMicroscopyVisible && (
-                    <div className="grid grid-cols-6 gap-4 p-4">
-                      {/* Routine Urinalysis - Macroscopic Examination */}
-                      <label className="col-span-3 font-semibold">
-                        Routine Urinalysis
-                      </label>
-
-                      <label className="col-span-1">LMP</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.LMP || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                LMP: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <h4 className="col-span-6 font-semibold">
-                        Macroscopic Examination
-                      </h4>
-                      <label className="col-span-1">Color</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.macroscopicExam?.color || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                macroscopicExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.macroscopicExam,
-                                  color: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Appearance</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.macroscopicExam?.appearance ||
-                          "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                macroscopicExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.macroscopicExam,
-                                  appearance: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      {/* Routine Urinalysis - Chemical Examination */}
-                      <h4 className="col-span-6 font-semibold mt-4">
-                        Chemical Examination
-                      </h4>
-                      <label className="col-span-1">Sugar</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.sugar || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                chemicalExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.chemicalExam,
-                                  sugar: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Urobilinogen</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.urobilinogen ||
-                          "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                chemicalExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.chemicalExam,
-                                  urobilinogen: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Albumin</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.albumin || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                chemicalExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.chemicalExam,
-                                  albumin: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Ketones</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.ketones || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                chemicalExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.chemicalExam,
-                                  ketones: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Blood</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.blood || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                chemicalExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.chemicalExam,
-                                  blood: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Nitrite</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.nitrites || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                chemicalExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.chemicalExam,
-                                  nitrites: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Bilirubin</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.bilirubin ||
-                          "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                chemicalExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.chemicalExam,
-                                  bilirubin: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Leukocyte</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.leukocytes ||
-                          "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                chemicalExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.chemicalExam,
-                                  leukocytes: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Reaction</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam?.reaction || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                chemicalExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.chemicalExam,
-                                  reaction: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Specific Gravity</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.chemicalExam
-                            ?.specificGravity || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                chemicalExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.chemicalExam,
-                                  specificGravity: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      {/* Routine Urinalysis - Microscopic Examination */}
-                      <h4 className="col-span-6 font-semibold mt-4">
-                        Microscopic Examination
-                      </h4>
-                      <label className="col-span-1">Pus Cells</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/hpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.pusCells ||
-                          "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                microscopicExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.microscopicExam,
-                                  pusCells: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Epithelial Cells</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam
-                            ?.epithelialCells || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                microscopicExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.microscopicExam,
-                                  epithelialCells: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Red Blood Cells</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/hpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.RBC || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                microscopicExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.microscopicExam,
-                                  RBC: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Mucus Threads</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam
-                            ?.mucusThreads || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                microscopicExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.microscopicExam,
-                                  mucusThreads: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Bacteria</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/hpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.bacteria ||
-                          "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                microscopicExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.microscopicExam,
-                                  bacteria: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Crystals</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.crystals ||
-                          "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                microscopicExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.microscopicExam,
-                                  crystals: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Yeast Cells</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/hpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.yeastCells ||
-                          "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                microscopicExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.microscopicExam,
-                                  yeastCells: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Amorphous</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.amorphous ||
-                          "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                microscopicExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.microscopicExam,
-                                  amorphous: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Cast</label>
-                      <input
-                        type="text"
-                        className="col-span-1 border rounded px-3 py-1"
-                        placeholder="/lpf"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.casts || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                microscopicExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.microscopicExam,
-                                  casts: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Others</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineUrinalysis?.microscopicExam?.others ||
-                          "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineUrinalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineUrinalysis,
-                                microscopicExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineUrinalysis?.microscopicExam,
-                                  others: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      {/* Routine Fecalysis */}
-                      <h4 className="col-span-6 font-semibold mt-4">
-                        Routine Fecalysis
-                      </h4>
-                      <label className="col-span-1">Color</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.color || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineFecalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineFecalysis,
-                                color: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Consistency</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.consistency || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineFecalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineFecalysis,
-                                consistency: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      {/* Microscopic Examination for Fecalysis */}
-                      <h4 className="col-span-6 font-semibold mt-4">
-                        Microscopic Examination
-                      </h4>
-                      <label className="col-span-1">Direct Fecal Smear</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.microscopicExam
-                            ?.directFecalSmear || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineFecalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineFecalysis,
-                                microscopicExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineFecalysis?.microscopicExam,
-                                  directFecalSmear: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Kato Thick Smear</label>
-                      <input
-                        type="text"
-                        className="col-span-2 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.microscopicExam
-                            ?.katoThickSmear || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineFecalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineFecalysis,
-                                microscopicExam: {
-                                  ...labDetails.clinicalMicroscopyParasitology
-                                    ?.routineFecalysis?.microscopicExam,
-                                  katoThickSmear: e.target.value,
-                                },
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      <label className="col-span-1">Others</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.clinicalMicroscopyParasitology
-                            ?.routineFecalysis?.others || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            clinicalMicroscopyParasitology: {
-                              ...labDetails.clinicalMicroscopyParasitology,
-                              routineFecalysis: {
-                                ...labDetails.clinicalMicroscopyParasitology
-                                  ?.routineFecalysis,
-                                others: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      {/* Signature Button for Clinical Microscopy */}
-                      <div className="col-span-6 flex justify-end">
-                        {/* {!clinicalMicroscopySignatureUrl && (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault(); // Prevents the page refresh
-                          fetchSignature("clinicalMicroscopy");
-                        }}
-                      >
-                        Attach Signature
-                      </button>
-                    )} */}
-
-                        {clinicalMicroscopySignatureUrl && (
-                          <div className="flex justify-end">
-                            <img
-                              src={clinicalMicroscopySignatureUrl}
-                              alt="Signature"
-                              className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Serology Section */}
-              {requestedCategories.includes("Serology") && (
-                <div className="mb-0">
-                  <div
-                    className="flex items-center justify-between cursor-pointer"
-                    onClick={toggleSerologyVisibility}
-                  >
-                    <h3 className="text-lg font-semibold mb-0 py-2">
-                      IV. Serology
-                    </h3>
-                    <BiChevronDown
-                      className={`transform transition-transform duration-300 ${
-                        isSerologyVisible ? "rotate-180" : ""
-                      }`}
-                      size={24}
-                    />
-                  </div>
-                  <div className="w-full h-px bg-gray-300 my-0"></div>
-
-                  {isSerologyVisible && (
-                    <div className="grid grid-cols-12 gap-4 p-4">
-                      {/* Hepatitis B Surface Antigen Determination and Anti-HAV Test */}
-                      <h4 className="col-span-6 font-semibold">
-                        Hepatitis B Surface Antigen Determination (Screening
-                        Test Only)
-                      </h4>
-                      <h4 className="col-span-6 font-semibold">
-                        Anti-HAV Test (Screening Test Only)
-                      </h4>
-
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology
-                            ?.hepatitisBSurfaceAntigen?.methodUsed || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              hepatitisBSurfaceAntigen: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.hepatitisBSurfaceAntigen,
-                                methodUsed: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.antiHAVTest
-                            ?.methodUsed || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              antiHAVTest: {
-                                ...labDetails.bloodBankingSerology?.antiHAVTest,
-                                methodUsed: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology
-                            ?.hepatitisBSurfaceAntigen?.lotNumber || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              hepatitisBSurfaceAntigen: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.hepatitisBSurfaceAntigen,
-                                lotNumber: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.antiHAVTest
-                            ?.lotNumber || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              antiHAVTest: {
-                                ...labDetails.bloodBankingSerology?.antiHAVTest,
-                                lotNumber: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology
-                            ?.hepatitisBSurfaceAntigen?.expirationDate
-                            ? new Date(
-                                labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
-                            : "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              hepatitisBSurfaceAntigen: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.hepatitisBSurfaceAntigen,
-                                expirationDate: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.antiHAVTest
-                            ?.expirationDate
-                            ? new Date(
-                                labDetails.bloodBankingSerology.antiHAVTest.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
-                            : "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              antiHAVTest: {
-                                ...labDetails.bloodBankingSerology?.antiHAVTest,
-                                expirationDate: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology
-                            ?.hepatitisBSurfaceAntigen?.result || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              hepatitisBSurfaceAntigen: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.hepatitisBSurfaceAntigen,
-                                result: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.antiHAVTest
-                            ?.result || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              antiHAVTest: {
-                                ...labDetails.bloodBankingSerology?.antiHAVTest,
-                                result: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      {/* Serum Pregnancy and Test for Treponema pallidum / Syphilis */}
-                      <h4 className="col-span-6 font-semibold">
-                        Serum Pregnancy
-                      </h4>
-                      <h4 className="col-span-6 font-semibold">
-                        Test for Treponema pallidum / Syphilis
-                      </h4>
-
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.serumPregnancy
-                            ?.methodUsed || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              serumPregnancy: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.serumPregnancy,
-                                methodUsed: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.treponemaPallidumTest
-                            ?.methodUsed || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              treponemaPallidumTest: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.treponemaPallidumTest,
-                                methodUsed: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.serumPregnancy
-                            ?.lotNumber || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              serumPregnancy: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.serumPregnancy,
-                                lotNumber: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.treponemaPallidumTest
-                            ?.lotNumber || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              treponemaPallidumTest: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.treponemaPallidumTest,
-                                lotNumber: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.serumPregnancy
-                            ?.expirationDate
-                            ? new Date(
-                                labDetails.bloodBankingSerology.serumPregnancy.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
-                            : "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              serumPregnancy: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.serumPregnancy,
-                                expirationDate: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.treponemaPallidumTest
-                            ?.expirationDate
-                            ? new Date(
-                                labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
-                            : "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              treponemaPallidumTest: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.treponemaPallidumTest,
-                                expirationDate: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.serumPregnancy
-                            ?.result || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              serumPregnancy: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.serumPregnancy,
-                                result: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.treponemaPallidumTest
-                            ?.result || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              treponemaPallidumTest: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.treponemaPallidumTest,
-                                result: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      {/* Salmonella typhi and Blood Typing */}
-                      <h4 className="col-span-6 font-semibold">
-                        Salmonella typhi
-                      </h4>
-                      <h4 className="col-span-6 font-semibold">Blood Typing</h4>
-
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.salmonellaTyphi
-                            ?.methodUsed || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              salmonellaTyphi: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.salmonellaTyphi,
-                                methodUsed: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">ABO Type</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.bloodTyping
-                            ?.ABOType || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              bloodTyping: {
-                                ...labDetails.bloodBankingSerology?.bloodTyping,
-                                ABOType: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.salmonellaTyphi
-                            ?.lotNumber || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              salmonellaTyphi: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.salmonellaTyphi,
-                                lotNumber: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Rh Type</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.bloodTyping
-                            ?.RhType || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              bloodTyping: {
-                                ...labDetails.bloodBankingSerology?.bloodTyping,
-                                RhType: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.salmonellaTyphi
-                            ?.expirationDate
-                            ? new Date(
-                                labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
-                            : "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              salmonellaTyphi: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.salmonellaTyphi,
-                                expirationDate: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-6"></label>
-
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.salmonellaTyphi
-                            ?.result || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              salmonellaTyphi: {
-                                ...labDetails.bloodBankingSerology
-                                  ?.salmonellaTyphi,
-                                result: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-6"></label>
-
-                      {/* Test for Dengue and Others */}
-                      <h4 className="col-span-6 font-semibold">
-                        Test for Dengue
-                      </h4>
-                      <h4 className="col-span-6 font-semibold">Others</h4>
-
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.testDengue
-                            ?.methodUsed || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              testDengue: {
-                                ...labDetails.bloodBankingSerology?.testDengue,
-                                methodUsed: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Method Used</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.others?.methodUsed ||
-                          "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              others: {
-                                ...labDetails.bloodBankingSerology?.others,
-                                methodUsed: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.testDengue
-                            ?.lotNumber || "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              testDengue: {
-                                ...labDetails.bloodBankingSerology?.testDengue,
-                                lotNumber: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Lot No.</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.others?.lotNumber ||
-                          "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              others: {
-                                ...labDetails.bloodBankingSerology?.others,
-                                lotNumber: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.testDengue
-                            ?.expirationDate
-                            ? new Date(
-                                labDetails.bloodBankingSerology.testDengue.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
-                            : "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              testDengue: {
-                                ...labDetails.bloodBankingSerology?.testDengue,
-                                expirationDate: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Expiration Date</label>
-                      <input
-                        type="date"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.others
-                            ?.expirationDate
-                            ? new Date(
-                                labDetails.bloodBankingSerology.others.expirationDate
-                              )
-                                .toISOString()
-                                .split("T")[0]
-                            : "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              others: {
-                                ...labDetails.bloodBankingSerology?.others,
-                                expirationDate: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.testDengue?.result ||
-                          "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              testDengue: {
-                                ...labDetails.bloodBankingSerology?.testDengue,
-                                result: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      <label className="col-span-1">Result</label>
-                      <input
-                        type="text"
-                        className="col-span-5 border rounded px-3 py-1"
-                        value={
-                          labDetails.bloodBankingSerology?.others?.result ||
-                          "N/A"
-                        }
-                        onChange={(e) =>
-                          setLabDetails({
-                            ...labDetails,
-                            bloodBankingSerology: {
-                              ...labDetails.bloodBankingSerology,
-                              others: {
-                                ...labDetails.bloodBankingSerology?.others,
-                                result: e.target.value,
-                              },
-                            },
-                          })
-                        }
-                      />
-                      {/* Signature Button for Clinical Microscopy */}
-                      <div className="col-span-12 flex justify-end space-x-6 items-center">
-                        {/* {!serologySignatureUrl && (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault(); // Prevents the page refresh
-                          fetchSignature("serology");
-                        }}
-                      >
-                        Attach Signature
-                      </button>
-                    )} */}
-
-                        {serologySignatureUrl && (
-                          <div className="flex flex-col items-center">
-                            <img
-                              src={serologySignatureUrl}
-                              alt="Signature"
-                              className="w-24 h-auto border border-gray-300 rounded-lg shadow-lg"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </form>
+    </form>
 
             {/* Buttons Wrapper */}
             <div className="flex justify-end space-x-4 mt-4">
