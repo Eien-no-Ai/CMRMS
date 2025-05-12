@@ -396,6 +396,12 @@ const fetchLabResultByRequestId = async (laboratoryId) => {
 
   const [formData, setFormData] = useState({});
 
+  const sortedLabRecords = [...labRecords].sort(
+  (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+);
+
+const currentLabRecordss = sortedLabRecords.slice(indexOfFirstRecord, indexOfLastRecord);
+
 
   return (
     <div>
@@ -432,27 +438,27 @@ const fetchLabResultByRequestId = async (laboratoryId) => {
             </div>
           </div>
         </div>
-        {searchQuery || showFullList ? (
-          <div>
-            <div className="bg-white p-6 py-1 rounded-lg shadow-md">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="text-left text-gray-600">
-                    <th className="py-3 w-1/4">Patient Info</th>
-                    <th className="py-3 w-1/4">Lab Test Req</th>
-                    <th className="py-3 w-1/4">Status</th>
-                    <th className="py-3 w-1/12"></th>
-                  </tr>
-                </thead>
+{searchQuery || showFullList ? (
+  <div>
+    <div className="bg-white p-6 py-1 rounded-lg shadow-md">
+      <table className="min-w-full">
+        <thead>
+          <tr className="text-left text-gray-600">
+            <th className="py-3 w-1/4">Patient Info</th>
+            <th className="py-3 w-1/4">Lab Test Req</th>
+            <th className="py-3 w-1/4">Status</th>
+            <th className="py-3 w-1/12"></th>
+          </tr>
+        </thead>
         <tbody>
-          {currentLabRecords.length === 0 ? (
+          {currentLabRecordss.length === 0 ? (
             <tr>
               <td colSpan="4" className="py-4 text-center text-gray-500">
                 No laboratory records found.
               </td>
             </tr>
           ) : (
-            currentLabRecords.map((record) => {
+            currentLabRecordss.map((record) => {
               const testNames = record.tests?.map((test) => test.name).join(", ") || "No test data available";
               const createdAtFormatted = record.createdAt
                 ? new Date(record.createdAt).toLocaleString()
@@ -480,7 +486,7 @@ const fetchLabResultByRequestId = async (laboratoryId) => {
                   <td className="py-4">
                     <p>{record.labResult}</p>
                   </td>
-                  <td className="py-4 ">
+                  <td className="py-4">
                     <button
                       onClick={() => openModal(record._id)}
                       className="text-custom-red"
@@ -493,41 +499,43 @@ const fetchLabResultByRequestId = async (laboratoryId) => {
             })
           )}
         </tbody>
-              </table>
-            </div>
+      </table>
+    </div>
 
-            <div className="flex justify-between items-center mt-4">
-              <div>
-                Page <span className="text-custom-red">{currentPage}</span> of{" "}
-                {totalPages}
-              </div>
-              <div>
-                <button
-                  onClick={paginatePrev}
-                  disabled={currentPage === 1}
-                  className={`px-4 py-2 mr-2 rounded-lg border ${
-                    currentPage === 1
-                      ? "bg-gray-300"
-                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                  }`}
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={paginateNext}
-                  disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg border ${
-                    currentPage === totalPages
-                      ? "bg-gray-300"
-                      : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
-                  }`}
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
+    <div className="flex justify-between items-center mt-4">
+      <div>
+        Page <span className="text-custom-red">{currentPage}</span> of{" "}
+        {totalPages}
+      </div>
+      <div>
+        <button
+          onClick={paginatePrev}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 mr-2 rounded-lg border ${
+            currentPage === 1
+              ? "bg-gray-300"
+              : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+          }`}
+        >
+          Previous
+        </button>
+        <button
+          onClick={paginateNext}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 rounded-lg border ${
+            currentPage === totalPages
+              ? "bg-gray-300"
+              : "bg-custom-red text-white hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
+          }`}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+) : (
+
+
           <div>
             <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 flex justify-center">
               <p className="text-gray-700 flex items-center">

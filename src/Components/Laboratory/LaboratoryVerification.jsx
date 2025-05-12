@@ -397,6 +397,12 @@ const verifyLabResult = async () => {
 
     const [selectedRecord, setSelectedRecord] = useState(null);
 
+const sortedLabRecords = [...labRecords].sort(
+  (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+);
+
+const currentLabRecordss = sortedLabRecords.slice(indexOfFirstRecord, indexOfLastRecord);
+
 
   return (
     <div>
@@ -445,87 +451,85 @@ const verifyLabResult = async () => {
             <th className="py-3 w-1/12"></th>
           </tr>
         </thead>
-        <tbody>
-          {currentLabRecords.length === 0 ? (
-            <tr>
-              <td colSpan="4" className="py-4 text-center text-gray-500">
-                No laboratory request for verification found.
-              </td>
-            </tr>
-          ) : (
-            [...currentLabRecords]
-              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-              .map((record) => {
-                const testNames =
-                  record.tests?.map((test) => test.name).filter(Boolean).join(", ") ||
-                  "No test data available";
+<tbody>
+  {currentLabRecordss.length === 0 ? (
+    <tr>
+      <td colSpan="4" className="py-4 text-center text-gray-500">
+        No laboratory request for verification found.
+      </td>
+    </tr>
+  ) : (
+    currentLabRecordss.map((record) => {
+      const testNames =
+        record.tests?.map((test) => test.name).filter(Boolean).join(", ") ||
+        "No test data available";
 
+      const categoryMappings = {
+        "Blood Chemistry": "bloodChemistry",
+        "Hematology": "Hematology",
+        "Clinical Microscopy and Parasitology": "clinicalMicroscopyParasitology",
+        "Serology": "bloodBankingSerology",
+      };
 
-                  const categoryMappings = {
-                    "Blood Chemistry": "bloodChemistry",
-                    "Hematology": "Hematology",
-                    "Clinical Microscopy and Parasitology": "clinicalMicroscopyParasitology",
-                    "Serology": "bloodBankingSerology",
-                  };
-                  
-                  const toggleFunctions = {
-                    "Blood Chemistry": toggleBloodChemistryVisibility,
-                    "Hematology": toggleHematologyVisibility,
-                    "Clinical Microscopy and Parasitology": toggleClinicalMicroscopyVisibility,
-                    "Serology": toggleSerologyVisibility,
-                  };
-                  
-                  const visibilityStates = {
-                    "Blood Chemistry": isBloodChemistryVisible,
-                    "Hematology": isHematologyVisible,
-                    "Clinical Microscopy and Parasitology": isClinicalMicroscopyVisible,
-                    "Serology": isSerologyVisible,
-                  };
-                  
-                  const categoryTitles = {
-                    "Blood Chemistry": "I. Blood Chemistry",
-                    "Hematology": "II. Hematology",
-                    "Clinical Microscopy and Parasitology": "III. Clinical Microscopy & Parasitology",
-                    "Serology": "IV. Blood Banking And Serology",
-                  };
+      const toggleFunctions = {
+        "Blood Chemistry": toggleBloodChemistryVisibility,
+        "Hematology": toggleHematologyVisibility,
+        "Clinical Microscopy and Parasitology": toggleClinicalMicroscopyVisibility,
+        "Serology": toggleSerologyVisibility,
+      };
 
-                return (
-                  <tr key={record._id} className="border-b">
-                    <td className="py-4">
-                      {record.patient ? (
-                        <>
-                          <p className="font-semibold">
-                            {record.patient.lastname}, {record.patient.firstname}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {record.createdAt
-                              ? new Date(record.createdAt).toLocaleString()
-                              : "Unknown date"}
-                          </p>
-                        </>
-                      ) : (
-                        <p className="text-sm text-gray-500">No patient data</p>
-                      )}
-                    </td>
-                    <td className="py-4">
-                      <p className="font-semibold">{testNames}</p>
-                    </td>
-                    <td className="py-4">
-                      <p>{record.labResult || "Pending"}</p>
-                    </td>
-                    <td className="py-4">
-                      <button
-                        onClick={() => openModal(record._id)}
-                        className="text-custom-red"
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
-          )}
-        </tbody>
+      const visibilityStates = {
+        "Blood Chemistry": isBloodChemistryVisible,
+        "Hematology": isHematologyVisible,
+        "Clinical Microscopy and Parasitology": isClinicalMicroscopyVisible,
+        "Serology": isSerologyVisible,
+      };
+
+      const categoryTitles = {
+        "Blood Chemistry": "I. Blood Chemistry",
+        "Hematology": "II. Hematology",
+        "Clinical Microscopy and Parasitology": "III. Clinical Microscopy & Parasitology",
+        "Serology": "IV. Blood Banking And Serology",
+      };
+
+      return (
+        <tr key={record._id} className="border-b">
+          <td className="py-4">
+            {record.patient ? (
+              <>
+                <p className="font-semibold">
+                  {record.patient.lastname}, {record.patient.firstname}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {record.createdAt
+                    ? new Date(record.createdAt).toLocaleString()
+                    : "Unknown date"}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-gray-500">No patient data</p>
+            )}
+          </td>
+          <td className="py-4">
+            <p className="font-semibold">{testNames}</p>
+          </td>
+          <td className="py-4">
+            <p>{record.labResult || "Pending"}</p>
+          </td>
+          <td className="py-4">
+            <button
+              onClick={() => openModal(record._id)}
+              className="text-custom-red"
+            >
+              View
+            </button>
+          </td>
+        </tr>
+      );
+    })
+  )}
+</tbody>
+
       </table>
     </div>
 

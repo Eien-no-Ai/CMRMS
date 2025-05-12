@@ -402,6 +402,16 @@ const handleSaveResult = async () => {
     const indexOfLastRecord = currentPage * labRecordsPerPage;
     const indexOfFirstRecord = indexOfLastRecord - labRecordsPerPage;
 
+    // Step 1: Sort the full labRecords array (latest first)
+const sortedLabRecords = [...labRecords].sort(
+  (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+);
+
+// Step 2: Slice it for pagination
+const currentLabRecordss = sortedLabRecords.slice(indexOfFirstRecord, indexOfLastRecord);
+
+    
+
     const filteredLabRecords = labRecords.filter((record) => {
       const formattedDate = new Date(record.isCreatedAt).toLocaleDateString();
       return (
@@ -651,57 +661,58 @@ const handleSaveResult = async () => {
             <th className="py-3 w-1/12"></th>
           </tr>
         </thead>
-        <tbody>
-          {currentLabRecords.length === 0 ? (
-            <tr>
-              <td colSpan="4" className="py-4 text-center text-gray-500">
-                No laboratory request found.
-              </td>
-            </tr>
-          ) : (
-            [...currentLabRecords]
-              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-              .map((record) => {
-                const testNames = record.tests?.map((test) => test.name).filter(Boolean).join(", ") || "No test data available";
-                const includes = record.tests?.flatMap((test) => test.whatShouldBeIncluded || []);
+<tbody>
+  {currentLabRecordss.length === 0 ? (
+    <tr>
+      <td colSpan="4" className="py-4 text-center text-gray-500">
+        No laboratory request found.
+      </td>
+    </tr>
+  ) : (
+    currentLabRecordss.map((record) => {
+      const testNames =
+        record.tests?.map((test) => test.name).filter(Boolean).join(", ") ||
+        "No test data available";
 
-                return (
-                  <tr key={record._id} className="border-b">
-                    <td className="py-4">
-                      {record.patient ? (
-                        <>
-                          <p className="font-semibold">
-                            {record.patient.lastname}, {record.patient.firstname}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {record.createdAt
-                              ? new Date(record.createdAt).toLocaleString()
-                              : "Unknown date"}
-                          </p>
-                        </>
-                      ) : (
-                        <p className="text-sm text-gray-500">No patient data</p>
-                      )}
-                    </td>
-                    <td className="py-4">
-                      <p className="font-semibold">{testNames}</p>
-                    </td>
-                    <td className="py-4">
-                      <p>{record.labResult || "Pending"}</p>
-                    </td>
-                    <td className="py-4">
-                      <button
-                        className="text-custom-red"
-                        onClick={() => handleAddResultClick(record)}
-                      >
-                        Add Result
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
-          )}
-        </tbody>
+      return (
+        <tr key={record._id} className="border-b">
+          <td className="py-4">
+            {record.patient ? (
+              <>
+                <p className="font-semibold">
+                  {record.patient.lastname}, {record.patient.firstname}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {record.createdAt
+                    ? new Date(record.createdAt).toLocaleString()
+                    : "Unknown date"}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-gray-500">No patient data</p>
+            )}
+          </td>
+          <td className="py-4">
+            <p className="font-semibold">{testNames}</p>
+          </td>
+          <td className="py-4">
+            <p>{record.labResult || "Pending"}</p>
+          </td>
+          <td className="py-4">
+            <button
+              className="text-custom-red"
+              onClick={() => handleAddResultClick(record)}
+            >
+              Add Result
+            </button>
+          </td>
+        </tr>
+      );
+    })
+  )}
+</tbody>
+ 
+        {/* trial */}
       </table>
     </div>
 
