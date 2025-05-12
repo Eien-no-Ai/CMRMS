@@ -50,6 +50,7 @@ const LaboratorySchema = new mongoose.Schema(
       KOH: { type: String, default: "" },
     },
     labResult: { type: String, default: "" },
+    labResultImage: { type: String, default: "" },
     isCreatedAt: { type: Date, default: Date.now },
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt

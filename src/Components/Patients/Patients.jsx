@@ -1154,8 +1154,8 @@ function Patients() {
                                     handleDeleteClick(patient._id);
                                   }}
                                 >
-                                  <AiOutlineDelete className="mr-2" /> Delete
-                                  Patient
+                                  <AiOutlineDelete className="mr-2" /> 
+                                  Delete Patient
                                 </button>
                               </div>
                             )}

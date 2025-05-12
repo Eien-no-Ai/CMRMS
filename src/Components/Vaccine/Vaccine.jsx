@@ -11,7 +11,7 @@ const VaccineList = () => {
   const [showFullList, setShowFullList] = useState(false);
   const [vaccines, setVaccines] = useState([]);
   const [isVaccineModalOpen, setIsVaccineModalOpen] = useState(false);
-  const [newVaccine, setNewVaccine] = useState({ name: "" });
+  const [newVaccine, setNewVaccine] = useState({ name: "" , remarks: "" });
   const apiUrl = process.env.REACT_APP_REACT_URL;
   const api_Key = process.env.REACT_APP_API_KEY;
   const vaccinesPerPage = 4;
@@ -60,7 +60,8 @@ const VaccineList = () => {
 
       // Close the modal and reset form after successful submission
       setIsVaccineModalOpen(false);
-      setNewVaccine({ name: "" });
+      setNewVaccine({ name: "" , remarks: "" });
+      console.log("Vaccine added:", response.data);
     } catch (error) {
       console.error("Error adding vaccine:", error);
     }
@@ -203,8 +204,8 @@ const VaccineList = () => {
                 <thead>
                   <tr className="text-left text-gray-600">
                     <th className="py-3 w-1/4">Package Info</th>
-                    <th className="py-3 w-1/4"></th>
-                    <th className="py-3 w-1/4"></th>
+                    <th className="py-3 w-1/4">Vaccine Information</th>
+                    <th className="py-3 w-1/12"></th>
                     <th className="py-3 w-1/12"></th>
                   </tr>
                 </thead>
@@ -228,7 +229,9 @@ const VaccineList = () => {
                             {new Date(vaccine.createdAt).toLocaleString()}
                           </p>
                         </td>
-                        <td className="py-3"></td>
+                        <td className="py-3">
+                          <textarea className="font-semibold w-full h-full" disabled>{vaccine.remarks}</textarea>
+                        </td>
                         <td className="py-3"></td>
                         <td className="py-3">
                           <button
@@ -328,6 +331,25 @@ const VaccineList = () => {
                   className="w-full mt-2 border rounded-md p-2"
                   placeholder="Enter vaccine name"
                 />
+
+                <label className="block text-sm font-medium mt-4">
+                  Remarks
+                </label>
+
+                <textarea
+                  value={isEditMode ? editableVaccine.remarks : newVaccine.remarks}
+                  onChange={(e) =>
+                    isEditMode
+                      ? setEditableVaccine({
+                          ...editableVaccine,
+                          remarks: e.target.value,
+                        })
+                      : setNewVaccine({ ...newVaccine, remarks: e.target.value })
+                  }
+                  className="w-full mt-2 border rounded-md p-2"
+                  placeholder="Enter remarks"
+                />
+
               </div>
 
               <div className="flex justify-end mt-4 space-x-3">

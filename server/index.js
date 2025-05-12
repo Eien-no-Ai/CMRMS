@@ -1365,32 +1365,110 @@ app.get("/api/laboratory/:patientId", async (req, res) => {
   }
 });
 
-// PUT endpoint to update labResult in Laboratory
+//PUT endpoint to update labResult in Laboratory
+// app.put("/api/laboratory/:id", async (req, res) => {
+//   const { id } = req.params;
+//   const { labResult } = req.body;
+
+//   try {
+//     const updatedLab = await LaboratoryModel.findByIdAndUpdate(
+//       id,
+//       { labResult },
+//       { new: true }
+//     );
+
+//     if (updatedLab) {
+//       res.json({
+//         message: "Laboratory status updated successfully",
+//         updatedLab,
+//       });
+//     } else {
+//       res.status(404).json({ message: "Laboratory not found" });
+//     }
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ message: "Error updating laboratory status", error });
+//   }
+// });
+
+
+
+// app.put("/api/laboratory/:id", async (req, res) => {
+//   const { id } = req.params;
+//   // Expect both labResult and the image URL from the request
+//   const { labResult, labResultImage } = req.body;
+
+//   try {
+//     const updatedLab = await LaboratoryModel.findByIdAndUpdate(
+//       id,
+//       {
+//         labResult,
+//         labResultImage, // store the Cloudinary URL
+//       },
+//       { new: true }
+//     );
+
+//     if (updatedLab) {
+//       res.json({
+//         message: "Laboratory status and image updated successfully",
+//         updatedLab,
+//       });
+//     } else {
+//       res.status(404).json({ message: "Laboratory record not found" });
+//     }
+//   } catch (error) {
+//     res.status(500).json({
+//       message: "Error updating laboratory record",
+//       error,
+//     });
+//   }
+// });
+
 app.put("/api/laboratory/:id", async (req, res) => {
   const { id } = req.params;
-  const { labResult } = req.body;
+
+  // Validate if the id is a valid MongoDB ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    console.error("Invalid laboratory ID provided:", id);
+    return res.status(400).json({ message: "Invalid laboratory ID" });
+  }
+
+  // Destructure values from the request body.
+  // NOTE: Make sure the client sends `labResultImage` (with capital I) and not `labResult_image`.
+  const { labResult, labResultImage } = req.body;
+  console.log(`Attempting to update laboratory record ${id} with data:`, { labResult, labResultImage });
 
   try {
+    // Use findByIdAndUpdate to update the document
     const updatedLab = await LaboratoryModel.findByIdAndUpdate(
       id,
-      { labResult },
-      { new: true }
+      {
+        labResult,
+        labResultImage, // updates the Cloudinary URL in the document
+      },
+      { new: true } // Return the updated document
     );
 
     if (updatedLab) {
+      console.log("Laboratory record updated:", updatedLab);
       res.json({
-        message: "Laboratory status updated successfully",
+        message: "Laboratory status and image updated successfully",
         updatedLab,
       });
     } else {
-      res.status(404).json({ message: "Laboratory not found" });
+      console.warn("No laboratory record found for ID:", id);
+      res.status(404).json({ message: "Laboratory record not found" });
     }
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating laboratory status", error });
+    console.error("Error updating laboratory record:", error);
+    res.status(500).json({
+      message: "Error updating laboratory record",
+      error,
+    });
   }
 });
+
 
 // C L I N I C A L   R E C O R D S
 
@@ -1574,6 +1652,8 @@ const router = express.Router();
 
 // Assuming you have required necessary modules and initialized Express app
 
+
+///////////////////////////////////////////////////////////// PAST XRAY RESULT EDITING //////////////////////////////////////////////////////////////
 app.put("/api/xrayResults/:id", async (req, res) => {
   const { patientId, clinicId, ORNumber, XrayNo, diagnosis, xrayFindings, imageFile } = req.body;
 
@@ -1622,6 +1702,68 @@ app.put("/api/xrayResults/:id", async (req, res) => {
   } catch (error) {
     console.error("Error updating X-ray record:", error);
     res.status(500).json({ success: false, message: "Error updating X-ray record", error });
+  }
+});
+
+// app.put("/api/xrayResults-image/:id", async (req, res) => {
+//   const { id } = req.params; // Get the ID from the URL
+//   const { xrayResult } = req.body; // Get the xrayResult from the request body
+
+//   try {
+//     // Update the xrayResult field for the existing Xray record
+//     const updatedXray = await XrayModel.findByIdAndUpdate(
+//       id, // The ID of the x-ray record
+//       { xrayResult }, // Only updating the xrayResult field
+//       { new: true } // Return the updated record
+//     );
+
+//     // If the record is updated successfully, return the updated record
+//     if (updatedXray) {
+//       res.json({
+//         message: "X-ray status updated successfully",
+//         updatedXray,
+//       });
+//     } else {
+//       // If no matching record is found, return a 404 error
+//       res.status(404).json({ message: "X-ray record not found" });
+//     }
+//   } catch (error) {
+//     // If an error occurs, return a 500 error with the error message
+//     res.status(500).json({
+//       message: "Error updating X-ray record",
+//       error,
+//     });
+//   }
+// });
+
+app.put("/api/xrayResults-image/:id", async (req, res) => {
+  const { id } = req.params;
+  // Expect both xrayResult and the image URL from the request
+  const { xrayResult, xrayResult_image } = req.body;
+
+  try {
+    const updatedXray = await XrayModel.findByIdAndUpdate(
+      id,
+      {
+        xrayResult,
+        xrayResult_image, // store the Cloudinary URL here
+      },
+      { new: true }
+    );
+
+    if (updatedXray) {
+      res.json({
+        message: "X-ray status and image updated successfully",
+        updatedXray,
+      });
+    } else {
+      res.status(404).json({ message: "X-ray record not found" });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Error updating X-ray record",
+      error,
+    });
   }
 });
 

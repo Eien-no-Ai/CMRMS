@@ -6,6 +6,10 @@ const VaccineListSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  remarks: {
+    type: String,
+    required: true,
+  },
   createdAt: { type: Date, default: Date.now }, // Add timestamp if not already present
 });
 

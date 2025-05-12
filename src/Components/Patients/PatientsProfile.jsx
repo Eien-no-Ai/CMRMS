@@ -29,6 +29,8 @@ function PatientsProfile() {
   const [selectedTab, setSelectedTab] = useState("clinical");
   const [showRequestOptions, setShowRequestOptions] = useState(false);
   const [showPackageOptions, setShowPackageOptions] = useState(false);
+  const [showImageResults, setShowImageResults] = useState(false);
+  const [image, setImage] = useState(null)
   const [isLabModalOpen, setIsLabModalOpen] = useState(false);
   const [isBloodChemistryVisible, setBloodChemistryVisible] = useState(false);
   const [isHematologyVisible, setHematologyVisible] = useState(false);
@@ -62,6 +64,7 @@ function PatientsProfile() {
   const [newXrayRecord, setNewXrayRecord] = useState({
     date: new Date().toLocaleDateString(),
     xrayResult: "",
+    xrayResult_image: "",
     xrayType: "",
     xrayDescription: "",
     xrayFindings: "",
@@ -480,7 +483,7 @@ function PatientsProfile() {
   }, [showPackageOptions]);
 
   const [isVaccineModalOpen, setIsVaccineModalOpen] = useState(false);
-  const [selectedVaccine, setSelectedVaccine] = useState(""); // Store se
+  const [selectedVaccine, setSelectedVaccine] = useState([]); // Store se
 
   const handleTabChange = (tab) => {
     setSelectedTab(tab);
@@ -500,49 +503,101 @@ function PatientsProfile() {
   // Close vaccine modal
   const handleVaccineModalClose = () => {
     setIsVaccineModalOpen(false);
-    setSelectedVaccine(""); // Reset selection
+    setSelectedVaccine([]); // Reset selection
   };
 
   // Handle vaccine dropdown change
   const handleVaccineChange = (event) => {
-    setSelectedVaccine(event.target.value);
+    const { value, checked } = event.target;
+    if (checked) {
+      // Add the selected vaccine to the array
+      setSelectedVaccine((prev) => [...prev, value]);
+    } else {
+      // Remove the unselected vaccine from the array
+      setSelectedVaccine((prev) => prev.filter((vaccine) => vaccine !== value));
+    }
   };
 
+  // const handleVaccineSubmit = async () => {
+  //   if (!selectedVaccine) {
+  //     alert("Please select a vaccine before submitting.");
+  //     return;
+  //   }
+
+  //   try {
+  //     const adminId = localStorage.getItem("userId");
+  //     if (!adminId) {
+  //       alert("Admin user not found. Please log in again.");
+  //       return;
+  //     }
+
+  //     const response = await axios.post(
+  //       `${apiUrl}/api/vaccines`,
+  //       {
+  //         patient: id, // Use id from useParams (patient ID from URL)
+  //         name: selectedVaccine, // Vaccine name
+  //         dateAdministered: new Date(),
+  //         administeredBy: adminId,
+  //       },
+  //       {
+  //         headers: {
+  //           "api-key": api_Key,
+  //         },
+  //       }
+  //     );
+
+  //     console.log("Vaccine submitted successfully:", response.data);
+  //     handleVaccineModalClose();
+  //     setShowSuccessModal(true);
+  //     await fetchVaccineRecords();
+  //   } catch (error) {
+  //     console.error("Error submitting vaccine:", error.response || error);
+  //     alert("Failed to submit vaccine. Please try again.");
+  //   }
+  // };
+
+
   const handleVaccineSubmit = async () => {
-    if (!selectedVaccine) {
-      alert("Please select a vaccine before submitting.");
+    if (selectedVaccine.length === 0) {
+      alert("Please select at least one vaccine before submitting.");
       return;
     }
-
+  
     try {
       const adminId = localStorage.getItem("userId");
       if (!adminId) {
         alert("Admin user not found. Please log in again.");
         return;
       }
-
-      const response = await axios.post(
-        `${apiUrl}/api/vaccines`,
-        {
-          patient: id, // Use id from useParams (patient ID from URL)
-          name: selectedVaccine, // Vaccine name
-          dateAdministered: new Date(),
-          administeredBy: adminId,
-        },
-        {
-          headers: {
-            "api-key": api_Key,
+  
+      // Create an array of promises for each vaccine submission
+      const submitPromises = selectedVaccine.map((vaccineName) =>
+        axios.post(
+          `${apiUrl}/api/vaccines`,
+          {
+            patient: id, // Use id from useParams (patient ID from URL)
+            name: vaccineName, // Vaccine name
+            dateAdministered: new Date(),
+            administeredBy: adminId,
           },
-        }
+          {
+            headers: {
+              "api-key": api_Key,
+            },
+          }
+        )
       );
-
-      console.log("Vaccine submitted successfully:", response.data);
+  
+      // Wait for all submissions to complete
+      const responses = await Promise.all(submitPromises);
+  
+      console.log("All vaccines submitted successfully:", responses);
       handleVaccineModalClose();
       setShowSuccessModal(true);
       await fetchVaccineRecords();
     } catch (error) {
-      console.error("Error submitting vaccine:", error.response || error);
-      alert("Failed to submit vaccine. Please try again.");
+      console.error("Error submitting vaccines:", error.response || error);
+      alert("Failed to submit one or more vaccines. Please try again.");
     }
   };
 
@@ -1621,43 +1676,94 @@ function PatientsProfile() {
   const [isPackageResultModalOpen, setIsPackageResultModalOpen] =
     useState(false);
 
+  // const handleViewPackage = async (records) => {
+  //   try {
+  //     // Extract laboratory request IDs from labRecords
+  //     const laboratoryIds = records.labRecords.map(
+  //       (labRecord) => labRecord._id
+  //     );
+
+  //     // Fetch lab results for each laboratoryId
+  //     const labResultsPromises = laboratoryIds.map((laboratoryId) =>
+  //       axios
+  //         .get(`${apiUrl}/api/laboratory-results/by-request/${laboratoryId}`, {
+  //           headers: {
+  //             "api-key": api_Key,
+  //           },
+  //         })
+  //         .then((response) => response.data)
+  //     );
+
+  //     // Extract X-ray IDs from xrayRecords
+  //     const xrayIds = records.xrayRecords.map((xrayRecord) => xrayRecord._id);
+
+  //     // Fetch X-ray results for each xrayId
+  //     const xrayResultsPromises = xrayIds.map((xrayId) =>
+  //       axios
+  //         .get(`${apiUrl}/api/xrayResults/id/${xrayId}`, {
+  //           headers: {
+  //             "api-key": api_Key,
+  //           },
+  //         })
+  //         .then((response) => response.data)
+  //     );
+
+  //     // Wait for all promises to resolve
+  //     const labResults = await Promise.all(labResultsPromises);
+  //     const xrayResults = await Promise.all(xrayResultsPromises);
+
+  //     // Store the lab and X-ray results and open the modal
+  //     setSelectedPackageLabResults(labResults);
+  //     setSelectedPackageXrayResults(xrayResults);
+  //     setIsPackageResultModalOpen(true);
+  //   } catch (error) {
+  //     console.error("Error fetching results for the package:", error);
+  //     alert("Failed to load results for this package.");
+  //   }
+  // };
+/********************************************* */
   const handleViewPackage = async (records) => {
     try {
-      // Extract laboratory request IDs from labRecords
-      const laboratoryIds = records.labRecords.map(
-        (labRecord) => labRecord._id
-      );
-
-      // Fetch lab results for each laboratoryId
-      const labResultsPromises = laboratoryIds.map((laboratoryId) =>
-        axios
-          .get(`${apiUrl}/api/laboratory-results/by-request/${laboratoryId}`, {
-            headers: {
-              "api-key": api_Key,
-            },
-          })
-          .then((response) => response.data)
-      );
-
-      // Extract X-ray IDs from xrayRecords
-      const xrayIds = records.xrayRecords.map((xrayRecord) => xrayRecord._id);
-
-      // Fetch X-ray results for each xrayId
-      const xrayResultsPromises = xrayIds.map((xrayId) =>
-        axios
-          .get(`${apiUrl}/api/xrayResults/id/${xrayId}`, {
-            headers: {
-              "api-key": api_Key,
-            },
-          })
-          .then((response) => response.data)
-      );
-
-      // Wait for all promises to resolve
-      const labResults = await Promise.all(labResultsPromises);
-      const xrayResults = await Promise.all(xrayResultsPromises);
-
-      // Store the lab and X-ray results and open the modal
+      const headers = { "api-key": api_Key };
+  
+      // for each labRecord: if it's already carrying labResultImage, wrap it in a resolved Promise;
+      // otherwise fetch from /by-request
+      const labResultsPromises = records.labRecords.map((labRecord) => {
+        if (labRecord.labResultImage) {
+          // we already have the image URL on the labRecord
+          return Promise.resolve({
+            _id: labRecord._id,
+            labResultImage: labRecord.labResultImage,
+          });
+        }
+        // no image on the labRecord → go fetch the detailed result
+        return axios
+          .get(
+            `${apiUrl}/api/laboratory-results/by-request/${labRecord._id}`,
+            { headers }
+          )
+          .then((res) => res.data);
+      });
+  
+      // same idea for X‑rays: prefer the field on the record if present
+      const xrayResultsPromises = records.xrayRecords.map((xrayRecord) => {
+        if (xrayRecord.xrayResult_image) {
+          return Promise.resolve({
+            _id: xrayRecord._id,
+            xrayResult_image: xrayRecord.xrayResult_image,
+          });
+        }
+        return axios
+          .get(`${apiUrl}/api/xrayResults/id/${xrayRecord._id}`, { headers })
+          .then((res) => res.data);
+      });
+  
+      // await them both
+      const [labResults, xrayResults] = await Promise.all([
+        Promise.all(labResultsPromises),
+        Promise.all(xrayResultsPromises),
+      ]);
+  
       setSelectedPackageLabResults(labResults);
       setSelectedPackageXrayResults(xrayResults);
       setIsPackageResultModalOpen(true);
@@ -1666,6 +1772,8 @@ function PatientsProfile() {
       alert("Failed to load results for this package.");
     }
   };
+
+  
   const [selectedRecords, setSelectedRecords] = useState(null);
   const [isPackageInfoModalOpen, setisPackageInfoModalOpen] = useState(false);
 
@@ -2445,56 +2553,262 @@ function PatientsProfile() {
     setIsHealthCertificate(false); // Close the modal
   };
 
-  const handleAddResultClick = async () => {
+  // const handleAddResultClick = async () => {
+  //   try {
+  //     // Extract laboratory request IDs from laboratory records
+  //     const laboratoryIds = laboratoryRecords.map((record) => record._id);
+
+  //     // Map over the labIds to update results
+  //     const labUpdatePromises = laboratoryIds.map((id) =>
+  //       axios.put(
+  //         `${apiUrl}/api/laboratory/${id}`,
+  //         {
+  //           labResult: "verified", // Assuming `updatedLabResults` holds your new data
+  //         },
+  //         {
+  //           headers: {
+  //             "api-key": api_Key,
+  //           },
+  //         }
+  //       )
+  //     );
+
+  //     // Extract X-ray IDs from X-ray records
+  //     const xrayIds = xrayRecords.map((record) => record._id);
+
+  //     // Map over the xrayIds to update results
+  //     const xrayUpdatePromises = xrayIds.map((id) =>
+  //       axios.put(
+  //         `${apiUrl}/api/xrayResults/${id}`,
+  //         {
+  //           xrayResult: "done", // Assuming `updatedXrayResults` holds your new data
+  //         },
+  //         {
+  //           headers: {
+  //             "api-key": api_Key,
+  //           },
+  //         }
+  //       )
+  //     );
+
+  //     // Wait for all updates to complete
+  //     await Promise.all([...labUpdatePromises, ...xrayUpdatePromises]);
+
+  //     // After successful update, log success and update UI
+  //     console.log("Results updated successfully!");
+  //     // You can refresh your records here or trigger a modal
+  //     setIsPackageResultModalOpen(true);
+  //   } catch (error) {
+  //     console.error("Error updating lab and X-ray results:", error);
+  //     alert("Failed to update results.");
+  //   }
+  // };
+  const handleImageUpload = async (file) => {
+    if (!file) {
+      console.error("No file selected");
+      return null; // If no file is selected, return null
+    }
+  
+    console.log("Uploading file:", file);  // Check the file object in the console
+  
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", "cmrms_upload");  // Ensure this matches your Cloudinary preset
+    data.append("cloud_name", "dl9d5rge6");      // Ensure this matches your Cloudinary cloud name
+  
     try {
-      // Extract laboratory request IDs from laboratory records
-      const laboratoryIds = laboratoryRecords.map((record) => record._id);
-
-      // Map over the labIds to update results
-      const labUpdatePromises = laboratoryIds.map((id) =>
-        axios.put(
-          `${apiUrl}/api/laboratory/${id}`,
-          {
-            labResult: "verified", // Assuming `updatedLabResults` holds your new data
-          },
-          {
-            headers: {
-              "api-key": api_Key,
-            },
-          }
-        )
-      );
-
-      // Extract X-ray IDs from X-ray records
-      const xrayIds = xrayRecords.map((record) => record._id);
-
-      // Map over the xrayIds to update results
-      const xrayUpdatePromises = xrayIds.map((id) =>
-        axios.put(
-          `${apiUrl}/api/xrayResults/${id}`,
-          {
-            xrayResult: "done", // Assuming `updatedXrayResults` holds your new data
-          },
-          {
-            headers: {
-              "api-key": api_Key,
-            },
-          }
-        )
-      );
-
-      // Wait for all updates to complete
-      await Promise.all([...labUpdatePromises, ...xrayUpdatePromises]);
-
-      // After successful update, log success and update UI
-      console.log("Results updated successfully!");
-      // You can refresh your records here or trigger a modal
-      setIsPackageResultModalOpen(true);
+      const res = await fetch("https://api.cloudinary.com/v1_1/dl9d5rge6/image/upload", {
+        method: "POST",
+        body: data,
+      });
+  
+      if (!res.ok) {
+        throw new Error("Failed to upload image to Cloudinary");
+      }
+  
+      const uploadedImage = await res.json();
+      console.log("Image uploaded successfully:", uploadedImage);  // Debug here
+      return uploadedImage.url; // Return the Cloudinary URL
     } catch (error) {
-      console.error("Error updating lab and X-ray results:", error);
-      alert("Failed to update results.");
+      console.error("Error uploading image to Cloudinary:", error);
+      return null; // Return null if upload fails
     }
   };
+
+  
+  const handleAddNewResult = (packageNumber) => {
+    // Retrieve the records for this specific package based on packageNumber.
+    // combinedRecords is an object where keys are package numbers.
+    const records = combinedRecords[packageNumber];
+    if (!records) {
+      console.error("No records found for package:", packageNumber);
+      return;
+    }
+    // Set the records to state so they can be referenced later in the image upload modal.
+    setSelectedRecords(records);
+    // Open the modal that holds the image upload UI.
+    setShowImageResults(true);
+  };
+
+// const handleAddNewImageResult = async () => {
+//   const laboratoryIds = laboratoryRecords.map((record) => record._id);
+
+//   const labUpdatePromises = laboratoryIds.map((id) =>
+//     axios.put(
+//       `${apiUrl}/api/laboratory/${id}`,
+//       {
+//         labResult: "verified",
+//       },
+//       {
+//         headers: {
+//           "api-key": api_Key,
+//         },
+//       }
+//     )
+//   );
+
+//   const xrayIds = xrayRecords.map((record) => record._id);
+
+//   const xrayUpdatePromises = xrayIds.map((id) =>
+//     axios.put(
+//       `${apiUrl}/api/xrayResults-image/${id}`,
+//       {
+//         xrayResult: "done",
+//       },
+//       {
+//         headers: {
+//           "api-key": api_Key,
+//         },
+//       }
+//     )
+//   );
+
+//   await Promise.all([...labUpdatePromises, ...xrayUpdatePromises]);
+// };
+
+// const handleAddNewImageResult = async (imageUrl) => {
+//     // Update laboratory records with the Cloudinary URL
+//     const laboratoryIds = laboratoryRecords.map((record) => record._id);
+//     const labUpdatePromises = laboratoryIds.map((id) =>
+//       axios.put(
+//         `${apiUrl}/api/laboratory/${id}`,
+//         {
+//           labResult: "verified",  // Update the result based on your logic
+//           imageFile: imageUrl,    // Cloudinary URL for the image
+//         },
+//         {
+//           headers: {
+//             "api-key": api_Key,
+//           },
+//         }
+//       )
+//     );
+  
+//     // Update X-ray records with the Cloudinary URL
+//     const xrayIds = xrayRecords.map((record) => record._id);
+//     const xrayUpdatePromises = xrayIds.map((id) =>
+//       axios.put(
+//         `${apiUrl}/api/xrayResults-image/${id}`,
+//         {
+//           xrayResult: "done",     // Update the result based on your logic
+//           imageFile: imageUrl,    // Cloudinary URL for the image
+//         },
+//         {
+//           headers: {
+//             "api-key": api_Key,
+//           },
+//         }
+//       )
+//     );
+  
+//     // Wait for all the updates to be completed
+//     await Promise.all([...labUpdatePromises, ...xrayUpdatePromises]);
+//     console.log("Results updated successfully!" , imageUrl);
+//     // Optionally, close the modal after the update
+//     setShowImageResults(false);
+//   };
+
+// Called after the image is selected and the "Add Result" button in the modal is clicked
+const handleAddNewImageResult = async () => {
+  const file = imageFile; // file selected by the user
+  if (!file) {
+    console.error("No file selected");
+    return;
+  }
+
+  // Step 1: Upload the image to Cloudinary
+  const imageUrl = await handleImageUpload(file);
+  if (!imageUrl) {
+    console.error("Image upload failed");
+    return;
+  }
+
+  // Ensure that we have the specific package records to update.
+  if (!selectedRecords) {
+    console.error("No package records selected for update");
+    return;
+  }
+
+  // Step 2: Update only the specific records related to the package.
+  await submitData(imageUrl);
+};
+
+// Updates only the selected lab and x-ray records for the chosen package.
+const submitData = async (imageUrl) => {
+  try {
+    // Assume that the first lab record is the one to update.
+    const labRecord = selectedRecords.labRecords[0];
+    if (!labRecord) {
+      console.error("No laboratory record found for the selected package");
+      return;
+    }
+    const labId = labRecord._id;
+
+    // Update the lab record.
+    const labUpdatePromise = axios.put(
+      `${apiUrl}/api/laboratory/${labId}`,
+      {
+        labResult: "verified",       // New status for lab result.
+        labResultImage: imageUrl,      // Cloudinary image URL.
+      },
+      {
+        headers: {
+          "api-key": api_Key,
+        },
+      }
+    );
+
+    // If there are x-ray records, update the first x-ray record.
+    let xrayUpdatePromise = Promise.resolve();
+    if (
+      selectedRecords.xrayRecords &&
+      selectedRecords.xrayRecords.length > 0
+    ) {
+      const xrayRecord = selectedRecords.xrayRecords[0];
+      const xrayId = xrayRecord._id;
+      xrayUpdatePromise = axios.put(
+        `${apiUrl}/api/xrayResults-image/${xrayId}`,
+        {
+          xrayResult: "done",           // New status for x-ray result.
+          xrayResult_image: imageUrl,     // Cloudinary image URL.
+        },
+        {
+          headers: {
+            "api-key": api_Key,
+          },
+        }
+      );
+    }
+
+    // Wait for both update promises to finish.
+    await Promise.all([labUpdatePromise, xrayUpdatePromise]);
+
+    // Optionally, close the modal once the updates are complete.
+    setShowImageResults(false);
+  } catch (error) {
+    console.error("Error updating the records:", error);
+  }
+};
 
   const hasSectionData = (sectionData) => {
     return (
@@ -4175,11 +4489,22 @@ function PatientsProfile() {
                                   </button>
                                 )}
 
+                                 {role === "doctor" && status === "Pending" && (
+                                  <button
+                                    className="text-red-500"
+                                    onClick={() =>
+                                      handleAddNewResult(packageNumber)
+                                    }
+                                  >
+                                    Add Result
+                                  </button>
+                                )}  
+
                                 {/* {role === "doctor" && status === "Pending" && (
                                   <button
                                     className="text-red-500"
                                     onClick={() =>
-                                      handleAddResultClick(packageNumber)
+                                      handleAddNewResult(packageNumber)
                                     }
                                   >
                                     Add Result
@@ -5411,6 +5736,18 @@ function PatientsProfile() {
                       {selectedPackageLabResults.length > 0 ? (
                         selectedPackageLabResults.map((labResult, index) => (
                           <div className="" key={index}>
+                             {labResult.labResultImage ? (
+                                <div className="mb-4 text-center">
+                                  <h2 className="text-center text-xl font-semibold mb-4">
+                                  Laboratory Result Image
+                                  </h2>
+                                  <img
+                                    src={labResult.labResultImage}
+                                    alt="Lab Result"
+                                    className="max-w-full h-auto rounded shadow"
+                                  />
+                                </div>
+                              ) : (
                             <div className="">
                               <form className="flex-grow">
                                 <div className="flex mb-4">
@@ -6422,8 +6759,7 @@ function PatientsProfile() {
                                         </label>
                                         <input
                                           type="text"
-                                          className="col-spa
-n-2 border rounded px-3 py-1"
+                                          className="col-span-2 border rounded px-3 py-1"
                                           value={
                                             labResult
                                               .clinicalMicroscopyParasitology
@@ -6979,6 +7315,7 @@ n-2 border rounded px-3 py-1"
                                 )}
                               </form>
                             </div>
+                             )}
                           </div>
                         ))
                       ) : (
@@ -6989,6 +7326,19 @@ n-2 border rounded px-3 py-1"
                       {selectedPackageXrayResults.length > 0 ? (
                         selectedPackageXrayResults.map((xrayResult, index) => (
                           <div key={index} className="mt-6">
+                            {xrayResult.xrayResult_image ? (
+                              // only show image if it exists
+                              <div className="mb-4 text-center">
+                                <h2 className="text-center text-xl font-semibold mb-4">
+                                  X-Ray Result Image
+                                </h2>
+                                <img
+                                  src={xrayResult.xrayResult_image}
+                                  alt="X‑ray Result"
+                                  className="max-w-full h-auto rounded shadow"
+                                />
+                              </div>
+                            ) : (
                             <div className="">
                               {/* Form Title */}
                               <h2 className="text-center text-xl font-semibold mb-4">
@@ -7017,114 +7367,6 @@ n-2 border rounded px-3 py-1"
                                   </div>
 
                                   <div className="w-1/2">
-                                    {/* <div className="flex mb-4">
-                                      <div className="w-1/3 mr-2">
-                                        <label className="block text-gray-700">
-                                          OR No.
-                                        </label>
-                                        <input
-                                          type="text"
-                                          name="XrayNo"
-                                          value={xrayResult.ORNumber || "N/A"}
-                                          className="w-full px-3 py-2 border rounded"
-                                          readOnly
-                                        />
-                                      </div>
-                                      <div className="w-1/3 mr-2">
-                                        <label className="block text-gray-700">
-                                          Case No.
-                                        </label>
-                                        <input
-                                          type="text"
-                                          name="XrayNo"
-                                          value={xrayResult.XrayNo || "N/A"}
-                                          className="w-full px-3 py-2 border rounded"
-                                          readOnly
-                                        />
-                                      </div>
-
-                                      <div className="w-1/3">
-                                        <label className="block text-gray-700">
-                                          Date
-                                        </label>
-                                        <input
-                                          type="date"
-                                          name="date"
-                                          value={
-                                            new Date(xrayResult.isCreatedAt)
-                                              .toISOString()
-                                              .split("T")[0]
-                                          }
-                                          className="w-full px-3 py-2 border rounded"
-                                          readOnly
-                                        />
-                                      </div>
-                                    </div>
-
-                                    <div className="flex mb-4">
-                                      <div className="w-1/2 mr-2">
-                                        <label className="block text-gray-700">
-                                          Name
-                                        </label>
-                                        <input
-                                          type="text"
-                                          name="name"
-                                          value={
-                                            `${patient.firstname} ${patient.lastname}` ||
-                                            "N/A"
-                                          }
-                                          readOnly
-                                          className="w-full px-3 py-2 border rounded bg-gray-100"
-                                        />
-                                      </div>
-                                      <div className="w-1/4 mr-2">
-                                        <label className="block text-gray-700">
-                                          Age
-                                        </label>
-                                        <input
-                                          type="text"
-                                          name="age"
-                                          value={calculateAge(
-                                            patient.birthdate
-                                          )}
-                                          readOnly
-                                          className="w-full px-3 py-2 border rounded bg-gray-100"
-                                        />
-                                      </div>
-                                      <div className="w-1/4">
-                                        <label className="block text-gray-700">
-                                          Sex
-                                        </label>
-                                        <input
-                                          type="text"
-                                          name="sex"
-                                          value={patient.sex || "N/A"}
-                                          readOnly
-                                          className="w-full px-3 py-2 border rounded bg-gray-100"
-                                        />
-                                      </div>
-                                    </div>
-
-                                    <div className="mb-4">
-                                      <label className="block text-gray-700">
-                                        {patient.patientType === "Student"
-                                          ? "Course/Dept."
-                                          : "Position"}
-                                      </label>
-                                      <input
-                                        type="text"
-                                        name="courseDept"
-                                        value={
-                                          patient.patientType === "Student"
-                                            ? patient.course || "N/A"
-                                            : patient.position || "N/A"
-                                        }
-                                        readOnly
-                                        className="w-full px-3 py-2 border rounded bg-gray-100"
-                                      />
-                                    </div> */}
-
-                                    {/* Diagnosis (Interpretation) */}
                                     <div className="w-full">
                                       <label className="block text-gray-700">
                                         Interpretation
@@ -7157,6 +7399,7 @@ n-2 border rounded px-3 py-1"
                                 </form>
                               </div>
                             </div>
+                            )} 
                           </div>
                         ))
                       ) : (
@@ -7513,49 +7756,52 @@ n-2 border rounded px-3 py-1"
 
       {/* Vaccine Modal */}
       {isVaccineModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white py-4 px-6 rounded-lg w-full max-w-lg shadow-lg">
-            <h2 className="text-lg font-semibold text-center">Add Vaccine</h2>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="bg-white py-4 px-6 rounded-lg w-full max-w-lg shadow-lg">
+      <h2 className="text-lg font-semibold text-center">Add Vaccines</h2>
 
-            {/* Vaccine Selection Dropdown */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium">
-                Select Vaccine
+      {/* Vaccine Selection Checkboxes */}
+      <div className="mt-4">
+        <label className="block text-sm font-medium mb-2">
+          Select Vaccines
+        </label>
+        <div className="space-y-2 max-h-60 overflow-y-auto">
+          {vaccines.map((vaccine) => (
+            <div key={vaccine._id} className="flex items-center">
+              <input
+                type="checkbox"
+                id={`vaccine-${vaccine._id}`}
+                value={vaccine.name}
+                checked={selectedVaccine.includes(vaccine.name)}
+                onChange={handleVaccineChange}
+                className="h-4 w-4 text-custom-red border-gray-300 rounded"
+              />
+              <label htmlFor={`vaccine-${vaccine._id}`} className="ml-2 text-sm">
+                {vaccine.name}
               </label>
-              <select
-                value={selectedVaccine}
-                onChange={(e) => setSelectedVaccine(e.target.value)}
-                className="w-full mt-2 border rounded-md p-2"
-              >
-                <option value="" disabled>
-                  -- Select Vaccine --
-                </option>
-                {vaccines.map((vaccine) => (
-                  <option key={vaccine._id} value={vaccine.name}>
-                    {vaccine.name}
-                  </option>
-                ))}
-              </select>
             </div>
-
-            {/* Modal Action Buttons */}
-            <div className="flex justify-end mt-4 space-x-3">
-              <button
-                className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border"
-                onClick={handleVaccineModalClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border"
-                onClick={handleVaccineSubmit}
-              >
-                Submit
-              </button>
-            </div>
-          </div>
+          ))}
         </div>
-      )}
+      </div>
+
+      {/* Modal Action Buttons */}
+      <div className="flex justify-end mt-4 space-x-3">
+        <button
+          className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border"
+          onClick={handleVaccineModalClose}
+        >
+          Cancel
+        </button>
+        <button
+          className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border"
+          onClick={handleVaccineSubmit}
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       {isNewRecordModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
@@ -11595,6 +11841,43 @@ n-2 border rounded px-3 py-1"
                 className="px-4 py-2 bg-custom-red text-white rounded-md"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    {showImageResults && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white py-4 px-6 rounded-lg w-1/3 shadow-lg">
+            <h2 className="text-xl font-semibold mb-4 text-center">Image Upload</h2>
+            <p className="text-center text-gray-600 mb-4">
+              Upload Result Images
+            </p>
+            <input
+              type="file"
+              onChange={handleImageChange}
+              className="block w-full text-gray-700 mb-4"
+            />
+            {image && (
+              <div className="flex justify-center mb-4">
+                <img src={image} alt="Uploaded Result" className="w-32 h-32 object-cover" />
+              </div>
+            )}
+            <div className="flex justify-center">
+
+              <button
+                onClick={() => setShowImageResults(false)} // Close the modal
+                className="mr-4 px-4 py-2 bg-custom-red text-white rounded-md"
+              >
+                Close
+              </button>
+
+              <button
+                onClick={() => handleAddNewImageResult ()} // Close the modal
+                className="px-4 py-2 bg-custom-red text-white rounded-md"
+              >
+                Add Result
               </button>
             </div>
           </div>
