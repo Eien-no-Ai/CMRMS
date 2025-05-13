@@ -507,7 +507,7 @@ function LaboratoryPathologistVerification() {
                 onClick={toggleListVisibility}
                 className="px-4 py-2 bg-custom-red text-white rounded-lg shadow-md hover:bg-white hover:text-custom-red hover:border hover:border-custom-red"
               >
-                Load All Laboratory Requests.
+                Load All Laboratory Requests
               </button>
             </div>
           </div>

@@ -148,27 +148,35 @@ function Clinic() {
     setDropdownIndex(dropdownIndex === index ? null : index);
   };
 
-  const handleViewRecord = async (record) => {
-    setSelectedRecord(record);
-    fetchClinicRecords();
+const handleViewRecord = async (record) => {
+  setSelectedRecord(record);
+  fetchClinicRecords();
 
-    try {
-      const labResponse = await axios.get(
-        `${apiUrl}/api/laboratory?clinicId=${record._id}`
-      );
-      setSelectedLabTests(labResponse.data);
+  try {
+    const token = localStorage.getItem('token');
+    const headers = {
+      "api-key": api_Key, // or "Authorization": `Bearer ${token}` if that's what your backend expects
+    };
 
-      const xrayResponse = await axios.get(
-        `${apiUrl}/api/xrayResults?clinicId=${record._id}`
-      );
-      setSelectedXrayRecords(xrayResponse.data);
-    } catch (error) {
-      console.error("Error fetching lab or X-ray records:", error);
-    }
+    const labResponse = await axios.get(
+      `${apiUrl}/api/laboratory?clinicId=${record._id}`,
+      { headers }
+    );
+    setSelectedLabTests(labResponse.data);
 
-    setIsViewModalOpen(true);
-    setDropdownIndex(null); // Close the dropdown when viewing a record
-  };
+    const xrayResponse = await axios.get(
+      `${apiUrl}/api/xrayResults?clinicId=${record._id}`,
+      { headers }
+    );
+    setSelectedXrayRecords(xrayResponse.data);
+  } catch (error) {
+    console.error("Error fetching lab or X-ray records:", error);
+  }
+
+  setIsViewModalOpen(true);
+  setDropdownIndex(null); // Close the dropdown when viewing a record
+};
+
 
   const fetchClinicalRecords = useCallback(async () => {
     try {
@@ -324,67 +332,170 @@ function Clinic() {
 
   const [formData, setFormData] = useState(initialFormData);
 
-  const handleInputChange = (section, field) => {
-    setFormData((prevData) => ({
+  // const handleInputChange = (section, field) => {
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     [section]: {
+  //       ...prevData[section],
+  //       [field]: prevData[section][field] === "" ? field : "",
+  //     },
+  //   }));
+  // };
+  const handleInputChange = (category, testName) => {
+  setFormData(prevData => {
+    const categoryData = prevData[category] || {};
+    const isChecked = categoryData[testName];
+
+    const updatedData = {
       ...prevData,
-      [section]: {
-        ...prevData[section],
-        [field]: prevData[section][field] === "" ? field : "",
+      [category]: {
+        ...categoryData,
+        [testName]: isChecked ? "" : testName,
       },
-    }));
-  };
+    };
+
+    // Log currently selected tests
+    const selectedTests = {};
+    for (const cat in updatedData) {
+      selectedTests[cat] = Object.entries(updatedData[cat])
+        .filter(([, value]) => value !== "")
+        .map(([name]) => name);
+    }
+
+    console.log("Selected tests:", selectedTests);
+
+    return updatedData;
+  });
+};
+
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   // Ensure that selectedRecord and selectedRecord.patient exist
+  //   const patientId = selectedRecord?.patient?._id;
+  //   if (!patientId) {
+  //     console.error("Patient ID is missing or invalid.");
+  //     return; // Exit if patient ID is not available
+  //   }
+
+  //   try {
+  //     // Prepare data to send to the server
+  //     const dataToSend = {
+  //       ...formData,
+  //       patient: patientId, // Use the patient ID from selectedRecord
+  //       labResult: "pending",
+  //     };
+
+  //     // Include clinicId if available
+  //     if (clinicId) {
+  //       dataToSend.clinicId = clinicId;
+  //     }
+
+  //     console.log("Sending data:", dataToSend);
+
+  //     // Post the data to your backend API
+  //     const result = await axios.post(
+  //       "${apiUrl}/api/laboratory",
+  //       dataToSend
+  //     );
+
+  //     if (result.data.message === "Laboratory request created successfully") {
+  //       console.log("Form submitted successfully:", result.data);
+  //       setFormData(initialFormData); // Reset form data
+  //       handleModalClose(); // Close the modal
+  //       fetchLabRecords(patientId); // Refresh lab records
+
+  //       // Refresh lab tests in the view modal for the specific record
+  //       const updatedLabTests = await axios.get(
+  //         `${apiUrl}/api/laboratory?clinicId=${clinicId}`
+  //       );
+  //       setSelectedLabTests(updatedLabTests.data);
+  //     } else {
+  //       console.error("Error submitting form:", result.data);
+  //     }
+  //   } catch (err) {
+  //     console.error("An error occurred while submitting the form:", err);
+  //   } finally {
+  //     setClinicId(null); // Clear clinicId explicitly
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // Ensure that selectedRecord and selectedRecord.patient exist
-    const patientId = selectedRecord?.patient?._id;
-    if (!patientId) {
-      console.error("Patient ID is missing or invalid.");
-      return; // Exit if patient ID is not available
+  const patientId = selectedRecord?.patient?._id;
+  if (!patientId) {
+    console.error("Patient ID is missing or invalid.");
+    return;
+  }
+
+  try {
+    const selectedTests = [];
+
+    console.log("Form Data Before Processing:", formData);
+
+    for (const category in formData) {
+      for (const testName in formData[category]) {
+        const isSelected = formData[category][testName];
+
+        if (isSelected) {
+          const testObj = {
+            category,
+            name: testName,
+          };
+
+          const matchingTest = laboratorytests.find(
+            (t) => t.name === testName && t.category === category
+          );
+
+          if (matchingTest?.referenceRange) {
+            testObj.referenceRange = matchingTest.referenceRange;
+          }
+
+          if (matchingTest?.whatShouldBeIncluded?.length > 0) {
+            testObj.whatShouldBeIncluded = matchingTest.whatShouldBeIncluded;
+          }
+
+          selectedTests.push(testObj);
+        }
+      }
     }
 
-    try {
-      // Prepare data to send to the server
-      const dataToSend = {
-        ...formData,
-        patient: patientId, // Use the patient ID from selectedRecord
-        labResult: "pending",
-      };
+    console.log("Selected Tests Array:", selectedTests);
 
-      // Include clinicId if available
-      if (clinicId) {
-        dataToSend.clinicId = clinicId;
-      }
+    const dataToSend = {
+      patient: patientId,
+      clinicId,
+      labResult: "pending",
+      tests: selectedTests,
+    };
 
-      console.log("Sending data:", dataToSend);
+const token = localStorage.getItem('token');
+const result = await axios.post(
+  `${apiUrl}/api/laboratory`,
+  dataToSend,
+  {
+    headers: {
+      "api-key": api_Key, // or use Authorization: `Bearer ${token}` if needed
+    },
+  }
+);
 
-      // Post the data to your backend API
-      const result = await axios.post(
-        "${apiUrl}/api/laboratory",
-        dataToSend
-      );
-
-      if (result.data.message === "Laboratory request created successfully") {
-        console.log("Form submitted successfully:", result.data);
-        setFormData(initialFormData); // Reset form data
-        handleModalClose(); // Close the modal
-        fetchLabRecords(patientId); // Refresh lab records
-
-        // Refresh lab tests in the view modal for the specific record
-        const updatedLabTests = await axios.get(
-          `${apiUrl}/api/laboratory?clinicId=${clinicId}`
-        );
-        setSelectedLabTests(updatedLabTests.data);
-      } else {
-        console.error("Error submitting form:", result.data);
-      }
-    } catch (err) {
-      console.error("An error occurred while submitting the form:", err);
-    } finally {
-      setClinicId(null); // Clear clinicId explicitly
+    if (result.data.message === "Laboratory request created successfully") {
+      console.log("Form submitted successfully:", result.data);
+      setFormData(initialFormData);
+      handleModalClose();
+      fetchLabRecords(patientId);
+    } else {
+      console.error("Error submitting form:", result.data);
     }
-  };
+  } catch (err) {
+    console.error("An error occurred while submitting the form:", err);
+  } finally {
+    setClinicId(null);
+  }
+};
 
   const calculateAge = (birthdate) => {
     const today = new Date();
@@ -618,25 +729,74 @@ function Clinic() {
 
   const [labDetails, setLabDetails] = useState(null);
   const [isLabResultModalOpen, setIsLabResultModalOpen] = useState(false);
+  const [laboratorytests, setLaboratoryTests] = useState([]);
+  // const fetchLabResultByRequestId = async (laboratoryId) => {
+  //   try {
+  //     const response = await axios.get(
+  //       `${apiUrl}/api/laboratory-results/by-request/${laboratoryId}`
+  //     );
+  //     if (response.status === 200 && response.data) {
+  //       setLabDetails(response.data); // Set lab details
+  //       setIsLabResultModalOpen(true); // Open the modal
+  //     } else {
+  //       alert("No laboratory result found for this request ID.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching laboratory result by request ID:", error);
+  //     alert(
+  //       "Failed to load laboratory result. Please check the request ID and try again."
+  //     );
+  //   }
+  // };
+const fetchLabResultByRequestId = async (laboratoryId) => {
+  try {
+    const token = localStorage.getItem('token');
 
-  const fetchLabResultByRequestId = async (laboratoryId) => {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/api/laboratory-results/by-request/${laboratoryId}`
-      );
-      if (response.status === 200 && response.data) {
-        setLabDetails(response.data); // Set lab details
-        setIsLabResultModalOpen(true); // Open the modal
-      } else {
-        alert("No laboratory result found for this request ID.");
+    const response = await axios.get(
+      `${apiUrl}/api/laboratory-results/by-request/${laboratoryId}`,
+      {
+        headers: {
+          "api-key": api_Key, // or Authorization: `Bearer ${token}` if required
+        },
       }
-    } catch (error) {
-      console.error("Error fetching laboratory result by request ID:", error);
-      alert(
-        "Failed to load laboratory result. Please check the request ID and try again."
-      );
+    );
+
+    if (response.status === 200 && response.data) {
+      const data = response.data;
+
+      // ✅ Reconstruct testResults from `results` array
+      const testResults = {};
+
+      (data.results || []).forEach((entry) => {
+        const { category, testName, result } = entry;
+
+        if (!testResults[category]) {
+          testResults[category] = {};
+        }
+
+        testResults[category][testName] = result;
+      });
+
+      setLabDetails({
+        ...data,
+        testResults,
+      });
+
+      console.log("✅ Final LabDetails:", {
+        ...data,
+        testResults,
+      });
+
+      setIsLabResultModalOpen(true);
+    } else {
+      alert("No laboratory result found for this request ID.");
     }
-  };
+  } catch (error) {
+    console.error("Error fetching laboratory result by request ID:", error);
+    alert("Failed to load laboratory result. Please check the request ID and try again.");
+  }
+};
+
 
   const openLabResultModal = (laboratoryId) => {
     fetchLabResultByRequestId(laboratoryId);
@@ -679,6 +839,33 @@ function Clinic() {
   };
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+useEffect(() => {
+  const fetchTests = async () => {
+    try {
+      const token = localStorage.getItem('token'); // adjust this if you store token differently
+
+      const response = await axios.get(`${apiUrl}/api/laboratorytest-list`, {
+        headers: {
+          "api-key": api_Key,
+        },
+      });
+
+      setLaboratoryTests(response.data);
+    } catch (error) {
+      console.error("Error fetching tests:", error);
+    }
+  };
+
+  fetchTests();
+}, []);
+
+  const initialFormDataTest = {
+  "Blood Chemistry": {},
+  "Hematology": {},
+  "Clinical Microscopy & Parasitology": {},
+  "Blood Banking And Serology": {},
+};
 
   return (
     <div>
@@ -978,86 +1165,64 @@ function Clinic() {
                   )}
                 </div>
                 {role === "doctor" &&
-                  (selectedLabTests && selectedLabTests.length > 0 ? (
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium mb-4">
-                        Lab Tests
-                      </label>
-                      <div className="mb-4 max-h-48 overflow-y-auto">
-                        <ul className="space-y-4">
-                          {selectedLabTests
-                            .sort(
-                              (a, b) =>
-                                new Date(b.isCreatedAt) -
-                                new Date(a.isCreatedAt)
-                            )
-                            .map((labTest, index) => {
-                              const allTests = [
-                                ...Object.entries(labTest.bloodChemistry || {})
-                                  .filter(([key, value]) => value)
-                                  .map(([key]) => key),
-                                ...Object.entries(labTest.hematology || {})
-                                  .filter(([key, value]) => value)
-                                  .map(([key]) => key),
-                                ...Object.entries(
-                                  labTest.clinicalMicroscopyParasitology || {}
-                                )
-                                  .filter(([key, value]) => value)
-                                  .map(([key]) => key),
-                                ...Object.entries(
-                                  labTest.bloodBankingSerology || {}
-                                )
-                                  .filter(([key, value]) => value)
-                                  .map(([key]) => key),
-                                ...Object.entries(labTest.microbiology || {})
-                                  .filter(([key, value]) => value)
-                                  .map(([key]) => key),
-                              ].join(", ");
+  (selectedLabTests && selectedLabTests.length > 0 ? (
+    <div className="mb-4">
+      <label className="block text-sm font-medium mb-4">Lab Tests</label>
+      <div className="mb-4 max-h-48 overflow-y-auto">
+        <ul className="space-y-4">
+          {selectedLabTests
+            .sort(
+              (a, b) =>
+                new Date(b.createdAt) - new Date(a.createdAt)
+            )
+            .map((labTest, index) => {
+              const allTests = labTest.tests
+                ?.map((test) => `${test.category}: ${test.name}`)
+                .join(", ") || "No test data";
 
-                              return (
-                                <li
-                                  key={index}
-                                  className="grid grid-cols-3 gap-4 items-center p-4 bg-gray-100 rounded-lg"
-                                >
-                                  <div className="col-span-1">
-                                    <p className="text-gray-500 text-sm">
-                                      {new Date(
-                                        labTest.isCreatedAt
-                                      ).toLocaleString()}
-                                    </p>
-                                    <p className="font-semibold">{allTests}</p>
-                                  </div>
+              return (
+                <li
+                  key={index}
+                  className="grid grid-cols-3 gap-4 items-center p-4 bg-gray-100 rounded-lg"
+                >
+                <div className="col-span-1">
+                  <p className="text-gray-500 text-sm">
+                    {labTest.createdAt
+                      ? new Date(labTest.createdAt).toLocaleString()
+                      : "Unknown date"}
+                  </p>
+                  <p className="font-semibold">{allTests}</p>
+                </div>
 
-                                  <div className="col-span-1 flex justify-center items-center">
-                                    <p className="text-gray-500">
-                                      {labTest.labResult || "pending"}
-                                    </p>
-                                  </div>
 
-                                  <div className="col-span-1 flex justify-end items-center">
-                                    {/* Only show the button if labResult is 'verified' */}
-                                    {labTest.labResult === "verified" && (
-                                      <button
-                                        className="text-custom-red"
-                                        onClick={() =>
-                                          openLabResultModal(labTest._id)
-                                        }
-                                      >
-                                        View
-                                      </button>
-                                    )}
-                                  </div>
-                                </li>
-                              );
-                            })}
-                        </ul>
-                      </div>
-                    </div>
-                  ) : (
+                  <div className="col-span-1 flex justify-center items-center">
                     <p className="text-gray-500">
-                      No lab tests available for this record.
+                      {labTest.labResult || "pending"}
                     </p>
-                  ))}
+                  </div>
+
+                  <div className="col-span-1 flex justify-end items-center">
+                    {labTest.labResult === "verified" && (
+                      <button
+                        className="text-custom-red"
+                        onClick={() => openLabResultModal(labTest._id)}
+                      >
+                        View
+                      </button>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+        </ul>
+      </div>
+    </div>
+  ) : (
+    <p className="text-gray-500">
+      No lab tests available for this record
+    </p>
+  ))}
+
                 {role === "doctor" &&
                   (selectedXrayRecords && selectedXrayRecords.length > 0 ? (
                     <div className="mb-4">
@@ -1245,410 +1410,56 @@ function Clinic() {
       </div>
 
       {isLabModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
-            <h2 className="text-lg font-bold mb-4 text-center">
-              Laboratory Request Form
-            </h2>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
+      <h2 className="text-lg font-bold mb-4 text-center">Laboratory Request Forms</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* I. Blood Chemistry */}
-              <div className="md:col-span-2 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
-                <h3 className="font-semibold text-base mb-3">
-                  I. Blood Chemistry
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.bloodSugar !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "bloodSugar")
-                      }
-                    />{" "}
-                    Blood Sugar (Fasting / Random)
-                  </label>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {["Blood Chemistry", "Hematology", "Clinical Microscopy & Parasitology", "Blood Banking And Serology"].map((category) => {
+          const categoryTests = laboratorytests.filter(test => test.category === category);
+          return (
+            <div key={category} className="border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+              <h3 className="font-semibold text-base mb-3">{category}</h3>
+              <div className="space-y-2 text-sm">
+                {categoryTests.map(test => {
+                  const isChecked = !!formData?.[category]?.[test.name];
 
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.bloodUreaNitrogen !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "bloodUreaNitrogen")
-                      }
-                    />{" "}
-                    Blood Urea Nitrogen
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.bloodUricAcid !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "bloodUricAcid")
-                      }
-                    />{" "}
-                    Blood Uric Acid
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.creatinine !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "creatinine")
-                      }
-                    />{" "}
-                    Creatinine
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.SGOT_AST !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "SGOT_AST")
-                      }
-                    />{" "}
-                    SGOT / AST
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.SGPT_ALT !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "SGPT_ALT")
-                      }
-                    />{" "}
-                    SGPT / ALT
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.totalCholesterol !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "totalCholesterol")
-                      }
-                    />{" "}
-                    Total Cholesterol
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.triglyceride !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "triglyceride")
-                      }
-                    />{" "}
-                    Triglyceride
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.HDL_cholesterol !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "HDL_cholesterol")
-                      }
-                    />{" "}
-                    HDL Cholesterol
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.LDL_cholesterol !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "LDL_cholesterol")
-                      }
-                    />{" "}
-                    LDL Cholesterol
-                  </label>
-                </div>
-              </div>
-
-              {/* II. Hematology */}
-              <div className="border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
-                <h3 className="font-semibold text-base mb-3">II. Hematology</h3>
-                <div className="space-y-2 text-sm">
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.hematology.bleedingTimeClottingTime !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "hematology",
-                          "bleedingTimeClottingTime"
-                        )
-                      }
-                    />{" "}
-                    Bleeding Time & Clotting Time
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.hematology.completeBloodCount !== ""}
-                      onChange={() =>
-                        handleInputChange("hematology", "completeBloodCount")
-                      }
-                    />{" "}
-                    Complete Blood Count with Platelet Count
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.hematology.hematocritAndHemoglobin !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "hematology",
-                          "hematocritAndHemoglobin"
-                        )
-                      }
-                    />{" "}
-                    Hematocrit and Hemoglobin
-                  </label>
-                </div>
-              </div>
-
-              {/* III. Clinical Microscopy & Parasitology */}
-              <div className="border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
-                <h3 className="font-semibold text-base mb-3">
-                  III. Clinical Microscopy & Parasitology
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.clinicalMicroscopyParasitology
-                          .routineUrinalysis !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "clinicalMicroscopyParasitology",
-                          "routineUrinalysis"
-                        )
-                      }
-                    />{" "}
-                    Routine Urinalysis
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.clinicalMicroscopyParasitology
-                          .routineStoolExamination !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "clinicalMicroscopyParasitology",
-                          "routineStoolExamination"
-                        )
-                      }
-                    />{" "}
-                    Routine Stool Examination
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.clinicalMicroscopyParasitology
-                          .katoThickSmear !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "clinicalMicroscopyParasitology",
-                          "katoThickSmear"
-                        )
-                      }
-                    />{" "}
-                    Kato Thick Smear
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.clinicalMicroscopyParasitology
-                          .fecalOccultBloodTest !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "clinicalMicroscopyParasitology",
-                          "fecalOccultBloodTest"
-                        )
-                      }
-                    />{" "}
-                    Fecal Occult Blood Test
-                  </label>
-                </div>
-              </div>
-
-              {/* IV. Blood Banking And Serology */}
-              <div className="md:col-span-2 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
-                <h3 className="font-semibold text-base mb-3">
-                  IV. Blood Banking And Serology
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology.antiTreponemaPallidum !==
-                        ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "antiTreponemaPallidum"
-                        )
-                      }
-                    />{" "}
-                    Anti-Treponema Pallidum
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodBankingSerology.antiHCV !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodBankingSerology", "antiHCV")
-                      }
-                    />{" "}
-                    Anti-HCV
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodBankingSerology.bloodTyping !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodBankingSerology", "bloodTyping")
-                      }
-                    />{" "}
-                    Blood Typing (ABO & Rh Grouping)
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology
-                          .hepatitisBSurfaceAntigen !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "hepatitisBSurfaceAntigen"
-                        )
-                      }
-                    />{" "}
-                    Hepatitis B Surface Antigen
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology.pregnancyTest !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "pregnancyTest"
-                        )
-                      }
-                    />{" "}
-                    Pregnancy Test (Plasma/Serum)
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodBankingSerology.dengueTest !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodBankingSerology", "dengueTest")
-                      }
-                    />{" "}
-                    Dengue Test
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology.HIVRapidTest !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "HIVRapidTest"
-                        )
-                      }
-                    />{" "}
-                    HIV Rapid Test Kit
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodBankingSerology.HIVElsa !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodBankingSerology", "HIVElsa")
-                      }
-                    />{" "}
-                    HIV ELISA
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology.testForSalmonellaTyphi !==
-                        ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "testForSalmonellaTyphi"
-                        )
-                      }
-                    />{" "}
-                    Test for Salmonella typhi
-                  </label>
-                </div>
+                  return (
+                    <label key={test.name} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => handleInputChange(category, test.name)}
+                      />
+                      <span>{test.name}</span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
+          );
+        })}
+      </div>
 
-            <div className="flex justify-end mt-4 space-x-3">
-              <button
-                className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:gray-500 hover:border-gray-500 border transition duration-200"
-                onClick={handleModalClose}
-              >
-                Cancel
-              </button>
+      <div className="flex justify-end mt-4 space-x-3">
+        <button
+          className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border transition duration-200"
+          onClick={handleModalClose}
+        >
+          Cancel
+        </button>
 
-              <button
-                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                onClick={handleSubmit}
-              >
-                Submit
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        <button
+          className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+          onClick={handleSubmit}
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       {isNewXrayModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white py-2 px-6 rounded-lg w-full max-w-md shadow-lg">
@@ -2105,977 +1916,68 @@ function Clinic() {
                   readOnly
                 />
               </div>
+{labDetails?.testResults && Object.keys(labDetails.testResults).length > 0 ? (
+  Object.entries(labDetails.testResults).map(([categoryName, tests], catIndex) => (
+    <div key={catIndex} className="mb-6">
+      <h3 className="text-lg font-bold border-b pb-1 mb-2">
+        {`${catIndex + 1}. ${categoryName}`}
+      </h3>
 
-              {/* Hematology Section */}
-              <div className="mb-0">
-                <div
-                  className="flex items-center justify-between cursor-pointer"
-                  onClick={toggleHematologyVisibility}
-                >
-                  <h3 className="text-lg font-semibold my-0 py-2">
-                    I. Hematology
-                  </h3>
-                  <BiChevronDown
-                    className={`transform transition-transform duration-300 ${
-                      isHematologyVisible ? "rotate-180" : ""
-                    }`}
-                    size={24}
-                  />
+      {Object.entries(tests).map(([testName, testValue], testIndex) => (
+        <div key={testIndex} className="mb-4 space-y-1">
+          {/* === If test has a direct result (simple test) === */}
+          {typeof testValue?.result === "string" ? (
+            <>
+              <div className="flex items-center gap-4 text-sm">
+                <div className="min-w-[150px] font-semibold">{testName}</div>
+                <input
+                  type="text"
+                  value={testValue.result}
+                  readOnly
+                  className="flex-1 px-3 py-1 border rounded bg-gray-100"
+                />
+              </div>
+              {testValue.referenceRange && (
+                <div className="text-xs font-semibold text-red-600 ml-[150px]">
+                  Reference: {testValue.referenceRange}
                 </div>
-                <div className="w-full h-px bg-gray-300 my-0"></div>
+              )}
+            </>
+          ) : (
+            <>
+              {/* === Complex test (with sub-tests) === */}
+              <div className="text-sm font-semibold">{testName}</div>
 
-                {isHematologyVisible && (
-                  <div className="grid grid-cols-3 gap-4 p-4">
-                    <div className="col-span-1 font-semibold">Tests</div>
-                    <div className="col-span-1 font-semibold">Result</div>
-                    <div className="col-span-1 font-semibold">
-                      Reference Range
-                    </div>
-
-                    <div className="col-span-1">Red Blood Cell Count</div>
-                    <div className="col-span-1">
-                      <input
-                        type="text"
-                        name="redBloodCellCount"
-                        className="w-full px-3 py-1 border rounded bg-gray-100"
-                        value={
-                          labDetails.Hematology?.redBloodCellCount || "N/A"
-                        }
-                        readOnly
-                      />
-                    </div>
-                    <div className="col-span-1">
-                      Male: 4.0 - 5.5 x10^12/L; Female: 3.5 - 5.0 x10^12/L
-                    </div>
-
-                    <div className="col-span-1">Hemoglobin</div>
-                    <div className="col-span-1">
-                      <input
-                        type="text"
-                        name="hemoglobin"
-                        className="w-full px-3 py-1 border rounded bg-gray-100"
-                        value={labDetails.Hematology?.Hemoglobin || "N/A"}
-                        readOnly
-                      />
-                    </div>
-                    <div className="col-span-1">
-                      Male: 140 - 180 g/L; Female: 120 - 180 g/L
-                    </div>
-
-                    <div className="col-span-1">Hematocrit</div>
-                    <div className="col-span-1">
-                      <input
-                        type="text"
-                        name="hematocrit"
-                        className="w-full px-3 py-1 border rounded bg-gray-100"
-                        value={labDetails.Hematology?.Hematocrit || "N/A"}
-                        readOnly
-                      />
-                    </div>
-                    <div className="col-span-1">
-                      Male: 0.40 - 0.54; Female: 0.37 - 0.47
-                    </div>
-
-                    <div className="col-span-1">Leukocyte Count</div>
-                    <div className="col-span-1">
-                      <input
-                        type="text"
-                        name="leukocyteCount"
-                        className="w-full px-3 py-1 border rounded bg-gray-100"
-                        value={labDetails.Hematology?.LeukocyteCount || "N/A"}
-                        readOnly
-                      />
-                    </div>
-                    <div className="col-span-1">5.0 - 10.0 x10^9/L</div>
-
-                    <div className="col-span-1">Differential Count</div>
-                    <div className="col-span-1"></div>
-                    <div className="col-span-1"></div>
-
-                    <div className="col-span-1 ml-9">Segmenters</div>
-                    <div className="col-span-1">
-                      <input
-                        type="text"
-                        name="segmenters"
-                        className="w-full px-3 py-1 border rounded bg-gray-100"
-                        value={
-                          labDetails.Hematology?.DifferentialCount
-                            ?.segmenters || "N/A"
-                        }
-                        readOnly
-                      />
-                    </div>
-                    <div className="col-span-1">0.50 - 0.70</div>
-
-                    <div className="col-span-1 ml-9">Lymphocytes</div>
-                    <div className="col-span-1">
-                      <input
-                        type="text"
-                        name="lymphocytes"
-                        className="w-full px-3 py-1 border rounded bg-gray-100"
-                        value={
-                          labDetails.Hematology?.DifferentialCount
-                            ?.lymphocytes || "N/A"
-                        }
-                        readOnly
-                      />
-                    </div>
-                    <div className="col-span-1">0.20 - 0.40</div>
-
-                    <div className="col-span-1 ml-9">Monocytes</div>
-                    <div className="col-span-1">
-                      <input
-                        type="text"
-                        name="monocytes"
-                        className="w-full px-3 py-1 border rounded bg-gray-100"
-                        value={
-                          labDetails.Hematology?.DifferentialCount?.monocytes ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-                    </div>
-                    <div className="col-span-1">0.00 - 0.07</div>
-
-                    <div className="col-span-1 ml-9">Eosinophils</div>
-                    <div className="col-span-1">
-                      <input
-                        type="text"
-                        name="eosinophils"
-                        className="w-full px-3 py-1 border rounded bg-gray-100"
-                        value={
-                          labDetails.Hematology?.DifferentialCount
-                            ?.eosinophils || "N/A"
-                        }
-                        readOnly
-                      />
-                    </div>
-                    <div className="col-span-1">0.00 - 0.05</div>
-
-                    <div className="col-span-1 ml-9">Basophils</div>
-                    <div className="col-span-1">
-                      <input
-                        type="text"
-                        name="basophils"
-                        className="w-full px-3 py-1 border rounded bg-gray-100"
-                        value={
-                          labDetails.Hematology?.DifferentialCount?.basophils ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-                    </div>
-                    <div className="col-span-1">0.00 - 0.01</div>
-
-                    <div className="col-span-1 ml-9">Total</div>
-                    <div className="col-span-1">
-                      <input
-                        type="text"
-                        name="total"
-                        className="w-full px-3 py-1 border rounded bg-gray-100"
-                        value={
-                          labDetails.Hematology?.DifferentialCount?.total ||
-                          "N/A"
-                        }
-                        readOnly
-                      />
-                    </div>
-                    <div className="col-span-1"></div>
-
-                    <div className="col-span-1">Platelet Count</div>
-                    <div className="col-span-1">
-                      <input
-                        type="text"
-                        name="plateletCount"
-                        className="w-full px-3 py-1 border rounded bg-gray-100"
-                        value={labDetails.Hematology?.PlateletCount || "N/A"}
-                        readOnly
-                      />
-                    </div>
-                    <div className="col-span-1">150 - 400 x10^9/L</div>
-
-                    <div className="col-span-1">Others</div>
-                    <div className="col-span-1">
-                      <input
-                        type="text"
-                        name="others"
-                        className="w-full px-3 py-1 border rounded bg-gray-100"
-                        value={labDetails.Hematology?.others || "N/A"}
-                        readOnly
-                      />
-                    </div>
-                    <div className="col-span-1"></div>
+              {Object.entries(testValue).map(([subTest, subVal], subIndex) =>
+                subTest !== "referenceRange" && subTest !== "result" ? (
+                  <div key={subIndex} className="flex items-center gap-4 text-sm ml-4">
+                    <div className="min-w-[150px]">{subTest}</div>
+                    <input
+                      type="text"
+                      value={subVal}
+                      readOnly
+                      className="flex-1 px-3 py-1 border rounded bg-gray-100"
+                    />
                   </div>
-                )}
-              </div>
-
-              <div
-                className="flex items-center justify-between cursor-pointer"
-                onClick={toggleClinicalMicroscopyVisibility}
-              >
-                <h3 className="text-lg font-semibold mb-0 py-2">
-                  II. Clinical Microscopy and Parasitology
-                </h3>
-                <BiChevronDown
-                  className={`transform transition-transform duration-300 ${
-                    isClinicalMicroscopyVisible ? "rotate-180" : ""
-                  }`}
-                  size={24}
-                />
-              </div>
-              <div className="w-full h-px bg-gray-300 my-0"></div>
-
-              {isClinicalMicroscopyVisible && (
-                <div className="grid grid-cols-6 gap-4 p-4">
-                  {/* Routine Urinalysis - Macroscopic Examination */}
-                  <label className="col-span-3 font-semibold">
-                    Routine Urinalysis
-                  </label>
-
-                  <label className="col-span-1">LMP</label>
-                  <input
-                    type="text"
-                    className="col-span-2 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.LMP || "N/A"
-                    }
-                    readOnly
-                  />
-                  <h4 className="col-span-6 font-semibold">
-                    Macroscopic Examination
-                  </h4>
-                  <label className="col-span-1">Color</label>
-                  <input
-                    type="text"
-                    className="col-span-2 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.macroscopicExam?.color || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Appearance</label>
-                  <input
-                    type="text"
-                    className="col-span-2 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.macroscopicExam?.appearance ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-
-                  {/* Routine Urinalysis - Chemical Examination */}
-                  <h4 className="col-span-6 font-semibold mt-4">
-                    Chemical Examination
-                  </h4>
-                  <label className="col-span-1">Sugar</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.sugar || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Urobilinogen</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.urobilinogen || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Albumin</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.albumin || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Ketones</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.ketones || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Blood</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.blood || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Nitrite</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.nitrites || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Bilirubin</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.bilirubin || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Leukocyte</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.leukocytes || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Reaction</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.reaction || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Specific Gravity</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.chemicalExam?.specificGravity ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-
-                  {/* Routine Urinalysis - Microscopic Examination */}
-                  <h4 className="col-span-6 font-semibold mt-4">
-                    Microscopic Examination
-                  </h4>
-                  <label className="col-span-1">Pus Cells</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    placeholder="/hpf"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.pusCells || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Epithelial Cells</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    placeholder="/lpf"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.epithelialCells ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Red Blood Cells</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    placeholder="/hpf"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.RBC || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Mucus Threads</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    placeholder="/lpf"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.mucusThreads ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Bacteria</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    placeholder="/hpf"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.bacteria || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Crystals</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    placeholder="/lpf"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.crystals || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Yeast Cells</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    placeholder="/hpf"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.yeastCells ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Amorphous</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    placeholder="/lpf"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.amorphous || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Cast</label>
-                  <input
-                    type="text"
-                    className="col-span-1 border rounded px-3 py-1"
-                    placeholder="/lpf"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.casts || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Others</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineUrinalysis?.microscopicExam?.others || "N/A"
-                    }
-                  />
-
-                  {/* Routine Fecalysis */}
-                  <h4 className="col-span-6 font-semibold mt-4">
-                    Routine Fecalysis
-                  </h4>
-                  <label className="col-span-1">Color</label>
-                  <input
-                    type="text"
-                    className="col-span-2 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineFecalysis?.color || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Consistency</label>
-                  <input
-                    type="text"
-                    className="col-span-2 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineFecalysis?.consistency || "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Bacteria</label>
-                  <input
-                    type="text"
-                    className="col-span-2 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineFecalysis?.bacteria || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Others</label>
-                  <input
-                    type="text"
-                    className="col-span-2 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineFecalysis?.color || "N/A"
-                    }
-                    readOnly
-                  />
-
-                  {/* Microscopic Examination for Fecalysis */}
-                  <h4 className="col-span-6 font-semibold mt-4">
-                    Microscopic Examination
-                  </h4>
-                  <label className="col-span-1">Direct Fecal Smear</label>
-                  <input
-                    type="text"
-                    className="col-span-2 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineFecalysis?.microscopicExam?.directFecalSmear ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Kato Thick Smear</label>
-                  <input
-                    type="text"
-                    className="col-span-2 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineFecalysis?.microscopicExam?.katoThickSmear ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Others</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.clinicalMicroscopyParasitology
-                        ?.routineFecalysis?.others || "N/A"
-                    }
-                    readOnly
-                  />
-                </div>
+                ) : null
               )}
 
-              {/* Serology Section */}
-              <div
-                className="flex items-center justify-between cursor-pointer"
-                onClick={toggleSerologyVisibility}
-              >
-                <h3 className="text-lg font-semibold mb-0 py-2">
-                  III. Serology
-                </h3>
-                <BiChevronDown
-                  className={`transform transition-transform duration-300 ${
-                    isSerologyVisible ? "rotate-180" : ""
-                  }`}
-                  size={24}
-                />
-              </div>
-              <div className="w-full h-px bg-gray-300 my-0"></div>
-
-              {isSerologyVisible && (
-                <div className="grid grid-cols-12 gap-4 p-4">
-                  {/* Hepatitis B Surface Antigen Determination and Anti-HAV Test */}
-                  <h4 className="col-span-6 font-semibold">
-                    Hepatitis B Surface Antigen Determination (Screening Test
-                    Only)
-                  </h4>
-                  <h4 className="col-span-6 font-semibold">
-                    Anti-HAV Test (Screening Test Only)
-                  </h4>
-
-                  <label className="col-span-1">Method Used</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
-                        ?.methodUsed || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Method Used</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.antiHAVTest
-                        ?.methodUsed || "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Lot No.</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
-                        ?.lotNumber || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Lot No.</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.antiHAVTest?.lotNumber ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Expiration Date</label>
-                  <input
-                    type="date"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
-                        ?.expirationDate
-                        ? new Date(
-                            labDetails.bloodBankingSerology.hepatitisBSurfaceAntigen.expirationDate
-                          )
-                            .toISOString()
-                            .split("T")[0]
-                        : "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Expiration Date</label>
-                  <input
-                    type="date"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.antiHAVTest
-                        ?.expirationDate
-                        ? new Date(
-                            labDetails.bloodBankingSerology.antiHAVTest.expirationDate
-                          )
-                            .toISOString()
-                            .split("T")[0]
-                        : "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Result</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.hepatitisBSurfaceAntigen
-                        ?.result || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Result</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.antiHAVTest?.result ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-
-                  {/* Serum Pregnancy and Test for Treponema pallidum / Syphilis */}
-                  <h4 className="col-span-6 font-semibold">Serum Pregnancy</h4>
-                  <h4 className="col-span-6 font-semibold">
-                    Test for Treponema pallidum / Syphilis
-                  </h4>
-
-                  <label className="col-span-1">Method Used</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.serumPregnancy
-                        ?.methodUsed || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Method Used</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.treponemaPallidumTest
-                        ?.methodUsed || "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Lot No.</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.serumPregnancy
-                        ?.lotNumber || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Lot No.</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.treponemaPallidumTest
-                        ?.lotNumber || "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Expiration Date</label>
-                  <input
-                    type="date"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.serumPregnancy
-                        ?.expirationDate
-                        ? new Date(
-                            labDetails.bloodBankingSerology.serumPregnancy.expirationDate
-                          )
-                            .toISOString()
-                            .split("T")[0]
-                        : "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Expiration Date</label>
-                  <input
-                    type="date"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.treponemaPallidumTest
-                        ?.expirationDate
-                        ? new Date(
-                            labDetails.bloodBankingSerology.treponemaPallidumTest.expirationDate
-                          )
-                            .toISOString()
-                            .split("T")[0]
-                        : "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Result</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.serumPregnancy?.result ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Result</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.treponemaPallidumTest
-                        ?.result || "N/A"
-                    }
-                    readOnly
-                  />
-
-                  {/* Salmonella typhi and Blood Typing */}
-                  <h4 className="col-span-6 font-semibold">Salmonella typhi</h4>
-                  <h4 className="col-span-6 font-semibold">Blood Typing</h4>
-
-                  <label className="col-span-1">Method Used</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.salmonellaTyphi
-                        ?.methodUsed || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">ABO Type</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.bloodTyping?.ABOType ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Lot No.</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.salmonellaTyphi
-                        ?.lotNumber || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Rh Type</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.bloodTyping?.RhType ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Expiration Date</label>
-                  <input
-                    type="date"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.salmonellaTyphi
-                        ?.expirationDate
-                        ? new Date(
-                            labDetails.bloodBankingSerology.salmonellaTyphi.expirationDate
-                          )
-                            .toISOString()
-                            .split("T")[0]
-                        : "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-6"></label>
-
-                  <label className="col-span-1">Result</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.salmonellaTyphi
-                        ?.result || "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-6"></label>
-
-                  {/* Test for Dengue and Others */}
-                  <h4 className="col-span-6 font-semibold">Test for Dengue</h4>
-                  <h4 className="col-span-6 font-semibold">Others</h4>
-
-                  <label className="col-span-1">Method Used</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.testDengue?.methodUsed ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Method Used</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.others?.methodUsed ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Lot No.</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.testDengue?.lotNumber ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Lot No.</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.others?.lotNumber ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Expiration Date</label>
-                  <input
-                    type="date"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.testDengue
-                        ?.expirationDate
-                        ? new Date(
-                            labDetails.bloodBankingSerology.testDengue.expirationDate
-                          )
-                            .toISOString()
-                            .split("T")[0]
-                        : "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Expiration Date</label>
-                  <input
-                    type="date"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.others?.expirationDate
-                        ? new Date(
-                            labDetails.bloodBankingSerology.others.expirationDate
-                          )
-                            .toISOString()
-                            .split("T")[0]
-                        : "N/A"
-                    }
-                    readOnly
-                  />
-
-                  <label className="col-span-1">Result</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.testDengue?.result ||
-                      "N/A"
-                    }
-                    readOnly
-                  />
-                  <label className="col-span-1">Result</label>
-                  <input
-                    type="text"
-                    className="col-span-5 border rounded px-3 py-1"
-                    value={
-                      labDetails.bloodBankingSerology?.others?.result || "N/A"
-                    }
-                    readOnly
-                  />
+              {testValue.referenceRange && (
+                <div className="text-xs font-semibold text-red-600 ml-[150px]">
+                  Reference: {testValue.referenceRange}
                 </div>
               )}
+            </>
+          )}
+        </div>
+      ))}
+    </div>
+  ))
+) : (
+  <div className="text-center text-sm text-red-500 font-semibold mt-4">
+    No test results available for this request.
+  </div>
+)}
             </form>
 
             {/* Buttons Wrapper */}

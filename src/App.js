@@ -23,6 +23,7 @@ import Vaccine from "./Components/Vaccine/Vaccine";
 import LaboratoryPathologistVerification from "./Components/Laboratory/LaboratoryPathVerification";
 import LaboratoryCensus from "./Components/Laboratory/LaboratoryCensus";
 import XrayCensus from "./Components/Xray/XrayCensus";
+import LaboratoryTest from "./Components/Laboratory/LaboratoryTest";
 function App() {
   return (
     <div className="App">
@@ -217,6 +218,15 @@ function App() {
                 ]}
               >
                 <LaboratoryPathologistVerification />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/laboratory/laboratorytest"
+            element={
+              <PrivateRoute allowedRoles={["senior medtech"]}>
+                <LaboratoryTest />
               </PrivateRoute>
             }
           />

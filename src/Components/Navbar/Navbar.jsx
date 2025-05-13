@@ -116,6 +116,9 @@ function Navbar() {
         )}
         {role === "senior medtech" && role === "senior medtech" && (
           <>
+            <a href="/laboratory/laboratorytest" className="hover:underline">
+              Laboratory Test
+            </a> 
             <a href="/laboratory/census" className="hover:underline">
               Census
             </a>

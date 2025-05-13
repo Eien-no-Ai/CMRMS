@@ -14,6 +14,7 @@ const VaccineModel = require("./models/Vaccine"); // Path to your vaccine routes
 const PhysicalExamStudentModel = require("./models/PhysicalExamStudent");
 const VaccineListModel = require("./models/VaccineList");
 const AnnualCheckUp = require("./models/AnnualCheckUp");
+const LaboratoryListModel = require("./models/LaboratoryList");
 const multer = require("multer");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -685,10 +686,7 @@ app.post("/api/laboratory-results", async (req, res) => {
     patient,
     clinicId,
     laboratoryId, // Accept laboratoryId in the request
-    bloodChemistry,
-    Hematology,
-    clinicalMicroscopyParasitology,
-    bloodBankingSerology,
+    results, // ✅ This is now used instead of fixed fields like bloodChemistry, etc.
   } = req.body;
 
   try {
@@ -697,11 +695,8 @@ app.post("/api/laboratory-results", async (req, res) => {
       labNumber,
       patient,
       clinicId,
-      laboratoryId, // Save laboratoryId in the database
-      bloodChemistry,
-      Hematology,
-      clinicalMicroscopyParasitology,
-      bloodBankingSerology,
+      laboratoryId,
+      results, // ✅ Save structured results array
     });
 
     res.json({
@@ -735,39 +730,44 @@ app.get("/api/laboratory-results/:id", async (req, res) => {
   }
 });
 
-// Endpoint to get lab result by laboratory request ID
-app.get(
-  "/api/laboratory-results/by-request/:laboratoryId",
-  async (req, res) => {
-    const { laboratoryId } = req.params;
+app.get("/api/laboratory-results/by-request/:laboratoryId", async (req, res) => {
+  const { laboratoryId } = req.params;
 
-    // Validate laboratoryId format
-    if (!mongoose.Types.ObjectId.isValid(laboratoryId)) {
-      return res
-        .status(400)
-        .json({ message: "Invalid laboratory request ID format" });
-    }
-
-    try {
-      // Find lab result by laboratory request ID
-
-      const labResult = await LaboratoryResultsModel.findOne({
-        laboratoryId,
-      }).populate("patient");
-      if (!labResult) {
-        return res.status(404).json({
-          message: "No laboratory result found for the given request ID",
-        });
-      }
-      res.json(labResult);
-    } catch (error) {
-      console.error("Error fetching laboratory result by request ID:", error);
-      res
-        .status(500)
-        .json({ message: "Error fetching laboratory result", error });
-    }
+  // Validate ObjectId format
+  if (!mongoose.Types.ObjectId.isValid(laboratoryId)) {
+    return res.status(400).json({ message: "Invalid laboratory request ID format" });
   }
-);
+
+  try {
+    console.log("🔍 Looking for lab result with laboratoryId:", laboratoryId);
+
+    // Fetch lab result and populate the patient reference
+    const labResult = await LaboratoryResultsModel.findOne({
+      laboratoryId: new mongoose.Types.ObjectId(laboratoryId),
+    }).populate("patient");
+
+    if (!labResult) {
+      return res.status(404).json({ message: "No laboratory result found for the given request ID" });
+    }
+
+    console.log("👤 Patient info:", labResult.patient);
+    console.log("🧪 Lab results array:", labResult.results);
+
+    // Respond with raw results + patient info
+    res.status(200).json({
+      _id: labResult._id,
+      laboratoryId: labResult.laboratoryId,
+      ORNumber: labResult.ORNumber || null,
+      labNumber: labResult.labNumber || null,
+      isCreatedAt: labResult.isCreatedAt,
+      patient: labResult.patient || null,
+      results: labResult.results || [], // Use the exact schema field name
+    });
+  } catch (error) {
+    console.error("❌ Error fetching lab result:", error);
+    res.status(500).json({ message: "Error fetching laboratory result", error });
+  }
+});
 
 app.put("/api/laboratory-results/update/:id", async (req, res) => {
   const { id } = req.params;
@@ -793,6 +793,7 @@ app.put("/api/laboratory-results/update/:id", async (req, res) => {
     res.status(500).json({ message: "Error updating laboratory result." });
   }
 });
+
 
 // // POST endpoint to save a lab request
 // app.post("/api/laboratory-results", async (req, res) => {
@@ -1985,6 +1986,60 @@ app.get("/api/annual-check-up/:packageNumber/:patientId", async (req, res) => {
       message: "Error fetching annual check-up data",
       error: error.message,
     });
+  }
+});
+
+// L A B O R A T O R Y   T E S T   L I S T
+app.post("/api/laboratorytest-list", async (req, res) => {
+  try {
+    const newLaboratoryTest = await LaboratoryListModel.create(req.body);
+    res.status(201).json(newLaboratoryTest);
+  } catch (error) {
+    res.status(500).json({ message: "Error adding laboratory test to list", error });
+  }
+});
+
+app.get("/api/laboratorytest-list", async (req, res) => {
+  try {
+    const laboratorytests = await LaboratoryListModel.find();
+    res.json(laboratorytests);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching laboratory test", error });
+  }
+});
+
+app.delete("/api/laboratorytest-list/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deletedLaboratoryTest = await LaboratoryListModel.findByIdAndDelete(id);
+    if (!deletedLaboratoryTest) {
+      return res.status(404).json({ message: "Laboratory Test not found" });
+    }
+    res.json({ message: "Laboratory test deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting laboratory test", error });
+  }
+});
+
+app.put("/api/laboratorytest-list/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
+
+    const updatedLaboratoryTest = await LaboratoryListModel.findByIdAndUpdate(
+      id,
+      req.body,  // Body contains the updated data
+      { new: true, runValidators: true } // Return the updated test object
+    );
+    if (!updatedLaboratoryTest) {
+      return res.status(404).json({ message: "Laboratory Test not found" });
+    }
+    res.json(updatedLaboratoryTest); // Return the updated test
+  } catch (error) {
+    console.error("Error updating laboratory test:", error.stack);
+    res.status(500).json({ message: "Error updating laboratory test", error });
   }
 });
 

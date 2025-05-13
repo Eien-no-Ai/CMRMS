@@ -165,156 +165,250 @@ function Laboratory() {
   const toggleSerologyVisibility = () =>
     setIsSerologyVisible(!isSerologyVisible); // Toggle Serology visibility
 
-  const handleAddResultClick = async (record) => {
-    console.log("Clicked record:", record);
+  // const handleAddResultClick = async (record) => {
+  //   console.log("Clicked record:", record);
 
-    if (record && record.patient && record._id) {
-      try {
-        // Fetch patient data
-        const response = await axios.get(
-          `${apiUrl}/patients/${record.patient._id}`,
-          {
-            headers: {
-              "api-key": api_Key,
-            },
+  //   if (record && record.patient && record._id) {
+  //     try {
+  //       // Fetch patient data
+  //       const response = await axios.get(
+  //         `${apiUrl}/patients/${record.patient._id}`,
+  //         {
+  //           headers: {
+  //             "api-key": api_Key,
+  //           },
+  //         }
+  //       );
+  //       const patientData = response.data;
+
+  //       console.log("Fetched patient data:", patientData);
+
+  //       setFormData({
+  //         ORNumber: record.ORNumber || "",
+  //         labNumber: record.labNumber || "",
+  //         patient: record.patient._id,
+  //         clinicId: record.clinicId,
+  //         laboratoryId: record._id,
+  //         name: `${patientData.firstname} ${patientData.lastname}`,
+  //         courseDept:
+  //           patientData.patientType === "Student"
+  //             ? patientData.course
+  //             : patientData.position || "",
+  //         date: new Date().toISOString().split("T")[0],
+  //         age: getAge(patientData.birthdate),
+  //         sex: patientData.sex || "",
+  //         patientType: patientData.patientType,
+  //       });
+
+  //       // Determine requested categories
+  //       const categories = [];
+
+  //       // Helper function to check if an object has any non-empty values
+  //       const hasNonEmptyFields = (obj) => {
+  //         return Object.values(obj).some(
+  //           (value) =>
+  //             value !== "" &&
+  //             (typeof value !== "object" || hasNonEmptyFields(value))
+  //         );
+  //       };
+
+  //       // Check Blood Chemistry and its subcategories
+  //       if (record.bloodChemistry && hasNonEmptyFields(record.bloodChemistry)) {
+  //         categories.push("Blood Chemistry");
+
+  //         // Check for individual blood chemistry tests like bloodSugar, creatinine, etc.
+  //         const bloodChemistryKeys = [
+  //           "bloodSugar",
+  //           "bloodUreaNitrogen",
+  //           "bloodUricAcid",
+  //           "creatinine",
+  //           "SGOT_AST",
+  //           "SGPT_ALT",
+  //           "totalCholesterol",
+  //           "triglyceride",
+  //           "HDL_cholesterol",
+  //           "LDL_cholesterol",
+  //         ];
+
+  //         bloodChemistryKeys.forEach((key) => {
+  //           if (record.bloodChemistry[key]) {
+  //             categories.push(key); // Add each specific test under Blood Chemistry
+  //           }
+  //         });
+  //       }
+
+  //       // Check Hematology and its subcategories
+  //       if (record.hematology && hasNonEmptyFields(record.hematology)) {
+  //         categories.push("Hematology");
+
+  //         // Check for individual hematology tests like bleedingTimeClottingTime, etc.
+  //         const hematologyKeys = [
+  //           "bleedingTimeClottingTime",
+  //           "completeBloodCount",
+  //           "hematocritAndHemoglobin",
+  //         ];
+
+  //         hematologyKeys.forEach((key) => {
+  //           if (record.hematology[key]) {
+  //             categories.push(key); // Add each specific test under Hematology
+  //           }
+  //         });
+  //       }
+
+  //       // Check Clinical Microscopy and Parasitology and its subcategories
+  //       if (
+  //         record.clinicalMicroscopyParasitology &&
+  //         hasNonEmptyFields(record.clinicalMicroscopyParasitology)
+  //       ) {
+  //         categories.push("Clinical Microscopy and Parasitology");
+
+  //         // Check for individual clinical microscopy tests like routineUrinalysis, etc.
+  //         const clinicalMicroscopyKeys = [
+  //           "routineUrinalysis",
+  //           "routineStoolExamination",
+  //           "katoThickSmear",
+  //           "fecalOccultBloodTest",
+  //         ];
+
+  //         clinicalMicroscopyKeys.forEach((key) => {
+  //           if (record.clinicalMicroscopyParasitology[key]) {
+  //             categories.push(key); // Add each specific test under Clinical Microscopy and Parasitology
+  //           }
+  //         });
+  //       }
+
+  //       // Check Serology and its subcategories
+  //       if (
+  //         record.bloodBankingSerology &&
+  //         hasNonEmptyFields(record.bloodBankingSerology)
+  //       ) {
+  //         categories.push("Serology");
+
+  //         // Check for individual serology tests like antiTreponemaPallidum, etc.
+  //         const serologyKeys = [
+  //           "antiTreponemaPallidum",
+  //           "antiHCV",
+  //           "bloodTyping",
+  //           "hepatitisBSurfaceAntigen",
+  //           "pregnancyTest",
+  //           "dengueTest",
+  //           "HIVRapidTest",
+  //           "HIVElsa",
+  //           "testForSalmonellaTyphi",
+  //         ];
+
+  //         serologyKeys.forEach((key) => {
+  //           if (record.bloodBankingSerology[key]) {
+  //             categories.push(key); // Add each specific test under Serology
+  //           }
+  //         });
+  //       }
+
+  //       setRequestedCategories(categories);
+
+  //       openModal();
+  //     } catch (error) {
+  //       console.error("There was an error fetching the patient data!", error);
+  //     }
+  //   } else {
+  //     console.warn("No valid patient or clinic data found for this record.");
+  //     openModal();
+  //   }
+  // };
+const handleAddResultClick = async (record) => {
+  console.log("🧾 Clicked record:", record);
+
+  if (record && record.patient && record._id) {
+    try {
+      const token = localStorage.getItem("token"); // optional, depending on backend
+      const response = await axios.get(
+        `${apiUrl}/patients/${record.patient._id}`,
+        {
+          headers: {
+            "api-key": api_Key, // or Authorization: `Bearer ${token}` if required
+          },
+        }
+      );
+      const patientData = response.data;
+
+      // Prepare form data
+      setFormData({
+        ORNumber: record.ORNumber || "",
+        labNumber: record.labNumber || "",
+        patient: record.patient._id,
+        clinicId: record.clinicId,
+        laboratoryId: record._id,
+        name: `${patientData.firstname} ${patientData.lastname}`,
+        courseDept:
+          patientData.patientType === "Student"
+            ? patientData.course
+            : patientData.position || "",
+        date: new Date().toISOString().split("T")[0],
+        age: getAge(patientData.birthdate),
+        sex: patientData.sex || "",
+        patientType: patientData.patientType,
+      });
+
+      // Build test list
+      const tests = [];
+
+      if (Array.isArray(record.tests)) {
+        record.tests.forEach((test) => {
+          let details = [];
+
+          if (
+            Array.isArray(test.whatShouldBeIncluded) &&
+            test.whatShouldBeIncluded.length > 0
+          ) {
+            details = test.whatShouldBeIncluded
+              .map((item) => {
+                if (typeof item === "string") {
+                  return { fieldName: item };
+                } else if (item && typeof item === "object" && item.fieldName) {
+                  return { fieldName: item.fieldName };
+                }
+                return null;
+              })
+              .filter(Boolean);
+          } else if (Array.isArray(test.details)) {
+            details = test.details;
           }
-        );
-        const patientData = response.data;
 
-        console.log("Fetched patient data:", patientData);
+          console.log(`🔍 Test: ${test.name}, Reference Range:`, test.referenceRange);
 
-        setFormData({
-          ORNumber: record.ORNumber || "",
-          labNumber: record.labNumber || "",
-          patient: record.patient._id,
-          clinicId: record.clinicId,
-          laboratoryId: record._id,
-          name: `${patientData.firstname} ${patientData.lastname}`,
-          courseDept:
-            patientData.patientType === "Student"
-              ? patientData.course
-              : patientData.position || "",
-          date: new Date().toISOString().split("T")[0],
-          age: getAge(patientData.birthdate),
-          sex: patientData.sex || "",
-          patientType: patientData.patientType,
+          tests.push({
+            name: test.name || "Unnamed Test",
+            category: test.category || "Uncategorized",
+            referenceRange: test.referenceRange || "",
+            details,
+          });
         });
-
-        // Determine requested categories
-        const categories = [];
-
-        // Helper function to check if an object has any non-empty values
-        const hasNonEmptyFields = (obj) => {
-          return Object.values(obj).some(
-            (value) =>
-              value !== "" &&
-              (typeof value !== "object" || hasNonEmptyFields(value))
-          );
-        };
-
-        // Check Blood Chemistry and its subcategories
-        if (record.bloodChemistry && hasNonEmptyFields(record.bloodChemistry)) {
-          categories.push("Blood Chemistry");
-
-          // Check for individual blood chemistry tests like bloodSugar, creatinine, etc.
-          const bloodChemistryKeys = [
-            "bloodSugar",
-            "bloodUreaNitrogen",
-            "bloodUricAcid",
-            "creatinine",
-            "SGOT_AST",
-            "SGPT_ALT",
-            "totalCholesterol",
-            "triglyceride",
-            "HDL_cholesterol",
-            "LDL_cholesterol",
-          ];
-
-          bloodChemistryKeys.forEach((key) => {
-            if (record.bloodChemistry[key]) {
-              categories.push(key); // Add each specific test under Blood Chemistry
-            }
-          });
-        }
-
-        // Check Hematology and its subcategories
-        if (record.hematology && hasNonEmptyFields(record.hematology)) {
-          categories.push("Hematology");
-
-          // Check for individual hematology tests like bleedingTimeClottingTime, etc.
-          const hematologyKeys = [
-            "bleedingTimeClottingTime",
-            "completeBloodCount",
-            "hematocritAndHemoglobin",
-          ];
-
-          hematologyKeys.forEach((key) => {
-            if (record.hematology[key]) {
-              categories.push(key); // Add each specific test under Hematology
-            }
-          });
-        }
-
-        // Check Clinical Microscopy and Parasitology and its subcategories
-        if (
-          record.clinicalMicroscopyParasitology &&
-          hasNonEmptyFields(record.clinicalMicroscopyParasitology)
-        ) {
-          categories.push("Clinical Microscopy and Parasitology");
-
-          // Check for individual clinical microscopy tests like routineUrinalysis, etc.
-          const clinicalMicroscopyKeys = [
-            "routineUrinalysis",
-            "routineStoolExamination",
-            "katoThickSmear",
-            "fecalOccultBloodTest",
-          ];
-
-          clinicalMicroscopyKeys.forEach((key) => {
-            if (record.clinicalMicroscopyParasitology[key]) {
-              categories.push(key); // Add each specific test under Clinical Microscopy and Parasitology
-            }
-          });
-        }
-
-        // Check Serology and its subcategories
-        if (
-          record.bloodBankingSerology &&
-          hasNonEmptyFields(record.bloodBankingSerology)
-        ) {
-          categories.push("Serology");
-
-          // Check for individual serology tests like antiTreponemaPallidum, etc.
-          const serologyKeys = [
-            "antiTreponemaPallidum",
-            "antiHCV",
-            "bloodTyping",
-            "hepatitisBSurfaceAntigen",
-            "pregnancyTest",
-            "dengueTest",
-            "HIVRapidTest",
-            "HIVElsa",
-            "testForSalmonellaTyphi",
-          ];
-
-          serologyKeys.forEach((key) => {
-            if (record.bloodBankingSerology[key]) {
-              categories.push(key); // Add each specific test under Serology
-            }
-          });
-        }
-
-        setRequestedCategories(categories);
-
-        openModal();
-      } catch (error) {
-        console.error("There was an error fetching the patient data!", error);
       }
-    } else {
-      console.warn("No valid patient or clinic data found for this record.");
-      openModal();
+
+      // Log tests
+      console.log("🧪 Tests availed by user:");
+      tests.forEach((test, index) => {
+        console.log(`  ${index + 1}. ${test.name} (${test.category})`);
+        console.log("    Reference Range:", test.referenceRange || "N/A");
+        if (test.details.length > 0) {
+          test.details.forEach((d) => console.log("    -", d.fieldName));
+        } else {
+          console.log("    (No details)");
+        }
+      });
+
+      // ✅ Open the Add Result modal
+      setSelectedRecord({ ...record, tests });
+      setTestResults({});
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("❌ Error fetching patient data!", error);
     }
-  };
+  } else {
+    console.warn("⚠️ Missing patient or record ID.");
+  }
+};
+
 
   const handleInputChange = (e, parentKey, childKey, subChildKey, field) => {
     const { value } = e.target;
@@ -540,609 +634,601 @@ function Laboratory() {
     "bloodBankingSerology.signature": "",
   });
 
-  const validateForm = () => {
-    const newErrors = {};
+  // const validateForm = () => {
+  //   const newErrors = {};
 
-    // Helper function to check if a field is empty
-    const isEmpty = (value) => {
-      return (
-        value === undefined ||
-        value === null ||
-        (typeof value === "string" && value.trim() === "")
-      );
-    };
+  //   // Helper function to check if a field is empty
+  //   const isEmpty = (value) => {
+  //     return (
+  //       value === undefined ||
+  //       value === null ||
+  //       (typeof value === "string" && value.trim() === "")
+  //     );
+  //   };
 
-    // Validate Top-Level Fields
-    if (isEmpty(formData.ORNumber)) {
-      newErrors.ORNumber = "OR Number is required.";
-    }
+  //   // Validate Top-Level Fields
+  //   if (isEmpty(formData.ORNumber)) {
+  //     newErrors.ORNumber = "OR Number is required.";
+  //   }
 
-    if (isEmpty(formData.labNumber)) {
-      newErrors.labNumber = "Lab Number is required.";
-    }
+  //   if (isEmpty(formData.labNumber)) {
+  //     newErrors.labNumber = "Lab Number is required.";
+  //   }
 
-    // Validate Blood Chemistry Fields
-    if (requestedCategories.includes("bloodSugar")) {
-      if (isEmpty(formData.bloodChemistry?.bloodSugar)) {
-        newErrors.bloodSugar = "Blood Sugar is required.";
-      } else if (isNaN(formData.bloodChemistry.bloodSugar)) {
-        newErrors.bloodSugar = "Blood Sugar must be a number.";
-      }
-    }
+  //   // Validate Blood Chemistry Fields
+  //   if (requestedCategories.includes("bloodSugar")) {
+  //     if (isEmpty(formData.bloodChemistry?.bloodSugar)) {
+  //       newErrors.bloodSugar = "Blood Sugar is required.";
+  //     } else if (isNaN(formData.bloodChemistry.bloodSugar)) {
+  //       newErrors.bloodSugar = "Blood Sugar must be a number.";
+  //     }
+  //   }
 
-    if (requestedCategories.includes("bloodUreaNitrogen")) {
-      if (isEmpty(formData.bloodChemistry?.bloodUreaNitrogen)) {
-        newErrors.bloodUreaNitrogen = "Blood Urea Nitrogen is required.";
-      } else if (isNaN(formData.bloodChemistry.bloodUreaNitrogen)) {
-        newErrors.bloodUreaNitrogen = "Blood Urea Nitrogen must be a number.";
-      }
-    }
+  //   if (requestedCategories.includes("bloodUreaNitrogen")) {
+  //     if (isEmpty(formData.bloodChemistry?.bloodUreaNitrogen)) {
+  //       newErrors.bloodUreaNitrogen = "Blood Urea Nitrogen is required.";
+  //     } else if (isNaN(formData.bloodChemistry.bloodUreaNitrogen)) {
+  //       newErrors.bloodUreaNitrogen = "Blood Urea Nitrogen must be a number.";
+  //     }
+  //   }
 
-    if (requestedCategories.includes("bloodUricAcid")) {
-      if (isEmpty(formData.bloodChemistry?.bloodUricAcid)) {
-        newErrors.bloodUricAcid = "Blood Uric Acid is required.";
-      } else if (isNaN(formData.bloodChemistry.bloodUricAcid)) {
-        newErrors.bloodUricAcid = "Blood Uric Acid must be a number.";
-      }
-    }
+  //   if (requestedCategories.includes("bloodUricAcid")) {
+  //     if (isEmpty(formData.bloodChemistry?.bloodUricAcid)) {
+  //       newErrors.bloodUricAcid = "Blood Uric Acid is required.";
+  //     } else if (isNaN(formData.bloodChemistry.bloodUricAcid)) {
+  //       newErrors.bloodUricAcid = "Blood Uric Acid must be a number.";
+  //     }
+  //   }
 
-    if (requestedCategories.includes("creatinine")) {
-      if (isEmpty(formData.bloodChemistry?.creatinine)) {
-        newErrors.creatinine = "Creatinine is required.";
-      } else if (isNaN(formData.bloodChemistry.creatinine)) {
-        newErrors.creatinine = "Creatinine must be a number.";
-      }
-    }
+  //   if (requestedCategories.includes("creatinine")) {
+  //     if (isEmpty(formData.bloodChemistry?.creatinine)) {
+  //       newErrors.creatinine = "Creatinine is required.";
+  //     } else if (isNaN(formData.bloodChemistry.creatinine)) {
+  //       newErrors.creatinine = "Creatinine must be a number.";
+  //     }
+  //   }
 
-    if (requestedCategories.includes("SGOT_AST")) {
-      if (isEmpty(formData.bloodChemistry?.SGOT_AST)) {
-        newErrors.SGOT_AST = "SGOT_AST is required.";
-      } else if (isNaN(formData.bloodChemistry.SGOT_AST)) {
-        newErrors.SGOT_AST = "SGOT_AST must be a number.";
-      }
-    }
+  //   if (requestedCategories.includes("SGOT_AST")) {
+  //     if (isEmpty(formData.bloodChemistry?.SGOT_AST)) {
+  //       newErrors.SGOT_AST = "SGOT_AST is required.";
+  //     } else if (isNaN(formData.bloodChemistry.SGOT_AST)) {
+  //       newErrors.SGOT_AST = "SGOT_AST must be a number.";
+  //     }
+  //   }
 
-    if (requestedCategories.includes("SGPT_ALT")) {
-      if (isEmpty(formData.bloodChemistry?.SGPT_ALT)) {
-        newErrors.SGPT_ALT = "SGPT_ALT is required.";
-      } else if (isNaN(formData.bloodChemistry.SGOT_AST)) {
-        newErrors.SGOT_AST = "SGOT_AST must be a number.";
-      }
-    }
+  //   if (requestedCategories.includes("SGPT_ALT")) {
+  //     if (isEmpty(formData.bloodChemistry?.SGPT_ALT)) {
+  //       newErrors.SGPT_ALT = "SGPT_ALT is required.";
+  //     } else if (isNaN(formData.bloodChemistry.SGOT_AST)) {
+  //       newErrors.SGOT_AST = "SGOT_AST must be a number.";
+  //     }
+  //   }
 
-    if (requestedCategories.includes("totalCholesterol")) {
-      if (isEmpty(formData.bloodChemistry?.totalCholesterol)) {
-        newErrors.totalCholesterol = "Total Cholesterol is required.";
-      } else if (isNaN(formData.bloodChemistry.totalCholesterol)) {
-        newErrors.totalCholesterol = "Total Cholesterol must be a number.";
-      }
-    }
+  //   if (requestedCategories.includes("totalCholesterol")) {
+  //     if (isEmpty(formData.bloodChemistry?.totalCholesterol)) {
+  //       newErrors.totalCholesterol = "Total Cholesterol is required.";
+  //     } else if (isNaN(formData.bloodChemistry.totalCholesterol)) {
+  //       newErrors.totalCholesterol = "Total Cholesterol must be a number.";
+  //     }
+  //   }
 
-    if (requestedCategories.includes("triglyceride")) {
-      if (isEmpty(formData.bloodChemistry?.triglyceride)) {
-        newErrors.triglyceride = "Triglyceride is required.";
-      } else if (isNaN(formData.bloodChemistry.triglyceride)) {
-        newErrors.triglyceride = "Triglyceride must be a number.";
-      }
-    }
+  //   if (requestedCategories.includes("triglyceride")) {
+  //     if (isEmpty(formData.bloodChemistry?.triglyceride)) {
+  //       newErrors.triglyceride = "Triglyceride is required.";
+  //     } else if (isNaN(formData.bloodChemistry.triglyceride)) {
+  //       newErrors.triglyceride = "Triglyceride must be a number.";
+  //     }
+  //   }
 
-    if (requestedCategories.includes("HDL_cholesterol")) {
-      if (isEmpty(formData.bloodChemistry?.HDL_cholesterol)) {
-        newErrors.HDL_cholesterol = "HDL Cholesterol is required.";
-      } else if (isNaN(formData.bloodChemistry.HDL_cholesterol)) {
-        newErrors.HDL_cholesterol = "HDL Cholesterol must be a number.";
-      }
-    }
+  //   if (requestedCategories.includes("HDL_cholesterol")) {
+  //     if (isEmpty(formData.bloodChemistry?.HDL_cholesterol)) {
+  //       newErrors.HDL_cholesterol = "HDL Cholesterol is required.";
+  //     } else if (isNaN(formData.bloodChemistry.HDL_cholesterol)) {
+  //       newErrors.HDL_cholesterol = "HDL Cholesterol must be a number.";
+  //     }
+  //   }
 
-    if (requestedCategories.includes("LDL_cholesterol")) {
-      if (isEmpty(formData.bloodChemistry?.LDL_cholesterol)) {
-        newErrors.LDL_cholesterol = "LDL Cholesterol is required.";
-      } else if (isNaN(formData.bloodChemistry.LDL_cholesterol)) {
-        newErrors.LDL_cholesterol = "HDL Cholesterol must be a number.";
-      }
-    }
+  //   if (requestedCategories.includes("LDL_cholesterol")) {
+  //     if (isEmpty(formData.bloodChemistry?.LDL_cholesterol)) {
+  //       newErrors.LDL_cholesterol = "LDL Cholesterol is required.";
+  //     } else if (isNaN(formData.bloodChemistry.LDL_cholesterol)) {
+  //       newErrors.LDL_cholesterol = "HDL Cholesterol must be a number.";
+  //     }
+  //   }
 
-    // Validate Hematology Fields
-    if (requestedCategories.includes("completeBloodCount")) {
-      // Red Blood Cell Count
-      if (isEmpty(formData.Hematology?.redBloodCellCount)) {
-        newErrors.redBloodCellCount = "Red Blood Cell Count is required.";
-      } else if (isNaN(formData.Hematology.redBloodCellCount)) {
-        newErrors.redBloodCellCount = "Red Blood Cell Count must be a number.";
-      }
+  //   // Validate Hematology Fields
+  //   if (requestedCategories.includes("completeBloodCount")) {
+  //     // Red Blood Cell Count
+  //     if (isEmpty(formData.Hematology?.redBloodCellCount)) {
+  //       newErrors.redBloodCellCount = "Red Blood Cell Count is required.";
+  //     } else if (isNaN(formData.Hematology.redBloodCellCount)) {
+  //       newErrors.redBloodCellCount = "Red Blood Cell Count must be a number.";
+  //     }
 
-      // Hemoglobin
-      if (isEmpty(formData.Hematology?.Hemoglobin)) {
-        newErrors.Hemoglobin = "Hemoglobin is required.";
-      } else if (isNaN(formData.Hematology.Hemoglobin)) {
-        newErrors.Hemoglobin = "Hemoglobin must be a number.";
-      }
+  //     // Hemoglobin
+  //     if (isEmpty(formData.Hematology?.Hemoglobin)) {
+  //       newErrors.Hemoglobin = "Hemoglobin is required.";
+  //     } else if (isNaN(formData.Hematology.Hemoglobin)) {
+  //       newErrors.Hemoglobin = "Hemoglobin must be a number.";
+  //     }
 
-      // Hematocrit
-      if (isEmpty(formData.Hematology?.Hematocrit)) {
-        newErrors.Hematocrit = "Hematocrit is required.";
-      } else if (isNaN(formData.Hematology.Hematocrit)) {
-        newErrors.Hematocrit = "Hematocrit must be a number.";
-      }
+  //     // Hematocrit
+  //     if (isEmpty(formData.Hematology?.Hematocrit)) {
+  //       newErrors.Hematocrit = "Hematocrit is required.";
+  //     } else if (isNaN(formData.Hematology.Hematocrit)) {
+  //       newErrors.Hematocrit = "Hematocrit must be a number.";
+  //     }
 
-      // Leukocyte Count
-      if (isEmpty(formData.Hematology?.LeukocyteCount)) {
-        newErrors.LeukocyteCount = "Leukocyte Count is required.";
-      } else if (isNaN(formData.Hematology.LeukocyteCount)) {
-        newErrors.LeukocyteCount = "Leukocyte Count must be a number.";
-      }
+  //     // Leukocyte Count
+  //     if (isEmpty(formData.Hematology?.LeukocyteCount)) {
+  //       newErrors.LeukocyteCount = "Leukocyte Count is required.";
+  //     } else if (isNaN(formData.Hematology.LeukocyteCount)) {
+  //       newErrors.LeukocyteCount = "Leukocyte Count must be a number.";
+  //     }
 
-      // Differential Count Fields
-      const differentialFields = [
-        "segmenters",
-        "lymphocytes",
-        "monocytes",
-        "eosinophils",
-        "basophils",
-        "total",
-      ];
+  //     // Differential Count Fields
+  //     const differentialFields = [
+  //       "segmenters",
+  //       "lymphocytes",
+  //       "monocytes",
+  //       "eosinophils",
+  //       "basophils",
+  //       "total",
+  //     ];
 
-      differentialFields.forEach((field) => {
-        const key = `DifferentialCount.${field}`;
-        if (isEmpty(formData.Hematology?.DifferentialCount?.[field])) {
-          newErrors[key] = `${
-            field.charAt(0).toUpperCase() + field.slice(1)
-          } is required.`;
-        } else if (isNaN(formData.Hematology.DifferentialCount[field])) {
-          newErrors[key] = `${
-            field.charAt(0).toUpperCase() + field.slice(1)
-          } must be a number.`;
-        }
+  //     differentialFields.forEach((field) => {
+  //       const key = `DifferentialCount.${field}`;
+  //       if (isEmpty(formData.Hematology?.DifferentialCount?.[field])) {
+  //         newErrors[key] = `${
+  //           field.charAt(0).toUpperCase() + field.slice(1)
+  //         } is required.`;
+  //       } else if (isNaN(formData.Hematology.DifferentialCount[field])) {
+  //         newErrors[key] = `${
+  //           field.charAt(0).toUpperCase() + field.slice(1)
+  //         } must be a number.`;
+  //       }
+  //     });
+
+  //     // Platelet Count
+  //     if (isEmpty(formData.Hematology?.PlateletCount)) {
+  //       newErrors.PlateletCount = "Platelet Count is required.";
+  //     } else if (isNaN(formData.Hematology.PlateletCount)) {
+  //       newErrors.PlateletCount = "Platelet Count must be a number.";
+  //     }
+  //   }
+
+  //   if (requestedCategories.includes("bleedingTimeClottingTime")) {
+  //     if (isEmpty(formData.Hematology?.others)) {
+  //       newErrors.others = "This field is required.";
+  //     }
+  //   }
+
+  //   // Validate Clinical Microscopy and Parasitology Fields
+
+  //   if (requestedCategories.includes("routineUrinalysis")) {
+  //     if (
+  //       isEmpty(formData.clinicalMicroscopyParasitology?.routineUrinalysis.LMP)
+  //     ) {
+  //       newErrors["routineUrinalysis.LMP"] = "LMP is required.";
+  //     }
+
+  //     // Macroscopic Examination
+  //     const macroscopicFields = ["color", "appearance"];
+  //     macroscopicFields.forEach((field) => {
+  //       const key = `routineUrinalysis.macroscopicExam.${field}`;
+  //       if (
+  //         isEmpty(
+  //           formData.clinicalMicroscopyParasitology?.routineUrinalysis
+  //             .macroscopicExam[field]
+  //         )
+  //       ) {
+  //         newErrors[key] = `${
+  //           field.charAt(0).toUpperCase() + field.slice(1)
+  //         } is required.`;
+  //       }
+  //     });
+
+  //     // Chemical Examination
+  //     const chemicalFields = [
+  //       "sugar",
+  //       "albumin",
+  //       "blood",
+  //       "bilirubin",
+  //       "urobilinogen",
+  //       "ketones",
+  //       "nitrites",
+  //       "leukocytes",
+  //       "reaction",
+  //       "specificGravity",
+  //     ];
+
+  //     chemicalFields.forEach((field) => {
+  //       const key = `routineUrinalysis.chemicalExam.${field}`;
+  //       const value =
+  //         formData.clinicalMicroscopyParasitology?.routineUrinalysis
+  //           ?.chemicalExam?.[field];
+  //       if (isEmpty(value)) {
+  //         newErrors[key] = `${
+  //           field.charAt(0).toUpperCase() + field.slice(1)
+  //         } is required.`;
+  //       } else if (
+  //         [
+  //           "sugar",
+  //           "albumin",
+  //           "blood",
+  //           "bilirubin",
+  //           "urobilinogen",
+  //           "ketones",
+  //           "nitrites",
+  //           "leukocytes",
+  //           "reaction",
+  //           "specificGravity",
+  //         ].includes(field)
+  //       ) {
+  //         if (isNaN(value)) {
+  //           newErrors[key] = `${
+  //             field.charAt(0).toUpperCase() + field.slice(1)
+  //           } must be a number.`;
+  //         }
+  //       }
+  //     });
+
+  //     // Microscopic Examination
+  //     const microscopicFields = [
+  //       "pusCells",
+  //       "RBC",
+  //       "epithelialCells",
+  //       "casts",
+  //       "crystals",
+  //       "bacteria",
+  //       "yeastCells",
+  //       "mucusThreads",
+  //       "amorphous",
+  //       "others",
+  //     ];
+
+  //     microscopicFields.forEach((field) => {
+  //       const key = `routineUrinalysis.microscopicExam.${field}`;
+  //       const value =
+  //         formData.clinicalMicroscopyParasitology?.routineUrinalysis
+  //           ?.microscopicExam?.[field];
+  //       if (isEmpty(value)) {
+  //         newErrors[key] = `${
+  //           field.charAt(0).toUpperCase() + field.slice(1)
+  //         } is required.`;
+  //       }
+  //     });
+  //   }
+
+  //   // Validate Routine Fecalysis
+  //   if (requestedCategories.includes("routineStoolExamination")) {
+  //     if (
+  //       isEmpty(
+  //         formData.clinicalMicroscopyParasitology?.routineFecalysis?.color
+  //       )
+  //     ) {
+  //       newErrors["routineFecalysis.color"] = "Color is required.";
+  //     }
+
+  //     if (
+  //       isEmpty(
+  //         formData.clinicalMicroscopyParasitology?.routineFecalysis?.consistency
+  //       )
+  //     ) {
+  //       newErrors["routineFecalysis.consistency"] = "Consistency is required.";
+  //     }
+  //   }
+
+  //   if (requestedCategories.includes("katoThickSmear")) {
+  //     // Microscopic Examination
+  //     const fecalMicroscopicFields = ["directFecalSmear", "katoThickSmear"];
+  //     fecalMicroscopicFields.forEach((field) => {
+  //       const key = `routineFecalysis.microscopicExam.${field}`;
+  //       const value =
+  //         formData.clinicalMicroscopyParasitology?.routineFecalysis
+  //           ?.microscopicExam?.[field];
+  //       if (isEmpty(value)) {
+  //         newErrors[key] = `${
+  //           field === "directFecalSmear"
+  //             ? "Direct Fecal Smear"
+  //             : "Kato Thick Smear"
+  //         } is required.`;
+  //       }
+  //     });
+  //   }
+
+  //   if (requestedCategories.includes("fecalOccultBloodTest")) {
+  //     if (
+  //       isEmpty(
+  //         formData.clinicalMicroscopyParasitology?.routineFecalysis?.others
+  //       )
+  //     ) {
+  //       newErrors["routineFecalysis.others"] = "Others field is required.";
+  //     }
+  //   }
+
+  //   // Validate Blood Banking Serology Fields
+  //   if (requestedCategories.includes("hepatitisBSurfaceAntigen")) {
+  //     // Hepatitis B Surface Antigen
+  //     if (
+  //       isEmpty(
+  //         formData.bloodBankingSerology?.hepatitisBSurfaceAntigen?.methodUsed
+  //       )
+  //     ) {
+  //       newErrors.hepatitisBSurfaceAntigenMethodUsed =
+  //         "Method Used is required for Hepatitis B Surface Antigen.";
+  //     }
+  //     if (
+  //       isEmpty(
+  //         formData.bloodBankingSerology?.hepatitisBSurfaceAntigen?.lotNumber
+  //       )
+  //     ) {
+  //       newErrors.hepatitisBSurfaceAntigenLotNumber =
+  //         "Lot Number is required for Hepatitis B Surface Antigen.";
+  //     }
+  //     if (
+  //       isEmpty(
+  //         formData.bloodBankingSerology?.hepatitisBSurfaceAntigen
+  //           ?.expirationDate
+  //       )
+  //     ) {
+  //       newErrors.hepatitisBSurfaceAntigenExpirationDate =
+  //         "Expiration Date is required for Hepatitis B Surface Antigen.";
+  //     }
+  //     if (
+  //       isEmpty(formData.bloodBankingSerology?.hepatitisBSurfaceAntigen?.result)
+  //     ) {
+  //       newErrors.hepatitisBSurfaceAntigenResult =
+  //         "Result is required for Hepatitis B Surface Antigen.";
+  //     }
+  //   }
+  //   if (requestedCategories.includes("pregnancyTest")) {
+  //     // Serum Pregnancy
+  //     if (isEmpty(formData.bloodBankingSerology?.serumPregnancy?.methodUsed)) {
+  //       newErrors.serumPregnancyMethodUsed =
+  //         "Method Used is required for Serum Pregnancy.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.serumPregnancy?.lotNumber)) {
+  //       newErrors.serumPregnancyLotNumber =
+  //         "Lot Number is required for Serum Pregnancy.";
+  //     }
+  //     if (
+  //       isEmpty(formData.bloodBankingSerology?.serumPregnancy?.expirationDate)
+  //     ) {
+  //       newErrors.serumPregnancyExpirationDate =
+  //         "Expiration Date is required for Serum Pregnancy.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.serumPregnancy?.result)) {
+  //       newErrors.serumPregnancyResult =
+  //         "Result is required for Serum Pregnancy.";
+  //     }
+  //   }
+
+  //   if (requestedCategories.includes("testForSalmonellaTyphi")) {
+  //     // Salmonella Typhi
+  //     if (isEmpty(formData.bloodBankingSerology?.salmonellaTyphi?.methodUsed)) {
+  //       newErrors.salmonellaTyphiMethodUsed =
+  //         "Method Used is required for Salmonella Typhi.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.salmonellaTyphi?.lotNumber)) {
+  //       newErrors.salmonellaTyphiLotNumber =
+  //         "Lot Number is required for Salmonella Typhi.";
+  //     }
+  //     if (
+  //       isEmpty(formData.bloodBankingSerology?.salmonellaTyphi?.expirationDate)
+  //     ) {
+  //       newErrors.salmonellaTyphiExpirationDate =
+  //         "Expiration Date is required for Salmonella Typhi.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.salmonellaTyphi?.result)) {
+  //       newErrors.salmonellaTyphiResult =
+  //         "Result is required for Salmonella Typhi.";
+  //     }
+  //   }
+
+  //   if (requestedCategories.includes("dengueTest")) {
+  //     // Test Dengue
+  //     if (isEmpty(formData.bloodBankingSerology?.testDengue?.methodUsed)) {
+  //       newErrors.testDengueMethodUsed =
+  //         "Method Used is required for Test Dengue.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.testDengue?.lotNumber)) {
+  //       newErrors.testDengueLotNumber =
+  //         "Lot Number is required for Test Dengue.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.testDengue?.expirationDate)) {
+  //       newErrors.testDengueExpirationDate =
+  //         "Expiration Date is required for Test Dengue.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.testDengue?.result)) {
+  //       newErrors.testDengueResult = "Result is required for Test Dengue.";
+  //     }
+  //   }
+
+  //   if (requestedCategories.includes("antiHCV")) {
+  //     // Anti HAV Test
+  //     if (isEmpty(formData.bloodBankingSerology?.antiHAVTest?.methodUsed)) {
+  //       newErrors.antiHAVTestMethodUsed =
+  //         "Method Used is required for Anti HAV Test.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.antiHAVTest?.lotNumber)) {
+  //       newErrors.antiHAVTestLotNumber =
+  //         "Lot Number is required for Anti HAV Test.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.antiHAVTest?.expirationDate)) {
+  //       newErrors.antiHAVTestExpirationDate =
+  //         "Expiration Date is required for Anti HAV Test.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.antiHAVTest?.result)) {
+  //       newErrors.antiHAVTestResult = "Result is required for Anti HAV Test.";
+  //     }
+  //   }
+
+  //   if (requestedCategories.includes("antiTreponemaPallidum")) {
+  //     // Treponema Pallidum Test
+  //     if (
+  //       isEmpty(
+  //         formData.bloodBankingSerology?.treponemaPallidumTest?.methodUsed
+  //       )
+  //     ) {
+  //       newErrors.treponemaPallidumTestMethodUsed =
+  //         "Method Used is required for Treponema Pallidum Test.";
+  //     }
+  //     if (
+  //       isEmpty(formData.bloodBankingSerology?.treponemaPallidumTest?.lotNumber)
+  //     ) {
+  //       newErrors.treponemaPallidumTestLotNumber =
+  //         "Lot Number is required for Treponema Pallidum Test.";
+  //     }
+  //     if (
+  //       isEmpty(
+  //         formData.bloodBankingSerology?.treponemaPallidumTest?.expirationDate
+  //       )
+  //     ) {
+  //       newErrors.treponemaPallidumTestExpirationDate =
+  //         "Expiration Date is required for Treponema Pallidum Test.";
+  //     }
+  //     if (
+  //       isEmpty(formData.bloodBankingSerology?.treponemaPallidumTest?.result)
+  //     ) {
+  //       newErrors.treponemaPallidumTestResult =
+  //         "Result is required for Treponema Pallidum Test.";
+  //     }
+  //   }
+  //   if (requestedCategories.includes("bloodTyping")) {
+  //     // Blood Typing
+  //     if (isEmpty(formData.bloodBankingSerology?.bloodTyping?.ABOType)) {
+  //       newErrors.bloodTypingABOType = "ABO Type is required for Blood Typing.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.bloodTyping?.RhType)) {
+  //       newErrors.bloodTypingRhType = "Rh Type is required for Blood Typing.";
+  //     }
+  //   }
+  //   if (requestedCategories.includes("HIVELsa")) {
+  //     // Others
+  //     if (isEmpty(formData.bloodBankingSerology?.others?.methodUsed)) {
+  //       newErrors.othersMethodUsed = "Method Used is required for Others.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.others?.lotNumber)) {
+  //       newErrors.othersLotNumber = "Lot Number is required for Others.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.others?.expirationDate)) {
+  //       newErrors.othersExpirationDate =
+  //         "Expiration Date is required for Others.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.others?.result)) {
+  //       newErrors.othersResult = "Result is required for Others.";
+  //     }
+  //   }
+
+  //   if (requestedCategories.includes("HIVRapidTest")) {
+  //     // Others
+  //     if (isEmpty(formData.bloodBankingSerology?.others?.methodUsed)) {
+  //       newErrors.othersMethodUsed = "Method Used is required for Others.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.others?.lotNumber)) {
+  //       newErrors.othersLotNumber = "Lot Number is required for Others.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.others?.expirationDate)) {
+  //       newErrors.othersExpirationDate =
+  //         "Expiration Date is required for Others.";
+  //     }
+  //     if (isEmpty(formData.bloodBankingSerology?.others?.result)) {
+  //       newErrors.othersResult = "Result is required for Others.";
+  //     }
+  //   }
+
+  //   // Set the error messages
+  //   setErrorMessage(newErrors);
+
+  //   // Determine if there are any errors
+  //   const hasErrors = Object.keys(newErrors).length > 0;
+
+  //   return !hasErrors; // Returns true if no errors
+  // };
+
+      const [selectedRecord, setSelectedRecord] = useState(null);
+const [testResults, setTestResults] = useState({});
+
+const handleSaveResult = async () => {
+  const {
+    ORNumber,
+    labNumber,
+    patient,
+    clinicId,
+    laboratoryId,
+    ...dynamicResults
+  } = formData;
+
+  const results = [];
+
+  // Build results from dynamic categories and tests
+  Object.entries(dynamicResults).forEach(([category, tests]) => {
+    if (tests && typeof tests === "object") {
+      Object.entries(tests).forEach(([testName, result]) => {
+        results.push({
+          category,
+          testName,
+          result,
+        });
       });
-
-      // Platelet Count
-      if (isEmpty(formData.Hematology?.PlateletCount)) {
-        newErrors.PlateletCount = "Platelet Count is required.";
-      } else if (isNaN(formData.Hematology.PlateletCount)) {
-        newErrors.PlateletCount = "Platelet Count must be a number.";
-      }
     }
+  });
 
-    if (requestedCategories.includes("bleedingTimeClottingTime")) {
-      if (isEmpty(formData.Hematology?.others)) {
-        newErrors.others = "This field is required.";
-      }
-    }
-
-    // Validate Clinical Microscopy and Parasitology Fields
-
-    if (requestedCategories.includes("routineUrinalysis")) {
-      if (
-        isEmpty(formData.clinicalMicroscopyParasitology?.routineUrinalysis.LMP)
-      ) {
-        newErrors["routineUrinalysis.LMP"] = "LMP is required.";
-      }
-
-      // Macroscopic Examination
-      const macroscopicFields = ["color", "appearance"];
-      macroscopicFields.forEach((field) => {
-        const key = `routineUrinalysis.macroscopicExam.${field}`;
-        if (
-          isEmpty(
-            formData.clinicalMicroscopyParasitology?.routineUrinalysis
-              .macroscopicExam[field]
-          )
-        ) {
-          newErrors[key] = `${
-            field.charAt(0).toUpperCase() + field.slice(1)
-          } is required.`;
-        }
-      });
-
-      // Chemical Examination
-      const chemicalFields = [
-        "sugar",
-        "albumin",
-        "blood",
-        "bilirubin",
-        "urobilinogen",
-        "ketones",
-        "nitrites",
-        "leukocytes",
-        "reaction",
-        "specificGravity",
-      ];
-
-      chemicalFields.forEach((field) => {
-        const key = `routineUrinalysis.chemicalExam.${field}`;
-        const value =
-          formData.clinicalMicroscopyParasitology?.routineUrinalysis
-            ?.chemicalExam?.[field];
-        if (isEmpty(value)) {
-          newErrors[key] = `${
-            field.charAt(0).toUpperCase() + field.slice(1)
-          } is required.`;
-        } else if (
-          [
-            "sugar",
-            "albumin",
-            "blood",
-            "bilirubin",
-            "urobilinogen",
-            "ketones",
-            "nitrites",
-            "leukocytes",
-            "reaction",
-            "specificGravity",
-          ].includes(field)
-        ) {
-          if (isNaN(value)) {
-            newErrors[key] = `${
-              field.charAt(0).toUpperCase() + field.slice(1)
-            } must be a number.`;
-          }
-        }
-      });
-
-      // Microscopic Examination
-      const microscopicFields = [
-        "pusCells",
-        "RBC",
-        "epithelialCells",
-        "casts",
-        "crystals",
-        "bacteria",
-        "yeastCells",
-        "mucusThreads",
-        "amorphous",
-        "others",
-      ];
-
-      microscopicFields.forEach((field) => {
-        const key = `routineUrinalysis.microscopicExam.${field}`;
-        const value =
-          formData.clinicalMicroscopyParasitology?.routineUrinalysis
-            ?.microscopicExam?.[field];
-        if (isEmpty(value)) {
-          newErrors[key] = `${
-            field.charAt(0).toUpperCase() + field.slice(1)
-          } is required.`;
-        }
-      });
-    }
-
-    // Validate Routine Fecalysis
-    if (requestedCategories.includes("routineStoolExamination")) {
-      if (
-        isEmpty(
-          formData.clinicalMicroscopyParasitology?.routineFecalysis?.color
-        )
-      ) {
-        newErrors["routineFecalysis.color"] = "Color is required.";
-      }
-
-      if (
-        isEmpty(
-          formData.clinicalMicroscopyParasitology?.routineFecalysis?.consistency
-        )
-      ) {
-        newErrors["routineFecalysis.consistency"] = "Consistency is required.";
-      }
-    }
-
-    if (requestedCategories.includes("katoThickSmear")) {
-      // Microscopic Examination
-      const fecalMicroscopicFields = ["directFecalSmear", "katoThickSmear"];
-      fecalMicroscopicFields.forEach((field) => {
-        const key = `routineFecalysis.microscopicExam.${field}`;
-        const value =
-          formData.clinicalMicroscopyParasitology?.routineFecalysis
-            ?.microscopicExam?.[field];
-        if (isEmpty(value)) {
-          newErrors[key] = `${
-            field === "directFecalSmear"
-              ? "Direct Fecal Smear"
-              : "Kato Thick Smear"
-          } is required.`;
-        }
-      });
-    }
-
-    if (requestedCategories.includes("fecalOccultBloodTest")) {
-      if (
-        isEmpty(
-          formData.clinicalMicroscopyParasitology?.routineFecalysis?.others
-        )
-      ) {
-        newErrors["routineFecalysis.others"] = "Others field is required.";
-      }
-    }
-
-    // Validate Blood Banking Serology Fields
-    if (requestedCategories.includes("hepatitisBSurfaceAntigen")) {
-      // Hepatitis B Surface Antigen
-      if (
-        isEmpty(
-          formData.bloodBankingSerology?.hepatitisBSurfaceAntigen?.methodUsed
-        )
-      ) {
-        newErrors.hepatitisBSurfaceAntigenMethodUsed =
-          "Method Used is required for Hepatitis B Surface Antigen.";
-      }
-      if (
-        isEmpty(
-          formData.bloodBankingSerology?.hepatitisBSurfaceAntigen?.lotNumber
-        )
-      ) {
-        newErrors.hepatitisBSurfaceAntigenLotNumber =
-          "Lot Number is required for Hepatitis B Surface Antigen.";
-      }
-      if (
-        isEmpty(
-          formData.bloodBankingSerology?.hepatitisBSurfaceAntigen
-            ?.expirationDate
-        )
-      ) {
-        newErrors.hepatitisBSurfaceAntigenExpirationDate =
-          "Expiration Date is required for Hepatitis B Surface Antigen.";
-      }
-      if (
-        isEmpty(formData.bloodBankingSerology?.hepatitisBSurfaceAntigen?.result)
-      ) {
-        newErrors.hepatitisBSurfaceAntigenResult =
-          "Result is required for Hepatitis B Surface Antigen.";
-      }
-    }
-    if (requestedCategories.includes("pregnancyTest")) {
-      // Serum Pregnancy
-      if (isEmpty(formData.bloodBankingSerology?.serumPregnancy?.methodUsed)) {
-        newErrors.serumPregnancyMethodUsed =
-          "Method Used is required for Serum Pregnancy.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.serumPregnancy?.lotNumber)) {
-        newErrors.serumPregnancyLotNumber =
-          "Lot Number is required for Serum Pregnancy.";
-      }
-      if (
-        isEmpty(formData.bloodBankingSerology?.serumPregnancy?.expirationDate)
-      ) {
-        newErrors.serumPregnancyExpirationDate =
-          "Expiration Date is required for Serum Pregnancy.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.serumPregnancy?.result)) {
-        newErrors.serumPregnancyResult =
-          "Result is required for Serum Pregnancy.";
-      }
-    }
-
-    if (requestedCategories.includes("testForSalmonellaTyphi")) {
-      // Salmonella Typhi
-      if (isEmpty(formData.bloodBankingSerology?.salmonellaTyphi?.methodUsed)) {
-        newErrors.salmonellaTyphiMethodUsed =
-          "Method Used is required for Salmonella Typhi.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.salmonellaTyphi?.lotNumber)) {
-        newErrors.salmonellaTyphiLotNumber =
-          "Lot Number is required for Salmonella Typhi.";
-      }
-      if (
-        isEmpty(formData.bloodBankingSerology?.salmonellaTyphi?.expirationDate)
-      ) {
-        newErrors.salmonellaTyphiExpirationDate =
-          "Expiration Date is required for Salmonella Typhi.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.salmonellaTyphi?.result)) {
-        newErrors.salmonellaTyphiResult =
-          "Result is required for Salmonella Typhi.";
-      }
-    }
-
-    if (requestedCategories.includes("dengueTest")) {
-      // Test Dengue
-      if (isEmpty(formData.bloodBankingSerology?.testDengue?.methodUsed)) {
-        newErrors.testDengueMethodUsed =
-          "Method Used is required for Test Dengue.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.testDengue?.lotNumber)) {
-        newErrors.testDengueLotNumber =
-          "Lot Number is required for Test Dengue.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.testDengue?.expirationDate)) {
-        newErrors.testDengueExpirationDate =
-          "Expiration Date is required for Test Dengue.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.testDengue?.result)) {
-        newErrors.testDengueResult = "Result is required for Test Dengue.";
-      }
-    }
-
-    if (requestedCategories.includes("antiHCV")) {
-      // Anti HAV Test
-      if (isEmpty(formData.bloodBankingSerology?.antiHAVTest?.methodUsed)) {
-        newErrors.antiHAVTestMethodUsed =
-          "Method Used is required for Anti HAV Test.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.antiHAVTest?.lotNumber)) {
-        newErrors.antiHAVTestLotNumber =
-          "Lot Number is required for Anti HAV Test.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.antiHAVTest?.expirationDate)) {
-        newErrors.antiHAVTestExpirationDate =
-          "Expiration Date is required for Anti HAV Test.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.antiHAVTest?.result)) {
-        newErrors.antiHAVTestResult = "Result is required for Anti HAV Test.";
-      }
-    }
-
-    if (requestedCategories.includes("antiTreponemaPallidum")) {
-      // Treponema Pallidum Test
-      if (
-        isEmpty(
-          formData.bloodBankingSerology?.treponemaPallidumTest?.methodUsed
-        )
-      ) {
-        newErrors.treponemaPallidumTestMethodUsed =
-          "Method Used is required for Treponema Pallidum Test.";
-      }
-      if (
-        isEmpty(formData.bloodBankingSerology?.treponemaPallidumTest?.lotNumber)
-      ) {
-        newErrors.treponemaPallidumTestLotNumber =
-          "Lot Number is required for Treponema Pallidum Test.";
-      }
-      if (
-        isEmpty(
-          formData.bloodBankingSerology?.treponemaPallidumTest?.expirationDate
-        )
-      ) {
-        newErrors.treponemaPallidumTestExpirationDate =
-          "Expiration Date is required for Treponema Pallidum Test.";
-      }
-      if (
-        isEmpty(formData.bloodBankingSerology?.treponemaPallidumTest?.result)
-      ) {
-        newErrors.treponemaPallidumTestResult =
-          "Result is required for Treponema Pallidum Test.";
-      }
-    }
-    if (requestedCategories.includes("bloodTyping")) {
-      // Blood Typing
-      if (isEmpty(formData.bloodBankingSerology?.bloodTyping?.ABOType)) {
-        newErrors.bloodTypingABOType = "ABO Type is required for Blood Typing.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.bloodTyping?.RhType)) {
-        newErrors.bloodTypingRhType = "Rh Type is required for Blood Typing.";
-      }
-    }
-    if (requestedCategories.includes("HIVELsa")) {
-      // Others
-      if (isEmpty(formData.bloodBankingSerology?.others?.methodUsed)) {
-        newErrors.othersMethodUsed = "Method Used is required for Others.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.others?.lotNumber)) {
-        newErrors.othersLotNumber = "Lot Number is required for Others.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.others?.expirationDate)) {
-        newErrors.othersExpirationDate =
-          "Expiration Date is required for Others.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.others?.result)) {
-        newErrors.othersResult = "Result is required for Others.";
-      }
-    }
-
-    if (requestedCategories.includes("HIVRapidTest")) {
-      // Others
-      if (isEmpty(formData.bloodBankingSerology?.others?.methodUsed)) {
-        newErrors.othersMethodUsed = "Method Used is required for Others.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.others?.lotNumber)) {
-        newErrors.othersLotNumber = "Lot Number is required for Others.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.others?.expirationDate)) {
-        newErrors.othersExpirationDate =
-          "Expiration Date is required for Others.";
-      }
-      if (isEmpty(formData.bloodBankingSerology?.others?.result)) {
-        newErrors.othersResult = "Result is required for Others.";
-      }
-    }
-
-    // Set the error messages
-    setErrorMessage(newErrors);
-
-    // Determine if there are any errors
-    const hasErrors = Object.keys(newErrors).length > 0;
-
-    return !hasErrors; // Returns true if no errors
+  const dataToSend = {
+    ORNumber,
+    labNumber,
+    patient,
+    clinicId,
+    laboratoryId,
+    results,
   };
 
-  const handleSaveResult = async () => {
-    if (!validateForm()) {
-      return; // Stop submission if there are validation errors
-    }
+  try {
+    const token = localStorage.getItem("token"); // if you're using token-based auth
 
-    console.log("Current form data:", formData);
+    const response = await axios.post(
+      `${apiUrl}/api/laboratory-results`,
+      dataToSend,
+      {
+        headers: {
+          "api-key": api_Key, // or Authorization: `Bearer ${token}`
+        },
+      }
+    );
 
-    const {
-      ORNumber,
-      labNumber,
-      patient,
-      clinicId,
-      laboratoryId, // Include laboratoryId in the data to be sent
-      bloodChemistry,
-      Hematology,
-      clinicalMicroscopyParasitology,
-      bloodBankingSerology,
-    } = formData;
+    if (response.status === 200) {
+      console.log("✅ Lab result submission successful:", response.data.labResults);
 
-    const dataToSend = {
-      ORNumber,
-      labNumber,
-      patient,
-      clinicId,
-      laboratoryId, // Include laboratoryId here
-      bloodChemistry,
-      Hematology,
-      clinicalMicroscopyParasitology,
-      bloodBankingSerology,
-    };
-
-    try {
-      const response = await axios.post(
-        `${apiUrl}/api/laboratory-results`,
-        dataToSend,
+      await axios.put(
+        `${apiUrl}/api/laboratory/${laboratoryId}`,
+        { labResult: "for verification" },
         {
           headers: {
-            "api-key": api_Key,
+            "api-key": api_Key, // include for protected PUT as well
           },
         }
       );
 
-      if (response.status === 200) {
-        console.log("Laboratory result saved successfully:", response.data);
+      closeModal();
+      fetchLabRecords();
 
-        // Step 2: Update labResult to "complete" in Laboratory after successful save
-        await axios.put(
-          `${apiUrl}/api/laboratory/${laboratoryId}`,
-          {
-            labResult: "for verification",
-          },
-          {
-            headers: {
-              "api-key": api_Key,
-            },
-          }
-        );
-        closeModal(); // Close the modal
-        fetchLabRecords();
-
-        setFormData({
-          ORNumber: "",
-          labNumber: "",
-          patient: "",
-          clinicId: "",
-          laboratoryId: "",
-          bloodChemistry: {
-            /* reset bloodChemistry fields */
-          },
-          Hematology: {
-            /* reset Hematology fields */
-          },
-          clinicalMicroscopyParasitology: {
-            /* reset clinicalMicroscopyParasitology fields */
-          },
-          bloodBankingSerology: {
-            /* reset bloodBankingSerology fields */
-          },
-        });
-        // Show success modal
-        setShowSuccessModal(true);
-      } else {
-        console.error("Unexpected response status:", response.status);
-        alert("Failed to save laboratory results. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error saving laboratory results:", error);
-      alert("Failed to save laboratory results. Please try again.");
+      setFormData({
+        ORNumber: "",
+        labNumber: "",
+        patient: "",
+        clinicId: "",
+        laboratoryId: "",
+      });
+    } else {
+      alert("Failed to save laboratory results.");
     }
-  };
+  } catch (error) {
+    console.error("❌ Error saving lab results:", error);
+    alert("Failed to save laboratory results.");
+  }
+};
+
 
   useEffect(() => {
     fetchLabRecords();
@@ -1474,80 +1560,57 @@ function Laboratory() {
                     <th className="py-3 w-1/12"></th>
                   </tr>
                 </thead>
-                <tbody>
-                  {currentLabRecords.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan="4"
-                        className="py-4 text-center text-gray-500"
-                      >
-                        No laboratory request found.
-                      </td>
-                    </tr>
-                  ) : (
-                    currentLabRecords.map((record, index) => {
-                      const allTests = [
-                        ...Object.entries(record.bloodChemistry)
-                          .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
-                        ...Object.entries(record.hematology)
-                          .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
-                        ...Object.entries(record.clinicalMicroscopyParasitology)
-                          .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
-                        ...Object.entries(record.bloodBankingSerology)
-                          .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
-                        ...Object.entries(record.microbiology)
-                          .filter(([key, value]) => value)
-                          .map(([key, value]) => value),
-                      ]
-                        .filter(Boolean)
-                        .join(", ");
+        <tbody>
+          {currentLabRecords.length === 0 ? (
+            <tr>
+              <td colSpan="4" className="py-4 text-center text-gray-500">
+                No laboratory request found.
+              </td>
+            </tr>
+          ) : (
+            [...currentLabRecords]
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .map((record) => {
+                const testNames = record.tests?.map((test) => test.name).filter(Boolean).join(", ") || "No test data available";
+                const includes = record.tests?.flatMap((test) => test.whatShouldBeIncluded || []);
 
-                      return (
-                        <tr key={record._id} className="border-b">
-                          <td className="py-4">
-                            {record.patient ? (
-                              <>
-                                <p className="font-semibold">
-                                  {record.patient.lastname},{" "}
-                                  {record.patient.firstname}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  {new Date(
-                                    record.isCreatedAt
-                                  ).toLocaleString()}
-                                </p>
-                              </>
-                            ) : (
-                              <p className="text-sm text-gray-500">
-                                No patient data
-                              </p>
-                            )}
-                          </td>
-                          <td className="py-4">
-                            <p className="font-semibold">
-                              {allTests || "No test data available"}
-                            </p>
-                          </td>
-                          <td className="py-4">
-                            <p>{record.labResult}</p>
-                          </td>
-                          <td className="py-4 ">
-                            <button
-                              className="text-custom-red"
-                              onClick={() => handleAddResultClick(record)}
-                            >
-                              Add Result
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
+                return (
+                  <tr key={record._id} className="border-b">
+                    <td className="py-4">
+                      {record.patient ? (
+                        <>
+                          <p className="font-semibold">
+                            {record.patient.lastname}, {record.patient.firstname}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {record.createdAt
+                              ? new Date(record.createdAt).toLocaleString()
+                              : "Unknown date"}
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-sm text-gray-500">No patient data</p>
+                      )}
+                    </td>
+                    <td className="py-4">
+                      <p className="font-semibold">{testNames}</p>
+                    </td>
+                    <td className="py-4">
+                      <p>{record.labResult || "Pending"}</p>
+                    </td>
+                    <td className="py-4">
+                      <button
+                        className="text-custom-red"
+                        onClick={() => handleAddResultClick(record)}
+                      >
+                        Add Result
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+          )}
+        </tbody>
               </table>
             </div>
 
@@ -1704,3055 +1767,94 @@ function Laboratory() {
               </div>
               {formData.ORNumber && (
                 <>
-                  {/* Blood Chemistry Section */}
-                  {requestedCategories.includes("Blood Chemistry") && (
-                    <div className="mb-0">
-                      <div
-                        className="flex items-center justify-between cursor-pointer"
-                        onClick={toggleBloodChemistryVisibility}
-                      >
-                        <h3 className="text-lg font-semibold my-0 py-2">
-                          I. Blood Chemistry
-                        </h3>
-                        <BiChevronDown
-                          className={`transform transition-transform duration-300 ${
-                            isBloodChemistryVisible ? "rotate-180" : ""
-                          }`}
-                          size={24}
-                        />
-                      </div>
-                      <div className="w-full h-px bg-gray-300 my-0"></div>
+    {Array.from(
+      new Set(selectedRecord.tests.map((test) => test.category))
+    ).map((category, catIndex) => (
+      <div key={catIndex} className="mb-6">
+        <h3 className="text-lg font-bold border-b pb-1 mb-2">{category}</h3>
 
-                      {isBloodChemistryVisible && (
-                        <div className="grid grid-cols-3 gap-4 p-4">
-                          <div className="col-span-1 font-semibold">Test</div>
-                          <div className="col-span-1 font-semibold">Result</div>
-                          <div className="col-span-1 font-semibold">
-                            Reference Range
-                          </div>
+        {selectedRecord.tests
+          .filter((test) => test.category === category)
+          .map((test, testIndex) => (
+            <div key={testIndex} className="mb-4">
+              {/* Main row: test name + input + reference */}
+              <div className="flex items-center gap-4">
+                <div className="font-semibold min-w-[150px]">{test.name}</div>
 
-                          {/* FBS */}
-                          <div className="col-span-1">FBS</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="bloodSugar"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("bloodSugar")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={formData.bloodChemistry?.bloodSugar || ""}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "bloodChemistry",
-                                  "bloodSugar"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes("bloodSugar")
-                              }
-                              required
-                            />
-                            {errorMessage.bloodSugar && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.bloodSugar}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">70 - 105 mg/dL</div>
+                {/* Main result input */}
+                <input
+                  type="text"
+                  className="flex-1 px-3 py-1 border rounded bg-gray-100"
+                  placeholder="Enter result"
+                  value={
+                    formData[category]?.[test.name]?.result || ""
+                  }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData((prev) => {
+                      const prevTest = prev[category]?.[test.name];
+                      return {
+                        ...prev,
+                        [category]: {
+                          ...prev[category],
+                          [test.name]: {
+                            ...(typeof prevTest === "object" ? prevTest : {}),
+                            result: value,
+                          },
+                        },
+                      };
+                    });
+                  }}
+                />
 
-                          {/* Total Cholesterol */}
-                          <div className="col-span-1">Total Cholesterol</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="totalCholesterol"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("totalCholesterol")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={
-                                formData.bloodChemistry?.totalCholesterol || ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "bloodChemistry",
-                                  "totalCholesterol"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes(
-                                  "totalCholesterol"
-                                )
-                              }
-                              required
-                            />
-                            {errorMessage.totalCholesterol && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.totalCholesterol}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">140 - 200 mg/dL</div>
+                {/* Reference range display */}
+                {test.referenceRange && (
+                  <div className="text-xs font-bold text-red-600 whitespace-nowrap">
+                    Reference: {test.referenceRange}
+                  </div>
+                )}
+              </div>
 
-                          {/* Triglycerides */}
-                          <div className="col-span-1">Triglycerides</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="triglyceride"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("triglyceride")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={
-                                formData.bloodChemistry?.triglyceride || ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "bloodChemistry",
-                                  "triglyceride"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes("triglyceride")
-                              }
-                              required
-                            />
-                            {errorMessage.triglyceride && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.triglyceride}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">{"<200 mg/dL"}</div>
-
-                          {/* Blood Uric Acid */}
-                          <div className="col-span-1">Blood Uric Acid</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="bloodUricAcid"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("bloodUricAcid")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={
-                                formData.bloodChemistry?.bloodUricAcid || ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "bloodChemistry",
-                                  "bloodUricAcid"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes("bloodUricAcid")
-                              }
-                              required
-                            />
-                            {errorMessage.bloodUricAcid && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.bloodUricAcid}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">
-                            MEN: 3.5 - 7.2 mg/dL <br />
-                            WOMEN: 2.6 - 6.0 mg/dL
-                          </div>
-
-                          {/* Blood Urea Nitrogen */}
-                          <div className="col-span-1">Blood Urea Nitrogen</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="bloodUreaNitrogen"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "bloodUreaNitrogen"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={
-                                formData.bloodChemistry?.bloodUreaNitrogen || ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "bloodChemistry",
-                                  "bloodUreaNitrogen"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes(
-                                  "bloodUreaNitrogen"
-                                )
-                              }
-                              required
-                            />
-                            {errorMessage.bloodUreaNitrogen && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.bloodUreaNitrogen}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">4.67 - 23.35 mg/dL</div>
-
-                          {/* Creatinine */}
-                          <div className="col-span-1">Creatinine</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="creatinine"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("creatinine")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={formData.bloodChemistry?.creatinine || ""}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "bloodChemistry",
-                                  "creatinine"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes("creatinine")
-                              }
-                              required
-                            />
-                            {errorMessage.creatinine && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.creatinine}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">
-                            MEN: 0.7 - 1.2 mg/dL <br />
-                            WOMEN: 0.6 - 1.1 mg/dL
-                          </div>
-
-                          {/* AST/SGOT */}
-                          <div className="col-span-1">AST/SGOT</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="SGOT_AST"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("SGOT_AST")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={formData.bloodChemistry?.SGOT_AST || ""}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "bloodChemistry",
-                                  "SGOT_AST"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes("SGOT_AST")
-                              }
-                              required
-                            />
-                            {errorMessage.SGOT_AST && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.SGOT_AST}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">
-                            MEN: UP TO 40 U/L <br />
-                            WOMEN: UP TO 33 U/L
-                          </div>
-
-                          {/* ALT/SGPT */}
-                          <div className="col-span-1">ALT/SGPT</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="SGPT_ALT"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("SGPT_ALT")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={formData.bloodChemistry?.SGPT_ALT || ""}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "bloodChemistry",
-                                  "SGPT_ALT"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes("SGPT_ALT")
-                              }
-                              required
-                            />
-                            {errorMessage.SGPT_ALT && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.SGPT_ALT}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">
-                            MEN: UP TO 41 U/L <br />
-                            WOMEN: UP TO 32 U/L
-                          </div>
-
-                          {/* Direct HDL */}
-                          <div className="col-span-1">Direct HDL</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="HDL_cholesterol"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("HDL_cholesterol")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={
-                                formData.bloodChemistry?.HDL_cholesterol || ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "bloodChemistry",
-                                  "HDL_cholesterol"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes("HDL_cholesterol")
-                              }
-                              required
-                            />
-                            {errorMessage.HDL_cholesterol && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.HDL_cholesterol}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">
-                            MEN: 40 - 50 mg/dL <br />
-                            WOMEN: 45 - 60 mg/dL
-                          </div>
-
-                          {/* Direct LDL */}
-                          <div className="col-span-1">Direct LDL</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="LDL_cholesterol"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes("LDL_cholesterol")
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={
-                                formData.bloodChemistry?.LDL_cholesterol || ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "bloodChemistry",
-                                  "LDL_cholesterol"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes("LDL_cholesterol")
-                              }
-                              required
-                            />
-                            {errorMessage.LDL_cholesterol && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.LDL_cholesterol}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">{"<130 mg/dL"}</div>
-                        </div>
-                      )}
+              {/* Subtest inputs if they exist */}
+              {Array.isArray(test.details) && test.details.length > 0 && (
+                <div className="ml-4 mt-2 space-y-2">
+                  {test.details.map((detail, i) => (
+                    <div key={i} className="flex items-center gap-4">
+                      <label className="font-semibold min-w-[150px] text-sm text-gray-800">
+                        {detail.fieldName}
+                      </label>
+                      <input
+                        type="text"
+                        className="flex-1 px-3 py-1 border rounded bg-gray-50"
+                        placeholder="Enter result"
+                        value={
+                          formData[category]?.[test.name]?.[detail.fieldName] || ""
+                        }
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setFormData((prev) => {
+                            const updated = { ...prev };
+                            if (!updated[category]) updated[category] = {};
+                            if (
+                              !updated[category][test.name] ||
+                              typeof updated[category][test.name] !== "object"
+                            ) {
+                              updated[category][test.name] = { result: "" };
+                            }
+                            updated[category][test.name][detail.fieldName] = value;
+                            return updated;
+                          });
+                        }}
+                      />
                     </div>
-                  )}
-
-                  {/* Hematology Section */}
-                  {requestedCategories.includes("Hematology") && (
-                    <div className="mb-0">
-                      <div
-                        className="flex items-center justify-between cursor-pointer"
-                        onClick={toggleHematologyVisibility}
-                      >
-                        <h3 className="text-lg font-semibold my-0 py-2">
-                          II. Hematology
-                        </h3>
-                        <BiChevronDown
-                          className={`transform transition-transform duration-300 ${
-                            isHematologyVisible ? "rotate-180" : ""
-                          }`}
-                          size={24}
-                        />
-                      </div>
-                      <div className="w-full h-px bg-gray-300 my-0"></div>
-
-                      {isHematologyVisible && (
-                        <div className="grid grid-cols-3 gap-4 p-4">
-                          <div className="col-span-1 font-semibold">Tests</div>
-                          <div className="col-span-1 font-semibold">Result</div>
-                          <div className="col-span-1 font-semibold">
-                            Reference Range
-                          </div>
-
-                          {/* Red Blood Cell Count */}
-                          <div className="col-span-1">Red Blood Cell Count</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="redBloodCellCount"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={
-                                formData.Hematology?.redBloodCellCount || ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "Hematology",
-                                  "redBloodCellCount"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                              }
-                              required
-                            />
-                            {errorMessage.redBloodCellCount && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.redBloodCellCount}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">
-                            Male: 4.0 - 5.5 x10^12/L; Female: 3.5 - 5.0 x10^12/L
-                          </div>
-
-                          <div className="col-span-1">Hemoglobin</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="hemoglobin"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={formData.Hematology?.Hemoglobin || ""}
-                              onChange={(e) =>
-                                handleInputChange(e, "Hematology", "Hemoglobin")
-                              }
-                              readOnly={
-                                !requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                              }
-                              required
-                            />
-                            {errorMessage.Hemoglobin && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.Hemoglobin}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">
-                            Male: 140 - 180 g/L; Female: 120 - 180 g/L
-                          </div>
-
-                          <div className="col-span-1">Hematocrit</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="hematocrit"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={formData.Hematology?.Hematocrit || ""}
-                              onChange={(e) =>
-                                handleInputChange(e, "Hematology", "Hematocrit")
-                              }
-                              readOnly={
-                                !requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                              }
-                              required
-                            />
-                            {errorMessage.Hematocrit && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.Hematocrit}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">
-                            Male: 0.40 - 0.54; Female: 0.37 - 0.47
-                          </div>
-
-                          <div className="col-span-1">Leukocyte Count</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="leukocyteCount"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={formData.Hematology?.LeukocyteCount || ""}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "Hematology",
-                                  "LeukocyteCount"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                              }
-                              required
-                            />
-                            {errorMessage.LeukocyteCount && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.LeukocyteCount}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">5.0 - 10.0 x10^9/L</div>
-
-                          <div className="col-span-1">Differential Count</div>
-                          <div className="col-span-1"></div>
-                          <div className="col-span-1"></div>
-
-                          <div className="col-span-1 ml-9">Segmenters</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="segmenters"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={
-                                formData.Hematology?.DifferentialCount
-                                  ?.segmenters || ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "Hematology",
-                                  "DifferentialCount",
-                                  "segmenters"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                              }
-                              required
-                            />
-                            {errorMessage["DifferentialCount.segmenters"] && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage["DifferentialCount.segmenters"]}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">0.50 - 0.70</div>
-
-                          <div className="col-span-1 ml-9">Lymphocytes</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="lymphocytes"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={
-                                formData.Hematology?.DifferentialCount
-                                  ?.lymphocytes || ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "Hematology",
-                                  "DifferentialCount",
-                                  "lymphocytes"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                              }
-                              required
-                            />
-                            {errorMessage["DifferentialCount.lymphocytes"] && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage["DifferentialCount.lymphocytes"]}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">0.20 - 0.40</div>
-
-                          <div className="col-span-1 ml-9">Monocytes</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="monocytes"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={
-                                formData.Hematology?.DifferentialCount
-                                  ?.monocytes || ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "Hematology",
-                                  "DifferentialCount",
-                                  "monocytes"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                              }
-                              required
-                            />
-                            {errorMessage["DifferentialCount.monocytes"] && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage["DifferentialCount.monocytes"]}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">0.00 - 0.07</div>
-
-                          <div className="col-span-1 ml-9">Eosinophils</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="eosinophils"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={
-                                formData.Hematology?.DifferentialCount
-                                  ?.eosinophils || ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "Hematology",
-                                  "DifferentialCount",
-                                  "eosinophils"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                              }
-                            />
-                            {errorMessage["DifferentialCount.eosinophils"] && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage["DifferentialCount.eosinophils"]}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">0.00 - 0.05</div>
-
-                          <div className="col-span-1 ml-9">Basophils</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="basophils"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={
-                                formData.Hematology?.DifferentialCount
-                                  ?.basophils || ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "Hematology",
-                                  "DifferentialCount",
-                                  "basophils"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                              }
-                              required
-                            />
-                            {errorMessage["DifferentialCount.basophils"] && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage["DifferentialCount.basophils"]}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">0.00 - 0.01</div>
-
-                          <div className="col-span-1 ml-9">Total</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="total"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={
-                                formData.Hematology?.DifferentialCount?.total ||
-                                ""
-                              }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "Hematology",
-                                  "DifferentialCount",
-                                  "total"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                              }
-                              required
-                            />
-                            {errorMessage["DifferentialCount.total"] && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage["DifferentialCount.total"]}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1"></div>
-
-                          <div className="col-span-1">Platelet Count</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="plateletCount"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={formData.Hematology?.PlateletCount || ""}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
-                                  "Hematology",
-                                  "PlateletCount"
-                                )
-                              }
-                              readOnly={
-                                !requestedCategories.includes(
-                                  "completeBloodCount"
-                                )
-                              }
-                              required
-                            />
-                            {errorMessage.PlateletCount && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.PlateletCount}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1">150 - 400 x10^9/L</div>
-
-                          <div className="col-span-1">Others</div>
-                          <div className="col-span-1">
-                            <input
-                              type="text"
-                              name="others"
-                              className={`w-full px-3 py-1 border rounded bg-gray-100 ${
-                                requestedCategories.includes(
-                                  "bleedingTimeClottingTime"
-                                )
-                                  ? "border-green-400"
-                                  : ""
-                              }`}
-                              value={formData.Hematology?.others || ""}
-                              onChange={(e) =>
-                                handleInputChange(e, "Hematology", "others")
-                              }
-                              readOnly={
-                                !requestedCategories.includes(
-                                  "bleedingTimeClottingTime"
-                                )
-                              }
-                              required
-                            />
-                            {errorMessage.others && (
-                              <p className="text-red-500 text-sm">
-                                {errorMessage.others}
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-1"></div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Clinical Microscopy and Parasitology Section */}
-                  {requestedCategories.includes(
-                    "Clinical Microscopy and Parasitology"
-                  ) && (
-                    <div className="mb-0">
-                      <div
-                        className="flex items-center justify-between cursor-pointer"
-                        onClick={toggleClinicalMicroscopyVisibility}
-                      >
-                        <h3 className="text-lg font-semibold mb-0 py-2">
-                          III. Clinical Microscopy and Parasitology
-                        </h3>
-                        <BiChevronDown
-                          className={`transform transition-transform duration-300 ${
-                            isClinicalMicroscopyVisible ? "rotate-180" : ""
-                          }`}
-                          size={24}
-                        />
-                      </div>
-                      <div className="w-full h-px bg-gray-300 my-0"></div>
-
-                      {isClinicalMicroscopyVisible && (
-                        <div className="grid grid-cols-6 gap-4 p-4">
-                          {/* Routine Urinalysis - Macroscopic Examination */}
-                          <label className="col-span-3 font-semibold">
-                            Routine Urinalysis
-                          </label>
-
-                          <label className="col-span-1">LMP</label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.LMP || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                null,
-                                "LMP"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage["routineUrinalysis.LMP"] && (
-                            <p className="text-red-500 text-sm">
-                              {errorMessage["routineUrinalysis.LMP"]}
-                            </p>
-                          )}
-                          <h4 className="col-span-6 font-semibold">
-                            Macroscopic Examination
-                          </h4>
-                          <label className="col-span-1">Color</label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.macroscopicExam?.color ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "macroscopicExam",
-                                "color"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.macroscopicExam.color"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.macroscopicExam.color"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Appearance</label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.macroscopicExam
-                                ?.appearance || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "macroscopicExam",
-                                "appearance"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.macroscopicExam.appearance"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.macroscopicExam.appearance"
-                                ]
-                              }
-                            </p>
-                          )}
-
-                          {/* Routine Urinalysis - Chemical Examination */}
-                          <h4 className="col-span-6 font-semibold mt-4">
-                            Chemical Examination
-                          </h4>
-                          <label className="col-span-1">Sugar</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.sugar || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "sugar"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.chemicalExam.sugar"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.chemicalExam.sugar"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Urobilinogen</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam
-                                ?.urobilinogen || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "urobilinogen"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.chemicalExam.urobilinogen"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.chemicalExam.urobilinogen"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Albumin</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.albumin || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "albumin"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.chemicalExam.albumin"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.chemicalExam.albumin"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Ketones</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.ketones || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "ketones"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.chemicalExam.ketones"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.chemicalExam.ketones"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Blood</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.blood || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "blood"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.chemicalExam.blood"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.chemicalExam.blood"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Nitrite</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.nitrites ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "nitrites"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.chemicalExam.nitrites"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.chemicalExam.nitrites"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Bilirubin</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.bilirubin ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "bilirubin"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.chemicalExam.bilirubin"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.chemicalExam.bilirubin"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Leukocyte</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.leukocytes ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "leukocytes"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.chemicalExam.leukocytes"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.chemicalExam.leukocytes"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Reaction</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam?.reaction ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "reaction"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.chemicalExam.reaction"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.chemicalExam.reaction"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Specific Gravity</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.chemicalExam
-                                ?.specificGravity || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "chemicalExam",
-                                "specificGravity"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.chemicalExam.specificGravity"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.chemicalExam.specificGravity"
-                                ]
-                              }
-                            </p>
-                          )}
-
-                          {/* Routine Urinalysis - Microscopic Examination */}
-                          <h4 className="col-span-6 font-semibold mt-4">
-                            Microscopic Examination
-                          </h4>
-                          <label className="col-span-1">Pus Cells</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/hpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam
-                                ?.pusCells || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "pusCells"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.microscopicExam.pusCells"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.microscopicExam.pusCells"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Epithelial Cells</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/lpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam
-                                ?.epithelialCells || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "epithelialCells"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.microscopicExam.epithelialCells"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.microscopicExam.epithelialCells"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Red Blood Cells</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/hpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam?.RBC || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "RBC"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.microscopicExam.RBC"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.microscopicExam.RBC"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Mucus Threads</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/lpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam
-                                ?.mucusThreads || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "mucusThreads"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.microscopicExam.mucusThreads"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.microscopicExam.mucusThreads"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Bacteria</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/hpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam
-                                ?.bacteria || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "bacteria"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.microscopicExam.bacteria"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.microscopicExam.bacteria"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Crystals</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/lpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam
-                                ?.crystals || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "crystals"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.microscopicExam.crystals"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.microscopicExam.crystals"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Yeast Cells</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/hpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam
-                                ?.yeastCells || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "yeastCells"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.microscopicExam.yeastCells"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.microscopicExam.yeastCells"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Amorphous</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/lpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam
-                                ?.amorphous || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "amorphous"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.microscopicExam.amorphous"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.microscopicExam.amorphous"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Cast</label>
-                          <input
-                            type="text"
-                            className={`col-span-1 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            placeholder="/lpf"
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam?.casts ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "casts"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.microscopicExam.casts"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.microscopicExam.casts"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Others</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("routineUrinalysis")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineUrinalysis?.microscopicExam?.others ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineUrinalysis",
-                                "microscopicExam",
-                                "others"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("routineUrinalysis")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineUrinalysis.microscopicExam.others"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineUrinalysis.microscopicExam.others"
-                                ]
-                              }
-                            </p>
-                          )}
-
-                          {/* Routine Fecalysis */}
-                          <h4 className="col-span-6 font-semibold mt-4">
-                            Routine Fecalysis
-                          </h4>
-                          <label className="col-span-1">Color</label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "routineStoolExamination"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineFecalysis?.color || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineFecalysis",
-                                null,
-                                "color"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "routineStoolExamination"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage["routineFecalysis.color"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["routineFecalysis.color"]}
-                            </p>
-                          )}
-                          <label className="col-span-1">Consistency</label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "routineStoolExamination"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineFecalysis?.consistency || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineFecalysis",
-                                null,
-                                "consistency"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "routineStoolExamination"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage["routineFecalysis.color"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["routineFecalysis.color"]}
-                            </p>
-                          )}
-
-                          {/* Microscopic Examination for Fecalysis */}
-                          <h4 className="col-span-6 font-semibold mt-4">
-                            Microscopic Examination
-                          </h4>
-                          <label className="col-span-1">
-                            Direct Fecal Smear
-                          </label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes("katoThickSmear")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineFecalysis?.microscopicExam
-                                ?.directFecalSmear || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineFecalysis",
-                                "microscopicExam",
-                                "directFecalSmear"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("katoThickSmear")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineFecalysis.microscopicExam.directFecalSmear"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineFecalysis.microscopicExam.directFecalSmear"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Kato Thick Smear</label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes("katoThickSmear")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineFecalysis?.microscopicExam
-                                ?.katoThickSmear || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineFecalysis",
-                                "microscopicExam",
-                                "katoThickSmear"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("katoThickSmear")
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "routineFecalysis.microscopicExam.katoThickSmear"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "routineFecalysis.microscopicExam.katoThickSmear"
-                                ]
-                              }
-                            </p>
-                          )}
-
-                          <label className="col-span-1">Others</label>
-                          <input
-                            type="text"
-                            className={`col-span-2 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "fecalOccultBloodTest"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.clinicalMicroscopyParasitology
-                                ?.routineFecalysis?.others || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "clinicalMicroscopyParasitology",
-                                "routineFecalysis",
-                                null,
-                                "others"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "fecalOccultBloodTest"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage["routineFecalysis.others"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["routineFecalysis.others"]}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {/* Serology Section */}
-                  {requestedCategories.includes("Serology") && (
-                    <div className="mb-0">
-                      <div
-                        className="flex items-center justify-between cursor-pointer"
-                        onClick={toggleSerologyVisibility}
-                      >
-                        <h3 className="text-lg font-semibold mb-0 py-2">
-                          IV. Serology
-                        </h3>
-                        <BiChevronDown
-                          className={`transform transition-transform duration-300 ${
-                            isSerologyVisible ? "rotate-180" : ""
-                          }`}
-                          size={24}
-                        />
-                      </div>
-                      <div className="w-full h-px bg-gray-300 my-0"></div>
-
-                      {isSerologyVisible && (
-                        <div className="grid grid-cols-12 gap-4 p-4">
-                          {/* Hepatitis B Surface Antigen Determination and Anti-HAV Test */}
-                          <h4 className="col-span-6 font-semibold">
-                            Hepatitis B Surface Antigen Determination (Screening
-                            Test Only)
-                          </h4>
-                          <h4 className="col-span-6 font-semibold">
-                            Anti-HAV Test (Screening Test Only)
-                          </h4>
-
-                          <label className="col-span-1">Method Used</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "hepatitisBSurfaceAntigen"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology
-                                ?.hepatitisBSurfaceAntigen?.methodUsed || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "hepatitisBSurfaceAntigen",
-                                null,
-                                "methodUsed"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "hepatitisBSurfaceAntigen"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "hepatitisBSurfaceAntigenMethodUsed"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "hepatitisBSurfaceAntigenMethodUsed"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Method Used</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("antiHCV")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.antiHAVTest
-                                ?.methodUsed || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "antiHAVTest",
-                                null,
-                                "methodUsed"
-                              )
-                            }
-                            readOnly={!requestedCategories.includes("antiHCV")}
-                            required
-                          />
-                          {errorMessage["antiHAVTestMethodUsed"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["antiHAVTestMethodUsed"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-1">Lot No.</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "hepatitisBSurfaceAntigen"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology
-                                ?.hepatitisBSurfaceAntigen?.lotNumber || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "hepatitisBSurfaceAntigen",
-                                null,
-                                "lotNumber"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "hepatitisBSurfaceAntigen"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "hepatitisBSurfaceAntigenLotNumber"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "hepatitisBSurfaceAntigenLotNumber"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Lot No.</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("antiHCV")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.antiHAVTest
-                                ?.lotNumber || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "antiHAVTest",
-                                null,
-                                "lotNumber"
-                              )
-                            }
-                            readOnly={!requestedCategories.includes("antiHCV")}
-                            required
-                          />
-                          {errorMessage["antiHAVTestLotNumber"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["antiHAVTestLotNumber"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-1">Expiration Date</label>
-                          <input
-                            type="date"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "hepatitisBSurfaceAntigen"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology
-                                ?.hepatitisBSurfaceAntigen?.expirationDate || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "hepatitisBSurfaceAntigen",
-                                null,
-                                "expirationDate"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "hepatitisBSurfaceAntigen"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "hepatitisBSurfaceAntigenExpirationDate"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "hepatitisBSurfaceAntigenExpirationDate"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Expiration Date</label>
-                          <input
-                            type="date"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("antiHCV")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.antiHAVTest
-                                ?.expirationDate || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "antiHAVTest",
-                                null,
-                                "expirationDate"
-                              )
-                            }
-                            readOnly={!requestedCategories.includes("antiHCV")}
-                            required
-                          />
-                          {errorMessage["antiHAVTestExpirationDate"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["antiHAVTestExpirationDate"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-1">Result</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "hepatitisBSurfaceAntigen"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology
-                                ?.hepatitisBSurfaceAntigen?.result || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "hepatitisBSurfaceAntigen",
-                                null,
-                                "result"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "hepatitisBSurfaceAntigen"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage["hepatitisBSurfaceAntigenResult"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["hepatitisBSurfaceAntigenResult"]}
-                            </p>
-                          )}
-                          <label className="col-span-1">Result</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("antiHCV")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.antiHAVTest
-                                ?.result || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "antiHAVTest",
-                                null,
-                                "result"
-                              )
-                            }
-                            readOnly={!requestedCategories.includes("antiHCV")}
-                            required
-                          />
-                          {errorMessage["antiHAVTestResult"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["antiHAVTestResult"]}
-                            </p>
-                          )}
-
-                          {/* Serum Pregnancy and Test for Treponema pallidum / Syphilis */}
-                          <h4 className="col-span-6 font-semibold">
-                            Test for Treponema pallidum / Syphilis
-                          </h4>
-                          <h4 className="col-span-6 font-semibold">
-                            Serum Pregnancy
-                          </h4>
-                          <label className="col-span-1">Method Used</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "antiTreponemaPallidum"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology
-                                ?.treponemaPallidumTest?.methodUsed || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "treponemaPallidumTest",
-                                null,
-                                "methodUsed"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "antiTreponemaPallidum"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage["treponemaPallidumTestMethodUsed"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["treponemaPallidumTestMethodUsed"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-1">Method Used</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("pregnancyTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.serumPregnancy
-                                ?.methodUsed || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "serumPregnancy",
-                                null,
-                                "methodUsed"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("pregnancyTest")
-                            }
-                            required
-                          />
-                          {errorMessage["serumPregnancyMethodUsed"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["serumPregnancyMethodUsed"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-1">Lot No.</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "antiTreponemaPallidum"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology
-                                ?.treponemaPallidumTest?.lotNumber || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "treponemaPallidumTest",
-                                null,
-                                "lotNumber"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "antiTreponemaPallidum"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage["treponemaPallidumTestLotNumber"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["treponemaPallidumTestLotNumber"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-1">Lot No.</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("pregnancyTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.serumPregnancy
-                                ?.lotNumber || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "serumPregnancy",
-                                null,
-                                "lotNumber"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("pregnancyTest")
-                            }
-                            required
-                          />
-                          {errorMessage["serumPregnancyLotNumber"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["serumPregnancyLotNumber"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-1">Expiration Date</label>
-                          <input
-                            type="date"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "antiTreponemaPallidum"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology
-                                ?.treponemaPallidumTest?.expirationDate || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "treponemaPallidumTest",
-                                null,
-                                "expirationDate"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "antiTreponemaPallidum"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage[
-                            "treponemaPallidumTestExpirationDate"
-                          ] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {
-                                errorMessage[
-                                  "treponemaPallidumTestExpirationDate"
-                                ]
-                              }
-                            </p>
-                          )}
-                          <label className="col-span-1">Expiration Date</label>
-                          <input
-                            type="date"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("pregnancyTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.serumPregnancy
-                                ?.expirationDate || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "serumPregnancy",
-                                null,
-                                "expirationDate"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("pregnancyTest")
-                            }
-                            required
-                          />
-                          {errorMessage["serumPregnancyExpirationDate"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["serumPregnancyExpirationDate"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-1">Result</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "antiTreponemaPallidum"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology
-                                ?.treponemaPallidumTest?.result || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "treponemaPallidumTest",
-                                null,
-                                "result"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "antiTreponemaPallidum"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage["treponemaPallidumTestResult"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["treponemaPallidumTestResult"]}
-                            </p>
-                          )}
-                          <label className="col-span-1">Result</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("pregnancyTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.serumPregnancy
-                                ?.result || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "serumPregnancy",
-                                null,
-                                "result"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("pregnancyTest")
-                            }
-                            required
-                          />
-                          {errorMessage["serumPregnancyResult"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["serumPregnancyResult"]}
-                            </p>
-                          )}
-
-                          {/* Salmonella typhi and Blood Typing */}
-                          <h4 className="col-span-6 font-semibold">
-                            Salmonella typhi
-                          </h4>
-                          <h4 className="col-span-6 font-semibold">
-                            Blood Typing
-                          </h4>
-
-                          <label className="col-span-1  ">Method Used</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "testForSalmonellaTyphi"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.salmonellaTyphi
-                                ?.methodUsed || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "salmonellaTyphi",
-                                null,
-                                "methodUsed"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "testForSalmonellaTyphi"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage["salmonellaTyphiMethodUsed"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["salmonellaTyphiMethodUsed"]}
-                            </p>
-                          )}
-                          <label className="col-span-1">ABO Type</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("bloodTyping")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.bloodTyping
-                                ?.ABOType || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "bloodTyping",
-                                null,
-                                "ABOType"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("bloodTyping")
-                            }
-                            required
-                          />
-                          {errorMessage["bloodTypingABOType"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["bloodTypingABOType"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-1  ">Lot No.</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "testForSalmonellaTyphi"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.salmonellaTyphi
-                                ?.lotNumber || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "salmonellaTyphi",
-                                null,
-                                "lotNumber"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "testForSalmonellaTyphi"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage["salmonellaTyphiLotNumber"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["salmonellaTyphiLotNumber"]}
-                            </p>
-                          )}
-                          <label className="col-span-1">Rh Type</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("bloodTyping")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.bloodTyping
-                                ?.RhType || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "bloodTyping",
-                                null,
-                                "RhType"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("bloodTyping")
-                            }
-                            required
-                          />
-                          {errorMessage["bloodTypingRhType"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["bloodTypingRhType"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-1  ">
-                            Expiration Date
-                          </label>
-                          <input
-                            type="date"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "testForSalmonellaTyphi"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.salmonellaTyphi
-                                ?.expirationDate || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "salmonellaTyphi",
-                                null,
-                                "expirationDate"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "testForSalmonellaTyphi"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage["salmonellaTyphiExpirationDate"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["salmonellaTyphiExpirationDate"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-6"></label>
-
-                          <label className="col-span-1  ">Result</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes(
-                                "testForSalmonellaTyphi"
-                              )
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.salmonellaTyphi
-                                ?.result || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "salmonellaTyphi",
-                                null,
-                                "result"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes(
-                                "testForSalmonellaTyphi"
-                              )
-                            }
-                            required
-                          />
-                          {errorMessage["salmonellaTyphiResult"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["salmonellaTyphiResult"]}
-                            </p>
-                          )}
-                          <label className="col-span-6"></label>
-
-                          {/* Test for Dengue and Others */}
-                          <h4 className="col-span-6 font-semibold">
-                            Test for Dengue
-                          </h4>
-                          <h4 className="col-span-6 font-semibold">Others</h4>
-
-                          <label className="col-span-1">Method Used</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("dengueTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.testDengue
-                                ?.methodUsed || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "testDengue",
-                                null,
-                                "methodUsed"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("dengueTest")
-                            }
-                            required
-                          />
-                          {errorMessage["testDengueMethodUsed"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["testDengueMethodUsed"]}
-                            </p>
-                          )}
-                          <label className="col-span-1">Method Used</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("HIVElsa") ||
-                              requestedCategories.includes("HIVRapidTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.others
-                                ?.methodUsed || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "others",
-                                null,
-                                "methodUsed"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("HIVElsa") &&
-                              !requestedCategories.includes("HIVRapidTest")
-                            }
-                            required
-                          />
-                          {errorMessage["othersMethodUsed"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["othersMethodUsed"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-1">Lot No.</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("dengueTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.testDengue
-                                ?.lotNumber || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "testDengue",
-                                null,
-                                "lotNumber"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("dengueTest")
-                            }
-                            required
-                          />
-                          {errorMessage["testDengueLotNumber"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["testDengueLotNumber"]}
-                            </p>
-                          )}
-                          <label className="col-span-1">Lot No.</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("HIVElsa") ||
-                              requestedCategories.includes("HIVRapidTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.others
-                                ?.lotNumber || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "others",
-                                null,
-                                "lotNumber"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("HIVElsa") &&
-                              !requestedCategories.includes("HIVRapidTest")
-                            }
-                            required
-                          />
-                          {errorMessage["othersLotNumber"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["othersLotNumber"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-1">Expiration Date</label>
-                          <input
-                            type="date"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("dengueTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.testDengue
-                                ?.expirationDate || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "testDengue",
-                                null,
-                                "expirationDate"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("dengueTest")
-                            }
-                            required
-                          />
-                          {errorMessage["testDengueExpirationDate"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["testDengueExpirationDate"]}
-                            </p>
-                          )}
-                          <label className="col-span-1">Expiration Date</label>
-                          <input
-                            type="date"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("HIVElsa") ||
-                              requestedCategories.includes("HIVRapidTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.others
-                                ?.expirationDate || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "others",
-                                null,
-                                "expirationDate"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("HIVElsa") &&
-                              !requestedCategories.includes("HIVRapidTest")
-                            }
-                            required
-                          />
-                          {errorMessage["othersExpirationDate"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["othersExpirationDate"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-1">Result</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("dengueTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.testDengue
-                                ?.result || ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "testDengue",
-                                null,
-                                "result"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("dengueTest")
-                            }
-                            required
-                          />
-                          {errorMessage["testDengueResult"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["testDengueResult"]}
-                            </p>
-                          )}
-
-                          <label className="col-span-1">Result</label>
-                          <input
-                            type="text"
-                            className={`col-span-5 border rounded px-3 py-1 ${
-                              requestedCategories.includes("HIVElsa") ||
-                              requestedCategories.includes("HIVRapidTest")
-                                ? "border-green-400"
-                                : ""
-                            }`}
-                            value={
-                              formData.bloodBankingSerology?.others?.result ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              handleInputChange(
-                                e,
-                                "bloodBankingSerology",
-                                "others",
-                                null,
-                                "result"
-                              )
-                            }
-                            readOnly={
-                              !requestedCategories.includes("HIVElsa") &&
-                              !requestedCategories.includes("HIVRapidTest")
-                            }
-                            required
-                          />
-                          {errorMessage["othersResult"] && (
-                            <p className="text-red-500 text-sm col-span-6">
-                              {errorMessage["othersResult"]}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+      </div>
+    ))}
+  </>
               )}
             </form>
 
