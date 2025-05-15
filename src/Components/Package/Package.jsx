@@ -293,7 +293,7 @@ const handleSubmit = async () => {
     const packageData = {
       name: addPackage,
       packageFor: resolvedPackageFor,
-      labTests: transformedLabTests,
+      tests: transformedLabTests,
       xrayType: newXrayRecord.xrayType,
       xrayDescription:
         newXrayRecord.xrayType === "medical, dental"
@@ -598,9 +598,9 @@ const handleClick = (testName) => {
 <td
   className={`py-4 ${pkg.isArchived ? "text-gray-400 line-through" : ""}`}
 >
-  {pkg.labTests && pkg.labTests.length > 0
+  {pkg.tests && pkg.tests.length > 0
     ? (() => {
-        const names = pkg.labTests.map(test => test.name);
+        const names = pkg.tests.map(test => test.name);
         const concatenated = names.join(", ");
         const truncated = concatenated.slice(0, 30);
         return concatenated.length > 30 ? `${truncated}...` : concatenated;

@@ -19,7 +19,7 @@ const PackageSchema = new mongoose.Schema({
   // ✅ Add it here
   packageClickCount: { type: Number, default: 0 },
 
-  labTests: [
+  tests: [
     {
       category: { type: String, required: true },
       name: { type: String, required: true },

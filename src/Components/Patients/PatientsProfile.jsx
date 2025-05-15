@@ -972,142 +972,144 @@ const result = await axios.post(
   const [packages, setPackages] = useState([]);
   const [packageClickCount, setPackageClickCount] = useState(0);
 
-  // Load packageClickCount from localStorage when the component mounts
-useEffect(() => {
-  // Fetch packages when component mounts
-  const fetchPackages = async () => {
+    // Load packageClickCount from localStorage when the component mounts
+  useEffect(() => {
+    // Fetch packages when component mounts
+    const fetchPackages = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/packages`, {
+          headers: { "api-key": api_Key },
+        });
+        setPackages(response.data);
+      } catch (error) {
+        console.error("Error fetching packages:", error);
+        alert("Failed to fetch packages. Please try again.");
+      }
+    };
+
+    fetchPackages();
+  }, []);
+
+  const handlePackageClick = async (packageId) => {
     try {
-      const response = await axios.get(`${apiUrl}/api/packages`, {
+      // ✅ Step 1: Fetch the package from DB
+      const response = await axios.get(`${apiUrl}/api/packages/${packageId}`, {
         headers: { "api-key": api_Key },
       });
-      setPackages(response.data);
+
+      let pkg = response.data;
+
+      // ✅ Step 2: Increment packageNumber in DB
+      const updateResponse = await axios.put(
+        `${apiUrl}/api/packages/${packageId}`,
+        {
+          isArchived: false, // or keep existing if you want
+          packageNumber: (pkg.packageNumber || 0) + 1,
+        },
+        {
+          headers: { "api-key": api_Key },
+        }
+      );
+
+      pkg = updateResponse.data; // updated version with new packageNumber
+
+      console.log("Updated package:", pkg);
+      setSelectedPackage(pkg);
+      setIsModalOpen(true);
+
+const {
+  _id,
+  isCreatedAt,
+  xrayType,
+  packageNumber,
+  xrayDescription,
+  labTests,
+  ...pkgWithoutIdEtc
+} = pkg;
+
+
+const serializedLabTests = (labTests || []).map((test) => ({
+  category: test.category,
+  name: test.name,
+  referenceRange: test.referenceRange || "",
+  whatShouldBeIncluded: test.whatShouldBeIncluded || [],
+}));
+
+
+      // ✅ Step 3: Submit lab request
+      const labResponse = await axios.post(
+        `${apiUrl}/api/laboratory`,
+        {
+          ...pkgWithoutIdEtc,
+          patient: id,
+          packageId: _id,
+          packageNumber,
+          labResult: "pending",
+          tests: serializedLabTests,
+        },
+        { headers: { "api-key": api_Key } }
+      );
+
+      if (labResponse.data?.message === "Laboratory request created successfully") {
+        console.log("Lab request created:", labResponse.data.labRequest);
+        fetchLabRecords();
+      }
+
+      // ✅ Step 4: Handle X-ray request(s)
+      if (xrayType === "medical, dental") {
+        const [medicalDescription, dentalDescription] = (xrayDescription || "").split(", ");
+
+        await axios.post(
+          `${apiUrl}/api/xrayResults`,
+          {
+            ...pkgWithoutIdEtc,
+            patient: id,
+            packageId: _id,
+            packageNumber,
+            xrayType: "medical",
+            xrayDescription: medicalDescription,
+            xrayResult: "pending",
+          },
+          { headers: { "api-key": api_Key } }
+        );
+
+        await axios.post(
+          `${apiUrl}/api/xrayResults`,
+          {
+            ...pkgWithoutIdEtc,
+            patient: id,
+            packageId: _id,
+            packageNumber,
+            xrayType: "dental",
+            xrayDescription: dentalDescription,
+            xrayResult: "pending",
+          },
+          { headers: { "api-key": api_Key } }
+        );
+      } else if (xrayType === "medical" || xrayType === "dental") {
+        await axios.post(
+          `${apiUrl}/api/xrayResults`,
+          {
+            ...pkgWithoutIdEtc,
+            patient: id,
+            packageId: _id,
+            packageNumber,
+            xrayType,
+            xrayDescription,
+            xrayResult: "pending",
+          },
+          { headers: { "api-key": api_Key } }
+        );
+      }
+
+      // ✅ Final Step: UI refresh
+      fetchXrayRecords();
+      setShowPackageOptions(false);
     } catch (error) {
-      console.error("Error fetching packages:", error);
-      alert("Failed to fetch packages. Please try again.");
+      console.error("Error processing package:", error);
+      alert("Failed to process package request. Please try again.");
     }
   };
-
-  fetchPackages();
-}, []);
-
-const handlePackageClick = async (packageId) => {
-  try {
-    // ✅ Step 1: Fetch the package from DB
-    const response = await axios.get(`${apiUrl}/api/packages/${packageId}`, {
-      headers: { "api-key": api_Key },
-    });
-
-    let pkg = response.data;
-
-    // ✅ Step 2: Increment packageNumber in DB
-    const updateResponse = await axios.put(
-      `${apiUrl}/api/packages/${packageId}`,
-      {
-        isArchived: false, // or keep existing if you want
-        packageNumber: (pkg.packageNumber || 0) + 1,
-      },
-      {
-        headers: { "api-key": api_Key },
-      }
-    );
-
-    pkg = updateResponse.data; // updated version with new packageNumber
-
-    console.log("Updated package:", pkg);
-    setSelectedPackage(pkg);
-    setIsModalOpen(true);
-
-    const {
-      _id,
-      isCreatedAt,
-      xrayType,
-      packageNumber,
-      xrayDescription,
-      tests,
-      ...pkgWithoutIdEtc
-    } = pkg;
-
-    const serializedLabTests = (tests || []).map((test) => ({
-      category: test.category,
-      name: test.name,
-      referenceRange: test.referenceRange || "",
-      whatShouldBeIncluded: test.whatShouldBeIncluded || [],
-    }));
-
-    // ✅ Step 3: Submit lab request
-    const labResponse = await axios.post(
-      `${apiUrl}/api/laboratory`,
-      {
-        ...pkgWithoutIdEtc,
-        patient: id,
-        packageId: _id,
-        packageNumber,
-        labResult: "pending",
-        tests: serializedLabTests,
-      },
-      { headers: { "api-key": api_Key } }
-    );
-
-    if (labResponse.data?.message === "Laboratory request created successfully") {
-      console.log("Lab request created:", labResponse.data.labRequest);
-      fetchLabRecords();
-    }
-
-    // ✅ Step 4: Handle X-ray request(s)
-    if (xrayType === "medical, dental") {
-      const [medicalDescription, dentalDescription] = (xrayDescription || "").split(", ");
-
-      await axios.post(
-        `${apiUrl}/api/xrayResults`,
-        {
-          ...pkgWithoutIdEtc,
-          patient: id,
-          packageId: _id,
-          packageNumber,
-          xrayType: "medical",
-          xrayDescription: medicalDescription,
-          xrayResult: "pending",
-        },
-        { headers: { "api-key": api_Key } }
-      );
-
-      await axios.post(
-        `${apiUrl}/api/xrayResults`,
-        {
-          ...pkgWithoutIdEtc,
-          patient: id,
-          packageId: _id,
-          packageNumber,
-          xrayType: "dental",
-          xrayDescription: dentalDescription,
-          xrayResult: "pending",
-        },
-        { headers: { "api-key": api_Key } }
-      );
-    } else if (xrayType === "medical" || xrayType === "dental") {
-      await axios.post(
-        `${apiUrl}/api/xrayResults`,
-        {
-          ...pkgWithoutIdEtc,
-          patient: id,
-          packageId: _id,
-          packageNumber,
-          xrayType,
-          xrayDescription,
-          xrayResult: "pending",
-        },
-        { headers: { "api-key": api_Key } }
-      );
-    }
-
-    // ✅ Final Step: UI refresh
-    fetchXrayRecords();
-    setShowPackageOptions(false);
-  } catch (error) {
-    console.error("Error processing package:", error);
-    alert("Failed to process package request. Please try again.");
-  }
-};
 
 
 
@@ -4206,56 +4208,47 @@ const submitData = async (imageUrl) => {
                   ))}
 
                 {/* Laboratory Records */}
-                {selectedTab === "laboratory" &&
-                  (displayedRecords.length > 0 ? (
-                    displayedRecords.map((records, index) => {
-                      const allTests = [
-                        ...Object.entries(records.bloodChemistry || {})
-                          .filter(([key, value]) => value)
-                          .map(([key]) => key),
-                        ...Object.entries(records.hematology || {})
-                          .filter(([key, value]) => value)
-                          .map(([key]) => key),
-                        ...Object.entries(
-                          records.clinicalMicroscopyParasitology || {}
-                        )
-                          .filter(([key, value]) => value)
-                          .map(([key]) => key),
-                        ...Object.entries(records.bloodBankingSerology || {})
-                          .filter(([key, value]) => value)
-                          .map(([key]) => key),
-                        ...Object.entries(records.microbiology || {})
-                          .filter(([key, value]) => value)
-                          .map(([key]) => key),
-                      ].join(", ");
+{selectedTab === "laboratory" &&
+  (displayedRecords.length > 0 ? (
+    displayedRecords.map((records, index) => {
+      const groupedTests = (records.tests || []).reduce((acc, test) => {
+        if (!acc[test.category]) acc[test.category] = [];
+        acc[test.category].push(test.name);
+        return acc;
+      }, {});
 
-                      return (
-                        <li
-                          key={index}
-                          className="flex justify-between items-center p-4 bg-gray-100 rounded-lg space-x-4"
-                        >
-                          <div className="flex-1">
-                            <p className="text-gray-500 text-sm">
-                              {new Date(records.isCreatedAt).toLocaleString()}
-                            </p>
-                            <p className="font-semibold">
-                              {allTests || "No test data available"}
-                            </p>
-                          </div>
-                          <div className="flex-1 text-gray-500 text-center">
-                            {records.labResult}
-                          </div>
-                          <div className="flex-1 text-right">
-                            <button className="text-custom-red">View</button>
-                          </div>
-                        </li>
-                      );
-                    })
-                  ) : (
-                    <p className="text-center text-gray-500 py-4">
-                      No lab records available.
-                    </p>
-                  ))}
+      const allTests = Object.entries(groupedTests)
+        .map(([category, names]) => `${category}: ${names.join(", ")}`)
+        .join(" | ");
+
+      return (
+        <li
+          key={index}
+          className="flex justify-between items-center p-4 bg-gray-100 rounded-lg space-x-4"
+        >
+          <div className="flex-1">
+            <p className="text-gray-500 text-sm">
+              {new Date(records.isCreatedAt).toLocaleString()}
+            </p>
+            <p className="font-semibold">
+              {allTests || "No test data available"}
+            </p>
+          </div>
+          <div className="flex-1 text-gray-500 text-center">
+            {records.labResult || "Pending"}
+          </div>
+          <div className="flex-1 text-right">
+            <button className="text-custom-red">View</button>
+          </div>
+        </li>
+      );
+    })
+  ) : (
+    <p className="text-center text-gray-500 py-4">
+      No lab records available.
+    </p>
+  ))}
+
 
                 {/* X-ray Records */}
                 {selectedTab === "xray" &&
@@ -4374,32 +4367,18 @@ const submitData = async (imageUrl) => {
                             </div>
 
                             {/* Lab Results Summary */}
-                            <div className="col-span-1">
-                              <p className="text-gray-500">
-                                {records.labRecords.length > 0
-                                  ? records.labRecords
-                                      .flatMap((record) => [
-                                        ...Object.values(
-                                          record.bloodChemistry || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.hematology || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.clinicalMicroscopyParasitology ||
-                                            {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.bloodBankingSerology || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.microbiology || {}
-                                        ).filter((value) => value),
-                                      ])
-                                      .join(", ") || "No test data available"
-                                  : "No Lab Tests Available"}
-                              </p>
-                            </div>
+<div className="col-span-1">
+  <p className="text-gray-500">
+    {records.labRecords.length > 0
+      ? records.labRecords
+          .flatMap((record) =>
+            (record.tests || []).map((test) => test.name)
+          )
+          .join(", ") || "No test data available"
+      : "No Lab Tests Available"}
+  </p>
+</div>
+
 
                             {/* X-ray Data */}
                             <div className="col-span-1">

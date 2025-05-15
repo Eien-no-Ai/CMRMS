@@ -357,7 +357,6 @@ app.put("/api/packages/:id", async (req, res) => {
     res.status(500).json({ message: "Error updating package" });
   }
 });
-
 // P H Y S I C A L   T H E R A P Y   R E C O R D S
 
 const storaged = multer.diskStorage({
@@ -1655,11 +1654,11 @@ const router = express.Router();
 
 ///////////////////////////////////////////////////////////// PAST XRAY RESULT EDITING //////////////////////////////////////////////////////////////
 app.put("/api/xrayResults/:id", async (req, res) => {
-  const { patientId, clinicId, ORNumber, XrayNo, diagnosis, xrayFindings, imageFile } = req.body;
+  const { patientId, ORNumber, XrayNo, diagnosis, xrayFindings, imageFile } = req.body;
 
   try {
     // Validate the incoming data
-    if (!ORNumber || !XrayNo || !patientId || !clinicId) {
+    if (!ORNumber || !XrayNo || !patientId) {
       return res.status(400).json({
         success: false,
         message: "Required fields are missing.",
