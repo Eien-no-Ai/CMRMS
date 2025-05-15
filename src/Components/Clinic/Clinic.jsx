@@ -248,6 +248,7 @@ const handleViewRecord = async (record) => {
   }, []);
 
   const fetchXrayRecords = useCallback(async (patientId) => {
+    
     try {
       const response = await axios.get(
         `${apiUrl}/api/xrayResults/${patientId}`,
@@ -559,12 +560,17 @@ const result = await axios.post(
 
       // Include clinicId if available
       if (clinicId) {
-        dataToSend.clinicId = clinicId; // Add clinicId to the data
+        dataToSend.clinicId = clinicId; // Add clinicId to the data jomilyn
       }
 
-      const response = await axios.post(
-        `${apiUrl}/api/xrayResults`,
-        dataToSend
+      const response = await axios.put(
+        `${apiUrl}/api/clinicalRecords/${selectedRecord._id}`,
+        selectedRecord,
+        {
+          headers: {
+            'api-key': api_Key
+          }
+        }
       );
 
       if (response.data.success) {
@@ -575,7 +581,12 @@ const result = await axios.post(
 
         // Refresh X-ray records in the view modal for the specific record
         const updatedXrayRecords = await axios.get(
-          `${apiUrl}/api/xrayResults?clinicId=${clinicId}`
+          `${apiUrl}/api/xrayResults?clinicId=${clinicId}`,
+        {
+          headers: {
+            'api-key': api_Key
+          }
+        }
         );
         setSelectedXrayRecords(updatedXrayRecords.data);
       } else {

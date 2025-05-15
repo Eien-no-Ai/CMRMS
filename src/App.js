@@ -24,6 +24,7 @@ import LaboratoryPathologistVerification from "./Components/Laboratory/Laborator
 import LaboratoryCensus from "./Components/Laboratory/LaboratoryCensus";
 import XrayCensus from "./Components/Xray/XrayCensus";
 import LaboratoryTest from "./Components/Laboratory/LaboratoryTest";
+
 function App() {
   return (
     <div className="App">
@@ -43,6 +44,8 @@ function App() {
               </PrivateRoute>
             }
           />
+
+
 
           {/* Public routes that redirect logged-in users */}
           <Route
