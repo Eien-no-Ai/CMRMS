@@ -289,46 +289,8 @@ const handleViewRecord = async (record) => {
     }
   }, []);
 
-  const initialFormData = {
-    bloodChemistry: {
-      bloodSugar: "",
-      bloodUreaNitrogen: "",
-      bloodUricAcid: "",
-      creatinine: "",
-      SGOT_AST: "",
-      SGPT_ALT: "",
-      totalCholesterol: "",
-      triglyceride: "",
-      HDL_cholesterol: "",
-      LDL_cholesterol: "",
-    },
-    hematology: {
-      bleedingTimeClottingTime: "",
-      completeBloodCount: "",
-      hematocritAndHemoglobin: "",
-    },
-    clinicalMicroscopyParasitology: {
-      routineUrinalysis: "",
-      routineStoolExamination: "",
-      katoThickSmear: "",
-      fecalOccultBloodTest: "",
-    },
-    bloodBankingSerology: {
-      antiTreponemaPallidum: "",
-      antiHCV: "",
-      bloodTyping: "",
-      hepatitisBSurfaceAntigen: "",
-      pregnancyTest: "",
-      dengueTest: "",
-      HIVRapidTest: "",
-      HIVElsa: "",
-      testForSalmonellaTyphi: "",
-    },
-    microbiology: {
-      gramsStain: "",
-      KOH: "",
-    },
-  };
+const initialFormData = {};
+
 
   const [formData, setFormData] = useState(initialFormData);
 
@@ -1412,7 +1374,7 @@ useEffect(() => {
       {isLabModalOpen && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
     <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
-      <h2 className="text-lg font-bold mb-4 text-center">Laboratory Request Forms</h2>
+      <h2 className="text-lg font-bold mb-4 text-center">Laboratory Request Form</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {["Blood Chemistry", "Hematology", "Clinical Microscopy & Parasitology", "Blood Banking And Serology"].map((category) => {

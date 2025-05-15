@@ -285,25 +285,23 @@ app.post("/api/packages", async (req, res) => {
   const {
     name,
     packageFor,
-    bloodChemistry,
-    hematology,
-    clinicalMicroscopyParasitology,
-    bloodBankingSerology,
-    microbiology,
+    labTests,
     xrayType,
     xrayDescription,
+    patient,
+    clinicId,
+    laboratoryId,
   } = req.body;
 
   const newPackage = new PackageModel({
     name,
     packageFor,
-    bloodChemistry,
-    hematology,
-    clinicalMicroscopyParasitology,
-    bloodBankingSerology,
-    microbiology,
+    labTests,
     xrayType,
     xrayDescription,
+    patient,
+    clinicId,
+    laboratoryId,
   });
 
   try {
@@ -311,9 +309,10 @@ app.post("/api/packages", async (req, res) => {
     res.status(201).json(savedPackage);
   } catch (error) {
     console.error("Error creating package:", error);
-    res.status(400).json({ message: "Error creating package" });
+    res.status(400).json({ message: "Error creating package", error });
   }
 });
+
 
 app.get("/api/packages", async (req, res) => {
   try {
@@ -2042,6 +2041,9 @@ app.put("/api/laboratorytest-list/:id", async (req, res) => {
     res.status(500).json({ message: "Error updating laboratory test", error });
   }
 });
+
+
+
 
 //console log
 app.listen(port, () => {

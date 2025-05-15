@@ -198,7 +198,7 @@ const handleDeleteLaboratoryTest = async () => {
 
           <div className="mb-4">
             <ul className="flex space-x-6 justify-center">
-              {["Blood Chemistry", "Hematology", "Clinical Microscopy & Parasitology", "Blood Banking And Serology"].map((tab) => (
+              {["Blood Chemistry", "Hematology", "Clinical Microscopy & Parasitology", "Blood Banking And Serology", "Other Tests"].map((tab) => (
                 <li
                   key={tab}
                   className={`cursor-pointer py-2 px-4 rounded-full ${activeTab === tab ? "bg-custom-red text-white" : "bg-white text-gray-600"}`}
@@ -236,16 +236,22 @@ const handleDeleteLaboratoryTest = async () => {
           {/* Laboratory Test Table */}
           <div className="bg-white p-6 py-1 rounded-lg shadow-md">
           <table className="min-w-full">
-    <thead>
-      <tr className="text-left text-gray-600">
-        <th className="py-3 w-1/4">Name</th>
-        {activeTab !== "Clinical Microscopy & Parasitology" && activeTab !== "Blood Banking And Serology" && (
-          <th className="py-3 w-1/4">Reference Range</th> // Only show for categories that need it
-        )}
-        <th className="py-3 w-1/4"></th>
-        <th className="py-3 w-1/12"></th>
-      </tr>
-    </thead>
+<thead>
+  <tr className="text-left text-gray-600">
+    <th className="py-3 w-1/4">Name</th>
+
+    {activeTab !== "Clinical Microscopy & Parasitology" && (
+      <th className="py-3 w-1/4">Reference Range</th>
+    )}
+
+    {(activeTab === "Blood Banking And Serology" || activeTab === "Others") && (
+      <th className="py-3 w-1/4">What Should Be Included</th>
+    )}
+
+    <th className="py-3 w-1/12"></th>
+  </tr>
+</thead>
+
     <tbody>
     {filteredLaboratoryTests.length === 0 ? (
       <tr>
@@ -358,28 +364,29 @@ const handleDeleteLaboratoryTest = async () => {
                   </div>
                 )}
 
-                {activeTab === "Clinical Microscopy & Parasitology" && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">What should be included</label>
-                    {newLaboratoryTest.whatShouldBeIncluded.map((item, index) => (
-                      <div key={index} className="mb-2">
-                        <input
-                          type="text"
-                          value={item}
-                          onChange={(e) => handleIncludedItemChange(index, e.target.value)}
-                          className="w-full border-gray-300 border rounded-lg p-2 mb-2"
-                        />
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={handleAddIncludedItem}
-                      className="text-blue-500 hover:text-blue-700"
-                    >
-                      Add Another Item
-                    </button>
-                  </div>
-                )}
+{["Clinical Microscopy & Parasitology", "Blood Banking And Serology", "Other Tests"].includes(activeTab) && (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">What should be included</label>
+    {newLaboratoryTest.whatShouldBeIncluded.map((item, index) => (
+      <div key={index} className="mb-2">
+        <input
+          type="text"
+          value={item}
+          onChange={(e) => handleIncludedItemChange(index, e.target.value)}
+          className="w-full border-gray-300 border rounded-lg p-2 mb-2"
+        />
+      </div>
+    ))}
+    <button
+      type="button"
+      onClick={handleAddIncludedItem}
+      className="text-blue-500 hover:text-blue-700"
+    >
+      Add Another Item
+    </button>
+  </div>
+)}
+
 
                 <div className="flex justify-between mt-6">
                   <button
