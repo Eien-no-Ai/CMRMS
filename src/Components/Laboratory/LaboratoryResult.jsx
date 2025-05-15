@@ -588,62 +588,61 @@ function LaboratoryResult() {
                 />
               </div>
 
-{Object.entries(labDetails.testResults || {}).map(([categoryName, tests], catIndex) => (
-  <div key={catIndex} className="mb-6">
-    <h3 className="text-lg font-bold border-b pb-1 mb-2">{`${catIndex + 1}. ${categoryName}`}</h3>
+{(labDetails.results || []).map((testItem, index) => (
+  <div key={index} className="mb-6">
+    <h3 className="text-lg font-bold border-b pb-1 mb-2">
+      {`${index + 1}. ${testItem.category}`}
+    </h3>
 
-    {Object.entries(tests).map(([testName, testValue], testIndex) => (
-      <div key={testIndex} className="mb-4 space-y-1">
-        {/* If it's a simple test with result */}
-        {typeof testValue.result === "string" ? (
-          <>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="min-w-[150px] font-semibold">{testName}</div>
+    <div className="mb-4 space-y-1">
+      {/* Main Test Name */}
+      <div className="text-sm font-semibold">{testItem.testName}</div>
+
+      {/* If result is a string (simple test) */}
+      {typeof testItem.result?.result === "string" && Object.keys(testItem.result).length === 1 ? (
+        <div className="flex items-center gap-4 text-sm ml-4">
+          <div className="min-w-[150px] font-semibold">Result</div>
+          <input
+            type="text"
+            value={testItem.result.result}
+            readOnly
+            className="flex-1 px-3 py-1 border rounded bg-gray-100"
+          />
+        </div>
+      ) : (
+        // Otherwise, assume it's an object with subtests
+        Object.entries(testItem.result || {}).map(([key, val], subIndex) => (
+          key !== "referenceRange" && key !== "whatShouldBeIncluded" ? (
+            <div key={subIndex} className="flex items-center gap-4 text-sm ml-4">
+              <div className="min-w-[150px]">{key}</div>
               <input
                 type="text"
-                value={testValue.result}
+                value={val}
                 readOnly
                 className="flex-1 px-3 py-1 border rounded bg-gray-100"
               />
             </div>
-            {testValue.referenceRange && (
-              <div className="text-xs font-bold text-red-600 ml-[150px]">
-                Reference: {testValue.referenceRange}
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            {/* Main test name (no direct result) */}
-            <div className="text-sm font-semibold">{testName}</div>
+          ) : null
+        ))
+      )}
 
-            {/* Subtests */}
-            {Object.entries(testValue).map(([subTest, subVal], subIndex) =>
-              subTest !== "referenceRange" && subTest !== "result" ? (
-                <div key={subIndex} className="flex items-center gap-4 text-sm ml-4">
-                  <div className="min-w-[150px]">{subTest}</div>
-                  <input
-                    type="text"
-                    value={subVal}
-                    readOnly
-                    className="flex-1 px-3 py-1 border rounded bg-gray-100"
-                  />
-                </div>
-              ) : null
-            )}
+      {/* Optional reference range */}
+      {testItem.result?.referenceRange && (
+        <div className="text-xs font-bold text-red-600 ml-[150px]">
+          Reference: {testItem.result.referenceRange}
+        </div>
+      )}
 
-            {/* Reference range for group */}
-            {testValue.referenceRange && (
-              <div className="text-xs font-bold text-red-600 ml-[150px]">
-                Reference: {testValue.referenceRange}
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    ))}
+      {/* Optional whatShouldBeIncluded */}
+      {testItem.result?.whatShouldBeIncluded && (
+        <div className="text-xs italic text-gray-600 ml-[150px]">
+          Includes: {testItem.result.whatShouldBeIncluded}
+        </div>
+      )}
+    </div>
   </div>
 ))}
+
             </form>
 
             {/* <div className="flex items-center gap-8">

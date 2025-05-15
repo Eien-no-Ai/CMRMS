@@ -698,68 +698,110 @@ function PatientsProfile() {
 
   const [formData, setFormData] = useState(initialFormData);
 
-  const handleInputChange = (section, field) => {
-    setFormData((prevData) => ({
+  const handleInputChange = (category, testName) => {
+  setFormData(prevData => {
+    const categoryData = prevData[category] || {};
+    const isChecked = categoryData[testName];
+
+    const updatedData = {
       ...prevData,
-      [section]: {
-        ...prevData[section],
-        [field]: prevData[section][field] === "" ? field : "",
+      [category]: {
+        ...categoryData,
+        [testName]: isChecked ? "" : testName,
       },
-    }));
-  };
+    };
 
+    // Log currently selected tests
+    const selectedTests = {};
+    for (const cat in updatedData) {
+      selectedTests[cat] = Object.entries(updatedData[cat])
+        .filter(([, value]) => value !== "")
+        .map(([name]) => name);
+    }
+
+    console.log("Selected tests:", selectedTests);
+
+    return updatedData;
+  });
+};
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!isAnyTestSelected()) {
-      setErrorModal(true);
-      return;
-    }
+  const patientId = selectedRecord?.patient;
+  console.log("Selected Record:", selectedRecord);
+console.log("Patient:", selectedRecord?.patient);
 
-    try {
-      const dataToSend = {
-        ...formData,
-        patient: id,
-        labResult: "pending", // Or fill it with the selected tests if needed
-      };
+  if (!patientId) {
+    console.error("Patient ID is missing or invalid.");
+    return;
+  }
 
-      // Include clinicId if available
-      if (clinicId) {
-        dataToSend.clinicId = clinicId;
-      }
+  try {
+    const selectedTests = [];
 
-      const result = await axios.post(`${apiUrl}/api/laboratory`, dataToSend, {
-        headers: {
-          "api-key": api_Key,
-        },
-      });
+    console.log("Form Data Before Processing:", formData);
 
-      if (result.data.message === "Laboratory request created successfully") {
-        console.log("Form submitted successfully:", result.data);
-        setFormData(initialFormData); // Reset form data
-        handleModalClose(); // Close the modal
-        fetchLabRecords(); // Refresh lab records
-        setShowLabSuccessModal(true);
-        const updatedLabTests = await axios.get(
-          `${apiUrl}/api/laboratory?clinicId=${clinicId}`,
-          {
-            headers: {
-              "api-key": api_Key,
-            },
+    for (const category in formData) {
+      for (const testName in formData[category]) {
+        const isSelected = formData[category][testName];
+
+        if (isSelected) {
+          const testObj = {
+            category,
+            name: testName,
+          };
+
+          const matchingTest = laboratorytests.find(
+            (t) => t.name === testName && t.category === category
+          );
+
+          if (matchingTest?.referenceRange) {
+            testObj.referenceRange = matchingTest.referenceRange;
           }
-        );
-        setSelectedLabTests(updatedLabTests.data);
-      } else {
-        console.error("Error submitting form:", result.data);
-        setErrorModal(true); // Show error modal in case of an unsuccessful submission
+
+          if (matchingTest?.whatShouldBeIncluded?.length > 0) {
+            testObj.whatShouldBeIncluded = matchingTest.whatShouldBeIncluded;
+          }
+
+          selectedTests.push(testObj);
+        }
       }
-    } catch (err) {
-      console.error("An error occurred while submitting the form:", err);
-      setErrorModal(true); // Show error modal in case of any error
-    } finally {
-      setClinicId(null); // Clear clinicId explicitly
     }
-  };
+
+    console.log("Selected Tests Array:", selectedTests);
+
+    const dataToSend = {
+      patient: patientId,
+      clinicId,
+      labResult: "pending",
+      tests: selectedTests,
+    };
+
+const token = localStorage.getItem('token');
+const result = await axios.post(
+  `${apiUrl}/api/laboratory`,
+  dataToSend,
+  {
+    headers: {
+      "api-key": api_Key, // or use Authorization: `Bearer ${token}` if needed
+    },
+  }
+);
+
+    if (result.data.message === "Laboratory request created successfully") {
+      console.log("Form submitted successfully:", result.data);
+      setFormData(initialFormData);
+      handleModalClose();
+      fetchLabRecords(patientId);
+    } else {
+      console.error("Error submitting form:", result.data);
+    }
+  } catch (err) {
+    console.error("An error occurred while submitting the form:", err);
+  } finally {
+    setClinicId(null);
+  }
+};
 
   // Helper function to check if any test has been selected
   const isAnyTestSelected = () => {
@@ -930,22 +972,15 @@ function PatientsProfile() {
   const [packages, setPackages] = useState([]);
   const [packageClickCount, setPackageClickCount] = useState(0);
 
-  // Load packageClickCount from localStorage when the component mounts
+    // Load packageClickCount from localStorage when the component mounts
   useEffect(() => {
-    const storedClickCount = localStorage.getItem("packageClickCount");
-    if (storedClickCount) {
-      setPackageClickCount(parseInt(storedClickCount, 10));
-    }
-
     // Fetch packages when component mounts
     const fetchPackages = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/packages`, {
-          headers: {
-            "api-key": api_Key,
-          },
+          headers: { "api-key": api_Key },
         });
-        setPackages(response.data); // Set the fetched packages to state
+        setPackages(response.data);
       } catch (error) {
         console.error("Error fetching packages:", error);
         alert("Failed to fetch packages. Please try again.");
@@ -957,184 +992,128 @@ function PatientsProfile() {
 
   const handlePackageClick = async (packageId) => {
     try {
+      // ✅ Step 1: Fetch the package from DB
       const response = await axios.get(`${apiUrl}/api/packages/${packageId}`, {
-        headers: {
-          "api-key": api_Key,
-        },
+        headers: { "api-key": api_Key },
       });
-      const pkg = response.data;
-      console.log("Selected package:", pkg);
 
-      setSelectedPackage(pkg);
-      setIsModalOpen(true);
+      let pkg = response.data;
 
-      const {
-        _id,
-        isCreatedAt,
-        xrayType,
-        packageNumber,
-        xrayDescription,
-        ...pkgWithoutIdAndCreatedAt
-      } = pkg;
-
-      // Calculate the updated package number based on the click count
-      const updatedPackageNumber = packageNumber + packageClickCount + 1;
-
-      // Create lab request with the updated package number
-      const labResponse = await axios.post(
-        `${apiUrl}/api/laboratory`,
+      // ✅ Step 2: Increment packageNumber in DB
+      const updateResponse = await axios.put(
+        `${apiUrl}/api/packages/${packageId}`,
         {
-          ...pkgWithoutIdAndCreatedAt,
-          patient: id,
-          packageId: _id,
-          packageNumber: updatedPackageNumber, // Use updated package number
-          labResult: "pending",
+          isArchived: false, // or keep existing if you want
+          packageNumber: (pkg.packageNumber || 0) + 1,
         },
         {
-          headers: {
-            "api-key": api_Key,
-          },
+          headers: { "api-key": api_Key },
         }
       );
 
-      if (
-        labResponse.data &&
-        labResponse.data.message === "Laboratory request created successfully"
-      ) {
-        console.log(
-          "Lab request created successfully:",
-          labResponse.data.labRequest
-        );
+      pkg = updateResponse.data; // updated version with new packageNumber
+
+      console.log("Updated package:", pkg);
+      setSelectedPackage(pkg);
+      setIsModalOpen(true);
+
+const {
+  _id,
+  isCreatedAt,
+  xrayType,
+  packageNumber,
+  xrayDescription,
+  labTests,
+  ...pkgWithoutIdEtc
+} = pkg;
+
+
+const serializedLabTests = (labTests || []).map((test) => ({
+  category: test.category,
+  name: test.name,
+  referenceRange: test.referenceRange || "",
+  whatShouldBeIncluded: test.whatShouldBeIncluded || [],
+}));
+
+
+      // ✅ Step 3: Submit lab request
+      const labResponse = await axios.post(
+        `${apiUrl}/api/laboratory`,
+        {
+          ...pkgWithoutIdEtc,
+          patient: id,
+          packageId: _id,
+          packageNumber,
+          labResult: "pending",
+          tests: serializedLabTests,
+        },
+        { headers: { "api-key": api_Key } }
+      );
+
+      if (labResponse.data?.message === "Laboratory request created successfully") {
+        console.log("Lab request created:", labResponse.data.labRequest);
         fetchLabRecords();
-      } else {
-        console.error("Unexpected response structure:", labResponse.data);
       }
 
-      // Check if package includes both Medical and Dental X-ray
+      // ✅ Step 4: Handle X-ray request(s)
       if (xrayType === "medical, dental") {
-        const [medicalDescription, dentalDescription] =
-          xrayDescription.split(", ");
+        const [medicalDescription, dentalDescription] = (xrayDescription || "").split(", ");
 
-        // Medical X-ray
-        const medicalXrayResponse = await axios.post(
+        await axios.post(
           `${apiUrl}/api/xrayResults`,
           {
-            ...pkgWithoutIdAndCreatedAt,
+            ...pkgWithoutIdEtc,
             patient: id,
             packageId: _id,
-            packageNumber: updatedPackageNumber,
+            packageNumber,
             xrayType: "medical",
             xrayDescription: medicalDescription,
             xrayResult: "pending",
           },
-          {
-            headers: {
-              "api-key": api_Key,
-            },
-          }
+          { headers: { "api-key": api_Key } }
         );
 
-        if (medicalXrayResponse.data && medicalXrayResponse.data.success) {
-          console.log(
-            "Medical X-ray request created successfully: ",
-            medicalXrayResponse.data
-          );
-        }
-
-        // Dental X-ray
-        const dentalXrayResponse = await axios.post(
+        await axios.post(
           `${apiUrl}/api/xrayResults`,
           {
-            ...pkgWithoutIdAndCreatedAt,
+            ...pkgWithoutIdEtc,
             patient: id,
             packageId: _id,
-            packageNumber: updatedPackageNumber,
+            packageNumber,
             xrayType: "dental",
             xrayDescription: dentalDescription,
             xrayResult: "pending",
           },
-          {
-            headers: {
-              "api-key": api_Key,
-            },
-          }
+          { headers: { "api-key": api_Key } }
         );
-
-        if (dentalXrayResponse.data && dentalXrayResponse.data.success) {
-          console.log(
-            "Dental X-ray request created successfully: ",
-            dentalXrayResponse.data
-          );
-        }
-      } else if (xrayType === "medical") {
-        // Handle only Medical X-ray
-        const medicalXrayResponse = await axios.post(
+      } else if (xrayType === "medical" || xrayType === "dental") {
+        await axios.post(
           `${apiUrl}/api/xrayResults`,
           {
-            ...pkgWithoutIdAndCreatedAt,
+            ...pkgWithoutIdEtc,
             patient: id,
             packageId: _id,
-            packageNumber: updatedPackageNumber,
-            xrayType: "medical",
-            xrayDescription: xrayDescription, // Use xrayDescription if it's just medical
+            packageNumber,
+            xrayType,
+            xrayDescription,
             xrayResult: "pending",
           },
-          {
-            headers: {
-              "api-key": api_Key,
-            },
-          }
+          { headers: { "api-key": api_Key } }
         );
-
-        if (medicalXrayResponse.data && medicalXrayResponse.data.success) {
-          console.log(
-            "Medical X-ray request created successfully: ",
-            medicalXrayResponse.data
-          );
-        }
-      } else if (xrayType === "dental") {
-        // Handle only Dental X-ray
-        const dentalXrayResponse = await axios.post(
-          `${apiUrl}/api/xrayResults`,
-          {
-            ...pkgWithoutIdAndCreatedAt,
-            patient: id,
-            packageId: _id,
-            packageNumber: updatedPackageNumber,
-            xrayType: "dental",
-            xrayDescription: xrayDescription, // Use xrayDescription if it's just dental
-            xrayResult: "pending",
-          },
-          {
-            headers: {
-              "api-key": api_Key,
-            },
-          }
-        );
-
-        if (dentalXrayResponse.data && dentalXrayResponse.data.success) {
-          console.log(
-            "Dental X-ray request created successfully: ",
-            dentalXrayResponse.data
-          );
-        }
       }
 
-      // Increment the counter and save it to localStorage
-      const newClickCount = packageClickCount + 1;
-      setPackageClickCount(newClickCount);
-      localStorage.setItem("packageClickCount", newClickCount);
-
-      // Fetch the latest X-ray records
+      // ✅ Final Step: UI refresh
       fetchXrayRecords();
       setShowPackageOptions(false);
     } catch (error) {
-      console.error("Error fetching package or creating requests:", error);
-      alert("Failed to fetch package or create requests. Please try again.");
+      console.error("Error processing package:", error);
+      alert("Failed to process package request. Please try again.");
     }
   };
 
-  // const renderLabTests = (testName, tests) => {
+
+
+  // jomconst renderLabTests = (testName, tests) => {
   //   // Check if tests is undefined, null, or not an array
   //   if (!tests || !Array.isArray(tests)) {
   //     return <p>No tests available for {testName}</p>; // Handle undefined cases
@@ -2822,6 +2801,35 @@ const submitData = async (imageUrl) => {
     );
   };
 
+    const [laboratorytests, setLaboratoryTests] = useState([]);
+  
+    useEffect(() => {
+      const fetchTests = async () => {
+        try {
+          const token = localStorage.getItem('token'); // adjust this if you store token differently
+    
+          const response = await axios.get(`${apiUrl}/api/laboratorytest-list`, {
+            headers: {
+              "api-key": api_Key,
+            },
+          });
+    
+          setLaboratoryTests(response.data);
+        } catch (error) {
+          console.error("Error fetching tests:", error);
+        }
+      };
+    
+      fetchTests();
+    }, []);
+    
+      const initialFormDataTest = {
+      "Blood Chemistry": {},
+      "Hematology": {},
+      "Clinical Microscopy & Parasitology": {},
+      "Blood Banking And Serology": {},
+    };
+
   return (
     <div>
       <Navbar />
@@ -2919,6 +2927,9 @@ const submitData = async (imageUrl) => {
                           {showPackageOptions && (
                             <div className="absolute mt-2 w-full bg-white border rounded-lg shadow-lg">
                               {/* Package List */}
+                          {showPackageOptions && (
+                            <div className="absolute mt-2 w-full bg-white border rounded-lg shadow-lg">
+                              {/* Package List */}
                               {filteredPackages.length > 0 ? (
                                 filteredPackages.map((pkg) => (
                                   <button
@@ -2934,6 +2945,9 @@ const submitData = async (imageUrl) => {
                                   No packages found
                                 </div>
                               )}
+                            </div>
+                          )}
+
                             </div>
                           )}
                         </div>
@@ -4194,56 +4208,47 @@ const submitData = async (imageUrl) => {
                   ))}
 
                 {/* Laboratory Records */}
-                {selectedTab === "laboratory" &&
-                  (displayedRecords.length > 0 ? (
-                    displayedRecords.map((records, index) => {
-                      const allTests = [
-                        ...Object.entries(records.bloodChemistry || {})
-                          .filter(([key, value]) => value)
-                          .map(([key]) => key),
-                        ...Object.entries(records.hematology || {})
-                          .filter(([key, value]) => value)
-                          .map(([key]) => key),
-                        ...Object.entries(
-                          records.clinicalMicroscopyParasitology || {}
-                        )
-                          .filter(([key, value]) => value)
-                          .map(([key]) => key),
-                        ...Object.entries(records.bloodBankingSerology || {})
-                          .filter(([key, value]) => value)
-                          .map(([key]) => key),
-                        ...Object.entries(records.microbiology || {})
-                          .filter(([key, value]) => value)
-                          .map(([key]) => key),
-                      ].join(", ");
+{selectedTab === "laboratory" &&
+  (displayedRecords.length > 0 ? (
+    displayedRecords.map((records, index) => {
+      const groupedTests = (records.tests || []).reduce((acc, test) => {
+        if (!acc[test.category]) acc[test.category] = [];
+        acc[test.category].push(test.name);
+        return acc;
+      }, {});
 
-                      return (
-                        <li
-                          key={index}
-                          className="flex justify-between items-center p-4 bg-gray-100 rounded-lg space-x-4"
-                        >
-                          <div className="flex-1">
-                            <p className="text-gray-500 text-sm">
-                              {new Date(records.isCreatedAt).toLocaleString()}
-                            </p>
-                            <p className="font-semibold">
-                              {allTests || "No test data available"}
-                            </p>
-                          </div>
-                          <div className="flex-1 text-gray-500 text-center">
-                            {records.labResult}
-                          </div>
-                          <div className="flex-1 text-right">
-                            <button className="text-custom-red">View</button>
-                          </div>
-                        </li>
-                      );
-                    })
-                  ) : (
-                    <p className="text-center text-gray-500 py-4">
-                      No lab records available.
-                    </p>
-                  ))}
+      const allTests = Object.entries(groupedTests)
+        .map(([category, names]) => `${category}: ${names.join(", ")}`)
+        .join(" | ");
+
+      return (
+        <li
+          key={index}
+          className="flex justify-between items-center p-4 bg-gray-100 rounded-lg space-x-4"
+        >
+          <div className="flex-1">
+            <p className="text-gray-500 text-sm">
+              {new Date(records.isCreatedAt).toLocaleString()}
+            </p>
+            <p className="font-semibold">
+              {allTests || "No test data available"}
+            </p>
+          </div>
+          <div className="flex-1 text-gray-500 text-center">
+            {records.labResult || "Pending"}
+          </div>
+          <div className="flex-1 text-right">
+            <button className="text-custom-red">View</button>
+          </div>
+        </li>
+      );
+    })
+  ) : (
+    <p className="text-center text-gray-500 py-4">
+      No lab records available.
+    </p>
+  ))}
+
 
                 {/* X-ray Records */}
                 {selectedTab === "xray" &&
@@ -4362,32 +4367,18 @@ const submitData = async (imageUrl) => {
                             </div>
 
                             {/* Lab Results Summary */}
-                            <div className="col-span-1">
-                              <p className="text-gray-500">
-                                {records.labRecords.length > 0
-                                  ? records.labRecords
-                                      .flatMap((record) => [
-                                        ...Object.values(
-                                          record.bloodChemistry || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.hematology || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.clinicalMicroscopyParasitology ||
-                                            {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.bloodBankingSerology || {}
-                                        ).filter((value) => value),
-                                        ...Object.values(
-                                          record.microbiology || {}
-                                        ).filter((value) => value),
-                                      ])
-                                      .join(", ") || "No test data available"
-                                  : "No Lab Tests Available"}
-                              </p>
-                            </div>
+<div className="col-span-1">
+  <p className="text-gray-500">
+    {records.labRecords.length > 0
+      ? records.labRecords
+          .flatMap((record) =>
+            (record.tests || []).map((test) => test.name)
+          )
+          .join(", ") || "No test data available"
+      : "No Lab Tests Available"}
+  </p>
+</div>
+
 
                             {/* X-ray Data */}
                             <div className="col-span-1">
@@ -4469,11 +4460,11 @@ const submitData = async (imageUrl) => {
                                         setSelectedRecords(records); // Store the selected records
                                         handleAnnualOpen(); // Open the annual form for doctors
                                       } else if (role === "employee") {
-                                        handleAnnualOpen(); // Open the annual form for employees
+                                        handleAnnualOpen(); // Open the annual form for employeesjom
                                       }
                                     }}
                                   >
-                                    View
+                                    Views
                                   </button>
                                 )}
 
@@ -10000,409 +9991,54 @@ const submitData = async (imageUrl) => {
       )}
 
       {isLabModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
-            <h2 className="text-lg font-bold mb-4 text-center">
-              Laboratory Request Form
-            </h2>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="bg-white py-2 px-2 md:px-6 lg:px-8 rounded-lg w-full max-w-4xl max-h-[82vh] shadow-lg overflow-y-auto">
+      <h2 className="text-lg font-bold mb-4 text-center">Laboratory Request Form</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* I. Blood Chemistry */}
-              <div className="md:col-span-2 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
-                <h3 className="font-semibold text-base mb-3">
-                  I. Blood Chemistry
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.bloodSugar !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "bloodSugar")
-                      }
-                    />{" "}
-                    Blood Sugar (Fasting / Random)
-                  </label>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {["Blood Chemistry", "Hematology", "Clinical Microscopy & Parasitology", "Blood Banking And Serology"].map((category) => {
+          const categoryTests = laboratorytests.filter(test => test.category === category);
+          return (
+            <div key={category} className="border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
+              <h3 className="font-semibold text-base mb-3">{category}</h3>
+              <div className="space-y-2 text-sm">
+                {categoryTests.map(test => {
+                  const isChecked = !!formData?.[category]?.[test.name];
 
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.bloodUreaNitrogen !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "bloodUreaNitrogen")
-                      }
-                    />{" "}
-                    Blood Urea Nitrogen
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.bloodUricAcid !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "bloodUricAcid")
-                      }
-                    />{" "}
-                    Blood Uric Acid
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.creatinine !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "creatinine")
-                      }
-                    />{" "}
-                    Creatinine
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.SGOT_AST !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "SGOT_AST")
-                      }
-                    />{" "}
-                    SGOT / AST
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.SGPT_ALT !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "SGPT_ALT")
-                      }
-                    />{" "}
-                    SGPT / ALT
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.totalCholesterol !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "totalCholesterol")
-                      }
-                    />{" "}
-                    Total Cholesterol
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.triglyceride !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "triglyceride")
-                      }
-                    />{" "}
-                    Triglyceride
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.HDL_cholesterol !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "HDL_cholesterol")
-                      }
-                    />{" "}
-                    HDL Cholesterol
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodChemistry.LDL_cholesterol !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodChemistry", "LDL_cholesterol")
-                      }
-                    />{" "}
-                    LDL Cholesterol
-                  </label>
-                </div>
-              </div>
-
-              {/* II. Hematology */}
-              <div className="border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
-                <h3 className="font-semibold text-base mb-3">II. Hematology</h3>
-                <div className="space-y-2 text-sm">
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.hematology.bleedingTimeClottingTime !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "hematology",
-                          "bleedingTimeClottingTime"
-                        )
-                      }
-                    />{" "}
-                    Bleeding Time & Clotting Time
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.hematology.completeBloodCount !== ""}
-                      onChange={() =>
-                        handleInputChange("hematology", "completeBloodCount")
-                      }
-                    />{" "}
-                    Complete Blood Count with Platelet Count
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.hematology.hematocritAndHemoglobin !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "hematology",
-                          "hematocritAndHemoglobin"
-                        )
-                      }
-                    />{" "}
-                    Hematocrit and Hemoglobin
-                  </label>
-                </div>
-              </div>
-
-              {/* III. Clinical Microscopy & Parasitology */}
-              <div className="border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
-                <h3 className="font-semibold text-base mb-3">
-                  III. Clinical Microscopy & Parasitology
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.clinicalMicroscopyParasitology
-                          .routineUrinalysis !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "clinicalMicroscopyParasitology",
-                          "routineUrinalysis"
-                        )
-                      }
-                    />{" "}
-                    Routine Urinalysis
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.clinicalMicroscopyParasitology
-                          .routineStoolExamination !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "clinicalMicroscopyParasitology",
-                          "routineStoolExamination"
-                        )
-                      }
-                    />{" "}
-                    Routine Stool Examination
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.clinicalMicroscopyParasitology
-                          .katoThickSmear !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "clinicalMicroscopyParasitology",
-                          "katoThickSmear"
-                        )
-                      }
-                    />{" "}
-                    Kato Thick Smear
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.clinicalMicroscopyParasitology
-                          .fecalOccultBloodTest !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "clinicalMicroscopyParasitology",
-                          "fecalOccultBloodTest"
-                        )
-                      }
-                    />{" "}
-                    Fecal Occult Blood Test
-                  </label>
-                </div>
-              </div>
-
-              {/* IV. Blood Banking And Serology */}
-              <div className="md:col-span-2 border rounded-lg p-4 shadow-md bg-gray-50 flex flex-col">
-                <h3 className="font-semibold text-base mb-3">
-                  IV. Blood Banking And Serology
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology.antiTreponemaPallidum !==
-                        ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "antiTreponemaPallidum"
-                        )
-                      }
-                    />{" "}
-                    Anti-Treponema Pallidum
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodBankingSerology.antiHCV !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodBankingSerology", "antiHCV")
-                      }
-                    />{" "}
-                    Anti-HCV
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodBankingSerology.bloodTyping !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodBankingSerology", "bloodTyping")
-                      }
-                    />{" "}
-                    Blood Typing (ABO & Rh Grouping)
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology
-                          .hepatitisBSurfaceAntigen !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "hepatitisBSurfaceAntigen"
-                        )
-                      }
-                    />{" "}
-                    Hepatitis B Surface Antigen
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology.pregnancyTest !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "pregnancyTest"
-                        )
-                      }
-                    />{" "}
-                    Pregnancy Test (Plasma/Serum)
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodBankingSerology.dengueTest !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodBankingSerology", "dengueTest")
-                      }
-                    />{" "}
-                    Dengue Test
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology.HIVRapidTest !== ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "HIVRapidTest"
-                        )
-                      }
-                    />{" "}
-                    HIV Rapid Test Kit
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={formData.bloodBankingSerology.HIVElsa !== ""}
-                      onChange={() =>
-                        handleInputChange("bloodBankingSerology", "HIVElsa")
-                      }
-                    />{" "}
-                    HIV ELISA
-                  </label>
-
-                  <label className="block">
-                    <input
-                      type="checkbox"
-                      checked={
-                        formData.bloodBankingSerology.testForSalmonellaTyphi !==
-                        ""
-                      }
-                      onChange={() =>
-                        handleInputChange(
-                          "bloodBankingSerology",
-                          "testForSalmonellaTyphi"
-                        )
-                      }
-                    />{" "}
-                    Test for Salmonella typhi
-                  </label>
-                </div>
+                  return (
+                    <label key={test.name} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => handleInputChange(category, test.name)}
+                      />
+                      <span>{test.name}</span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
+          );
+        })}
+      </div>
 
-            <div className="flex justify-end mt-4 space-x-3">
-              <button
-                className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:gray-500 hover:border-gray-500 border transition duration-200"
-                onClick={handleModalClose}
-              >
-                Cancel
-              </button>
+      <div className="flex justify-end mt-4 space-x-3">
+        <button
+          className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-white hover:text-gray-500 hover:border-gray-500 border transition duration-200"
+          onClick={handleModalClose}
+        >
+          Cancel
+        </button>
 
-              <button
-                className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
-                onClick={handleSubmit}
-              >
-                Submit
-              </button>
-            </div>
-          </div>
-        </div>
+        <button
+          className="bg-custom-red text-white py-2 px-4 rounded-lg hover:bg-white hover:text-custom-red hover:border-custom-red border transition duration-200"
+          onClick={handleSubmit}
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
       )}
       {isNewXrayModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">

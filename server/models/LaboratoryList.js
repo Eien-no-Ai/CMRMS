@@ -5,6 +5,7 @@ const allowedCategories = [
   "Hematology",
   "Clinical Microscopy & Parasitology",
   "Blood Banking And Serology",
+  "Other Tests", // ✅ Add this
 ];
 
 const LaboratoryTestSchema = new mongoose.Schema(

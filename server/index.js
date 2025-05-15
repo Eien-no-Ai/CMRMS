@@ -285,25 +285,23 @@ app.post("/api/packages", async (req, res) => {
   const {
     name,
     packageFor,
-    bloodChemistry,
-    hematology,
-    clinicalMicroscopyParasitology,
-    bloodBankingSerology,
-    microbiology,
+    labTests,
     xrayType,
     xrayDescription,
+    patient,
+    clinicId,
+    laboratoryId,
   } = req.body;
 
   const newPackage = new PackageModel({
     name,
     packageFor,
-    bloodChemistry,
-    hematology,
-    clinicalMicroscopyParasitology,
-    bloodBankingSerology,
-    microbiology,
+    labTests,
     xrayType,
     xrayDescription,
+    patient,
+    clinicId,
+    laboratoryId,
   });
 
   try {
@@ -311,9 +309,10 @@ app.post("/api/packages", async (req, res) => {
     res.status(201).json(savedPackage);
   } catch (error) {
     console.error("Error creating package:", error);
-    res.status(400).json({ message: "Error creating package" });
+    res.status(400).json({ message: "Error creating package", error });
   }
 });
+
 
 app.get("/api/packages", async (req, res) => {
   try {
@@ -358,7 +357,6 @@ app.put("/api/packages/:id", async (req, res) => {
     res.status(500).json({ message: "Error updating package" });
   }
 });
-
 // P H Y S I C A L   T H E R A P Y   R E C O R D S
 
 const storaged = multer.diskStorage({
@@ -1656,11 +1654,11 @@ const router = express.Router();
 
 ///////////////////////////////////////////////////////////// PAST XRAY RESULT EDITING //////////////////////////////////////////////////////////////
 app.put("/api/xrayResults/:id", async (req, res) => {
-  const { patientId, clinicId, ORNumber, XrayNo, diagnosis, xrayFindings, imageFile } = req.body;
+  const { patientId, ORNumber, XrayNo, diagnosis, xrayFindings, imageFile } = req.body;
 
   try {
     // Validate the incoming data
-    if (!ORNumber || !XrayNo || !patientId || !clinicId) {
+    if (!ORNumber || !XrayNo || !patientId) {
       return res.status(400).json({
         success: false,
         message: "Required fields are missing.",
@@ -2042,6 +2040,9 @@ app.put("/api/laboratorytest-list/:id", async (req, res) => {
     res.status(500).json({ message: "Error updating laboratory test", error });
   }
 });
+
+
+
 
 //console log
 app.listen(port, () => {
