@@ -119,24 +119,21 @@ function XrayResult() {
       return;
     }
 
-    // Prepare the form data to send via axios
-    const formDataToSubmit = new FormData();
-    formDataToSubmit.append("ORNumber", formData.ORNumber);
-    formDataToSubmit.append("XrayNo", formData.XrayNo);
-    formDataToSubmit.append("diagnosis", formData.diagnosis);
-    formDataToSubmit.append("xrayFindings", formData.xrayFindings);
-    formDataToSubmit.append("patientId", selectedRecord.patient._id);
-    formDataToSubmit.append("clinicId", selectedRecord.clinicId);
-
-    if (imageFile) {
-      formDataToSubmit.append("imageFile", imageFile); // Append image file if exists
-    }
+  const xrayData = {
+      ORNumber: formData.ORNumber,
+      XrayNo: formData.XrayNo,
+      diagnosis: formData.diagnosis,
+      xrayFindings: formData.xrayFindings,
+      patientId: selectedRecord.patient._id,
+      clinicId: selectedRecord.clinicId,
+      imageFile: imageFile, // ← Use Cloudinary image URL if available
+    };
 
     try {
       // Step 1: Update the existing X-ray record by ID
       const updateResponse = await axios.put(
         `${apiUrl}/api/xrayResults/${selectedRecord._id}`,
-        formDataToSubmit,
+        xrayData,
         {
           headers: {
             "api-key": api_Key,
@@ -522,7 +519,7 @@ function XrayResult() {
                     {/* Diagnosis (Interpretation) */}
                     <div className="w-full">
                       <label className="block text-gray-700">
-                        Interpretation
+                        Interpretations
                       </label>
                       <textarea
                         name="diagnosis"
