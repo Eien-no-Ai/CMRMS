@@ -39,7 +39,7 @@ CMRMS aims to improve service delivery, reduce paperwork, and enhance the confid
 
 - **User Acceptance Testing (UAT):** 158 test cases passed out of 158
 - **Validated by:** Medical personnel from clinics, laboratory, and PT department
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
 
 ## 🚀 Future Enhancements
 
@@ -57,6 +57,18 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 - **Anthony Liwanag Villalon** – Lead Developer  
 - **Erna-Kristi Nañasca Martinez** – Technical Adviser
 
+## ✅ Project Status
+🎉 **Completed** – The system has been successfully deployed and officially turned over to the stakeholders. This Thesis is also have been successfully defended 
+
+
 ## 📄 License
 
 This project is developed for academic purposes and internal deployment at the University of Baguio. For other uses, please contact the authors or the university's School of Information Technology.
+
+## Sample Images
+
+<img src="https://github.com/Eien-no-Ai/CMRMS/blob/main/Documentation/Login%20Page.png"/>
+<img src="https://github.com/Eien-no-Ai/CMRMS/blob/main/Documentation/Doctor%20Landing%20Page.png"/> 
+<img src="https://github.com/Eien-no-Ai/CMRMS/blob/main/Documentation/Lab%20Request%20Form.png"/>
+
+
